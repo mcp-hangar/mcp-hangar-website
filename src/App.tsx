@@ -42,7 +42,7 @@ function App() {
             {/* Badge */}
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm mb-8 hover:bg-emerald-500/15 transition-all cursor-default">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              v0.2.3 — Now with lazy loading
+              v0.3.0 — Facade API & HangarConfig Builder
             </div>
 
             {/* Title */}
@@ -99,27 +99,27 @@ function App() {
 
         {/* What's New */}
         <div className="max-w-6xl mx-auto px-6 pb-20">
-          <h2 className="text-sm font-semibold text-zinc-500 uppercase tracking-wider mb-6">What's New in v0.2</h2>
+          <h2 className="text-sm font-semibold text-zinc-500 uppercase tracking-wider mb-6">What's New in v0.3</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="flex items-start gap-3 p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/10 hover:border-emerald-500/25 hover:bg-emerald-500/10 transition-all duration-300">
               <span className="text-emerald-400 mt-0.5">✦</span>
               <div>
-                <span className="text-zinc-200 font-medium">Lazy Loading</span>
-                <p className="text-sm text-zinc-500 mt-1">Providers start on first request, not at boot time</p>
+                <span className="text-zinc-200 font-medium">Facade API</span>
+                <p className="text-sm text-zinc-500 mt-1">Async-first <code className="text-emerald-400/80">Hangar</code> class with context manager support</p>
               </div>
             </div>
             <div className="flex items-start gap-3 p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/10 hover:border-emerald-500/25 hover:bg-emerald-500/10 transition-all duration-300">
               <span className="text-emerald-400 mt-0.5">✦</span>
               <div>
-                <span className="text-zinc-200 font-medium">Provider Groups</span>
-                <p className="text-sm text-zinc-500 mt-1">Group multiple instances for high availability</p>
+                <span className="text-zinc-200 font-medium">HangarConfig Builder</span>
+                <p className="text-sm text-zinc-500 mt-1">Fluent API for programmatic config with type-safe validation</p>
               </div>
             </div>
             <div className="flex items-start gap-3 p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/10 hover:border-emerald-500/25 hover:bg-emerald-500/10 transition-all duration-300">
               <span className="text-emerald-400 mt-0.5">✦</span>
               <div>
-                <span className="text-zinc-200 font-medium">YAML Config</span>
-                <p className="text-sm text-zinc-500 mt-1">Declarative configuration with hot reload support</p>
+                <span className="text-zinc-200 font-medium">Quick Install</span>
+                <p className="text-sm text-zinc-500 mt-1">One-liner install via <code className="text-emerald-400/80">curl | bash</code></p>
               </div>
             </div>
           </div>
@@ -156,8 +156,8 @@ function App() {
             />
             <Feature
               icon={<GovernanceIcon />}
-              title="Enterprise Governance"
-              description="Tool allowlists and denylists, resource quotas, audit logging, and security policies for compliance requirements."
+              title="Authentication & RBAC"
+              description="API Key and JWT/OIDC authentication, role-based access control, audit logging with event sourcing, and tenant isolation."
             />
           </div>
         </div>
