@@ -10,34 +10,42 @@ function App() {
               mcp-hangar
             </h1>
             <p className="text-xl text-zinc-400">
-              Production-grade registry for MCP providers
+              Production-grade infrastructure for Model Context Protocol
             </p>
           </div>
 
           {/* Install command */}
           <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4 font-mono text-sm">
             <span className="text-zinc-500">$</span>{" "}
-            <span className="text-green-400">curl</span>{" "}
-            <span className="text-zinc-300">-sSL https://get.mcp-hangar.io | bash</span>
+            <span className="text-green-400">pip</span>{" "}
+            <span className="text-zinc-300">install mcp-hangar</span>
           </div>
 
           {/* Features */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-8">
             <Feature 
-              title="Lazy Loading" 
-              description="Tools visible immediately, containers start on first use"
+              title="Lifecycle Management"
+              description="Automatic provider startup, health checks, and graceful shutdown"
             />
             <Feature 
-              title="Circuit Breaker" 
-              description="Automatic failure detection and recovery"
+              title="Load Balancing"
+              description="Round-robin distribution across multiple provider instances"
             />
             <Feature 
-              title="Provider Groups" 
-              description="Load balancing with automatic failover"
+              title="Circuit Breaker"
+              description="Automatic failure detection with configurable thresholds"
             />
             <Feature 
               title="Observability" 
-              description="OpenTelemetry, Prometheus, Grafana ready"
+              description="OpenTelemetry traces, Prometheus metrics, and structured logging"
+            />
+            <Feature
+              title="Rate Limiting"
+              description="Token bucket algorithm for request throttling"
+            />
+            <Feature
+              title="Enterprise Governance"
+              description="Tool allowlists, resource limits, and security policies"
             />
           </div>
 
@@ -65,7 +73,7 @@ function App() {
 
           {/* Version */}
           <div className="pt-16 text-sm text-zinc-600">
-            v0.1.2 · MIT License
+            v0.2.3 · MIT License
           </div>
         </div>
       </div>
