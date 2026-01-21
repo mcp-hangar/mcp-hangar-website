@@ -17,8 +17,8 @@ function App() {
           {/* Install command */}
           <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4 font-mono text-sm">
             <span className="text-zinc-500">$</span>{" "}
-            <span className="text-green-400">pip</span>{" "}
-            <span className="text-zinc-300">install mcp-hangar</span>
+            <span className="text-green-400">curl</span>{" "}
+            <span className="text-zinc-300">-sSL https://get.mcp-hangar.io | bash</span>
           </div>
 
           {/* Features */}
