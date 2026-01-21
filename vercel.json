@@ -1,14 +1,15 @@
 {
-  "rewrites": [
+  "redirects": [
     {
-      "source": "/(.*)",
+      "source": "/:path*",
       "has": [
         {
           "type": "host",
           "value": "get.mcp-hangar.io"
         }
       ],
-      "destination": "/install.sh"
+      "destination": "https://mcp-hangar.io/install.sh",
+      "permanent": false
     }
   ],
   "headers": [
