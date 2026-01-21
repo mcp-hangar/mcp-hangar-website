@@ -12,6 +12,12 @@
       "permanent": false
     }
   ],
+  "rewrites": [
+    {
+      "source": "/((?!install\\.sh$).*)",
+      "destination": "/index.html"
+    }
+  ],
   "headers": [
     {
       "source": "/install.sh",
