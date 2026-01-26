@@ -73,7 +73,7 @@ function App() {
             {/* Badge */}
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm mb-8 hover:bg-emerald-500/15 transition-all cursor-default">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              v0.3.0 — Facade API & HangarConfig Builder
+              v0.3.1 — Facade API & HangarConfig Builder
             </div>
 
             {/* Title */}
