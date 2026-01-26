@@ -1,0 +1,63 @@
+{
+  "$schema": "https://storage.googleapis.com/anthropic-schemas/claude-code/managed-settings-schema-v1.json",
+  "version": "1.0",
+  "
+": {
+    "allowedCommands": [
+      "npm run dev",
+      "npm run build",
+      "npm run lint",
+      "npm run preview",
+      "npm install",
+      "npm ci",
+      "git status",
+      "git diff",
+      "git add",
+      "git commit",
+      "git push",
+      "git pull",
+      "git log",
+      "git branch",
+      "ls",
+      "cat",
+      "grep",
+      "find"
+    ],
+    "deniedCommands": [
+      "rm -rf",
+      "sudo",
+      "curl *",
+      "wget *"
+    ],
+    "allowedTools": [
+      "Bash",
+      "Read",
+      "Write",
+      "Edit",
+      "Glob",
+      "Grep",
+      "WebFetch"
+    ],
+    "allowedDirectories": [
+      "src/",
+      ".claude/",
+      "public/"
+    ],
+    "deniedDirectories": [
+      "node_modules/",
+      ".git/",
+      "dist/"
+    ]
+  },
+  "features": {
+    "autoFormatOnSave": false,
+    "transcriptRetentionDays": 14
+  },
+  "comments": {
+    "allowedCommands": "Safe npm and git commands for development workflow",
+    "deniedCommands": "Destructive operations that could nuke the codebase",
+    "allowedTools": "Standard file and code editing tools, no network access except WebFetch",
+    "allowedDirectories": "Source code and config only, not build artifacts",
+    "transcriptRetentionDays": "2 weeks for reference, not forever"
+  }
+}

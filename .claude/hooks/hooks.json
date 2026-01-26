@@ -1,0 +1,21 @@
+{
+  "hooks": [
+    {
+      "name": "lint-after-edit",
+      "description": "Run ESLint on edited TypeScript/TSX files",
+      "matcher": "Edit",
+      "timing": "after",
+      "command": "npm run lint -- {{filepath}}",
+      "continueOnError": false
+    },
+    {
+      "name": "type-check-after-edit",
+      "description": "Run TypeScript type check after editing TS files",
+      "matcher": "Edit|Write",
+      "timing": "after",
+      "command": "npx tsc --noEmit",
+      "continueOnError": true,
+      "filePattern": ".*\\.(ts|tsx)$"
+    }
+  ]
+}
