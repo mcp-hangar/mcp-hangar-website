@@ -7,7 +7,7 @@ html {
 }
 
 body {
-  @apply bg-hangar-bg text-hangar-text antialiased;
+  @apply bg-zinc-950 text-zinc-100 antialiased;
   font-family: 'Space Grotesk', system-ui, sans-serif;
 }
 
@@ -16,7 +16,7 @@ code, pre, .font-mono {
 }
 
 ::selection {
-  @apply bg-hangar-accent/30 text-hangar-text;
+  @apply bg-emerald-400/30 text-zinc-100;
 }
 
 /* Terminal-style cursor blink */
