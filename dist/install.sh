@@ -11,7 +11,7 @@ NC='\033[0m' # No Color
 BOLD='\033[1m'
 
 # Version
-VERSION="0.1.2"
+VERSION="0.3.1"
 REPO="https://github.com/mapyr/mcp-hangar"
 
 print_banner() {
@@ -116,11 +116,11 @@ print_next_steps() {
     echo -e "     ${CYAN}mcp-hangar serve${NC}"
     echo ""
     echo -e "  3. Read the docs:"
-    echo -e "     ${CYAN}https://mcp-hangar.io/docs${NC}"
+    echo -e "     ${CYAN}https://mapyr.github.io/mcp-hangar/${NC}"
     echo ""
     echo -e "${BOLD}Resources:${NC}"
     echo -e "  • GitHub:  ${CYAN}${REPO}${NC}"
-    echo -e "  • Docs:    ${CYAN}https://mcp-hangar.io/docs${NC}"
+    echo -e "  • Docs:    ${CYAN}https://mapyr.github.io/mcp-hangar/${NC}"
     echo -e "  • PyPI:    ${CYAN}https://pypi.org/project/mcp-hangar/${NC}"
     echo ""
 }
