@@ -10,7 +10,13 @@
       "Bash(git commit -m \"$\\(cat <<''EOF''\nComplete project maintenance and quality improvements \\(v0.3.0\\)\n\nThis comprehensive update includes 14 maintenance tasks to improve code quality,\nsecurity, testing, accessibility, and developer experience:\n\nPriority 1 \\(Critical\\):\n- Install all project dependencies\n- Add Prettier configuration for consistent code formatting\n- Create comprehensive README.md with setup and deployment docs\n\nPriority 2 \\(Important\\):\n- Add full testing infrastructure with Vitest and React Testing Library\n- Fix version mismatch \\(0.1.0 → 0.3.0\\)\n- Remove unused CSS classes and redundant middleware.js\n- Add comprehensive security headers \\(CSP, X-Frame-Options, etc.\\)\n\nPriority 3 \\(Enhancements\\):\n- Add ErrorBoundary component for graceful error handling\n- Improve accessibility with ARIA labels and keyboard navigation\n- Create CI/CD pipeline with GitHub Actions\n- Add SEO files \\(robots.txt, sitemap.xml\\)\n- Create .env.example for environment configuration\n- Refactor App.tsx into modular components \\(795 → 445 lines\\)\n- Add MIT LICENSE file\n\nTechnical improvements:\n- Split large components into reusable modules\n- Configure TypeScript for Vitest globals\n- Update Tailwind config to remove unused colors\n- Enhanced Vercel configuration with security headers\n\nTest & Build Status:\n- All tests passing \\(4/4\\)\n- Build successful\n- No TypeScript errors\n- Code properly formatted\n\nQuality Score: 6.5/10 → 9/10\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
       "Bash(git config:*)",
       "Bash(git push:*)",
-      "Bash(git commit -m \"$\\(cat <<''EOF''\nAdd Claude Code project documentation and configuration\n\n- Add CLAUDE.md with comprehensive coding standards and project guidelines\n- Include Claude configuration directory for development workflow\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n\\)\")"
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nAdd Claude Code project documentation and configuration\n\n- Add CLAUDE.md with comprehensive coding standards and project guidelines\n- Include Claude configuration directory for development workflow\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git stash:*)",
+      "Bash(npm run lint)",
+      "Bash(npm run test:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nfeat: add Documentation section with 4 topic cards\n\n- Add RocketIcon, LayersIcon, BookOpenIcon, FileTextIcon to Icons.tsx\n- Add Documentation section after Quick Start with responsive grid\n- Link cards to external docs: Getting Started, Architecture, Guides, Reference\n- Follow existing hover patterns \\(lift effect, border color change\\)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git checkout:*)",
+      "Bash(git merge:*)"
     ]
   }
 }
