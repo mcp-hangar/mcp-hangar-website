@@ -77,7 +77,7 @@ function App() {
             {/* Badge */}
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm mb-8 hover:bg-emerald-500/15 transition-all cursor-default">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              v0.4.0 — Full Rebrand & Control Plane
+              v0.5.0 — Batch Invocations
             </div>
 
             {/* Title */}
@@ -143,17 +143,17 @@ function App() {
         {/* What's New */}
         <div className="max-w-6xl mx-auto px-6 pb-20">
           <h2 className="text-sm font-semibold text-zinc-500 uppercase tracking-wider mb-6">
-            What's New in v0.4
+            What's New in v0.5
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="flex items-start gap-3 p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/10 hover:border-emerald-500/25 hover:bg-emerald-500/10 transition-all duration-300">
               <span className="text-emerald-400 mt-0.5">✦</span>
               <div>
-                <span className="text-zinc-200 font-medium">Full Rebrand</span>
+                <span className="text-zinc-200 font-medium">Batch Invocations</span>
                 <p className="text-sm text-zinc-500 mt-1">
-                  All tools renamed from{" "}
-                  <code className="text-emerald-400/80">registry_*</code> to{" "}
-                  <code className="text-emerald-400/80">hangar_*</code>
+                  New{" "}
+                  <code className="text-emerald-400/80">hangar_batch()</code>{" "}
+                  for parallel tool execution with configurable concurrency
                 </p>
               </div>
             </div>
@@ -161,20 +161,19 @@ function App() {
               <span className="text-emerald-400 mt-0.5">✦</span>
               <div>
                 <span className="text-zinc-200 font-medium">
-                  Control Plane Clarity
+                  SingleFlight Pattern
                 </span>
                 <p className="text-sm text-zinc-500 mt-1">
-                  Clear distinction from MCP Registry — Hangar manages runtime lifecycle
+                  Cold start deduplication — one provider starts once, not N times
                 </p>
               </div>
             </div>
             <div className="flex items-start gap-3 p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/10 hover:border-emerald-500/25 hover:bg-emerald-500/10 transition-all duration-300">
               <span className="text-emerald-400 mt-0.5">✦</span>
               <div>
-                <span className="text-zinc-200 font-medium">API Cleanup</span>
+                <span className="text-zinc-200 font-medium">Batch Metrics</span>
                 <p className="text-sm text-zinc-500 mt-1">
-                  Deprecated aliases removed,{" "}
-                  <code className="text-emerald-400/80">with_hangar()</code> builder method
+                  New Prometheus metrics for batch size, duration, concurrency, and truncations
                 </p>
               </div>
             </div>

@@ -24,7 +24,7 @@ describe("App", () => {
 
   it("displays version badge", () => {
     render(<App />);
-    expect(screen.getByText(/v0\.4\.0/i)).toBeInTheDocument();
+    expect(screen.getByText(/v0\.5\.0/i)).toBeInTheDocument();
   });
 
   it("renders the install command", () => {
