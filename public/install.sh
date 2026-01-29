@@ -11,7 +11,7 @@ NC='\033[0m' # No Color
 BOLD='\033[1m'
 
 # Version
-VERSION="0.3.1"
+VERSION="0.4.0"
 REPO="https://github.com/mapyr/mcp-hangar"
 
 print_banner() {
