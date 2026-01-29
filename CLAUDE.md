@@ -134,7 +134,7 @@ All external URLs point to:
 
 ## Version Information
 
-Current version badge displays: **v0.3.0**
+Current version badge displays: **v0.4.0**
 Update these locations when releasing new versions:
 - Hero badge in `src/App.tsx` (line ~76)
 - Terminal animation in `src/components/TerminalAnimation.tsx` (line ~9)
