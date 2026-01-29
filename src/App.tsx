@@ -16,6 +16,10 @@ import {
   HeartIcon,
   IssueIcon,
   StarIcon,
+  RocketIcon,
+  LayersIcon,
+  BookOpenIcon,
+  FileTextIcon,
 } from "./components/Icons";
 
 function App() {
@@ -227,6 +231,66 @@ function App() {
             </p>
           </div>
           <TerminalAnimation />
+        </div>
+
+        {/* Documentation */}
+        <div className="max-w-6xl mx-auto px-6 pb-32">
+          <h2 className="text-sm font-semibold text-zinc-500 uppercase tracking-wider mb-6">
+            Documentation
+          </h2>
+          <p className="text-zinc-400 mb-8 max-w-2xl">
+            Everything you need to get started and make the most of MCP Hangar.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <a
+              href="https://mapyr.github.io/mcp-hangar/getting-started/quickstart/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group p-6 rounded-2xl bg-zinc-900/30 border border-zinc-800/50 hover:border-emerald-500/20 hover:bg-zinc-900/50 transition-all duration-300 hover:-translate-y-1"
+            >
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 mb-4">
+                <RocketIcon />
+              </div>
+              <h3 className="font-semibold text-zinc-100 mb-2">Getting Started</h3>
+              <p className="text-sm text-zinc-400">Installation, setup, and first steps</p>
+            </a>
+            <a
+              href="https://mapyr.github.io/mcp-hangar/architecture/OVERVIEW/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group p-6 rounded-2xl bg-zinc-900/30 border border-zinc-800/50 hover:border-emerald-500/20 hover:bg-zinc-900/50 transition-all duration-300 hover:-translate-y-1"
+            >
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 mb-4">
+                <LayersIcon />
+              </div>
+              <h3 className="font-semibold text-zinc-100 mb-2">Architecture</h3>
+              <p className="text-sm text-zinc-400">System design, event sourcing, ADRs</p>
+            </a>
+            <a
+              href="https://mapyr.github.io/mcp-hangar/guides/TESTING/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group p-6 rounded-2xl bg-zinc-900/30 border border-zinc-800/50 hover:border-emerald-500/20 hover:bg-zinc-900/50 transition-all duration-300 hover:-translate-y-1"
+            >
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 mb-4">
+                <BookOpenIcon />
+              </div>
+              <h3 className="font-semibold text-zinc-100 mb-2">Guides</h3>
+              <p className="text-sm text-zinc-400">Testing, containers, auth, Kubernetes</p>
+            </a>
+            <a
+              href="https://mapyr.github.io/mcp-hangar/changelog/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group p-6 rounded-2xl bg-zinc-900/30 border border-zinc-800/50 hover:border-emerald-500/20 hover:bg-zinc-900/50 transition-all duration-300 hover:-translate-y-1"
+            >
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 mb-4">
+                <FileTextIcon />
+              </div>
+              <h3 className="font-semibold text-zinc-100 mb-2">Reference</h3>
+              <p className="text-sm text-zinc-400">Changelog, security, contributing</p>
+            </a>
+          </div>
         </div>
 
         {/* Contributing */}
