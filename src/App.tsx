@@ -139,17 +139,17 @@ function App() {
         {/* What's New */}
         <div className="max-w-6xl mx-auto px-6 pb-20">
           <h2 className="text-sm font-semibold text-zinc-500 uppercase tracking-wider mb-6">
-            What's New in v0.3
+            What's New in v0.4
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="flex items-start gap-3 p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/10 hover:border-emerald-500/25 hover:bg-emerald-500/10 transition-all duration-300">
               <span className="text-emerald-400 mt-0.5">✦</span>
               <div>
-                <span className="text-zinc-200 font-medium">Facade API</span>
+                <span className="text-zinc-200 font-medium">Full Rebrand</span>
                 <p className="text-sm text-zinc-500 mt-1">
-                  Async-first{" "}
-                  <code className="text-emerald-400/80">Hangar</code> class with
-                  context manager support
+                  All tools renamed from{" "}
+                  <code className="text-emerald-400/80">registry_*</code> to{" "}
+                  <code className="text-emerald-400/80">hangar_*</code>
                 </p>
               </div>
             </div>
@@ -157,20 +157,20 @@ function App() {
               <span className="text-emerald-400 mt-0.5">✦</span>
               <div>
                 <span className="text-zinc-200 font-medium">
-                  HangarConfig Builder
+                  Control Plane Clarity
                 </span>
                 <p className="text-sm text-zinc-500 mt-1">
-                  Fluent API for programmatic config with type-safe validation
+                  Clear distinction from MCP Registry — Hangar manages runtime lifecycle
                 </p>
               </div>
             </div>
             <div className="flex items-start gap-3 p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/10 hover:border-emerald-500/25 hover:bg-emerald-500/10 transition-all duration-300">
               <span className="text-emerald-400 mt-0.5">✦</span>
               <div>
-                <span className="text-zinc-200 font-medium">Quick Install</span>
+                <span className="text-zinc-200 font-medium">API Cleanup</span>
                 <p className="text-sm text-zinc-500 mt-1">
-                  One-liner install via{" "}
-                  <code className="text-emerald-400/80">curl | bash</code>
+                  Deprecated aliases removed,{" "}
+                  <code className="text-emerald-400/80">with_hangar()</code> builder method
                 </p>
               </div>
             </div>

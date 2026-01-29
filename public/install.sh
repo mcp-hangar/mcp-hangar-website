@@ -25,7 +25,7 @@ print_banner() {
                 |_| |_____|                 |___/             
 EOF
     echo -e "${NC}"
-    echo -e "${BOLD}Production-grade MCP Provider Registry${NC}"
+    echo -e "${BOLD}Production-grade MCP Control Plane${NC}"
     echo -e "Version: ${GREEN}${VERSION}${NC}"
     echo ""
 }

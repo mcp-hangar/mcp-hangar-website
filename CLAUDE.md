@@ -1,6 +1,6 @@
 # MCP Hangar Website
 
-Production marketing site for MCP Hangar - a production-grade infrastructure registry for Model Context Protocol providers. Zero backend, pure frontend showcase.
+Production marketing site for MCP Hangar - a production-grade control plane for Model Context Protocol providers. Zero backend, pure frontend showcase.
 
 ## Project Stack
 

@@ -6,7 +6,7 @@ const terminalLines = [
     type: "command",
     delay: 30,
   },
-  { text: "✓ mcp-hangar installed (v0.3.0)", type: "success", delay: 0 },
+  { text: "✓ mcp-hangar installed (v0.4.0)", type: "success", delay: 0 },
   { text: "", type: "empty", delay: 0 },
   { text: "$ mcp-hangar init", type: "command", delay: 40 },
   {
