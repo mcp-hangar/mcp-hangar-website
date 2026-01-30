@@ -77,7 +77,7 @@ function App() {
             {/* Badge */}
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm mb-8 hover:bg-emerald-500/15 transition-all cursor-default">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              v0.5.0 — Batch Invocations
+              v0.6.0 — Interactive CLI
             </div>
 
             {/* Title */}
@@ -143,17 +143,18 @@ function App() {
         {/* What's New */}
         <div className="max-w-6xl mx-auto px-6 pb-20">
           <h2 className="text-sm font-semibold text-zinc-500 uppercase tracking-wider mb-6">
-            What's New in v0.5
+            What's New in v0.6
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="flex items-start gap-3 p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/10 hover:border-emerald-500/25 hover:bg-emerald-500/10 transition-all duration-300">
               <span className="text-emerald-400 mt-0.5">✦</span>
               <div>
-                <span className="text-zinc-200 font-medium">Batch Invocations</span>
+                <span className="text-zinc-200 font-medium">Interactive CLI</span>
                 <p className="text-sm text-zinc-500 mt-1">
-                  New{" "}
-                  <code className="text-emerald-400/80">hangar_batch()</code>{" "}
-                  for parallel tool execution with configurable concurrency
+                  New typer-based CLI with{" "}
+                  <code className="text-emerald-400/80">hangar init</code>,{" "}
+                  <code className="text-emerald-400/80">add</code>,{" "}
+                  <code className="text-emerald-400/80">status</code> and rich console output
                 </p>
               </div>
             </div>
@@ -161,19 +162,19 @@ function App() {
               <span className="text-emerald-400 mt-0.5">✦</span>
               <div>
                 <span className="text-zinc-200 font-medium">
-                  SingleFlight Pattern
+                  Provider Bundles
                 </span>
                 <p className="text-sm text-zinc-500 mt-1">
-                  Cold start deduplication — one provider starts once, not N times
+                  Pre-configured definitions for popular MCP servers — filesystem, github, slack, and more
                 </p>
               </div>
             </div>
             <div className="flex items-start gap-3 p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/10 hover:border-emerald-500/25 hover:bg-emerald-500/10 transition-all duration-300">
               <span className="text-emerald-400 mt-0.5">✦</span>
               <div>
-                <span className="text-zinc-200 font-medium">Batch Metrics</span>
+                <span className="text-zinc-200 font-medium">Multi-runtime Installers</span>
                 <p className="text-sm text-zinc-500 mt-1">
-                  New Prometheus metrics for batch size, duration, concurrency, and truncations
+                  Pluggable installers for NPX, UVX, Docker/OCI, and pre-built binaries
                 </p>
               </div>
             </div>
