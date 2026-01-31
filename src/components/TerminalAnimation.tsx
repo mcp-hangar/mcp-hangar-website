@@ -6,25 +6,22 @@ const terminalLines = [
     type: "command",
     delay: 30,
   },
-  { text: "✓ mcp-hangar installed (v0.5.0)", type: "success", delay: 0 },
+  { text: "✓ mcp-hangar installed (v0.6.0)", type: "success", delay: 0 },
   { text: "", type: "empty", delay: 0 },
-  { text: "$ mcp-hangar init", type: "command", delay: 40 },
-  {
-    text: "Created config.yaml with example provider",
-    type: "output",
-    delay: 0,
-  },
+  { text: "$ cat config.yaml", type: "command", delay: 40 },
+  { text: "providers:", type: "yaml", delay: 0 },
+  { text: "  filesystem:", type: "yaml", delay: 0 },
+  { text: "    command: npx -y @anthropic/mcp-filesystem", type: "yaml", delay: 0 },
+  { text: "  github:", type: "yaml", delay: 0 },
+  { text: "    command: npx -y @anthropic/mcp-github", type: "yaml", delay: 0 },
   { text: "", type: "empty", delay: 0 },
-  { text: "$ mcp-hangar start", type: "command", delay: 40 },
-  { text: "● math provider ready (subprocess)", type: "status", delay: 0 },
-  { text: "● sqlite provider ready (container)", type: "status", delay: 0 },
+  { text: "$ # Add to claude_desktop_config.json", type: "comment", delay: 25 },
+  { text: '{ "mcpServers": { "hangar": { "command": "hangar", "args": ["serve"] } } }', type: "json", delay: 0 },
   { text: "", type: "empty", delay: 0 },
-  {
-    text: '$ mcp-hangar invoke math add \'{"a": 2, "b": 3}\'',
-    type: "command",
-    delay: 25,
-  },
-  { text: "→ 5", type: "result", delay: 0 },
+  { text: "$ hangar serve", type: "command", delay: 40 },
+  { text: "● filesystem ready", type: "status", delay: 0 },
+  { text: "● github ready", type: "status", delay: 0 },
+  { text: "→ 2 providers, 15 tools, 380ms", type: "result", delay: 0 },
 ];
 
 export function TerminalAnimation() {
@@ -91,6 +88,12 @@ export function TerminalAnimation() {
         return "text-emerald-400";
       case "result":
         return "text-amber-400 font-semibold";
+      case "yaml":
+        return "text-zinc-400 pl-4";
+      case "json":
+        return "text-sky-400 text-xs";
+      case "comment":
+        return "text-zinc-500";
       default:
         return "text-zinc-400";
     }
@@ -100,6 +103,15 @@ export function TerminalAnimation() {
     if (line.type === "empty") return <div key={index} className="h-4" />;
 
     if (line.type === "command") {
+      return (
+        <div key={index} className={getLineClassName(line.type)}>
+          <span className="text-emerald-500">$</span>
+          {line.text.slice(1)}
+        </div>
+      );
+    }
+
+    if (line.type === "comment") {
       return (
         <div key={index} className={getLineClassName(line.type)}>
           <span className="text-emerald-500">$</span>
