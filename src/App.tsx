@@ -127,7 +127,7 @@ function App() {
                         {/* CTA buttons */}
                         <div className="flex flex-wrap justify-center gap-4 mt-8">
                             <a
-                                href="/docs/getting-started/quickstart/"
+                                href="/docs/getting-started/quickstart"
                                 className="group inline-flex items-center gap-2 px-6 py-3 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-semibold rounded-lg transition-all duration-300 hover:shadow-lg hover:shadow-emerald-500/25 hover:-translate-y-0.5"
                             >
                                 Get Started
@@ -286,7 +286,7 @@ function App() {
                     </p>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         <a
-                            href="/docs/getting-started/quickstart/"
+                            href="/docs/getting-started/quickstart"
                             target="_blank"
                             rel="noopener noreferrer"
                             className="group p-6 rounded-2xl bg-zinc-900/30 border border-zinc-800/50 hover:border-emerald-500/20 hover:bg-zinc-900/50 transition-all duration-300 hover:-translate-y-1"
@@ -299,7 +299,7 @@ function App() {
                             <p className="text-sm text-zinc-400">From install to first parallel call in 2 minutes</p>
                         </a>
                         <a
-                            href="/docs/architecture/OVERVIEW/"
+                            href="/docs/architecture/OVERVIEW"
                             target="_blank"
                             rel="noopener noreferrer"
                             className="group p-6 rounded-2xl bg-zinc-900/30 border border-zinc-800/50 hover:border-emerald-500/20 hover:bg-zinc-900/50 transition-all duration-300 hover:-translate-y-1"
@@ -313,7 +313,7 @@ function App() {
                                 hood</p>
                         </a>
                         <a
-                            href="/docs/guides/TESTING/"
+                            href="/docs/guides/TESTING"
                             target="_blank"
                             rel="noopener noreferrer"
                             className="group p-6 rounded-2xl bg-zinc-900/30 border border-zinc-800/50 hover:border-emerald-500/20 hover:bg-zinc-900/50 transition-all duration-300 hover:-translate-y-1"
@@ -327,7 +327,7 @@ function App() {
                                 observability setup</p>
                         </a>
                         <a
-                            href="/docs/changelog/"
+                            href="/docs/changelog"
                             target="_blank"
                             rel="noopener noreferrer"
                             className="group p-6 rounded-2xl bg-zinc-900/30 border border-zinc-800/50 hover:border-emerald-500/20 hover:bg-zinc-900/50 transition-all duration-300 hover:-translate-y-1"
@@ -366,7 +366,7 @@ function App() {
                             </p>
                             <div className="flex flex-wrap justify-center gap-4">
                                 <a
-                                    href="/docs/development/CONTRIBUTING/"
+                                    href="/docs/development/CONTRIBUTING"
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-semibold rounded-lg transition-all duration-300 hover:-translate-y-0.5"
@@ -438,7 +438,7 @@ function App() {
                                 <ul className="space-y-2 text-sm">
                                     <li>
                                         <a
-                                            href="/docs/getting-started/quickstart/"
+                                            href="/docs/getting-started/quickstart"
                                             className="text-zinc-500 hover:text-emerald-400 transition-colors duration-300"
                                         >
                                             Quickstart
@@ -446,7 +446,7 @@ function App() {
                                     </li>
                                     <li>
                                         <a
-                                            href="/docs/getting-started/installation/"
+                                            href="/docs/getting-started/installation"
                                             className="text-zinc-500 hover:text-emerald-400 transition-colors duration-300"
                                         >
                                             Installation
@@ -454,7 +454,7 @@ function App() {
                                     </li>
                                     <li>
                                         <a
-                                            href="/docs/architecture/OVERVIEW/"
+                                            href="/docs/architecture/OVERVIEW"
                                             className="text-zinc-500 hover:text-emerald-400 transition-colors duration-300"
                                         >
                                             Architecture
@@ -462,7 +462,7 @@ function App() {
                                     </li>
                                     <li>
                                         <a
-                                            href="/docs/guides/OBSERVABILITY/"
+                                            href="/docs/guides/OBSERVABILITY"
                                             className="text-zinc-500 hover:text-emerald-400 transition-colors duration-300"
                                         >
                                             Guides
@@ -487,7 +487,7 @@ function App() {
                                     </li>
                                     <li>
                                         <a
-                                            href="/docs/development/CONTRIBUTING/"
+                                            href="/docs/development/CONTRIBUTING"
                                             className="text-zinc-500 hover:text-emerald-400 transition-colors duration-300"
                                         >
                                             Contributing
@@ -495,7 +495,7 @@ function App() {
                                     </li>
                                     <li>
                                         <a
-                                            href="/docs/changelog/"
+                                            href="/docs/changelog"
                                             className="text-zinc-500 hover:text-emerald-400 transition-colors duration-300"
                                         >
                                             Changelog
@@ -503,7 +503,7 @@ function App() {
                                     </li>
                                     <li>
                                         <a
-                                            href="/docs/security/"
+                                            href="/docs/security"
                                             className="text-zinc-500 hover:text-emerald-400 transition-colors duration-300"
                                         >
                                             Security
@@ -528,7 +528,7 @@ function App() {
                                     </li>
                                     <li>
                                         <a
-                                            href="/docs/runbooks/RELEASE/"
+                                            href="/docs/runbooks/RELEASE"
                                             className="text-zinc-500 hover:text-emerald-400 transition-colors duration-300"
                                         >
                                             Releases
