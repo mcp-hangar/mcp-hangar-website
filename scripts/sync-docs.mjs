@@ -30,6 +30,11 @@ const LOCAL_FILES = [
   '.vitepress/',
 ];
 
+// Files to skip from main repo (cause build issues)
+const SKIP_FILES = [
+  'copilot-instructions.md',  // Contains em-dash that breaks VitePress parser
+];
+
 // Mapping from source repo structure to website docs structure
 // null dest = keep same structure, string = rename/move
 const DOCS_MAPPING = {
@@ -58,6 +63,10 @@ function isLocalFile(relativePath) {
   return LOCAL_FILES.some(local =>
     relativePath === local || relativePath.startsWith(local)
   );
+}
+
+function shouldSkipFile(filename) {
+  return SKIP_FILES.some(skip => filename === skip || filename.endsWith('/' + skip));
 }
 
 function transformMarkdown(content, sourcePath) {
@@ -93,6 +102,12 @@ function copyDocsRecursive(srcDir, destDir, baseSrcPath = '') {
       mkdirSync(destPath, { recursive: true });
       count += copyDocsRecursive(srcPath, destPath, relativePath);
     } else if (entry.name.endsWith('.md')) {
+      // Skip files that cause build issues
+      if (shouldSkipFile(entry.name)) {
+        verbose(`Skipping problematic file: ${entry.name}`);
+        continue;
+      }
+
       // Skip if it's a local file we maintain
       const relativeToDocsDir = relativePath;
       if (isLocalFile(relativeToDocsDir)) {

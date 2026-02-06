@@ -42,8 +42,9 @@ export default defineConfig({
         text: 'Cookbook',
         collapsed: false,
         items: [
-          { text: '01 — HTTP Gateway', link: '/cookbook/01-gateway' },
-          { text: '02 — Health Checks', link: '/cookbook/02-health' },
+          { text: 'Overview', link: '/cookbook/' },
+          { text: '01 — HTTP Gateway', link: '/cookbook/01-http-gateway' },
+          { text: '02 — Health Checks', link: '/cookbook/02-health-checks' },
           { text: '03 — Circuit Breaker', link: '/cookbook/03-circuit-breaker' },
           { text: '04 — Failover', link: '/cookbook/04-failover' },
         ]
