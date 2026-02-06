@@ -1,4 +1,8 @@
 {
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "installCommand": "npm ci",
+  "framework": null,
   "routes": [
     {
       "src": "/(.*)",
@@ -10,6 +14,16 @@
         "Permissions-Policy": "camera=(), microphone=(), geolocation=()"
       },
       "continue": true
+    },
+    {
+      "src": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "docs.mcp-hangar.io"
+        }
+      ],
+      "dest": "/docs/$1"
     },
     {
       "src": "/(.*)",
@@ -48,6 +62,14 @@
     {
       "src": "/sitemap.xml",
       "dest": "/sitemap.xml"
+    },
+    {
+      "src": "/docs/(.*)",
+      "dest": "/docs/$1"
+    },
+    {
+      "src": "/docs$",
+      "dest": "/docs/index.html"
     },
     {
       "src": "/(.*)",

@@ -2,3 +2,12 @@ node_modules/
 dist/
 .DS_Store
 *.local
+
+# Fetched docs from main repo (not committed, fetched at build time)
+.docs-temp/
+docs/**/*.md
+!docs/index.md
+
+# VitePress build output
+docs/.vitepress/dist/
+docs/.vitepress/cache/

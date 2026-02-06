@@ -5,9 +5,16 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
-    "lint": "eslint .",
+    "dev:docs": "npm run fetch-docs && vitepress dev docs",
+    "build": "npm run build:site && npm run build:docs && npm run build:merge",
+    "build:site": "tsc -b && vite build",
+    "build:docs": "npm run fetch-docs && vitepress build docs",
+    "build:merge": "cp -r docs/.vitepress/dist dist/docs",
     "preview": "vite preview",
+    "preview:docs": "vitepress preview docs",
+    "lint": "eslint .",
+    "fetch-docs": "node scripts/sync-docs.mjs",
+    "clean-docs": "node scripts/sync-docs.mjs --clean",
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage"
@@ -35,6 +42,7 @@
     "typescript": "~5.6.2",
     "typescript-eslint": "^8.18.2",
     "vite": "^6.0.5",
+    "vitepress": "^1.6.4",
     "vitest": "^3.2.4"
   }
 }
