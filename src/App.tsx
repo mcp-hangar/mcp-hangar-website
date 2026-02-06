@@ -77,7 +77,7 @@ function App() {
             {/* Badge */}
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm mb-8 hover:bg-emerald-500/15 transition-all cursor-default">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              v0.6.0 — One interface for all tool calls
+              v0.6.6 — Hot-reload config, Cookbook recipes, One-liner install
             </div>
 
             {/* Title */}
@@ -143,15 +143,15 @@ function App() {
         {/* What's New */}
         <div className="max-w-6xl mx-auto px-6 pb-20">
           <h2 className="text-sm font-semibold text-zinc-500 uppercase tracking-wider mb-6">
-            What's New in v0.6
+            What's New in v0.6.6
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="flex items-start gap-3 p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/10 hover:border-emerald-500/25 hover:bg-emerald-500/10 transition-all duration-300">
               <span className="text-emerald-400 mt-0.5">✦</span>
               <div>
-                <span className="text-zinc-200 font-medium">hangar_call — One Tool to Rule Them All</span>
+                <span className="text-zinc-200 font-medium">Hot-Reload Configuration</span>
                 <p className="text-sm text-zinc-500 mt-1">
-                  Single interface for all invocations. Single and batch through same endpoint. Zero decisions, zero edge cases.
+                  Live config reloading without restart. File watching, SIGHUP handler, or MCP tool. Changed providers restart, unchanged preserve state.
                 </p>
               </div>
             </div>
@@ -159,19 +159,19 @@ function App() {
               <span className="text-emerald-400 mt-0.5">✦</span>
               <div>
                 <span className="text-zinc-200 font-medium">
-                  50x Faster Execution
+                  Production Cookbook
                 </span>
                 <p className="text-sm text-zinc-500 mt-1">
-                  15 tools, 2 providers, 380ms. Parallel execution with automatic batching and single-flight cold starts.
+                  Step-by-step recipes: HTTP Gateway, Health Checks, Circuit Breaker, Failover. Complete configs with Try It sections.
                 </p>
               </div>
             </div>
             <div className="flex items-start gap-3 p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/10 hover:border-emerald-500/25 hover:bg-emerald-500/10 transition-all duration-300">
               <span className="text-emerald-400 mt-0.5">✦</span>
               <div>
-                <span className="text-zinc-200 font-medium">Claude Code Ready</span>
+                <span className="text-zinc-200 font-medium">One-Liner Quick Start</span>
                 <p className="text-sm text-zinc-500 mt-1">
-                  Drop-in integration. Add to config, restart, done.
+                  Zero-interaction setup: curl | bash && init -y && serve. Auto-detects runtimes, smoke tests providers.
                 </p>
               </div>
             </div>

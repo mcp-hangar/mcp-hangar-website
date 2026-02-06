@@ -7,17 +7,24 @@ title: MCP Hangar Documentation
 **Parallel MCP Execution** — 50x faster tool calls for your AI agents.
 
 <div class="tip custom-block" style="padding: 16px; border-radius: 8px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); margin: 24px 0;">
-  <p style="margin: 0;"><strong>🚀 Quick Start:</strong> <a href="/docs/getting-started/quickstart">Get up and running in 2 minutes →</a></p>
+  <p style="margin: 0;"><strong>🚀 One-Liner Install:</strong> <code>curl -sSL https://get.mcp-hangar.io | bash && mcp-hangar init -y && mcp-hangar serve</code></p>
 </div>
 
 ## What is MCP Hangar?
 
-MCP Hangar is a production-grade infrastructure layer for Model Context Protocol (MCP) providers. It enables:
+MCP Hangar is a production-grade control plane for Model Context Protocol (MCP) providers. It enables:
 
 - **⚡ Parallel Execution** — Batch multiple tool calls, execute simultaneously
-- **🔄 Lifecycle Management** — Lazy loading, health monitoring, auto-restart
-- **🛡️ Circuit Breakers** — Fault isolation, graceful degradation
-- **📊 Observability** — OpenTelemetry traces, Prometheus metrics
+- **🔄 Hot-Reload Config** — Live configuration changes without restart
+- **🛡️ Circuit Breakers** — Fault isolation, automatic failover
+- **📊 Observability** — OpenTelemetry traces, Prometheus metrics, Langfuse
+
+## What's New in v0.6.6
+
+- **Cookbook** — Step-by-step production recipes (Gateway, Health, Circuit Breaker, Failover)
+- **Hot-Reload** — File watching, SIGHUP, or `hangar_reload_config` MCP tool
+- **Smart Init** — Runtime detection, smoke tests, config merging
+- **One-Liner** — Zero-interaction install and setup
 
 ## Getting Started
 
@@ -32,9 +39,11 @@ MCP Hangar is a production-grade infrastructure layer for Model Context Protocol
 | Guide | Description |
 |-------|-------------|
 | [Batch Invocations](/docs/guides/BATCH_INVOCATIONS) | Parallel execution deep dive |
+| [Hot-Reload](/docs/reference/hot-reload) | Live configuration reloading |
 | [Observability](/docs/guides/OBSERVABILITY) | Metrics, traces, logging |
 | [Authentication](/docs/guides/AUTHENTICATION) | Secure your providers |
 | [Containers](/docs/guides/CONTAINERS) | Docker and OCI providers |
+| [Kubernetes](/docs/guides/KUBERNETES) | K8s operator and CRDs |
 
 ## Performance
 
