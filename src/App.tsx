@@ -77,27 +77,22 @@ function App() {
             {/* Badge */}
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm mb-8 hover:bg-emerald-500/15 transition-all cursor-default">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              v0.6.6 — Hot-reload config, Cookbook recipes, One-liner install
+              v0.6.6 — Hot-reload • Cookbook • One-liner install
             </div>
 
             {/* Title */}
             <h1 className="text-5xl md:text-7xl font-bold tracking-tight leading-[1.1] mb-6">
-              Parallel MCP
+              The MCP
               <br />
               <span className="bg-gradient-to-r from-emerald-400 via-emerald-300 to-teal-400 bg-clip-text text-transparent">
-                Execution
+                Control Plane
               </span>
             </h1>
 
             {/* Subtitle */}
-            <p className="text-xl text-zinc-400 max-w-xl mx-auto mb-6">
-              Your AI agents call tools sequentially. That's slow. Hangar runs
-              them in parallel — 50x faster. One interface, production-grade
-              reliability, zero config to start.
-            </p>
-            <p className="text-base text-zinc-500 max-w-xl mx-auto mb-10">
-              Works with 2 providers in your home lab. Works with 50 in
-              enterprise. Same API, same reliability.
+            <p className="text-xl text-zinc-400 max-w-xl mx-auto mb-10">
+              One interface for all your MCP providers. Parallel execution,
+              lifecycle management, production ready.
             </p>
 
             {/* Install command */}
@@ -130,48 +125,46 @@ function App() {
                 </span>
               </a>
               <a
-                href="https://pypi.org/project/mcp-hangar/"
+                href="https://github.com/mapyr/mcp-hangar"
                 className="inline-flex items-center gap-2 px-6 py-3 bg-zinc-800 hover:bg-zinc-700 text-zinc-100 font-semibold rounded-lg transition-all duration-300 hover:-translate-y-0.5"
               >
-                <PythonIcon />
-                PyPI Package
+                <GithubIcon />
+                View on GitHub
               </a>
             </div>
           </div>
         </div>
 
-        {/* What's New */}
+        {/* What Hangar Does */}
         <div className="max-w-6xl mx-auto px-6 pb-20">
           <h2 className="text-sm font-semibold text-zinc-500 uppercase tracking-wider mb-6">
-            What's New in v0.6.6
+            What Hangar Does
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="flex items-start gap-3 p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/10 hover:border-emerald-500/25 hover:bg-emerald-500/10 transition-all duration-300">
-              <span className="text-emerald-400 mt-0.5">✦</span>
+              <span className="text-emerald-400 mt-0.5">⚡</span>
               <div>
-                <span className="text-zinc-200 font-medium">Hot-Reload Configuration</span>
+                <span className="text-zinc-200 font-medium">Parallel Calls</span>
                 <p className="text-sm text-zinc-500 mt-1">
-                  Live config reloading without restart. File watching, SIGHUP handler, or MCP tool. Changed providers restart, unchanged preserve state.
+                  15 tools, 2 providers, 380ms. Sequential would take 5+ seconds.
                 </p>
               </div>
             </div>
             <div className="flex items-start gap-3 p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/10 hover:border-emerald-500/25 hover:bg-emerald-500/10 transition-all duration-300">
-              <span className="text-emerald-400 mt-0.5">✦</span>
+              <span className="text-emerald-400 mt-0.5">📁</span>
               <div>
-                <span className="text-zinc-200 font-medium">
-                  Production Cookbook
-                </span>
+                <span className="text-zinc-200 font-medium">One Config</span>
                 <p className="text-sm text-zinc-500 mt-1">
-                  Step-by-step recipes: HTTP Gateway, Health Checks, Circuit Breaker, Failover. Complete configs with Try It sections.
+                  All providers in one place. Subprocess, Docker, remote HTTP.
                 </p>
               </div>
             </div>
             <div className="flex items-start gap-3 p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/10 hover:border-emerald-500/25 hover:bg-emerald-500/10 transition-all duration-300">
-              <span className="text-emerald-400 mt-0.5">✦</span>
+              <span className="text-emerald-400 mt-0.5">🔄</span>
               <div>
-                <span className="text-zinc-200 font-medium">One-Liner Quick Start</span>
+                <span className="text-zinc-200 font-medium">Zero Downtime</span>
                 <p className="text-sm text-zinc-500 mt-1">
-                  Zero-interaction setup: curl | bash && init -y && serve. Auto-detects runtimes, smoke tests providers.
+                  Hot-reload config. Change providers without restart.
                 </p>
               </div>
             </div>
