@@ -361,14 +361,6 @@ function App() {
                                 >
                                     Set Up Authentication
                                 </a>
-                                <a
-                                    href="/docs/security/AUTH_SECURITY_AUDIT.html"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-100 font-semibold rounded-lg transition-all duration-300 hover:-translate-y-0.5"
-                                >
-                                    Security Audit Report
-                                </a>
                             </div>
                         </div>
                     </div>
