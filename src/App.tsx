@@ -28,7 +28,7 @@ function App() {
     const [copied, setCopied] = useState(false);
 
     const copyCommand = () => {
-        navigator.clipboard.writeText("curl -sSL https://get.mcp-hangar.io | bash");
+        navigator.clipboard.writeText("curl -sSL https://mcp-hangar.io/install.sh | bash");
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
     };
@@ -119,7 +119,7 @@ function App() {
                         >
                             <span className="text-zinc-500">$</span>
                             <span className="text-zinc-300">
-                curl -sSL https://get.mcp-hangar.io | bash
+                curl -sSL https://mcp-hangar.io/install.sh | bash
               </span>
                             <span className="text-zinc-600 group-hover:text-emerald-400 transition-colors ml-2">
                 {copied ? <CheckIcon/> : <CopyIcon/>}

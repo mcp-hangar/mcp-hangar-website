@@ -3,9 +3,9 @@
 # https://mcp-hangar.io
 #
 # Usage:
-#   curl -sSL https://get.mcp-hangar.io | bash
-#   curl -sSL https://get.mcp-hangar.io | bash -s -- --help
-#   curl -sSL https://get.mcp-hangar.io | bash -s -- --version 0.6.3
+#   curl -sSL https://mcp-hangar.io/install.sh | bash
+#   curl -sSL https://mcp-hangar.io/install.sh | bash -s -- --help
+#   curl -sSL https://mcp-hangar.io/install.sh | bash -s -- --version 0.6.3
 #
 # Environment variables:
 #   MCP_HANGAR_VERSION    - Version to install (default: latest)
@@ -428,7 +428,7 @@ CLI="\${VENV_BIN}/mcp-hangar"
 
 if [[ ! -x "\$CLI" ]]; then
     echo "error: MCP Hangar installation is corrupted. Please reinstall:" >&2
-    echo "  curl -sSL https://get.mcp-hangar.io | bash -s -- --force" >&2
+    echo "  curl -sSL https://mcp-hangar.io/install.sh | bash -s -- --force" >&2
     exit 1
 fi
 
@@ -788,19 +788,19 @@ Environment variables:
 
 Examples:
   # Install latest version
-  curl -sSL https://get.mcp-hangar.io | bash
+  curl -sSL https://mcp-hangar.io/install.sh | bash
 
   # Install specific version
-  curl -sSL https://get.mcp-hangar.io | bash -s -- --version 0.6.3
+  curl -sSL https://mcp-hangar.io/install.sh | bash -s -- --version 0.6.3
 
   # Install to custom directory
-  curl -sSL https://get.mcp-hangar.io | bash -s -- --dir /opt/mcp-hangar
+  curl -sSL https://mcp-hangar.io/install.sh | bash -s -- --dir /opt/mcp-hangar
 
   # Upgrade existing installation
-  curl -sSL https://get.mcp-hangar.io | bash -s -- --upgrade
+  curl -sSL https://mcp-hangar.io/install.sh | bash -s -- --upgrade
 
   # Uninstall
-  curl -sSL https://get.mcp-hangar.io | bash -s -- --uninstall
+  curl -sSL https://mcp-hangar.io/install.sh | bash -s -- --uninstall
 
 EOF
 }

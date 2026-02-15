@@ -2,7 +2,7 @@ import {useState, useEffect} from "react";
 
 const terminalLines = [
     {
-        text: "$ curl -sSL https://get.mcp-hangar.io | bash",
+        text: "$ curl -sSL https://mcp-hangar.io/install.sh | bash",
         type: "command",
         delay: 30,
     },

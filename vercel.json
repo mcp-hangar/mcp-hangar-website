@@ -48,16 +48,6 @@
   "rewrites": [
     {
       "source": "/:path*",
-      "destination": "/install.sh",
-      "has": [
-        {
-          "type": "host",
-          "value": "get.mcp-hangar.io"
-        }
-      ]
-    },
-    {
-      "source": "/:path*",
       "destination": "/docs/:path*",
       "has": [
         {

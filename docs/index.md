@@ -7,7 +7,7 @@ title: MCP Hangar Documentation
 **Parallel MCP Execution** — 50x faster tool calls for your AI agents.
 
 <div class="tip custom-block" style="padding: 16px; border-radius: 8px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); margin: 24px 0;">
-  <p style="margin: 0;"><strong>🚀 One-Liner Install:</strong> <code>curl -sSL https://get.mcp-hangar.io | bash && mcp-hangar init -y && mcp-hangar serve</code></p>
+  <p style="margin: 0;"><strong>🚀 One-Liner Install:</strong> <code>curl -sSL https://mcp-hangar.io/install.sh | bash && mcp-hangar init -y && mcp-hangar serve</code></p>
 </div>
 
 ## What is MCP Hangar?

@@ -93,7 +93,7 @@ This project is deployed to Vercel. The deployment automatically triggers on pus
 
 - **mcp-hangar.io** - Main website
 - **docs.mcp-hangar.io** - Documentation (rewrite to /docs/)
-- **get.mcp-hangar.io** - Install script (serves /install.sh)
+- **mcp-hangar.io/install.sh** - Install script
 
 ## Features
 
