@@ -33,7 +33,6 @@ const LOCAL_FILES = [
 // Files to skip from main repo (cause build issues)
 const SKIP_FILES = [
   'copilot-instructions.md',  // Contains em-dash that breaks VitePress parser
-  'security/AUTH_SECURITY_AUDIT.md',  // Internal security audit, not for public website
 ];
 
 // Mapping from source repo structure to website docs structure
