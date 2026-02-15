@@ -13,8 +13,19 @@ export default defineConfig({
   // Force dark mode - this site is always dark
   appearance: 'dark',
 
-  // Ignore missing links during build (some may not exist in source repo yet)
-  ignoreDeadLinks: true,
+  // Ignore dead links during build
+  ignoreDeadLinks: [
+    // Ignore localhost links (used in dev/testing docs)
+    /^http:\/\/localhost/,
+    // Ignore Python file links (code references)
+    /\.py$/,
+    // Ignore relative cookbook links (may not exist yet)
+    /^\.\/\d+-/,
+    // Ignore relative links without .html (VitePress handles them)
+    (url) => {
+      return url.startsWith('/docs/') && !url.includes('.html')
+    }
+  ],
 
   head: [
     ['link', { rel: 'icon', href: '/favicon.svg' }],
