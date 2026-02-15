@@ -6,22 +6,19 @@ const terminalLines = [
         type: "command",
         delay: 30,
     },
-    {text: "✓ mcp-hangar installed (v0.6.0)", type: "success", delay: 0},
+    {text: "⚡ Installing MCP Hangar...", type: "status", delay: 0},
+    {text: "✓ Installation complete!", type: "success", delay: 0},
     {text: "", type: "empty", delay: 0},
-    {text: "$ cat config.yaml", type: "command", delay: 40},
-    {text: "providers:", type: "yaml", delay: 0},
-    {text: "  filesystem:", type: "yaml", delay: 0},
-    {text: "    command: npx -y @anthropic/mcp-filesystem", type: "yaml", delay: 0},
-    {text: "  github:", type: "yaml", delay: 0},
-    {text: "    command: npx -y @anthropic/mcp-github", type: "yaml", delay: 0},
+    {text: "$ mcp-hangar init", type: "command", delay: 40},
+    {text: "? Select providers: filesystem, fetch, memory", type: "prompt", delay: 0},
+    {text: "✓ Created config.yaml with 3 providers", type: "success", delay: 0},
     {text: "", type: "empty", delay: 0},
-    {text: "$ # Add to claude_desktop_config.json", type: "comment", delay: 25},
-    {text: '{ "mcpServers": { "hangar": { "command": "hangar", "args": ["serve"] } } }', type: "json", delay: 0},
-    {text: "", type: "empty", delay: 0},
-    {text: "$ hangar serve", type: "command", delay: 40},
-    {text: "● filesystem ready", type: "status", delay: 0},
-    {text: "● github ready", type: "status", delay: 0},
-    {text: "→ 2 providers, 15 tools, 380ms", type: "result", delay: 0},
+    {text: "$ mcp-hangar serve", type: "command", delay: 40},
+    {text: "🚀 Starting MCP Hangar...", type: "status", delay: 0},
+    {text: "  ● filesystem ready (245ms)", type: "provider", delay: 0},
+    {text: "  ● fetch ready (189ms)", type: "provider", delay: 0},
+    {text: "  ● memory ready (156ms)", type: "provider", delay: 0},
+    {text: "→ 3 providers ready | 12 tools | parallel execution enabled", type: "result", delay: 0},
 ];
 
 export function TerminalAnimation() {
@@ -85,7 +82,11 @@ export function TerminalAnimation() {
             case "output":
                 return "text-zinc-400";
             case "status":
+                return "text-zinc-400";
+            case "provider":
                 return "text-emerald-400";
+            case "prompt":
+                return "text-cyan-400";
             case "result":
                 return "text-amber-400 font-semibold";
             case "yaml":
@@ -120,11 +121,27 @@ export function TerminalAnimation() {
             );
         }
 
+        if (line.type === "provider") {
+            return (
+                <div key={index} className={getLineClassName(line.type)}>
+                    {line.text}
+                </div>
+            );
+        }
+
+        if (line.type === "prompt") {
+            return (
+                <div key={index} className={getLineClassName(line.type)}>
+                    <span className="text-cyan-500">?</span>
+                    {line.text.slice(1)}
+                </div>
+            );
+        }
+
         if (line.type === "status") {
             return (
                 <div key={index} className={getLineClassName(line.type)}>
-                    <span className="text-emerald-400">●</span>
-                    {line.text.slice(1)}
+                    {line.text}
                 </div>
             );
         }
