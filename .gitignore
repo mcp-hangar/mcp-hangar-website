@@ -1,0 +1,29 @@
+node_modules/
+dist/
+.DS_Store
+*.local
+
+# Fetched docs from main repo (not committed, fetched at build time)
+.docs-temp/
+docs/**/*.md
+!docs/index.md
+
+# VitePress build output
+docs/.vitepress/dist/
+docs/.vitepress/cache/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Internal notes and configs (not for public repo)
+.claude/
+CLAUDE.md
+DEPLOYMENT.md
+DEPLOYMENT_SUMMARY.md
+MAINTENANCE_SUMMARY.md
+INSTALL_SCRIPT_FIX.md
+

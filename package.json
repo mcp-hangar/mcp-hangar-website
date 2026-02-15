@@ -1,0 +1,62 @@
+{
+  "name": "mcp-hangar-website",
+  "private": true,
+  "version": "0.9.0",
+  "type": "module",
+  "description": "Official website for MCP Hangar - The MCP Control Plane",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mcp-hangar/mcp-hangar-website.git"
+  },
+  "homepage": "https://mcp-hangar.io",
+  "bugs": {
+    "url": "https://github.com/mcp-hangar/mcp-hangar-website/issues"
+  },
+  "license": "MIT",
+  "author": "mcp-hangar contributors",
+  "scripts": {
+    "dev": "vite",
+    "dev:docs": "npm run fetch-docs && vitepress dev docs",
+    "build": "npm run build:site && npm run build:docs && npm run build:merge",
+    "build:site": "tsc -b && vite build",
+    "build:docs": "npm run fetch-docs && vitepress build docs",
+    "build:merge": "cp -r docs/.vitepress/dist dist/docs",
+    "preview": "vite preview",
+    "preview:docs": "vitepress preview docs",
+    "lint": "eslint .",
+    "fetch-docs": "node scripts/sync-docs.mjs",
+    "clean-docs": "node scripts/sync-docs.mjs --clean",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage"
+  },
+  "dependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.17.0",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/react": "^19.0.2",
+    "@types/react-dom": "^19.0.2",
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^9.17.0",
+    "eslint-plugin-react-hooks": "^5.0.0",
+    "eslint-plugin-react-refresh": "^0.4.16",
+    "globals": "^15.14.0",
+    "jsdom": "^24.1.3",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.17",
+    "typescript": "~5.6.2",
+    "typescript-eslint": "^8.18.2",
+    "vite": "^6.0.5",
+    "vitepress": "^1.6.4",
+    "vitest": "^3.2.4"
+  },
+  "overrides": {
+    "esbuild": "^0.27.3"
+  }
+}

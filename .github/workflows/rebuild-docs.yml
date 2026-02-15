@@ -1,0 +1,39 @@
+name: Rebuild on Docs Update
+
+# Triggered when main mcp-hangar repo docs change
+# Add to main repo workflow:
+#
+#   - name: Trigger website rebuild
+#     uses: peter-evans/repository-dispatch@v2
+#     with:
+#       token: ${{ secrets.WEBSITE_REPO_TOKEN }}
+#       repository: mapyr/mcp-hangar-website
+#       event-type: docs-updated
+
+on:
+  repository_dispatch:
+    types: [docs-updated]
+
+  # Daily rebuild to catch docs changes
+  schedule:
+    - cron: '0 4 * * *'
+
+  workflow_dispatch:
+
+jobs:
+  trigger-vercel:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Trigger Vercel rebuild
+        run: |
+          # Empty commit triggers Vercel rebuild
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git commit --allow-empty -m "chore: rebuild docs [skip ci]"
+          git push

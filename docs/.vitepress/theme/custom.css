@@ -1,0 +1,327 @@
+/**
+ * Custom VitePress theme styles
+ * Matches mcp-hangar.io main site colors exactly
+ * FORCES DARK MODE - this site is always dark
+ */
+
+/* Import fonts to match main site */
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+:root {
+  /* Brand colors - emerald */
+  --vp-c-brand-1: #10b981;
+  --vp-c-brand-2: #34d399;
+  --vp-c-brand-3: #6ee7b7;
+  --vp-c-brand-soft: rgba(16, 185, 129, 0.14);
+
+  /* Typography - match main site */
+  --vp-font-family-base: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --vp-font-family-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  /* Layout */
+  --vp-layout-max-width: 1400px;
+
+  /* FORCE DARK MODE COLORS IN ROOT */
+  --vp-c-bg: #09090b;
+  --vp-c-bg-alt: #18181b;
+  --vp-c-bg-elv: #27272a;
+  --vp-c-bg-soft: #27272a;
+
+  --vp-c-border: #3f3f46;
+  --vp-c-divider: #27272a;
+
+  --vp-c-text-1: #fafafa;
+  --vp-c-text-2: #a1a1aa;
+  --vp-c-text-3: #71717a;
+}
+
+/* Dark mode - match zinc-950 from main site */
+.dark {
+  --vp-c-bg: #09090b;
+  --vp-c-bg-alt: #18181b;
+  --vp-c-bg-elv: #27272a;
+  --vp-c-bg-soft: #27272a;
+
+  --vp-c-border: #3f3f46;
+  --vp-c-divider: #27272a;
+
+  --vp-c-text-1: #fafafa;
+  --vp-c-text-2: #a1a1aa;
+  --vp-c-text-3: #71717a;
+}
+
+/* FORCE DARK MODE even when system is light */
+html:not(.dark) {
+  --vp-c-bg: #09090b;
+  --vp-c-bg-alt: #18181b;
+  --vp-c-bg-elv: #27272a;
+  --vp-c-bg-soft: #27272a;
+
+  --vp-c-border: #3f3f46;
+  --vp-c-divider: #27272a;
+
+  --vp-c-text-1: #fafafa;
+  --vp-c-text-2: #a1a1aa;
+  --vp-c-text-3: #71717a;
+}
+
+/* ===== HIDE DEFAULT VITEPRESS NAV ===== */
+.VPNav {
+  display: none !important;
+}
+
+/* Adjust content to account for custom nav */
+.VPContent {
+  padding-top: 0 !important;
+}
+
+/* ===== BACKGROUND EFFECTS (match main site) ===== */
+html {
+  background-color: #09090b;
+}
+
+body {
+  background:
+    radial-gradient(ellipse at top, rgba(6, 78, 59, 0.2), transparent 50%),
+    #09090b;
+}
+
+/* Noise texture overlay */
+.VPDoc::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  opacity: 0.03;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* ===== HERO SECTION ===== */
+.VPHero .name {
+  background: linear-gradient(135deg, #34d399 0%, #6ee7b7 50%, #2dd4bf 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.VPHero .text {
+  color: var(--vp-c-text-1);
+}
+
+.VPHero .tagline {
+  color: var(--vp-c-text-2);
+}
+
+/* ===== BUTTONS ===== */
+.VPButton.brand {
+  background-color: #10b981;
+  border-color: #10b981;
+  color: #09090b;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.VPButton.brand:hover {
+  background-color: #34d399;
+  border-color: #34d399;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.25);
+}
+
+.VPButton.alt {
+  background-color: #27272a;
+  border-color: #3f3f46;
+  color: #fafafa;
+}
+
+.VPButton.alt:hover {
+  background-color: #3f3f46;
+  transform: translateY(-2px);
+}
+
+/* ===== FEATURE CARDS ===== */
+.VPFeature {
+  background-color: rgba(39, 39, 42, 0.3);
+  border: 1px solid rgba(63, 63, 70, 0.5);
+  border-radius: 1rem;
+  transition: all 0.3s;
+}
+
+.VPFeature:hover {
+  border-color: rgba(16, 185, 129, 0.3);
+  background-color: rgba(39, 39, 42, 0.5);
+  transform: translateY(-4px);
+}
+
+.VPFeature .icon {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(45, 212, 191, 0.1) 100%);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-radius: 0.75rem;
+}
+
+/* ===== SIDEBAR ===== */
+.VPSidebar {
+  background-color: #09090b !important;
+  border-right: 1px solid #27272a !important;
+}
+
+/* Force sidebar dark in light mode too */
+html:not(.dark) .VPSidebar {
+  background-color: #09090b !important;
+}
+
+.VPSidebarItem.is-active > .item > .link > .text {
+  color: #10b981 !important;
+}
+
+.VPSidebarItem .link:hover .text {
+  color: #34d399 !important;
+}
+
+/* Sidebar group titles */
+.VPSidebarItem.level-0 > .item > .text {
+  color: #d4d4d8;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+}
+
+/* ===== DOC CONTENT ===== */
+.vp-doc {
+  color: #e4e4e7;
+}
+
+.vp-doc h1, .vp-doc h2, .vp-doc h3, .vp-doc h4 {
+  color: #fafafa;
+}
+
+.vp-doc a {
+  color: #10b981;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.vp-doc a:hover {
+  color: #34d399;
+}
+
+/* ===== CODE BLOCKS ===== */
+.vp-doc div[class*='language-'] {
+  background-color: #18181b;
+  border: 1px solid #27272a;
+  border-radius: 0.75rem;
+}
+
+.vp-doc div[class*='language-'] code {
+  color: #e4e4e7;
+  font-family: var(--vp-font-family-mono);
+}
+
+.vp-doc :not(pre) > code {
+  background-color: rgba(39, 39, 42, 0.5);
+  color: #34d399;
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
+  font-size: 0.875em;
+}
+
+/* ===== TABLES ===== */
+.vp-doc table {
+  border-collapse: collapse;
+  width: 100%;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  background-color: #09090b;
+}
+
+.vp-doc th {
+  background-color: #27272a !important;
+  color: #fafafa !important;
+  font-weight: 600;
+  padding: 0.75rem 1rem;
+}
+
+.vp-doc td {
+  background-color: #09090b;
+  border-color: #27272a;
+  padding: 0.75rem 1rem;
+  color: #e4e4e7;
+}
+
+.vp-doc tr:hover td {
+  background-color: #18181b;
+}
+
+/* Force table dark in light mode */
+html:not(.dark) .vp-doc table {
+  background-color: #09090b;
+}
+
+html:not(.dark) .vp-doc th {
+  background-color: #27272a !important;
+  color: #fafafa !important;
+}
+
+html:not(.dark) .vp-doc td {
+  background-color: #09090b;
+  color: #e4e4e7;
+}
+
+/* ===== FOOTER ===== */
+.VPFooter {
+  border-top: 1px solid #27272a !important;
+  background-color: var(--vp-c-bg) !important;
+}
+
+/* ===== SEARCH ===== */
+.VPLocalSearchBox .shell {
+  background-color: #18181b !important;
+  border-color: #27272a !important;
+}
+
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #18181b;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #3f3f46;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #52525b;
+}
+
+/* Footer */
+.VPFooter {
+  border-top: 1px solid #27272a;
+  background-color: var(--vp-c-bg);
+}
+
+/* Search */
+.VPLocalSearchBox .search-input {
+  background-color: #18181b;
+  border-color: #27272a;
+}
+
+/* Back to main site link */
+.back-to-main {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--vp-c-text-2);
+  font-size: 0.875rem;
+  transition: color 0.2s;
+}
+
+.back-to-main:hover {
+  color: #10b981;
+}
