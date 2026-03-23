@@ -24,13 +24,14 @@ describe("App", () => {
 
     it("displays version badge", () => {
         render(<App/>);
-        expect(screen.getByText(/v0\.6\.6/i)).toBeInTheDocument();
+        const badges = screen.getAllByText(/v0\.12\.0/i);
+        expect(badges.length).toBeGreaterThan(0);
     });
 
     it("renders the install command", () => {
         render(<App/>);
         expect(
-            screen.getByText(/curl -sSL https:\/\/get\.mcp-hangar\.io/)
+            screen.getByText(/curl -sSL https:\/\/mcp-hangar\.io\/install\.sh/)
         ).toBeInTheDocument();
     });
 });

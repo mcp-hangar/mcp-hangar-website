@@ -61,6 +61,15 @@ export default defineConfig({
           { text: '02 — Health Checks', link: '/cookbook/02-health-checks' },
           { text: '03 — Circuit Breaker', link: '/cookbook/03-circuit-breaker' },
           { text: '04 — Failover', link: '/cookbook/04-failover' },
+          { text: '05 — Load Balancing', link: '/cookbook/05-load-balancing' },
+          { text: '06 — Rate Limiting', link: '/cookbook/06-rate-limiting' },
+          { text: '07 — Observability: Metrics', link: '/cookbook/07-observability-metrics' },
+          { text: '08 — Observability: Langfuse', link: '/cookbook/08-observability-langfuse' },
+          { text: '09 — Subprocess Providers', link: '/cookbook/09-subprocess-providers' },
+          { text: '10 — Discovery: Docker', link: '/cookbook/10-discovery-docker' },
+          { text: '11 — Discovery: Kubernetes', link: '/cookbook/11-discovery-kubernetes' },
+          { text: '12 — Auth & RBAC', link: '/cookbook/12-auth-rbac' },
+          { text: '13 — Production Checklist', link: '/cookbook/13-production-checklist' },
         ]
       },
       {
@@ -73,6 +82,12 @@ export default defineConfig({
       {
         text: 'Guides',
         items: [
+          { text: 'Dashboard UI', link: '/guides/DASHBOARD' },
+          { text: 'REST API', link: '/guides/REST_API' },
+          { text: 'WebSockets', link: '/guides/WEBSOCKETS' },
+          { text: 'Facade API', link: '/guides/FACADE_API' },
+          { text: 'Log Streaming', link: '/guides/LOG_STREAMING' },
+          { text: 'Provider Groups', link: '/guides/PROVIDER_GROUPS' },
           { text: 'Batch Invocations', link: '/guides/BATCH_INVOCATIONS' },
           { text: 'Observability', link: '/guides/OBSERVABILITY' },
           { text: 'Authentication', link: '/guides/AUTHENTICATION' },
@@ -87,6 +102,9 @@ export default defineConfig({
         text: 'Reference',
         items: [
           { text: 'CLI', link: '/reference/cli' },
+          { text: 'Configuration', link: '/reference/configuration' },
+          { text: 'REST API Reference', link: '/reference/rest-api' },
+          { text: 'MCP Tools', link: '/reference/tools' },
           { text: 'Hot Reload', link: '/reference/hot-reload' },
         ]
       },
@@ -102,6 +120,7 @@ export default defineConfig({
         items: [
           { text: 'Changelog', link: '/changelog' },
           { text: 'Security', link: '/security' },
+          { text: 'Auth Security Audit', link: '/security/AUTH_SECURITY_AUDIT' },
           { text: 'Release Process', link: '/runbooks/RELEASE' },
         ]
       }

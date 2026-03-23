@@ -22,6 +22,11 @@ import {
     ShieldCheckIcon,
     LockIcon,
     FilterIcon,
+    DashboardIcon,
+    RestApiIcon,
+    WebSocketIcon,
+    LogStreamIcon,
+    GroupIcon,
 } from "./components/Icons";
 
 function App() {
@@ -85,7 +90,7 @@ function App() {
                         <div
                             className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm mb-8 hover:bg-emerald-500/15 transition-all cursor-default">
                             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"/>
-                            v0.9.0 — Security • Tool Access • Concurrency
+                            v0.12.0 — Dashboard • REST API • Log Streaming
                         </div>
 
                         {/* Title */}
@@ -153,7 +158,7 @@ function App() {
                     <h2 className="text-sm font-semibold text-zinc-500 uppercase tracking-wider mb-6">
                         What Hangar Does
                     </h2>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         <div
                             className="flex items-start gap-3 p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/10 hover:border-emerald-500/25 hover:bg-emerald-500/10 transition-all duration-300">
                             <span className="text-emerald-400 mt-0.5">⚡</span>
@@ -161,6 +166,16 @@ function App() {
                                 <span className="text-zinc-200 font-medium">Parallel Calls</span>
                                 <p className="text-sm text-zinc-500 mt-1">
                                     15 tools, 2 providers, 380ms. Sequential would take 5+ seconds.
+                                </p>
+                            </div>
+                        </div>
+                        <div
+                            className="flex items-start gap-3 p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/10 hover:border-emerald-500/25 hover:bg-emerald-500/10 transition-all duration-300">
+                            <span className="text-emerald-400 mt-0.5">🖥️</span>
+                            <div>
+                                <span className="text-zinc-200 font-medium">Web Dashboard</span>
+                                <p className="text-sm text-zinc-500 mt-1">
+                                    Manage providers, view logs, monitor metrics — all from a browser.
                                 </p>
                             </div>
                         </div>
@@ -233,6 +248,31 @@ function App() {
                             title="Production Ready"
                             description="Battle-tested config patterns. Works in home lab with 2 providers. Works in enterprise with 50. Same API, same reliability."
                         />
+                        <Feature
+                            icon={<DashboardIcon/>}
+                            title="Web Dashboard"
+                            description="React 19 UI with live metrics, provider management, topology visualization, config diff viewer, and RBAC management. Baked into the Docker image."
+                        />
+                        <Feature
+                            icon={<RestApiIcon/>}
+                            title="REST API"
+                            description="Full CRUD API at /api/ with CORS, JSON serializers, provider lifecycle, group management, config export, and auth endpoints."
+                        />
+                        <Feature
+                            icon={<WebSocketIcon/>}
+                            title="Real-time WebSockets"
+                            description="Stream domain events, provider state changes, and logs in real-time. Exponential backoff reconnection built into the client."
+                        />
+                        <Feature
+                            icon={<LogStreamIcon/>}
+                            title="Log Streaming"
+                            description="Live stderr capture from subprocess and Docker providers. Ring buffer, REST endpoint, and WebSocket broadcast for real-time viewing."
+                        />
+                        <Feature
+                            icon={<GroupIcon/>}
+                            title="Provider Groups"
+                            description="Load balancing, failover, and health tracking across provider pools. Round-robin, weighted, and priority-based routing strategies."
+                        />
                     </div>
                 </div>
 
@@ -286,6 +326,137 @@ function App() {
                     <p className="text-sm text-zinc-500 mt-4">
                         Measured on simple M1 MB Pro. 15 tools across 2 providers (subprocess + Docker). Sequential execution would take 5+ seconds.
                     </p>
+                </div>
+
+                {/* Dashboard UI - New in v0.12.0 */}
+                <div className="max-w-6xl mx-auto px-6 pb-32">
+                    <div
+                        className="relative rounded-2xl bg-gradient-to-b from-sky-500/10 to-transparent border border-sky-500/20 p-8 md:p-12 overflow-hidden">
+                        {/* Background glow */}
+                        <div
+                            className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-sky-500/20 rounded-full blur-3xl"/>
+
+                        <div className="relative">
+                            <div className="flex items-center gap-3 mb-2">
+                                <div
+                                    className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-sky-500/20 border border-sky-500/30 text-sky-400">
+                                    <DashboardIcon/>
+                                </div>
+                                <h2 className="text-2xl md:text-3xl font-bold text-zinc-100">
+                                    Dashboard UI
+                                </h2>
+                                <span
+                                    className="ml-2 px-2 py-0.5 text-xs font-semibold rounded-full bg-sky-500/20 text-sky-400 border border-sky-500/30">
+                                    NEW in v0.12.0
+                                </span>
+                            </div>
+                            <p className="text-zinc-400 mb-8 max-w-2xl">
+                                Full web interface for managing your MCP infrastructure. Built with React 19 + TypeScript, served directly by the Hangar HTTP server.
+                            </p>
+
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                                <div>
+                                    <h3 className="text-lg font-semibold text-zinc-200 mb-3">Monitor</h3>
+                                    <ul className="space-y-2 text-zinc-400">
+                                        <li className="flex items-start gap-2">
+                                            <span className="text-sky-400 mt-1">•</span>
+                                            <span>Live metrics charts and time-series data</span>
+                                        </li>
+                                        <li className="flex items-start gap-2">
+                                            <span className="text-sky-400 mt-1">•</span>
+                                            <span>Provider state distribution at a glance</span>
+                                        </li>
+                                        <li className="flex items-start gap-2">
+                                            <span className="text-sky-400 mt-1">•</span>
+                                            <span>Real-time event feed and alert stream</span>
+                                        </li>
+                                        <li className="flex items-start gap-2">
+                                            <span className="text-sky-400 mt-1">•</span>
+                                            <span>D3 force-graph topology visualization</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h3 className="text-lg font-semibold text-zinc-200 mb-3">Manage</h3>
+                                    <ul className="space-y-2 text-zinc-400">
+                                        <li className="flex items-start gap-2">
+                                            <span className="text-sky-400 mt-1">•</span>
+                                            <span>Start, stop, and inspect providers</span>
+                                        </li>
+                                        <li className="flex items-start gap-2">
+                                            <span className="text-sky-400 mt-1">•</span>
+                                            <span>Provider groups and discovery sources</span>
+                                        </li>
+                                        <li className="flex items-start gap-2">
+                                            <span className="text-sky-400 mt-1">•</span>
+                                            <span>Config export with colored diff viewer</span>
+                                        </li>
+                                        <li className="flex items-start gap-2">
+                                            <span className="text-sky-400 mt-1">•</span>
+                                            <span>RBAC and tool access policy editor</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h3 className="text-lg font-semibold text-zinc-200 mb-3">Stream</h3>
+                                    <ul className="space-y-2 text-zinc-400">
+                                        <li className="flex items-start gap-2">
+                                            <span className="text-sky-400 mt-1">•</span>
+                                            <span>Live provider log viewer (stderr)</span>
+                                        </li>
+                                        <li className="flex items-start gap-2">
+                                            <span className="text-sky-400 mt-1">•</span>
+                                            <span>WebSocket-powered state updates</span>
+                                        </li>
+                                        <li className="flex items-start gap-2">
+                                            <span className="text-sky-400 mt-1">•</span>
+                                            <span>Catalog browser for tool discovery</span>
+                                        </li>
+                                        <li className="flex items-start gap-2">
+                                            <span className="text-sky-400 mt-1">•</span>
+                                            <span>Toast notifications and skeleton loading</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            {/* Code example */}
+                            <div className="bg-zinc-950/80 rounded-xl border border-zinc-800/50 p-5 mb-8 font-mono text-sm overflow-x-auto">
+                                <div className="text-zinc-500 mb-2"># Start Hangar with the dashboard</div>
+                                <div className="text-zinc-300">$ mcp-hangar serve --http --port 8000</div>
+                                <div className="text-zinc-500 mt-3 mb-1"># Dashboard at http://localhost:8000</div>
+                                <div className="text-zinc-500"># REST API at http://localhost:8000/api/</div>
+                                <div className="text-zinc-500"># WebSocket at ws://localhost:8000/api/ws/events</div>
+                            </div>
+
+                            <div className="flex flex-wrap gap-4">
+                                <a
+                                    href="/docs/guides/DASHBOARD.html"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-sky-500 hover:bg-sky-400 text-zinc-950 font-semibold rounded-lg transition-all duration-300 hover:-translate-y-0.5"
+                                >
+                                    Dashboard Guide
+                                </a>
+                                <a
+                                    href="/docs/guides/REST_API.html"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-100 font-semibold rounded-lg transition-all duration-300 hover:-translate-y-0.5"
+                                >
+                                    REST API Docs
+                                </a>
+                                <a
+                                    href="/docs/guides/WEBSOCKETS.html"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-100 font-semibold rounded-lg transition-all duration-300 hover:-translate-y-0.5"
+                                >
+                                    WebSocket Docs
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Production Security */}
@@ -374,7 +545,7 @@ function App() {
                     <p className="text-zinc-400 mb-8 max-w-2xl">
                         Everything you need to get started and make the most of MCP Hangar.
                     </p>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                         <a
                             href="/docs/getting-started/quickstart.html"
                             target="_blank"
@@ -389,6 +560,48 @@ function App() {
                             <p className="text-sm text-zinc-400">From install to first parallel call in 2 minutes</p>
                         </a>
                         <a
+                            href="/docs/cookbook/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="group p-6 rounded-2xl bg-zinc-900/30 border border-zinc-800/50 hover:border-emerald-500/20 hover:bg-zinc-900/50 transition-all duration-300 hover:-translate-y-1"
+                        >
+                            <div
+                                className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 mb-4">
+                                <BookOpenIcon/>
+                            </div>
+                            <h3 className="font-semibold text-zinc-100 mb-2">Cookbook</h3>
+                            <p className="text-sm text-zinc-400">13 recipes from zero to production — gateway, failover,
+                                load balancing, auth</p>
+                        </a>
+                        <a
+                            href="/docs/guides/DASHBOARD.html"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="group p-6 rounded-2xl bg-zinc-900/30 border border-zinc-800/50 hover:border-emerald-500/20 hover:bg-zinc-900/50 transition-all duration-300 hover:-translate-y-1"
+                        >
+                            <div
+                                className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 mb-4">
+                                <DashboardIcon/>
+                            </div>
+                            <h3 className="font-semibold text-zinc-100 mb-2">Guides</h3>
+                            <p className="text-sm text-zinc-400">Dashboard, REST API, WebSockets, provider groups,
+                                observability, containers</p>
+                        </a>
+                        <a
+                            href="/docs/reference/configuration.html"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="group p-6 rounded-2xl bg-zinc-900/30 border border-zinc-800/50 hover:border-emerald-500/20 hover:bg-zinc-900/50 transition-all duration-300 hover:-translate-y-1"
+                        >
+                            <div
+                                className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 mb-4">
+                                <FileTextIcon/>
+                            </div>
+                            <h3 className="font-semibold text-zinc-100 mb-2">Reference</h3>
+                            <p className="text-sm text-zinc-400">Configuration, CLI, REST API reference, MCP tools
+                                reference</p>
+                        </a>
+                        <a
                             href="/docs/architecture/OVERVIEW.html"
                             target="_blank"
                             rel="noopener noreferrer"
@@ -399,36 +612,8 @@ function App() {
                                 <LayersIcon/>
                             </div>
                             <h3 className="font-semibold text-zinc-100 mb-2">Architecture</h3>
-                            <p className="text-sm text-zinc-400">How single-flight and batch execution work under the
-                                hood</p>
-                        </a>
-                        <a
-                            href="/docs/guides/TESTING.html"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="group p-6 rounded-2xl bg-zinc-900/30 border border-zinc-800/50 hover:border-emerald-500/20 hover:bg-zinc-900/50 transition-all duration-300 hover:-translate-y-1"
-                        >
-                            <div
-                                className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 mb-4">
-                                <BookOpenIcon/>
-                            </div>
-                            <h3 className="font-semibold text-zinc-100 mb-2">Guides</h3>
-                            <p className="text-sm text-zinc-400">Claude Code integration, Docker providers,
-                                observability setup</p>
-                        </a>
-                        <a
-                            href="/docs/changelog.html"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="group p-6 rounded-2xl bg-zinc-900/30 border border-zinc-800/50 hover:border-emerald-500/20 hover:bg-zinc-900/50 transition-all duration-300 hover:-translate-y-1"
-                        >
-                            <div
-                                className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 mb-4">
-                                <FileTextIcon/>
-                            </div>
-                            <h3 className="font-semibold text-zinc-100 mb-2">Reference</h3>
-                            <p className="text-sm text-zinc-400">API reference, configuration options,
-                                troubleshooting</p>
+                            <p className="text-sm text-zinc-400">Event sourcing, single-flight, batch execution under
+                                the hood</p>
                         </a>
                     </div>
                 </div>
@@ -536,26 +721,34 @@ function App() {
                                     </li>
                                     <li>
                                         <a
-                                            href="/docs/getting-started/installation.html"
+                                            href="/docs/cookbook/"
                                             className="text-zinc-500 hover:text-emerald-400 transition-colors duration-300"
                                         >
-                                            Installation
+                                            Cookbook
                                         </a>
                                     </li>
                                     <li>
                                         <a
-                                            href="/docs/architecture/OVERVIEW.html"
+                                            href="/docs/guides/DASHBOARD.html"
                                             className="text-zinc-500 hover:text-emerald-400 transition-colors duration-300"
                                         >
-                                            Architecture
+                                            Dashboard
                                         </a>
                                     </li>
                                     <li>
                                         <a
-                                            href="/docs/guides/OBSERVABILITY.html"
+                                            href="/docs/guides/REST_API.html"
                                             className="text-zinc-500 hover:text-emerald-400 transition-colors duration-300"
                                         >
-                                            Guides
+                                            REST API
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a
+                                            href="/docs/reference/configuration.html"
+                                            className="text-zinc-500 hover:text-emerald-400 transition-colors duration-300"
+                                        >
+                                            Configuration
                                         </a>
                                     </li>
                                 </ul>
