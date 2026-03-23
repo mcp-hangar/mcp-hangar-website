@@ -17,10 +17,11 @@
   "scripts": {
     "dev": "vite",
     "dev:docs": "npm run fetch-docs && vitepress dev docs",
-    "build": "npm run build:site && npm run build:docs && npm run build:merge",
+    "build": "npm run build:site && npm run build:docs && npm run build:merge && npm run build:sitemap",
     "build:site": "tsc -b && vite build",
     "build:docs": "npm run fetch-docs && vitepress build docs",
     "build:merge": "cp -r docs/.vitepress/dist dist/docs",
+    "build:sitemap": "node scripts/generate-sitemap.mjs",
     "preview": "vite preview",
     "preview:docs": "vitepress preview docs",
     "lint": "eslint .",
