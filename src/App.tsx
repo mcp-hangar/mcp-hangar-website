@@ -1,4 +1,5 @@
 import {useState} from "react";
+import {preconnect} from "react-dom";
 import {Feature} from "./components/Feature";
 import {TerminalAnimation} from "./components/TerminalAnimation";
 import {
@@ -31,6 +32,10 @@ import {
 
 function App() {
     const [copied, setCopied] = useState(false);
+
+    // React 19 resource hints — replaces static <link rel="preconnect"> in HTML
+    preconnect("https://fonts.googleapis.com");
+    preconnect("https://fonts.gstatic.com", {crossOrigin: "anonymous"});
 
     const copyCommand = () => {
         navigator.clipboard.writeText("curl -sSL https://mcp-hangar.io/install.sh | bash");
@@ -88,13 +93,13 @@ function App() {
                     <div className="max-w-3xl mx-auto text-center">
                         {/* Badge */}
                         <div
-                            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm mb-8 hover:bg-emerald-500/15 transition-all cursor-default">
+                            className="animate-fade-in inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm mb-8 hover:bg-emerald-500/15 transition-all cursor-default">
                             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"/>
                             v0.12.0 — Dashboard • REST API • Log Streaming
                         </div>
 
                         {/* Title */}
-                        <h1 className="text-5xl md:text-7xl font-bold tracking-tight leading-[1.1] mb-6">
+                        <h1 className="animate-slide-up text-5xl md:text-7xl font-bold tracking-tight leading-[1.1] mb-6">
                             The MCP
                             <br/>
                             <span
@@ -158,7 +163,7 @@ function App() {
                     <h2 className="text-sm font-semibold text-zinc-500 uppercase tracking-wider mb-6">
                         What Hangar Does
                     </h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="stagger-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         <div
                             className="flex items-start gap-3 p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/10 hover:border-emerald-500/25 hover:bg-emerald-500/10 transition-all duration-300">
                             <span className="text-emerald-400 mt-0.5">⚡</span>
@@ -207,7 +212,7 @@ function App() {
                     <h2 className="text-sm font-semibold text-zinc-500 uppercase tracking-wider mb-6">
                         Core Features
                     </h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div className="stagger-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         <Feature
                             icon={<ParallelIcon/>}
                             title="Parallel Execution"
@@ -545,7 +550,7 @@ function App() {
                     <p className="text-zinc-400 mb-8 max-w-2xl">
                         Everything you need to get started and make the most of MCP Hangar.
                     </p>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                    <div className="stagger-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                         <a
                             href="/docs/getting-started/quickstart.html"
                             target="_blank"
