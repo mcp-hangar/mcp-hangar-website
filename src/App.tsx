@@ -1,7 +1,9 @@
 import {useState} from "react";
 import {preconnect} from "react-dom";
 import {Feature} from "./components/Feature";
-import {TerminalAnimation} from "./components/TerminalAnimation";
+import {Step} from "./components/Step";
+import {StepList} from "./components/StepList";
+import {CodeBlock} from "./components/CodeBlock";
 import {
     GithubIcon,
     CopyIcon,
@@ -283,15 +285,75 @@ function App() {
 
                 {/* Quick Start */}
                 <div className="max-w-6xl mx-auto px-6 pb-32">
-                    <div className="mb-6">
+                    <div className="mb-10">
                         <h2 className="text-sm font-semibold text-zinc-500 uppercase tracking-wider mb-2">
                             Quick Start
                         </h2>
-                        <p className="text-zinc-400">
+                        <p className="text-zinc-400 text-lg">
                             From install to first parallel call in 2 minutes.
                         </p>
                     </div>
-                    <TerminalAnimation/>
+
+                    <div className="max-w-3xl">
+                        <StepList>
+                            <Step
+                                number={1}
+                                title="Install MCP Hangar"
+                                description="One command. Works on macOS and Linux. Installs the binary and adds it to your PATH."
+                            >
+                                <CodeBlock language="bash">{`curl -sSL https://mcp-hangar.io/install.sh | bash`}</CodeBlock>
+                            </Step>
+
+                            <Step
+                                number={2}
+                                title="Initialize your config"
+                                description="The wizard detects your runtimes, lets you pick providers, and configures Claude Desktop automatically."
+                            >
+                                <CodeBlock language="yaml">{`# ~/.config/mcp-hangar/config.yaml
+providers:
+  filesystem:
+    mode: subprocess
+    command: [npx, -y, "@anthropic/mcp-server-filesystem"]
+    args: [/Users/you/Documents]
+    idle_ttl_s: 300
+
+  fetch:
+    mode: subprocess
+    command: [npx, -y, "@anthropic/mcp-server-fetch"]
+    idle_ttl_s: 300
+
+  memory:
+    mode: subprocess
+    command: [npx, -y, "@anthropic/mcp-server-memory"]
+    idle_ttl_s: 300`}</CodeBlock>
+                            </Step>
+
+                            <Step
+                                number={3}
+                                title="Start the server"
+                                description="Launch Hangar and all your providers come online. Parallel execution is enabled by default."
+                            >
+                                <CodeBlock language="bash">{`$ mcp-hangar serve
+🚀 Starting MCP Hangar...
+  ● filesystem  ready  (245ms)
+  ● fetch       ready  (189ms)
+  ● memory      ready  (156ms)
+→ 3 providers ready | 12 tools | parallel execution enabled`}</CodeBlock>
+                            </Step>
+
+                            <Step
+                                number={4}
+                                title="You're ready"
+                                description="Restart Claude Desktop. Your tools are available with parallel execution, health monitoring, and circuit breakers — all out of the box."
+                                isLast
+                            >
+                                <div className="flex items-center gap-3 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+                                    <span className="text-emerald-400 text-lg">✓</span>
+                                    <span className="text-emerald-300 font-medium">3 providers ready · 12 tools · parallel execution enabled</span>
+                                </div>
+                            </Step>
+                        </StepList>
+                    </div>
                 </div>
 
                 {/* Benchmarks */}

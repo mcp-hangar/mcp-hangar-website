@@ -10,12 +10,17 @@ function GoodChild() {
 }
 
 describe("ErrorBoundary", () => {
-    // Suppress React error boundary console.error in tests
+    // Suppress React error boundary console.error noise in tests
     const originalError = console.error;
     beforeAll(() => {
         console.error = (...args: unknown[]) => {
-            if (typeof args[0] === "string" && args[0].includes("Error caught by boundary")) return;
-            if (typeof args[0] === "string" && args[0].includes("The above error")) return;
+            const msg = typeof args[0] === "string" ? args[0] : String(args[0]);
+            if (
+                msg.includes("Error caught by boundary") ||
+                msg.includes("The above error") ||
+                msg.includes("Error: Test explosion") ||
+                msg.includes("recreate this component tree")
+            ) return;
             originalError.call(console, ...args);
         };
     });

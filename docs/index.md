@@ -45,6 +45,12 @@ MCP Hangar is a production-grade control plane for Model Context Protocol (MCP) 
 | [Containers](/docs/guides/CONTAINERS) | Docker and OCI providers |
 | [Kubernetes](/docs/guides/KUBERNETES) | K8s operator and CRDs |
 
+## Integrations
+
+| Integration | Description |
+|-------------|-------------|
+| [OpenLIT (OTLP)](/docs/integrations/openlit-otlp) | Send OTLP traces and metrics to OpenLIT |
+
 ## Performance
 
 | Scenario | Time | Success Rate |

@@ -31,9 +31,8 @@ describe("App", () => {
 
     it("renders the install command", () => {
         render(<App/>);
-        expect(
-            screen.getByText(/curl -sSL https:\/\/mcp-hangar\.io\/install\.sh/)
-        ).toBeInTheDocument();
+        const elements = screen.getAllByText(/curl -sSL https:\/\/mcp-hangar\.io\/install\.sh/);
+        expect(elements.length).toBeGreaterThan(0);
     });
 
     it("copies install command to clipboard on click", async () => {

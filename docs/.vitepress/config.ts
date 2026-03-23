@@ -94,6 +94,14 @@ export default defineConfig({
         ]
       },
       {
+        text: 'Integrations',
+        collapsed: false,
+        items: [
+          { text: 'Overview', link: '/integrations/' },
+          { text: 'OpenLIT (OTLP)', link: '/integrations/openlit-otlp' },
+        ]
+      },
+      {
         text: 'Reference',
         items: [
           { text: 'CLI', link: '/reference/cli' },
