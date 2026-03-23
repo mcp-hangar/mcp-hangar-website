@@ -27,16 +27,15 @@ export function TerminalAnimation() {
     >([]);
     const [currentLineIndex, setCurrentLineIndex] = useState(0);
     const [currentCharIndex, setCurrentCharIndex] = useState(0);
-    const [isTyping, setIsTyping] = useState(true);
+
+    const isTyping = currentLineIndex < terminalLines.length;
 
     useEffect(() => {
         if (currentLineIndex >= terminalLines.length) {
-            setIsTyping(false);
             const restartTimer = setTimeout(() => {
                 setDisplayedLines([]);
                 setCurrentLineIndex(0);
                 setCurrentCharIndex(0);
-                setIsTyping(true);
             }, 4000);
             return () => clearTimeout(restartTimer);
         }
