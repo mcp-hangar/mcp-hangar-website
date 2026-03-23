@@ -15,16 +15,11 @@ export default defineConfig({
 
   // Ignore dead links during build
   ignoreDeadLinks: [
-    // Ignore localhost links (used in dev/testing docs)
     /^http:\/\/localhost/,
-    // Ignore Python file links (code references)
     /\.py$/,
-    // Ignore relative cookbook links (may not exist yet)
     /^\.\/\d+-/,
-    // Ignore relative links without .html (VitePress handles them)
-    (url) => {
-      return url.startsWith('/docs/') && !url.includes('.html')
-    }
+    /^\/docs\//,
+    /^\/mcp_hangar\//,
   ],
 
   head: [

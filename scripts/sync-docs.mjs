@@ -60,9 +60,10 @@ function verbose(msg) {
 }
 
 function isLocalFile(relativePath) {
-  return LOCAL_FILES.some(local =>
-    relativePath === local || relativePath.startsWith(local)
-  );
+  return LOCAL_FILES.some(local => {
+    const normalized = local.endsWith('/') ? local.slice(0, -1) : local;
+    return relativePath === normalized || relativePath.startsWith(local);
+  });
 }
 
 function shouldSkipFile(filename) {
