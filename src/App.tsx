@@ -5,12 +5,15 @@ import {Feature} from "./components/Feature";
 import {Step} from "./components/Step";
 import {StepList} from "./components/StepList";
 import {CodeBlock} from "./components/CodeBlock";
+import {Badge} from "./components/Badge";
+import {Button} from "./components/Button";
+import {SiteNav} from "./components/SiteNav";
+import {SiteFooter} from "./components/SiteFooter";
 import {
     GithubIcon,
     CopyIcon,
     CheckIcon,
     ArrowIcon,
-    PythonIcon,
     LifecycleIcon,
     CircuitIcon,
     ObservabilityIcon,
@@ -38,7 +41,6 @@ import {
     SparklesIcon,
     CubeIcon,
     CloudIcon,
-    HangarLogoMark,
 } from "./components/Icons";
 import {CLOUD_APP_URL, INSTALL_COMMAND} from "./config";
 
@@ -72,41 +74,12 @@ function App() {
 
             <div className="relative">
                 {/* ── Nav ──────────────────────────────────────────── */}
-                <nav className="max-w-6xl mx-auto px-6 py-6 flex items-center justify-between"
-                     aria-label="Main navigation">
-                    <Link to="/" className="flex items-center gap-2.5">
-                        <span className="text-emerald-400">
-                            <HangarLogoMark size={28}/>
-                        </span>
-                        <span className="font-semibold">mcp-hangar</span>
-                    </Link>
-                    <div className="flex items-center gap-6 text-sm">
-                        <a href="#features"
-                           className="text-zinc-400 hover:text-emerald-400 transition-colors duration-300">Product</a>
-                        <Link to="/pricing"
-                              className="text-zinc-400 hover:text-emerald-400 transition-colors duration-300">Pricing</Link>
-                        <a href="/docs/"
-                           className="text-zinc-400 hover:text-emerald-400 transition-colors duration-300">Docs</a>
-                        <a href="/docs/blog/"
-                           className="text-zinc-400 hover:text-emerald-400 transition-colors duration-300">Blog</a>
-                        <a href={CLOUD_APP_URL}
-                           className="text-zinc-400 hover:text-emerald-400 transition-colors duration-300">Sign In</a>
-                        <a
-                            href={`${CLOUD_APP_URL}/signup`}
-                            className="inline-flex items-center gap-2 px-4 py-2 bg-sky-500 hover:bg-sky-400 text-zinc-950 font-semibold rounded-lg transition-all duration-300 hover:-translate-y-0.5"
-                        >
-                            Start Free
-                        </a>
-                    </div>
-                </nav>
+                <SiteNav activePage="home"/>
 
                 {/* ── Hero ─────────────────────────────────────────── */}
                 <div className="max-w-6xl mx-auto px-6 pt-24 pb-32">
                     <div className="max-w-3xl mx-auto text-center">
-                        <div className="animate-fade-in inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-500/10 border border-sky-500/20 text-sky-400 text-sm mb-8 hover:bg-sky-500/15 transition-all cursor-default">
-                            <span className="w-2 h-2 rounded-full bg-sky-400 animate-pulse"/>
-                            Cloud — Free tier available
-                        </div>
+                        <Badge className="animate-fade-in mb-8">Cloud — Free tier available</Badge>
 
                         <h1 className="animate-slide-up text-5xl md:text-7xl font-bold tracking-tight leading-[1.1] mb-6">
                             MCP Governance
@@ -125,19 +98,15 @@ function App() {
                         </p>
 
                         <div className="flex flex-wrap justify-center gap-4">
-                            <a
-                                href={`${CLOUD_APP_URL}/signup`}
-                                className="group inline-flex items-center gap-2 px-6 py-3 bg-sky-500 hover:bg-sky-400 text-zinc-950 font-semibold rounded-lg transition-all duration-300 hover:shadow-lg hover:shadow-sky-500/25 hover:-translate-y-0.5"
-                            >
+                            <Button href={`${CLOUD_APP_URL}/signup`} variant="primary" withArrow>
                                 Start Free
-                                <span className="transition-transform duration-300 group-hover:translate-x-1"><ArrowIcon/></span>
-                            </a>
-                            <a href="/docs/oss/getting-started/quickstart" className="inline-flex items-center gap-2 px-6 py-3 bg-zinc-800 hover:bg-zinc-700 text-zinc-100 font-semibold rounded-lg transition-all duration-300 hover:-translate-y-0.5">
+                            </Button>
+                            <Button href="/docs/oss/getting-started/quickstart" variant="secondary">
                                 Self-host with OSS
-                            </a>
-                            <a href="https://github.com/mcp-hangar/mcp-hangar" className="inline-flex items-center gap-2 px-6 py-3 bg-zinc-800 hover:bg-zinc-700 text-zinc-100 font-semibold rounded-lg transition-all duration-300 hover:-translate-y-0.5">
+                            </Button>
+                            <Button href="https://github.com/mcp-hangar/mcp-hangar" variant="secondary" external>
                                 <GithubIcon/> GitHub
-                            </a>
+                            </Button>
                         </div>
                     </div>
                 </div>
@@ -794,74 +763,7 @@ cloud:
                 </div>
 
                 {/* ── Footer ───────────────────────────────────────── */}
-                <footer className="border-t border-zinc-800/50">
-                    <div className="max-w-6xl mx-auto px-6 py-12">
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
-                            {/* Brand */}
-                            <div className="col-span-2 md:col-span-1">
-                                <div className="flex items-center gap-2 mb-4">
-                                    <span className="text-emerald-400">
-                                        <HangarLogoMark size={22}/>
-                                    </span>
-                                    <span className="font-semibold text-zinc-100">mcp-hangar</span>
-                                </div>
-                                <p className="text-sm text-zinc-500 mb-4">
-                                    MCP governance platform. Managed cloud + open-source agent.
-                                </p>
-                                <div className="flex items-center gap-3">
-                                    <a href="https://github.com/mcp-hangar/mcp-hangar"
-                                       className="text-zinc-500 hover:text-emerald-400 transition-colors duration-300">
-                                        <GithubIcon/>
-                                    </a>
-                                    <a href="https://pypi.org/project/mcp-hangar/"
-                                       className="text-zinc-500 hover:text-emerald-400 transition-colors duration-300">
-                                        <PythonIcon/>
-                                    </a>
-                                </div>
-                            </div>
-
-                            {/* Product */}
-                            <div>
-                                <h4 className="text-sm font-semibold text-zinc-300 mb-4">Product</h4>
-                                <ul className="space-y-2 text-sm">
-                                    <li><a href="#features" className="text-zinc-500 hover:text-emerald-400 transition-colors duration-300">Features</a></li>
-                                    <li><Link to="/pricing" className="text-zinc-500 hover:text-emerald-400 transition-colors duration-300">Pricing</Link></li>
-                                    <li><a href={CLOUD_APP_URL} className="text-zinc-500 hover:text-emerald-400 transition-colors duration-300">Sign In</a></li>
-                                    <li><a href="/docs/cloud/sla" className="text-zinc-500 hover:text-emerald-400 transition-colors duration-300">SLA</a></li>
-                                </ul>
-                            </div>
-
-                            {/* Documentation */}
-                            <div>
-                                <h4 className="text-sm font-semibold text-zinc-300 mb-4">Documentation</h4>
-                                <ul className="space-y-2 text-sm">
-                                    <li><a href="/docs/cloud/" className="text-zinc-500 hover:text-emerald-400 transition-colors duration-300">Cloud Docs</a></li>
-                                    <li><a href="/docs/oss/" className="text-zinc-500 hover:text-emerald-400 transition-colors duration-300">OSS Agent Docs</a></li>
-                                    <li><a href="/docs/oss/cookbook/" className="text-zinc-500 hover:text-emerald-400 transition-colors duration-300">Cookbook</a></li>
-                                    <li><a href="/docs/oss/reference/configuration" className="text-zinc-500 hover:text-emerald-400 transition-colors duration-300">Configuration</a></li>
-                                </ul>
-                            </div>
-
-                            {/* Community */}
-                            <div>
-                                <h4 className="text-sm font-semibold text-zinc-300 mb-4">Community</h4>
-                                <ul className="space-y-2 text-sm">
-                                    <li><a href="/docs/blog/" className="text-zinc-500 hover:text-emerald-400 transition-colors duration-300">Blog</a></li>
-                                    <li><a href="https://github.com/mcp-hangar/mcp-hangar" className="text-zinc-500 hover:text-emerald-400 transition-colors duration-300">GitHub</a></li>
-                                    <li><a href="/docs/oss/development/CONTRIBUTING" className="text-zinc-500 hover:text-emerald-400 transition-colors duration-300">Contributing</a></li>
-                                    <li><a href="/docs/oss/changelog" className="text-zinc-500 hover:text-emerald-400 transition-colors duration-300">Changelog</a></li>
-                                    <li><a href="/docs/oss/security" className="text-zinc-500 hover:text-emerald-400 transition-colors duration-300">Security</a></li>
-                                </ul>
-                            </div>
-                        </div>
-
-                        <div
-                            className="pt-8 border-t border-zinc-800/50 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-zinc-600">
-                            <span>© 2026 MCP Hangar. Agent released under MIT License.</span>
-                            <span>Made with ♥ for the MCP community</span>
-                        </div>
-                    </div>
-                </footer>
+                <SiteFooter/>
             </div>
         </div>
     );
