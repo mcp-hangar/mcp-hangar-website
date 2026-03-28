@@ -57,8 +57,28 @@
       ]
     },
     {
+      "source": "/pricing",
+      "destination": "/index.html"
+    },
+    {
       "source": "/docs",
       "destination": "/docs/index.html"
+    },
+    {
+      "source": "/docs/cloud",
+      "destination": "/docs/cloud/index.html"
+    },
+    {
+      "source": "/docs/cloud/:path*",
+      "destination": "/docs/cloud/:path*.html"
+    },
+    {
+      "source": "/docs/oss",
+      "destination": "/docs/oss/index.html"
+    },
+    {
+      "source": "/docs/oss/:path*",
+      "destination": "/docs/oss/:path*.html"
     },
     {
       "source": "/docs/:path*",

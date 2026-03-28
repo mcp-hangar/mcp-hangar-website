@@ -7,6 +7,9 @@ dist/
 .docs-temp/
 docs/**/*.md
 !docs/index.md
+!docs/cloud/**
+!docs/oss/index.md
+!docs/blog/**
 
 # VitePress build output
 docs/.vitepress/dist/

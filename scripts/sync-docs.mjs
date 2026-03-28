@@ -20,6 +20,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT_DIR = join(__dirname, '..');
 const TEMP_DIR = join(ROOT_DIR, '.docs-temp');
 const DOCS_DIR = join(ROOT_DIR, 'docs');
+const OSS_DOCS_DIR = join(DOCS_DIR, 'oss');
 
 const REPO_URL = 'https://github.com/mcp-hangar/mcp-hangar.git';
 const BRANCH = 'main';
@@ -28,6 +29,9 @@ const BRANCH = 'main';
 const LOCAL_FILES = [
   'index.md',
   '.vitepress/',
+  'cloud/',
+  'blog/',
+  'oss/index.md',
 ];
 
 // Files to skip from main repo (cause build issues)
@@ -44,8 +48,11 @@ const DOCS_MAPPING = {
     exclude: ['**/README.md'],  // Skip READMEs, we have our own index
     flatten: false,
   },
-  // Also include CHANGELOG at root
+  // Also include root-level docs
   'CHANGELOG.md': 'changelog.md',
+  'SECURITY.md': 'security.md',
+  'CODE_OF_CONDUCT.md': 'code-of-conduct.md',
+  'UPGRADE.md': 'upgrade.md',
 };
 
 const isClean = process.argv.includes('--clean');
@@ -72,7 +79,7 @@ function shouldSkipFile(filename) {
 
 function transformMarkdown(content, sourcePath) {
   // Add source reference comment
-  const sourceRef = `<!-- Source: https://github.com/mapyr/mcp-hangar/blob/main/${sourcePath} -->\n\n`;
+  const sourceRef = `<!-- Source: https://github.com/mcp-hangar/mcp-hangar/blob/main/${sourcePath} -->\n\n`;
 
   // Fix relative links for VitePress
   content = content
@@ -132,7 +139,30 @@ function copyDocsRecursive(srcDir, destDir, baseSrcPath = '') {
 function cleanFetchedDocs() {
   log('Cleaning fetched documentation...');
 
-  // Remove everything in docs/ except local files and .vitepress
+  // Remove fetched content inside docs/oss/ (except oss/index.md which is local)
+  if (existsSync(OSS_DOCS_DIR)) {
+    const entries = readdirSync(OSS_DOCS_DIR, { withFileTypes: true });
+
+    for (const entry of entries) {
+      const fullPath = join(OSS_DOCS_DIR, entry.name);
+      const relativePath = `oss/${entry.name}`;
+
+      if (isLocalFile(relativePath)) {
+        verbose(`Keeping local: ${relativePath}`);
+        continue;
+      }
+
+      if (entry.isDirectory()) {
+        rmSync(fullPath, { recursive: true });
+        verbose(`Removed dir: ${relativePath}`);
+      } else {
+        rmSync(fullPath);
+        verbose(`Removed: ${relativePath}`);
+      }
+    }
+  }
+
+  // Also remove legacy top-level fetched docs (from before the oss/ migration)
   if (existsSync(DOCS_DIR)) {
     const entries = readdirSync(DOCS_DIR, { withFileTypes: true });
 
@@ -177,17 +207,27 @@ async function fetchDocs() {
     stdio: isVerbose ? 'inherit' : 'pipe',
   });
 
-  // Copy docs
+  // Copy docs into docs/oss/
+  mkdirSync(OSS_DOCS_DIR, { recursive: true });
   const srcDocsDir = join(TEMP_DIR, 'docs');
-  const count = copyDocsRecursive(srcDocsDir, DOCS_DIR);
+  const count = copyDocsRecursive(srcDocsDir, OSS_DOCS_DIR);
 
-  // Copy CHANGELOG
-  const changelogSrc = join(TEMP_DIR, 'CHANGELOG.md');
-  if (existsSync(changelogSrc)) {
-    let content = readFileSync(changelogSrc, 'utf-8');
-    content = transformMarkdown(content, 'CHANGELOG.md');
-    writeFileSync(join(DOCS_DIR, 'changelog.md'), content);
-    verbose('Copied: CHANGELOG.md → changelog.md');
+  // Copy root-level markdown files mapped in DOCS_MAPPING
+  const rootMappings = {
+    'CHANGELOG.md': 'changelog.md',
+    'SECURITY.md': 'security.md',
+    'CODE_OF_CONDUCT.md': 'code-of-conduct.md',
+    'UPGRADE.md': 'upgrade.md',
+  };
+
+  for (const [srcName, destName] of Object.entries(rootMappings)) {
+    const srcPath = join(TEMP_DIR, srcName);
+    if (existsSync(srcPath)) {
+      let content = readFileSync(srcPath, 'utf-8');
+      content = transformMarkdown(content, srcName);
+      writeFileSync(join(OSS_DOCS_DIR, destName), content);
+      verbose(`Copied: ${srcName} -> ${destName}`);
+    }
   }
 
   // Cleanup temp
