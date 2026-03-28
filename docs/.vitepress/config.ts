@@ -21,6 +21,8 @@ export default defineConfig({
     /^\/docs\//,
     /^\/mcp_hangar\//,
     /^\/pricing/,
+    // OSS docs fetched at build time — some cross-links may not resolve in all envs
+    /^\/oss\//,
   ],
 
   head: [

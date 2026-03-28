@@ -89,6 +89,19 @@ function transformMarkdown(content, sourcePath) {
     // Keep absolute links as-is
     .replace(/\]\(\/docs\/([^)]+)\)/g, ']($1)');
 
+  // Rewrite absolute internal OSS doc links that are now served under /oss/.
+  // e.g. /guides/FOO → /oss/guides/FOO, /code-of-conduct → /oss/code-of-conduct
+  // Skip: already-prefixed (/oss/, /cloud/), SPA routes (/pricing), external URLs.
+  const ossSections = [
+    'guides', 'reference', 'architecture', 'getting-started', 'cookbook',
+    'adr', 'security', 'runbooks', 'development', 'integrations',
+    'changelog', 'code-of-conduct', 'blog',
+  ].join('|');
+  content = content.replace(
+    new RegExp(`(\\]\\()(/(${ossSections})(?:/[^)]*)?)(\\))`, 'g'),
+    '$1/oss$2$4'
+  );
+
   return sourceRef + content;
 }
 
