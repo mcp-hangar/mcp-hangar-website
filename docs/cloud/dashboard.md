@@ -77,5 +77,5 @@ Create and push policies to agents in real time:
 - Execution timeouts
 - Required authentication levels
 
-See [Teams & Roles](/docs/cloud/teams) for permission management.
+See [Teams & Roles](/cloud/teams) for permission management.
 

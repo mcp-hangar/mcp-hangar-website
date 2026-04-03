@@ -19,32 +19,32 @@ The `mcp-hangar` agent is an open-source, MIT-licensed runtime for Model Context
 - **Circuit Breakers** -- Fault isolation, automatic failover
 - **Observability** -- OpenTelemetry traces, Prometheus metrics
 
-> **Looking for the managed cloud platform?** Hangar Cloud launches in September 2026. See [Hangar Cloud Docs](/docs/cloud/) for details, or [join early access](https://app.mcp-hangar.io/early-access).
+> **Looking for the managed cloud platform?** Hangar Cloud launches in September 2026. See [Hangar Cloud Docs](/cloud/) for details, or [join early access](https://app.mcp-hangar.io/early-access).
 
 ## Getting Started
 
 | Guide | Description |
 |-------|-------------|
-| [Installation](/docs/oss/getting-started/installation) | Install via pip, curl, or from source |
-| [Quick Start](/docs/oss/getting-started/quickstart) | Your first parallel MCP call |
-| [CLI Reference](/docs/oss/reference/cli) | All available commands |
+| [Installation](/oss/getting-started/installation) | Install via pip, curl, or from source |
+| [Quick Start](/oss/getting-started/quickstart) | Your first parallel MCP call |
+| [CLI Reference](/oss/reference/cli) | All available commands |
 
 ## Core Guides
 
 | Guide | Description |
 |-------|-------------|
-| [Batch Invocations](/docs/oss/guides/BATCH_INVOCATIONS) | Parallel execution deep dive |
-| [Hot-Reload](/docs/oss/reference/hot-reload) | Live configuration reloading |
-| [Observability](/docs/oss/guides/OBSERVABILITY) | Metrics, traces, logging |
-| [Authentication](/docs/oss/guides/AUTHENTICATION) | Secure your providers |
-| [Containers](/docs/oss/guides/CONTAINERS) | Docker and OCI providers |
-| [Kubernetes](/docs/oss/guides/KUBERNETES) | K8s operator and CRDs |
+| [Batch Invocations](/oss/guides/BATCH_INVOCATIONS) | Parallel execution deep dive |
+| [Hot-Reload](/oss/reference/hot-reload) | Live configuration reloading |
+| [Observability](/oss/guides/OBSERVABILITY) | Metrics, traces, logging |
+| [Authentication](/oss/guides/AUTHENTICATION) | Secure your providers |
+| [Containers](/oss/guides/CONTAINERS) | Docker and OCI providers |
+| [Kubernetes](/oss/guides/KUBERNETES) | K8s operator and CRDs |
 
 ## Integrations
 
 | Integration | Description |
 |-------------|-------------|
-| [OpenLIT (OTLP)](/docs/oss/integrations/openlit-otlp) | Send OTLP traces and metrics to OpenLIT |
+| [OpenLIT (OTLP)](/oss/integrations/openlit-otlp) | Send OTLP traces and metrics to OpenLIT |
 
 ## Performance
 

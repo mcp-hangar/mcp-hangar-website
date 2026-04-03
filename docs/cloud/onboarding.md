@@ -14,7 +14,7 @@ mcp-hangar init -y
 mcp-hangar serve
 ```
 
-See the [OSS Quick Start](/docs/oss/getting-started/quickstart) for full instructions.
+See the [OSS Quick Start](/oss/getting-started/quickstart) for full instructions.
 
 ## At Launch: Connect to Cloud
 
@@ -63,7 +63,7 @@ Once connected, you can:
 
 ## Next Steps
 
-- [OSS Agent Docs](/docs/oss/) — Get started with the agent today
-- [Dashboard Guide](/docs/cloud/dashboard) — Preview the cloud dashboard features
-- [Agent Connection](/docs/cloud/agent-connection) — Detailed connection configuration
+- [OSS Agent Docs](/oss/) — Get started with the agent today
+- [Dashboard Guide](/cloud/dashboard) — Preview the cloud dashboard features
+- [Agent Connection](/cloud/agent-connection) — Detailed connection configuration
 

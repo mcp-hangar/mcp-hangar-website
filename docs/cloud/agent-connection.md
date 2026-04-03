@@ -8,7 +8,7 @@ Connect your open-source `mcp-hangar` agent to Hangar Cloud for centralized moni
 
 ## Prerequisites
 
-- `mcp-hangar` agent installed ([Installation guide](/docs/oss/getting-started/installation))
+- `mcp-hangar` agent installed ([Installation guide](/oss/getting-started/installation))
 - A Hangar Cloud account (available September 2026 — [join early access](https://app.mcp-hangar.io/early-access))
 
 ## Generate an Agent Token

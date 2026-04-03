@@ -10,7 +10,7 @@ Choose your documentation path:
 
 <div style="padding: 24px; border-radius: 12px; background: rgba(14, 165, 233, 0.08); border: 1px solid rgba(14, 165, 233, 0.25);">
 
-### ☁️ [Hangar Cloud Docs](/docs/cloud/)
+### ☁️ [Hangar Cloud Docs](/cloud/)
 
 Managed governance platform — dashboard, fleet management, audit trail, team collaboration, and compliance tools.
 
@@ -20,7 +20,7 @@ Managed governance platform — dashboard, fleet management, audit trail, team c
 
 <div style="padding: 24px; border-radius: 12px; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25);">
 
-### 🔧 [OSS Agent Docs](/docs/oss/)
+### 🔧 [OSS Agent Docs](/oss/)
 
 Open-source `mcp-hangar` Python agent — parallel execution, circuit breakers, provider orchestration, configuration reference.
 
@@ -34,7 +34,7 @@ Open-source `mcp-hangar` Python agent — parallel execution, circuit breakers, 
 
 | | |
 |---|---|
-| **New to MCP Hangar?** | Start with the [Quick Start guide](/docs/oss/getting-started/quickstart) |
-| **Connecting agent to cloud?** | See [Agent Connection](/docs/cloud/agent-connection) |
-| **Self-hosting everything?** | Follow the [OSS Cookbook](/docs/oss/cookbook/) |
-| **Pricing & plans** | [View pricing](/pricing) |
+| **New to MCP Hangar?** | Start with the [Quick Start guide](/oss/getting-started/quickstart) |
+| **Connecting agent to cloud?** | See [Agent Connection](/cloud/agent-connection) |
+| **Self-hosting everything?** | Follow the [OSS Cookbook](/oss/cookbook/) |
+| **Pricing & plans** | <a href="/pricing">View pricing</a> |

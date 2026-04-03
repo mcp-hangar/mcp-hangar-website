@@ -10,6 +10,7 @@ export default defineConfig({
 
   base: '/docs/',
   outDir: '.vitepress/dist',
+  cleanUrls: true,
 
   // Force dark mode
   appearance: 'dark',

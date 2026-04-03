@@ -19,7 +19,7 @@ Hangar Cloud is not yet available. The OSS agent is free and production-ready to
 | **Uptime SLA** | — | 99.5% | 99.9% |
 | **Support** | Community | Email | Dedicated |
 
-See [Pricing](/pricing) for full feature comparison.
+See <a href="/pricing">Pricing</a> for full feature comparison.
 
 ## What "workspace" means
 

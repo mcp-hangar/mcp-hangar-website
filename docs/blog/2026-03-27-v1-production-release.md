@@ -83,9 +83,9 @@ Or with pip:
 pip install mcp-hangar
 ```
 
-For Kubernetes deployments, see the [Helm charts](https://github.com/mcp-hangar/helm-charts) and [operator documentation](/docs/guides/KUBERNETES.html).
+For Kubernetes deployments, see the [Helm charts](https://github.com/mcp-hangar/helm-charts) and [operator documentation](/oss/guides/KUBERNETES).
 
-Read the full [quickstart guide](/docs/getting-started/quickstart.html) or browse the [cookbook](/docs/cookbook/) for 13 recipes covering everything from HTTP gateway setup to production checklists.
+Read the full [quickstart guide](/oss/getting-started/quickstart) or browse the [cookbook](/oss/cookbook/) for 13 recipes covering everything from HTTP gateway setup to production checklists.
 
 ## What comes next
 
@@ -95,4 +95,4 @@ The v1.0 release is a foundation. Near-term work includes:
 - **Operator HA**: Multi-replica leader election, disruption budgets, graceful failover.
 - **CRD versioning**: Conversion webhooks for non-breaking schema evolution.
 
-Follow the project on [GitHub](https://github.com/mcp-hangar/mcp-hangar) or check the [upgrade guide](/docs/upgrade.html) if you are migrating from an earlier version.
+Follow the project on [GitHub](https://github.com/mcp-hangar/mcp-hangar) or check the [upgrade guide](/oss/upgrade) if you are migrating from an earlier version.
