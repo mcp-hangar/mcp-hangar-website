@@ -1,5 +1,9 @@
 # SLA & Uptime
 
+::: warning LAUNCHING SEPTEMBER 2026
+SLA terms will take effect when Hangar Cloud launches. This page describes the planned service level agreements.
+:::
+
 Service level agreements for Hangar Cloud.
 
 ## Availability

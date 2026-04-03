@@ -1,11 +1,15 @@
 # Agent Connection
 
+::: warning LAUNCHING SEPTEMBER 2026
+Cloud connectivity will be available when Hangar Cloud launches. You can install and use the OSS agent in standalone mode today. This page describes the connection flow that will be available at launch.
+:::
+
 Connect your open-source `mcp-hangar` agent to Hangar Cloud for centralized monitoring, audit trail, and policy management.
 
 ## Prerequisites
 
 - `mcp-hangar` agent installed ([Installation guide](/docs/oss/getting-started/installation))
-- A Hangar Cloud account ([Sign up](https://app.mcp-hangar.io/signup))
+- A Hangar Cloud account (available September 2026 — [join early access](https://app.mcp-hangar.io/early-access))
 
 ## Generate an Agent Token
 
@@ -85,7 +89,7 @@ cloud:
 
 Tokens can be labeled in the dashboard for easy identification.
 
-> **Free tier:** limited to 1 Hangar instance connected at a time. The number of MCP providers (servers) managed by each instance is always unlimited.
+> **Free tier note:** The OSS agent works with unlimited MCP providers in standalone mode. Cloud connectivity adds fleet visibility and centralized policy management.
 
 ## Offline Mode
 

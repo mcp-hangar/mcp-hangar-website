@@ -1,14 +1,16 @@
 # Teams & Roles
 
-Manage who has access to your Hangar Cloud organization.
+::: warning LAUNCHING SEPTEMBER 2026
+Team management will be available when Hangar Cloud launches. This page describes the planned functionality.
+:::
+
+Manage who has access to your Hangar Cloud workspace.
 
 ## Seats
 
-Each plan includes a number of seats:
-
 | Plan | Seats Included | Additional Seats |
 |------|---------------|-----------------|
-| Pro | 5 | $15/seat/month |
+| Pro | 5 | Available at additional cost |
 | Enterprise | Unlimited | Included |
 
 ## Roles

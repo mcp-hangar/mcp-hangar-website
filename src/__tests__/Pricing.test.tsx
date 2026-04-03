@@ -1,4 +1,4 @@
-import {render, screen, within} from "@testing-library/react";
+import {render, screen} from "@testing-library/react";
 import {MemoryRouter} from "react-router-dom";
 import Pricing from "../Pricing";
 
@@ -13,35 +13,36 @@ function renderPricing() {
 describe("Pricing", () => {
     it("renders the page heading", () => {
         renderPricing();
-        // h1 contains both "Start free." and "Scale when ready."
         const heading = screen.getByRole("heading", {level: 1});
         expect(heading).toHaveTextContent(/Start free/i);
-        expect(heading).toHaveTextContent(/Scale when ready/i);
+        expect(heading).toHaveTextContent(/The cloud is coming/i);
     });
 
     it("renders all three tier cards with headings", () => {
         renderPricing();
         const tierHeadings = screen.getAllByRole("heading", {level: 3});
         const tierNames = tierHeadings.map(h => h.textContent);
-        expect(tierNames).toContain("Free");
+        expect(tierNames).toContain("OSS Agent");
         expect(tierNames).toContain("Pro");
         expect(tierNames).toContain("Enterprise");
     });
 
     it("shows correct pricing", () => {
         renderPricing();
-        expect(screen.getByText("$0")).toBeInTheDocument();
-        expect(screen.getByText("$49")).toBeInTheDocument();
-        // "Custom" appears in tier price
+        expect(screen.getByText("Free")).toBeInTheDocument();
+        expect(screen.getByText("$29")).toBeInTheDocument();
         const customTexts = screen.getAllByText("Custom");
         expect(customTexts.length).toBeGreaterThan(0);
     });
 
     it("renders CTA buttons for each tier", () => {
         renderPricing();
-        expect(screen.getByRole("link", {name: /Start for Free/i})).toHaveAttribute("href", expect.stringContaining("/signup"));
-        expect(screen.getByRole("link", {name: /Start Free Trial/i})).toHaveAttribute("href", expect.stringContaining("plan=pro"));
-        expect(screen.getByRole("link", {name: /Contact Sales/i})).toHaveAttribute("href", expect.stringContaining("contact-sales"));
+        const githubLinks = screen.getAllByRole("link", {name: /View on GitHub/i});
+        expect(githubLinks[0]).toHaveAttribute("href", expect.stringContaining("github.com"));
+        const earlyAccessLinks = screen.getAllByRole("link", {name: /Join Early Access/i});
+        expect(earlyAccessLinks.length).toBeGreaterThanOrEqual(1);
+        expect(earlyAccessLinks[0]).toHaveAttribute("href", expect.stringContaining("early-access"));
+        expect(screen.getByRole("link", {name: /Join Enterprise Waitlist/i})).toHaveAttribute("href", expect.stringContaining("waitlist"));
     });
 
     it("renders the feature comparison table", () => {
@@ -54,29 +55,30 @@ describe("Pricing", () => {
 
     it("renders comparison table values correctly", () => {
         renderPricing();
-        const cells7days = screen.getAllByText("7 days");
-        expect(cells7days.length).toBeGreaterThan(0);
+        const cellsLocal = screen.getAllByText("Local");
+        expect(cellsLocal.length).toBeGreaterThan(0);
         const cells30days = screen.getAllByText("30 days");
         expect(cells30days.length).toBeGreaterThan(0);
     });
 
-    it("renders 'Most Popular' badge on Pro tier", () => {
+    it("renders early access badge on Pro tier", () => {
         renderPricing();
-        expect(screen.getByText("Most Popular")).toBeInTheDocument();
+        expect(screen.getByText("3 months free at launch")).toBeInTheDocument();
     });
 
-    it("renders upgrade trigger cards", () => {
+    it("renders guidance boxes", () => {
         renderPricing();
-        expect(screen.getByText(/When to upgrade Free → Pro/)).toBeInTheDocument();
-        expect(screen.getByText(/When to upgrade Pro → Enterprise/)).toBeInTheDocument();
-        expect(screen.getByText(/OSS agent always free/)).toBeInTheDocument();
+        expect(screen.getByText(/When OSS is enough/)).toBeInTheDocument();
+        expect(screen.getByText(/When to join Pro early access/)).toBeInTheDocument();
+        expect(screen.getByText(/When to join Enterprise waitlist/)).toBeInTheDocument();
     });
 
     it("renders the self-host callout section", () => {
         renderPricing();
-        const heading = screen.getByRole("heading", {name: /Prefer to self-host/i});
+        const heading = screen.getByRole("heading", {name: /The agent is yours/i});
         expect(heading).toBeInTheDocument();
-        expect(screen.getByRole("link", {name: /OSS Agent Docs/i})).toBeInTheDocument();
+        const ossLinks = screen.getAllByRole("link", {name: /OSS Agent Docs/i});
+        expect(ossLinks.length).toBeGreaterThanOrEqual(1);
     });
 
     it("renders navigation with active pricing link", () => {
@@ -91,16 +93,20 @@ describe("Pricing", () => {
         expect(screen.getByText(/© 2026 MCP Hangar/)).toBeInTheDocument();
     });
 
-    it("links to OSS quickstart docs", () => {
+    it("shows September 2026 launch date", () => {
         renderPricing();
-        const link = screen.getByRole("link", {name: /standalone/i});
-        expect(link).toHaveAttribute("href", expect.stringContaining("/docs/oss/"));
+        const sept = screen.getAllByText(/September 2026/);
+        expect(sept.length).toBeGreaterThan(0);
     });
 
-    it("renders feature list items with check icons", () => {
+    it("renders hero CTA buttons", () => {
         renderPricing();
-        // Each tier has a feature list — check that at least one feature mentions Hangar
-        const items = screen.getAllByText(/Hangar instance/i);
+        expect(screen.getByRole("link", {name: /Get the OSS Agent/i})).toHaveAttribute("href", expect.stringContaining("/docs/"));
+    });
+
+    it("renders feature list items for OSS tier", () => {
+        renderPricing();
+        const items = screen.getAllByText(/Unlimited MCP providers/i);
         expect(items.length).toBeGreaterThan(0);
     });
 });

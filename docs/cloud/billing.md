@@ -1,55 +1,50 @@
-# Billing
+# Plans & Billing
 
-Manage your Hangar Cloud subscription, usage, and invoices.
+::: warning LAUNCHING SEPTEMBER 2026
+Hangar Cloud is not yet available. The OSS agent is free and production-ready today. [Join Early Access](https://app.mcp-hangar.io/early-access) to be notified at launch and get 3 months of Pro free.
+:::
 
 ## Plans
 
-| | Free | Pro | Enterprise |
-|---|------|-----|-----------|
-| **Price** | $0 | $49/seat/month | Custom |
-| **Hangar instances** | 1 | Unlimited | Unlimited |
-| **Event retention** | 7 days | 30 days | Unlimited |
-| **Seats** | 1 | 5 included | Unlimited |
+| | OSS Agent | Pro | Enterprise |
+|---|-----------|-----|-----------|
+| **Price** | Free forever | $29/workspace/month | Custom (annual) |
+| **Hangar instances** | Self-hosted | Unlimited | Unlimited |
+| **Event retention** | Local | 30 days | Unlimited |
+| **Seats** | — | 5 included | Unlimited |
+| **Cloud dashboard** | — | ✓ | ✓ |
 | **Policy editor** | — | ✓ | ✓ |
 | **CEF compliance export** | — | ✓ | ✓ |
+| **SSO / SAML / OIDC** | — | — | ✓ |
+| **Uptime SLA** | — | 99.5% | 99.9% |
 | **Support** | Community | Email | Dedicated |
 
 See [Pricing](/pricing) for full feature comparison.
 
-## Usage Dashboard
+## What "workspace" means
 
-View your current usage under **Settings → Billing → Usage**:
+A workspace is a billing unit that groups your team and Hangar instances. One workspace per org is typical. Each workspace gets its own dashboard, audit trail, and policies.
 
-- **Events ingested** — Total audit events received this billing period
-- **Active agents** — Peak concurrent agents connected
-- **Active seats** — Team members who signed in this period
-- **Storage** — Audit trail storage consumed
+## Early Access
 
-## Upgrading
+Pro and Enterprise plans launch in September 2026. Early access members get:
 
-1. Navigate to **Settings → Billing → Plan**
-2. Select your desired plan
-3. Enter payment information (if not already on file)
-4. Changes take effect immediately
+- 3 months of Pro free at launch
+- Priority onboarding support
+- Input on the feature roadmap
 
-## Invoices
+[Join the early access list →](https://app.mcp-hangar.io/early-access)
 
-Monthly invoices are available under **Settings → Billing → Invoices**.
+## After Launch
 
-Invoices include:
-- Base plan cost
-- Additional seat charges
-- Overage charges (if applicable)
+When cloud billing is live, this page will cover:
 
-Invoices are sent to the billing email on the 1st of each month.
+- Usage dashboard (events, agents, seats, storage)
+- Plan upgrades and downgrades
+- Invoices and payment methods
+- Cancellation policy
 
-## Payment Methods
+## Your agents keep working
 
-Accepted payment methods:
-- Credit card (Visa, Mastercard, American Express)
-- Annual invoicing (Enterprise plans)
-
-## Cancellation
-
-You can cancel your subscription at any time. Access continues until the end of the current billing period. Your agents will continue to work in standalone mode — they just won't report to the cloud dashboard.
+If you ever cancel or the cloud is unreachable, your agents continue working in standalone mode. No data is lost locally. The cloud adds visibility — it never becomes a dependency.
 

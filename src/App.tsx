@@ -530,17 +530,16 @@ cloud:
                             <thead>
                             <tr className="border-b border-zinc-800/50">
                                 <th className="text-left font-semibold text-zinc-300 px-6 py-4"/>
-                                <th className="text-center font-semibold text-emerald-400 px-6 py-4">Free<br/><span className="font-normal text-zinc-500">$0 · cloud</span></th>
-                                <th className="text-center font-semibold text-sky-400 px-6 py-4">Pro<br/><span className="font-normal text-zinc-500">$49/seat/mo</span></th>
-                                <th className="text-center font-semibold text-amber-400 px-6 py-4">Enterprise<br/><span className="font-normal text-zinc-500">Custom</span></th>
+                                <th className="text-center font-semibold text-emerald-400 px-6 py-4">OSS Agent<br/><span className="font-normal text-zinc-500">Free forever</span></th>
+                                <th className="text-center font-semibold text-sky-400 px-6 py-4">Pro<br/><span className="font-normal text-zinc-500">$29/ws/mo · Sep 2026</span></th>
+                                <th className="text-center font-semibold text-amber-400 px-6 py-4">Enterprise<br/><span className="font-normal text-zinc-500">Sep 2026</span></th>
                             </tr>
                             </thead>
                             <tbody>
                             {[
-                                {f: "Hangar instances",        c: "1",       p: "Unlimited", e: "Unlimited"},
-                                {f: "Event retention",         c: "7 days",  p: "30 days",   e: "Unlimited"},
-                                {f: "Team seats",              c: "1",       p: "5+",        e: "Unlimited"},
-                                {f: "Dashboard & audit trail", c: true,      p: true,        e: true},
+                                {f: "MCP providers",           c: "Unlimited", p: "Unlimited", e: "Unlimited"},
+                                {f: "Hangar instances",        c: "Self-hosted", p: "Unlimited", e: "Unlimited"},
+                                {f: "Cloud dashboard",         c: false,     p: true,        e: true},
                                 {f: "Policy editor",           c: false,     p: true,        e: true},
                                 {f: "CEF compliance export",   c: false,     p: true,        e: true},
                                 {f: "SSO / SAML",              c: false,     p: false,       e: true},

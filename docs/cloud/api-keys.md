@@ -1,5 +1,9 @@
 # API Keys
 
+::: warning LAUNCHING SEPTEMBER 2026
+Platform API keys will be available when Hangar Cloud launches. This page describes the planned functionality.
+:::
+
 Platform API keys allow programmatic access to the Hangar Cloud API.
 
 ## Creating an API Key

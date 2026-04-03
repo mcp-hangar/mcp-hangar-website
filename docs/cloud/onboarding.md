@@ -1,27 +1,36 @@
 # Onboarding
 
-Get started with Hangar Cloud in under 5 minutes.
+::: warning LAUNCHING SEPTEMBER 2026
+The cloud dashboard is not yet available. You can install and use the OSS agent today — it works fully standalone. This page describes the onboarding flow that will be available at launch.
+:::
 
-## Step 1: Create Your Account
+## Today: Install the OSS Agent
 
-Sign up at [app.mcp-hangar.io/signup](https://app.mcp-hangar.io/signup). You can start with the free Pro trial — no credit card required.
-
-After signing up you will land on an empty fleet dashboard. Time to connect your first agent.
-
-## Step 2: Install the Agent
-
-If you haven't already, install the open-source `mcp-hangar` agent on your machine:
+The open-source `mcp-hangar` agent is production-ready and runs without a cloud account:
 
 ```bash
 curl -sSL https://mcp-hangar.io/install.sh | bash
 mcp-hangar init -y
+mcp-hangar serve
 ```
 
-See the [OSS Installation Guide](/docs/oss/getting-started/installation) for alternative installation methods.
+See the [OSS Quick Start](/docs/oss/getting-started/quickstart) for full instructions.
 
-## Step 3: Connect to Cloud
+## At Launch: Connect to Cloud
 
-Generate a connection token in the Hangar Cloud dashboard under **Settings → Agent Tokens**, then configure your agent:
+When Hangar Cloud launches in September 2026, connecting will take under 5 minutes:
+
+### Step 1: Create Your Account
+
+Sign up at [app.mcp-hangar.io](https://app.mcp-hangar.io). Early access members get 3 months of Pro free.
+
+### Step 2: Generate a Token
+
+In the cloud dashboard, navigate to **Settings → Agent Tokens** and create a connection token.
+
+### Step 3: Connect the Agent
+
+Add the `cloud` section to your existing agent configuration:
 
 ```yaml
 # ~/.config/mcp-hangar/config.yaml
@@ -39,7 +48,7 @@ mcp-hangar serve
 
 Within seconds your agent will appear in the fleet dashboard.
 
-## Step 4: Explore the Dashboard
+### Step 4: Explore the Dashboard
 
 Once connected, you can:
 
@@ -48,9 +57,13 @@ Once connected, you can:
 - See top callers and error rates
 - Configure policies (Pro and Enterprise plans)
 
+## Want to be ready at launch?
+
+[Join early access →](https://app.mcp-hangar.io/early-access)
+
 ## Next Steps
 
-- [Dashboard Guide](/docs/cloud/dashboard) — Learn the fleet overview UI
-- [Teams & Roles](/docs/cloud/teams) — Invite your team
-- [Agent Connection](/docs/cloud/agent-connection) — Advanced agent configuration
+- [OSS Agent Docs](/docs/oss/) — Get started with the agent today
+- [Dashboard Guide](/docs/cloud/dashboard) — Preview the cloud dashboard features
+- [Agent Connection](/docs/cloud/agent-connection) — Detailed connection configuration
 

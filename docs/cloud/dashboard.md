@@ -1,5 +1,9 @@
 # Cloud Dashboard
 
+::: warning LAUNCHING SEPTEMBER 2026
+The cloud dashboard is in development and not yet publicly available. This page describes the planned functionality. [Join early access](https://app.mcp-hangar.io/early-access) to be notified at launch.
+:::
+
 The Hangar Cloud dashboard provides fleet-wide visibility into your MCP infrastructure.
 
 ## Fleet Overview

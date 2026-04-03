@@ -6,8 +6,12 @@ title: Hangar Cloud Documentation
 
 **Managed MCP governance platform** — visibility, control, and compliance for your AI tool infrastructure.
 
+::: warning LAUNCHING SEPTEMBER 2026
+Hangar Cloud is in development. The OSS agent is production-ready today. Join the early access list to get 3 months of Pro free at launch.
+:::
+
 <div class="tip custom-block" style="padding: 16px; border-radius: 8px; background: rgba(14, 165, 233, 0.1); border: 1px solid rgba(14, 165, 233, 0.3); margin: 24px 0;">
-  <p style="margin: 0;"><strong>☁️ Get started:</strong> <a href="https://app.mcp-hangar.io/signup">Create a free account</a> and connect your first agent in under 5 minutes.</p>
+  <p style="margin: 0;"><strong>Get started today:</strong> <a href="/docs/oss/getting-started/quickstart">Install the OSS agent</a> — or <a href="https://app.mcp-hangar.io/early-access">join early access</a> to be first in line for the cloud.</p>
 </div>
 
 ## What is Hangar Cloud?
