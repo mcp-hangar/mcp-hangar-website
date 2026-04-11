@@ -52,12 +52,13 @@ export default function Waitlist() {
     const [email, setEmail] = useState("");
     const [submitted, setSubmitted] = useState(false);
     const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         document.title = "Join the Waitlist | mcp-hangar";
     }, []);
 
-    function handleSubmit(e: FormEvent) {
+    async function handleSubmit(e: FormEvent) {
         e.preventDefault();
         setError("");
 
@@ -66,14 +67,27 @@ export default function Waitlist() {
             return;
         }
 
-        // TODO: integrate with backend API or email service
-        // For now, store in localStorage as a simple placeholder
-        const entry = {email, plan, timestamp: new Date().toISOString()};
-        const existing = JSON.parse(localStorage.getItem("waitlist") || "[]");
-        existing.push(entry);
-        localStorage.setItem("waitlist", JSON.stringify(existing));
+        setLoading(true);
+        try {
+            const res = await fetch("/api/waitlist", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({email, plan}),
+            });
 
-        setSubmitted(true);
+            const data = await res.json();
+
+            if (!res.ok) {
+                setError(data.error || "Something went wrong. Please try again.");
+                return;
+            }
+
+            setSubmitted(true);
+        } catch {
+            setError("Network error. Please try again.");
+        } finally {
+            setLoading(false);
+        }
     }
 
     const details = PLAN_DETAILS[plan];
@@ -170,9 +184,10 @@ export default function Waitlist() {
 
                                 <button
                                     type="submit"
-                                    className="w-full px-6 py-3 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-semibold rounded-lg transition-all duration-300 hover:-translate-y-0.5"
+                                    disabled={loading}
+                                    className="w-full px-6 py-3 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-semibold rounded-lg transition-all duration-300 hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
                                 >
-                                    Join Waitlist
+                                    {loading ? "Joining..." : "Join Waitlist"}
                                 </button>
 
                                 <p className="text-xs text-zinc-600 text-center">
