@@ -1,6 +1,6 @@
 import {Link} from "react-router-dom";
 import {HangarLogoMark} from "./Icons";
-import {CLOUD_APP_URL} from "../config";
+import {LINKS} from "../config";
 
 /** Site-wide footer — shared across all marketing pages. */
 export function SiteFooter() {
@@ -20,10 +20,10 @@ export function SiteFooter() {
                             MCP governance platform. Cloud managed or self-hosted.
                         </p>
                         <a
-                            href={`${CLOUD_APP_URL}/signup`}
-                            className="inline-flex items-center gap-2 px-4 py-2 bg-sky-500 hover:bg-sky-400 text-zinc-950 font-semibold rounded-lg transition-all duration-300 hover:-translate-y-0.5 text-sm"
+                            href={LINKS.ossQuickstart}
+                            className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-semibold rounded-lg transition-all duration-300 hover:-translate-y-0.5 text-sm"
                         >
-                            Start Free
+                            Install v1.0
                         </a>
                     </div>
 
@@ -32,9 +32,8 @@ export function SiteFooter() {
                         <h4 className="text-sm font-semibold text-zinc-300 mb-4">Product</h4>
                         <ul className="space-y-2 text-sm">
                             <li><a href="/#features" className="text-zinc-500 hover:text-emerald-400 transition-colors duration-300">Features</a></li>
-                            <li><Link to="/pricing" className="text-zinc-500 hover:text-emerald-400 transition-colors duration-300">Pricing</Link></li>
-                            <li><a href={CLOUD_APP_URL} className="text-zinc-500 hover:text-emerald-400 transition-colors duration-300">Sign In</a></li>
-                            <li><a href="/docs/cloud/sla" className="text-zinc-500 hover:text-emerald-400 transition-colors duration-300">SLA</a></li>
+                            <li><Link to="/plans" className="text-zinc-500 hover:text-emerald-400 transition-colors duration-300">Plans</Link></li>
+                            <li><Link to="/waitlist" className="text-zinc-500 hover:text-emerald-400 transition-colors duration-300">Cloud Waitlist</Link></li>
                         </ul>
                     </div>
 
@@ -42,7 +41,6 @@ export function SiteFooter() {
                     <div>
                         <h4 className="text-sm font-semibold text-zinc-300 mb-4">Documentation</h4>
                         <ul className="space-y-2 text-sm">
-                            <li><a href="/docs/cloud/" className="text-zinc-500 hover:text-emerald-400 transition-colors duration-300">Cloud Docs</a></li>
                             <li><a href="/docs/oss/" className="text-zinc-500 hover:text-emerald-400 transition-colors duration-300">OSS Agent Docs</a></li>
                             <li><a href="/docs/oss/cookbook/" className="text-zinc-500 hover:text-emerald-400 transition-colors duration-300">Cookbook</a></li>
                             <li><a href="/docs/oss/reference/configuration" className="text-zinc-500 hover:text-emerald-400 transition-colors duration-300">Configuration</a></li>

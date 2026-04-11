@@ -1,7 +1,7 @@
 {
   "name": "mcp-hangar-website",
   "private": true,
-  "version": "0.15.0",
+  "version": "1.0.0",
   "type": "module",
   "description": "Official website for MCP Hangar - The MCP Control Plane",
   "repository": {

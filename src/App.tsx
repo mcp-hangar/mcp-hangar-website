@@ -42,7 +42,7 @@ import {
     CubeIcon,
     CloudIcon,
 } from "./components/Icons";
-import {CLOUD_APP_URL, INSTALL_COMMAND} from "./config";
+import {INSTALL_COMMAND, LINKS} from "./config";
 
 
 function App() {
@@ -79,12 +79,12 @@ function App() {
                 {/* ── Hero ─────────────────────────────────────────── */}
                 <div className="max-w-6xl mx-auto px-6 pt-24 pb-32">
                     <div className="max-w-3xl mx-auto text-center">
-                        <Badge className="animate-fade-in mb-8">Cloud — Free tier available</Badge>
+                        <Badge className="animate-fade-in mb-8">v1.0 Released — Open Source, Production Ready</Badge>
 
                         <h1 className="animate-slide-up text-5xl md:text-7xl font-bold tracking-tight leading-[1.1] mb-6">
                             MCP Governance
                             <br/>
-                            <span className="bg-gradient-to-r from-sky-400 via-sky-300 to-teal-400 bg-clip-text text-transparent">
+                            <span className="bg-gradient-to-r from-emerald-400 via-emerald-300 to-teal-400 bg-clip-text text-transparent">
                                 Platform
                             </span>
                         </h1>
@@ -94,17 +94,17 @@ function App() {
                         </p>
 
                         <p className="text-lg text-zinc-500 max-w-xl mx-auto mb-10">
-                            Managed cloud platform + open-source agent. Runtime security, identity propagation, compliance-grade audit trail.
+                            Open-source agent with parallel execution, runtime security, and compliance-grade audit trail. Cloud platform coming June 2026.
                         </p>
 
                         <div className="flex flex-wrap justify-center gap-4">
-                            <Button href={`${CLOUD_APP_URL}/signup`} variant="primary" withArrow>
-                                Start Free
+                            <Button href={LINKS.ossQuickstart} variant="primary" withArrow>
+                                Install v1.0
                             </Button>
-                            <Button href="/docs/oss/getting-started/quickstart" variant="secondary">
-                                Self-host with OSS
+                            <Button href="/waitlist" variant="secondary">
+                                Join Cloud Waitlist
                             </Button>
-                            <Button href="https://github.com/mcp-hangar/mcp-hangar" variant="secondary" external>
+                            <Button href={LINKS.github} variant="secondary" external>
                                 <GithubIcon/> GitHub
                             </Button>
                         </div>
@@ -305,9 +305,9 @@ function App() {
                             <Step
                                 number={1}
                                 title="Install the agent"
-                                description="One command. Works on macOS and Linux. Installs the binary and adds it to your PATH."
+                                description="Install from PyPI with pip or uv. Works on macOS, Linux, and Windows."
                             >
-                                <CodeBlock language="bash">{`curl -sSL https://mcp-hangar.io/install.sh | bash`}</CodeBlock>
+                                <CodeBlock language="bash">{`pip install mcp-hangar`}</CodeBlock>
                             </Step>
 
                             <Step
@@ -336,14 +336,15 @@ providers:
 
                             <Step
                                 number={3}
-                                title="Connect to cloud (optional)"
-                                description="Add your cloud token to stream audit events and metrics to the Hangar Cloud dashboard."
+                                title="Cloud dashboard (coming June 2026)"
+                                description="Fleet visibility, policy governance, and compliance exports. Join the waitlist to get early access."
                             >
-                                <CodeBlock language="yaml">{`# Add to config.yaml
-cloud:
-  enabled: true
-  token: "hngr_agt_..."
-  endpoint: "https://api.mcp-hangar.io"`}</CodeBlock>
+                                <div className="flex items-center gap-3 p-4 rounded-xl bg-sky-500/10 border border-sky-500/20">
+                                    <span className="text-sky-400 text-lg">&#9729;</span>
+                                    <span className="text-sky-300 font-medium">Cloud launches June 2026</span>
+                                    <span className="text-zinc-500">—</span>
+                                    <a href="/waitlist" className="text-sky-400 hover:text-sky-300 underline underline-offset-2 transition-colors">Join the waitlist</a>
+                                </div>
                             </Step>
 
                             <Step
@@ -352,11 +353,10 @@ cloud:
                                 description="Launch the agent. Providers come online, cloud connection is established."
                             >
                                 <CodeBlock language="bash">{`$ mcp-hangar serve
-🚀 Starting MCP Hangar...
+🚀 Starting MCP Hangar v1.0...
   ● filesystem  ready  (245ms)
   ● fetch       ready  (189ms)
   ● memory      ready  (156ms)
-  ☁ cloud       connected (api.mcp-hangar.io)
 → 3 providers ready | 12 tools | parallel execution enabled`}</CodeBlock>
                             </Step>
 
@@ -368,7 +368,7 @@ cloud:
                             >
                                 <div className="flex items-center gap-3 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
                                     <span className="text-emerald-400 text-lg">✓</span>
-                                    <span className="text-emerald-300 font-medium">3 providers ready · 12 tools · cloud connected</span>
+                                    <span className="text-emerald-300 font-medium">3 providers ready · 12 tools · parallel execution enabled</span>
                                 </div>
                             </Step>
                         </StepList>
@@ -419,7 +419,11 @@ cloud:
                         </table>
                     </div>
                     <p className="text-sm text-zinc-500 mt-4">
-                        Measured via pytest-benchmark (Python) and Go benchmark suite. Full results in the v1.0 benchmark report.
+                        Measured via pytest-benchmark (Python) and Go benchmark suite.
+                        Full results in the{" "}
+                        <a href="/docs/oss/reference/benchmarks" className="text-emerald-400 hover:text-emerald-300 underline underline-offset-2 transition-colors">
+                            v1.0 benchmark report
+                        </a>.
                     </p>
                 </div>
 
@@ -504,23 +508,17 @@ cloud:
 
                             <div className="flex flex-wrap gap-4">
                                 <a
-                                    href={`${CLOUD_APP_URL}/signup`}
+                                    href="/waitlist"
                                     className="inline-flex items-center gap-2 px-5 py-2.5 bg-sky-500 hover:bg-sky-400 text-zinc-950 font-semibold rounded-lg transition-all duration-300 hover:-translate-y-0.5"
                                 >
-                                    Try the Dashboard
-                                </a>
-                                <a
-                                    href="/docs/cloud/dashboard"
-                                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-100 font-semibold rounded-lg transition-all duration-300 hover:-translate-y-0.5"
-                                >
-                                    Dashboard Docs
+                                    Join Cloud Waitlist
                                 </a>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {/* ── Pricing Preview ──────────────────────────────── */}
+                {/* ── Plans Preview ─────────────────────────────────── */}
                 <div className="max-w-6xl mx-auto px-6 pb-32">
                     <h2 className="text-sm font-semibold text-zinc-500 uppercase tracking-wider mb-6">
                         Open Source vs Cloud
@@ -530,36 +528,42 @@ cloud:
                             <thead>
                             <tr className="border-b border-zinc-800/50">
                                 <th className="text-left font-semibold text-zinc-300 px-6 py-4"/>
-                                <th className="text-center font-semibold text-emerald-400 px-6 py-4">OSS Agent<br/><span className="font-normal text-zinc-500">Free forever</span></th>
-                                <th className="text-center font-semibold text-sky-400 px-6 py-4">Pro<br/><span className="font-normal text-zinc-500">$29/ws/mo · Sep 2026</span></th>
-                                <th className="text-center font-semibold text-amber-400 px-6 py-4">Enterprise<br/><span className="font-normal text-zinc-500">Sep 2026</span></th>
+                                <th className="text-center font-semibold text-emerald-400 px-6 py-4">OSS Agent v1.0<br/><span className="font-normal text-zinc-500">Available now</span></th>
+                                <th className="text-center font-semibold text-sky-400 px-6 py-4">Free Cloud<br/><span className="font-normal text-zinc-500">June 2026</span></th>
+                                <th className="text-center font-semibold text-sky-400 px-6 py-4">Pro<br/><span className="font-normal text-zinc-500">September 2026</span></th>
+                                <th className="text-center font-semibold text-amber-400 px-6 py-4">Enterprise<br/><span className="font-normal text-zinc-500">September 2026</span></th>
                             </tr>
                             </thead>
                             <tbody>
                             {[
-                                {f: "MCP providers",           c: "Unlimited", p: "Unlimited", e: "Unlimited"},
-                                {f: "Hangar instances",        c: "Self-hosted", p: "Unlimited", e: "Unlimited"},
-                                {f: "Cloud dashboard",         c: false,     p: true,        e: true},
-                                {f: "Policy editor",           c: false,     p: true,        e: true},
-                                {f: "CEF compliance export",   c: false,     p: true,        e: true},
-                                {f: "SSO / SAML",              c: false,     p: false,       e: true},
-                                {f: "Uptime SLA",              c: false,     p: false,       e: true},
+                                {f: "MCP providers",           c: "Unlimited", fc: "Unlimited", p: "Unlimited", e: "Unlimited"},
+                                {f: "Hangar instances",        c: "Self-hosted", fc: "2", p: "Unlimited", e: "Unlimited"},
+                                {f: "Cloud dashboard",         c: false,     fc: true,   p: true,        e: true},
+                                {f: "Policy editor",           c: false,     fc: false,  p: true,        e: true},
+                                {f: "CEF compliance export",   c: false,     fc: false,  p: true,        e: true},
+                                {f: "SSO / SAML",              c: false,     fc: false,  p: false,       e: true},
+                                {f: "Uptime SLA",              c: false,     fc: false,  p: false,       e: true},
                             ].map((row, i) => (
                                 <tr key={i} className="border-b border-zinc-800/30 last:border-b-0">
                                     <td className="px-6 py-3 text-zinc-400">{row.f}</td>
                                     <td className="px-6 py-3 text-center">
                                         {typeof row.c === "boolean"
-                                            ? (row.c ? <span className="text-emerald-400">✓</span> : <span className="text-zinc-600">—</span>)
+                                            ? (row.c ? <span className="text-emerald-400">&#10003;</span> : <span className="text-zinc-600">&#8212;</span>)
                                             : <span className="text-zinc-300">{row.c}</span>}
                                     </td>
                                     <td className="px-6 py-3 text-center">
+                                        {typeof row.fc === "boolean"
+                                            ? (row.fc ? <span className="text-sky-400">&#10003;</span> : <span className="text-zinc-600">&#8212;</span>)
+                                            : <span className="text-zinc-300">{row.fc}</span>}
+                                    </td>
+                                    <td className="px-6 py-3 text-center">
                                         {typeof row.p === "boolean"
-                                            ? (row.p ? <span className="text-sky-400">✓</span> : <span className="text-zinc-600">—</span>)
+                                            ? (row.p ? <span className="text-sky-400">&#10003;</span> : <span className="text-zinc-600">&#8212;</span>)
                                             : <span className="text-zinc-300">{row.p}</span>}
                                     </td>
                                     <td className="px-6 py-3 text-center">
                                         {typeof row.e === "boolean"
-                                            ? (row.e ? <span className="text-amber-400">✓</span> : <span className="text-zinc-600">—</span>)
+                                            ? (row.e ? <span className="text-amber-400">&#10003;</span> : <span className="text-zinc-600">&#8212;</span>)
                                             : <span className="text-zinc-300">{row.e}</span>}
                                     </td>
                                 </tr>
@@ -569,10 +573,10 @@ cloud:
                     </div>
                     <div className="text-center mt-6">
                         <Link
-                            to="/pricing"
-                            className="inline-flex items-center gap-2 text-sky-400 hover:text-sky-300 transition-colors font-medium"
+                            to="/plans"
+                            className="inline-flex items-center gap-2 text-sm text-sky-400 hover:text-sky-300 transition-colors"
                         >
-                            See full pricing & feature comparison
+                            See all plans & feature comparison
                             <ArrowIcon/>
                         </Link>
                     </div>
@@ -642,20 +646,9 @@ cloud:
                         Documentation
                     </h2>
                     <p className="text-zinc-400 mb-8 max-w-2xl">
-                        Everything you need to get started — cloud platform docs and open-source agent reference.
+                        Everything you need to get started with the open-source agent.
                     </p>
-                    <div className="stagger-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <a
-                            href="/docs/cloud/"
-                            className="group p-6 rounded-2xl bg-sky-500/5 border border-sky-500/10 hover:border-sky-500/25 hover:bg-sky-500/10 transition-all duration-300 hover:-translate-y-1"
-                        >
-                            <div
-                                className="w-10 h-10 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400 mb-4">
-                                <DashboardIcon/>
-                            </div>
-                            <h3 className="font-semibold text-zinc-100 mb-2">Cloud Docs</h3>
-                            <p className="text-sm text-zinc-400">Onboarding, dashboard, teams, billing, agent connection</p>
-                        </a>
+                    <div className="stagger-grid grid grid-cols-1 md:grid-cols-3 gap-4">
                         <a
                             href="/docs/oss/getting-started/quickstart"
                             className="group p-6 rounded-2xl bg-zinc-900/30 border border-zinc-800/50 hover:border-emerald-500/20 hover:bg-zinc-900/50 transition-all duration-300 hover:-translate-y-1"

@@ -4,6 +4,7 @@ import {BrowserRouter, Routes, Route} from 'react-router-dom'
 import './index.css'
 import App from './App.tsx'
 import Pricing from './Pricing.tsx'
+import Waitlist from './Waitlist.tsx'
 import ErrorBoundary from './components/ErrorBoundary.tsx'
 
 createRoot(document.getElementById('root')!).render(
@@ -12,7 +13,8 @@ createRoot(document.getElementById('root')!).render(
             <BrowserRouter>
                 <Routes>
                     <Route path="/" element={<App/>}/>
-                    <Route path="/pricing" element={<Pricing/>}/>
+                    <Route path="/plans" element={<Pricing/>}/>
+                    <Route path="/waitlist" element={<Waitlist/>}/>
                 </Routes>
             </BrowserRouter>
         </ErrorBoundary>

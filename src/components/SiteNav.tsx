@@ -1,6 +1,6 @@
 import {Link} from "react-router-dom";
 import {HangarLogoMark} from "./Icons";
-import {CLOUD_APP_URL} from "../config";
+import {LINKS} from "../config";
 
 export type ActivePage = "home" | "pricing" | "docs" | "blog";
 
@@ -35,10 +35,10 @@ export function SiteNav({activePage}: SiteNavProps) {
                     Product
                 </a>
                 <Link
-                    to="/pricing"
+                    to="/plans"
                     className={activePage === "pricing" ? navLinkActive : navLinkBase}
                 >
-                    Pricing
+                    Plans
                 </Link>
                 <a
                     href="/docs/"
@@ -52,14 +52,14 @@ export function SiteNav({activePage}: SiteNavProps) {
                 >
                     Blog
                 </a>
-                <a href={CLOUD_APP_URL} className={navLinkBase}>
-                    Sign In
-                </a>
+                <Link to="/waitlist" className={navLinkBase}>
+                    Cloud Waitlist
+                </Link>
                 <a
-                    href={`${CLOUD_APP_URL}/signup`}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-sky-500 hover:bg-sky-400 text-zinc-950 font-semibold rounded-lg transition-all duration-300 hover:-translate-y-0.5"
+                    href={LINKS.ossQuickstart}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-semibold rounded-lg transition-all duration-300 hover:-translate-y-0.5"
                 >
-                    Start Free
+                    Install v1.0
                 </a>
             </div>
         </nav>
