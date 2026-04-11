@@ -1,7 +1,28 @@
 import type {VercelRequest, VercelResponse} from "@vercel/node";
 
 const BUTTONDOWN_API_URL = "https://api.buttondown.com/v1/subscribers";
+const RESEND_API_URL = "https://api.resend.com/emails";
 const VALID_PLANS = new Set(["free", "pro", "enterprise"]);
+
+const WELCOME_EMAIL = {
+    subject: "You're on the MCP Hangar waitlist",
+    text: `Hey,
+
+You're in. We'll reach out when early access opens.
+
+MCP Hangar is a runtime security and governance layer for MCP servers -- think policy enforcement, audit trails, and fleet management for production agentic workloads. Not another dev tool. Actual Day-2 ops.
+
+What's coming:
+- Free tier launches June 9
+- Local Kubernetes agent + Hangar Cloud dashboard
+- Event-sourced audit log built for SOC2, EU AI Act, HIPAA
+
+In the meantime, if you're deploying MCP servers in production and running into governance problems -- hit reply. I read everything.
+
+-- Marcin
+Founder, MCP Hangar
+mcp-hangar.io`,
+};
 
 /** Rate limit: simple in-memory counter per IP (resets on cold start). */
 const ipCounts = new Map<string, {count: number; resetAt: number}>();
@@ -33,6 +54,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     const apiKey = process.env.BUTTONDOWN_API_KEY;
+    const resendKey = process.env.RESEND_API_KEY;
     if (!apiKey) {
         console.error("BUTTONDOWN_API_KEY is not configured");
         return res.status(500).json({error: "Service misconfigured"});
@@ -85,6 +107,28 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         });
 
         if (response.status === 201) {
+            // New subscriber -- send welcome email via Resend
+            if (resendKey) {
+                try {
+                    await fetch(RESEND_API_URL, {
+                        method: "POST",
+                        headers: {
+                            "Authorization": `Bearer ${resendKey}`,
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            from: "Marcin from MCP Hangar <marcin@mcp-hangar.io>",
+                            to: [emailTrimmed],
+                            reply_to: "marcin@mcp-hangar.io",
+                            subject: WELCOME_EMAIL.subject,
+                            text: WELCOME_EMAIL.text,
+                        }),
+                    });
+                } catch (emailErr) {
+                    // Log but don't fail the signup if email fails
+                    console.error("Resend welcome email failed:", emailErr);
+                }
+            }
             return res.status(200).json({ok: true});
         }
 
