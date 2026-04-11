@@ -117,9 +117,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                             "Content-Type": "application/json",
                         },
                         body: JSON.stringify({
-                            from: "Marcin from MCP Hangar <marcin@mcp-hangar.io>",
+                            from: "Marcin from MCP Hangar <marcin.pyrka@mcp-hangar.io>",
                             to: [emailTrimmed],
-                            reply_to: "marcin@mcp-hangar.io",
+                            reply_to: "marcin.pyrka@mcp-hangar.io",
                             subject: WELCOME_EMAIL.subject,
                             text: WELCOME_EMAIL.text,
                         }),
