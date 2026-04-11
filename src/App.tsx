@@ -40,6 +40,7 @@ import {
     BoltIcon,
 } from "./components/Icons";
 import {INSTALL_COMMAND, LINKS} from "./config";
+import {InlineWaitlistForm} from "./components/InlineWaitlistForm";
 
 
 function App() {
@@ -101,6 +102,11 @@ function App() {
                             <Button href={LINKS.github} variant="secondary" external>
                                 <GithubIcon/> GitHub
                             </Button>
+                        </div>
+
+                        <div className="flex flex-col items-center gap-2 mt-6">
+                            <p className="text-xs text-zinc-600 uppercase tracking-wider">Cloud — be first to know</p>
+                            <InlineWaitlistForm source="hero"/>
                         </div>
                     </div>
                 </div>
@@ -493,14 +499,7 @@ Starting MCP Hangar v1.0...
                                 </div>
                             </div>
 
-                            <div className="flex flex-wrap gap-4">
-                                <a
-                                    href="/waitlist"
-                                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-sky-500 hover:bg-sky-400 text-zinc-950 font-semibold rounded-lg transition-all duration-300 hover:-translate-y-0.5"
-                                >
-                                    Get notified when cloud launches
-                                </a>
-                            </div>
+                            <InlineWaitlistForm source="dashboard"/>
                         </div>
                     </div>
                 </div>

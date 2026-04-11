@@ -53,7 +53,7 @@ export function SiteNav({activePage}: SiteNavProps) {
                     Blog
                 </a>
                 <Link to="/waitlist" className={navLinkBase}>
-                    Cloud Waitlist
+                    Early Access
                 </Link>
                 <a
                     href={LINKS.ossQuickstart}
