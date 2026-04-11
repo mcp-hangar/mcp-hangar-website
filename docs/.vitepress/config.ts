@@ -6,7 +6,7 @@ import { defineConfig } from 'vitepress'
 
 export default defineConfig({
   title: 'MCP Hangar',
-  description: 'MCP governance platform — Cloud docs & OSS agent reference',
+  description: 'MCP Hangar v1.0 — OSS agent documentation and reference',
 
   base: '/docs/',
   outDir: '.vitepress/dist',
@@ -41,16 +41,10 @@ export default defineConfig({
 
     nav: [
       { text: 'Home', link: 'https://mcp-hangar.io' },
-      {
-        text: 'Docs',
-        items: [
-          { text: '☁️ Cloud Docs', link: '/cloud/' },
-          { text: '🔧 OSS Agent Docs', link: '/oss/' },
-        ],
-      },
-      { text: 'Pricing', link: 'https://mcp-hangar.io/pricing' },
+      { text: 'Docs', link: '/oss/' },
+      { text: 'Plans', link: 'https://mcp-hangar.io/plans' },
       { text: 'Blog', link: '/blog/' },
-      { text: 'Sign In', link: 'https://app.mcp-hangar.io' },
+      { text: 'Cloud Waitlist', link: 'https://mcp-hangar.io/waitlist' },
       { text: 'GitHub', link: 'https://github.com/mcp-hangar/mcp-hangar' },
     ],
 
@@ -177,7 +171,6 @@ export default defineConfig({
             { text: 'Security', link: '/oss/security' },
             { text: 'Auth Security Audit', link: '/oss/security/AUTH_SECURITY_AUDIT' },
             { text: 'Release Process', link: '/oss/runbooks/RELEASE' },
-            { text: 'Cloud Docs ↗', link: '/cloud/' },
           ],
         },
       ],
@@ -194,7 +187,6 @@ export default defineConfig({
         {
           text: 'Docs',
           items: [
-            { text: 'Cloud Docs ↗', link: '/cloud/' },
             { text: 'OSS Agent Docs ↗', link: '/oss/' },
           ],
         },
@@ -215,7 +207,7 @@ export default defineConfig({
     },
 
     footer: {
-      message: 'Cloud platform by MCP Hangar · Agent released under MIT License.',
+      message: 'MCP Hangar · Released under MIT License.',
       copyright: 'Copyright © 2025-present MCP Hangar',
     },
   },
