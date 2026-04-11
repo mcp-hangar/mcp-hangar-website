@@ -91,6 +91,10 @@
     {
       "source": "/docs/:path*",
       "destination": "/docs/:path*.html"
+    },
+    {
+      "source": "/((?!api|docs|assets|favicon|install).*)",
+      "destination": "/index.html"
     }
   ]
 }
