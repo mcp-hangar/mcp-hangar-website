@@ -32,14 +32,14 @@ describe("App", () => {
         expect(docsLinks.length).toBeGreaterThan(0);
     });
 
-    it("displays cloud badge", () => {
+    it("displays OSS badge", () => {
         renderApp();
-        expect(screen.getByText(/Cloud — Free tier available/)).toBeInTheDocument();
+        expect(screen.getByText(/v1\.0 Open Source — MIT License/)).toBeInTheDocument();
     });
 
     it("renders the install command", () => {
         renderApp();
-        const elements = screen.getAllByText(/curl -sSL https:\/\/mcp-hangar\.io\/install\.sh/);
+        const elements = screen.getAllByText(/pip install mcp-hangar/);
         expect(elements.length).toBeGreaterThan(0);
     });
 
@@ -47,11 +47,9 @@ describe("App", () => {
         const user = userEvent.setup();
         renderApp();
         const writeTextSpy = vi.spyOn(navigator.clipboard, "writeText");
-        const installButton = screen.getByRole("button", {name: /copy installation command/i});
+        const installButton = screen.getByRole("button", {name: /copy pip install command/i});
         await user.click(installButton);
-        expect(writeTextSpy).toHaveBeenCalledWith(
-            "curl -sSL https://mcp-hangar.io/install.sh | bash"
-        );
+        expect(writeTextSpy).toHaveBeenCalledWith("pip install mcp-hangar");
         writeTextSpy.mockRestore();
     });
 
@@ -59,12 +57,10 @@ describe("App", () => {
         const user = userEvent.setup();
         renderApp();
         const writeTextSpy = vi.spyOn(navigator.clipboard, "writeText");
-        const installButton = screen.getByRole("button", {name: /copy installation command/i});
+        const installButton = screen.getByRole("button", {name: /copy pip install command/i});
         installButton.focus();
         await user.keyboard("{Enter}");
-        expect(writeTextSpy).toHaveBeenCalledWith(
-            "curl -sSL https://mcp-hangar.io/install.sh | bash"
-        );
+        expect(writeTextSpy).toHaveBeenCalledWith("pip install mcp-hangar");
         writeTextSpy.mockRestore();
     });
 
@@ -72,31 +68,30 @@ describe("App", () => {
         const user = userEvent.setup();
         renderApp();
         const writeTextSpy = vi.spyOn(navigator.clipboard, "writeText");
-        const installButton = screen.getByRole("button", {name: /copy installation command/i});
+        const installButton = screen.getByRole("button", {name: /copy pip install command/i});
         installButton.focus();
         await user.keyboard(" ");
-        expect(writeTextSpy).toHaveBeenCalledWith(
-            "curl -sSL https://mcp-hangar.io/install.sh | bash"
-        );
+        expect(writeTextSpy).toHaveBeenCalledWith("pip install mcp-hangar");
         writeTextSpy.mockRestore();
     });
 
     it("renders key sections", () => {
         renderApp();
         expect(screen.getByText("Why Hangar")).toBeInTheDocument();
-        expect(screen.getByText("How It Works")).toBeInTheDocument();
+        expect(screen.getByText("Built for real problems")).toBeInTheDocument();
         expect(screen.getByText("Benchmarks")).toBeInTheDocument();
     });
 
-    it("renders Cloud Platform and OSS Agent feature sections", () => {
+    it("renders Enterprise features and OSS Agent feature sections", () => {
         renderApp();
-        expect(screen.getByText("Cloud Platform")).toBeInTheDocument();
+        expect(screen.getByText("Enterprise features (coming soon)")).toBeInTheDocument();
         expect(screen.getByText("Open-Source Agent")).toBeInTheDocument();
     });
 
-    it("renders Dashboard and Audit Trail section", () => {
+    it("renders Cloud dashboard section", () => {
         renderApp();
-        expect(screen.getByText("Dashboard & Audit Trail")).toBeInTheDocument();
+        const matches = screen.getAllByText("Cloud dashboard");
+        expect(matches.length).toBeGreaterThan(0);
     });
 
     it("renders pricing preview", () => {

@@ -38,9 +38,6 @@ import {
     SlidersIcon,
     ScaleIcon,
     BoltIcon,
-    SparklesIcon,
-    CubeIcon,
-    CloudIcon,
 } from "./components/Icons";
 import {INSTALL_COMMAND, LINKS} from "./config";
 
@@ -79,30 +76,27 @@ function App() {
                 {/* ── Hero ─────────────────────────────────────────── */}
                 <div className="max-w-6xl mx-auto px-6 pt-24 pb-32">
                     <div className="max-w-3xl mx-auto text-center">
-                        <Badge className="animate-fade-in mb-8">v1.0 Released — Open Source, Production Ready</Badge>
+                        <Badge className="animate-fade-in mb-8">v1.0 Open Source — MIT License</Badge>
 
                         <h1 className="animate-slide-up text-5xl md:text-7xl font-bold tracking-tight leading-[1.1] mb-6">
-                            MCP Governance
+                            Your organization runs MCP servers.
                             <br/>
                             <span className="bg-gradient-to-r from-emerald-400 via-emerald-300 to-teal-400 bg-clip-text text-transparent">
-                                Platform
+                                Do you control who uses them?
                             </span>
                         </h1>
 
                         <p className="text-2xl text-zinc-300 mb-4">
-                            See every MCP call. Control every tool. Ship with confidence.
+                            Hangar is the control plane between your AI agents and your MCP servers. One place to decide who can call what, see what's happening, and prove it to your auditors.
                         </p>
 
                         <p className="text-lg text-zinc-500 max-w-xl mx-auto mb-10">
-                            Open-source agent with parallel execution, runtime security, and compliance-grade audit trail. Cloud platform coming June 2026.
+                            Open-source, self-hosted. No cloud account required to get started.
                         </p>
 
                         <div className="flex flex-wrap justify-center gap-4">
                             <Button href={LINKS.ossQuickstart} variant="primary" withArrow>
                                 Install v1.0
-                            </Button>
-                            <Button href="/waitlist" variant="secondary">
-                                Join Cloud Waitlist
                             </Button>
                             <Button href={LINKS.github} variant="secondary" external>
                                 <GithubIcon/> GitHub
@@ -120,81 +114,87 @@ function App() {
                         <div className="flex items-start gap-3 p-4 rounded-xl bg-sky-500/5 border border-sky-500/10 hover:border-sky-500/25 hover:bg-sky-500/10 transition-all duration-300">
                             <span className="text-sky-400 mt-0.5 shrink-0"><EyeIcon/></span>
                             <div>
-                                <span className="text-zinc-200 font-medium">Visibility</span>
+                                <span className="text-zinc-200 font-medium">Know who called what</span>
                                 <p className="text-sm text-zinc-500 mt-1">
-                                    See every tool call across your fleet. Agent health, provider state, caller identity.
+                                    Every tool call logged with caller identity, provider, and timestamp. No more guessing what your AI agents are doing.
                                 </p>
                             </div>
                         </div>
                         <div className="flex items-start gap-3 p-4 rounded-xl bg-sky-500/5 border border-sky-500/10 hover:border-sky-500/25 hover:bg-sky-500/10 transition-all duration-300">
                             <span className="text-sky-400 mt-0.5 shrink-0"><SlidersIcon/></span>
                             <div>
-                                <span className="text-zinc-200 font-medium">Control</span>
+                                <span className="text-zinc-200 font-medium">Decide who can do what</span>
                                 <p className="text-sm text-zinc-500 mt-1">
-                                    Enforce policies in real time. Allow/deny tools, rate limits, execution timeouts.
+                                    Per-caller, per-provider, per-tool access policies. Block write operations. Allow read-only access for specific teams.
                                 </p>
                             </div>
                         </div>
                         <div className="flex items-start gap-3 p-4 rounded-xl bg-sky-500/5 border border-sky-500/10 hover:border-sky-500/25 hover:bg-sky-500/10 transition-all duration-300">
                             <span className="text-sky-400 mt-0.5 shrink-0"><ScaleIcon/></span>
                             <div>
-                                <span className="text-zinc-200 font-medium">Compliance</span>
+                                <span className="text-zinc-200 font-medium">Answer the auditors</span>
                                 <p className="text-sm text-zinc-500 mt-1">
-                                    Identity-aware audit trail. CEF export for SOC2 and EU AI Act. SIEM integrations.
+                                    Identity-aware audit trail with CEF export. SOC2 evidence, EU AI Act readiness, SIEM integration out of the box.
                                 </p>
                             </div>
                         </div>
                         <div className="flex items-start gap-3 p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/10 hover:border-emerald-500/25 hover:bg-emerald-500/10 transition-all duration-300">
                             <span className="text-emerald-400 mt-0.5 shrink-0"><BoltIcon/></span>
                             <div>
-                                <span className="text-zinc-200 font-medium">Performance</span>
+                                <span className="text-zinc-200 font-medium">Built for production</span>
                                 <p className="text-sm text-zinc-500 mt-1">
-                                    15 tools, 2 providers, 380ms. Parallel execution with sub-ms proxy overhead.
+                                    Sub-millisecond proxy overhead. Load balancing, failover, and circuit breakers across your MCP server fleet.
                                 </p>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {/* ── How It Works (diagram) ──────────────────────── */}
-                <div className="max-w-4xl mx-auto px-6 pb-20">
+                {/* ── Use Cases ──────────────────────── */}
+                <div className="max-w-6xl mx-auto px-6 pb-20">
                     <h2 className="text-sm font-semibold text-zinc-500 uppercase tracking-wider mb-6 text-center">
-                        How It Works
+                        Built for real problems
                     </h2>
-                    <div className="flex flex-col md:flex-row items-center justify-center gap-6 py-8">
-                        <div className="flex flex-col items-center gap-2 p-6 rounded-2xl bg-zinc-900/50 border border-zinc-800/50 min-w-[180px]">
-                            <span className="text-zinc-400"><SparklesIcon/></span>
-                            <span className="text-zinc-200 font-medium text-sm">AI Agents</span>
-                            <span className="text-zinc-500 text-xs">Claude, GPT, custom</span>
-                        </div>
-                        <div className="text-zinc-600 text-2xl">→</div>
-                        <div className="flex flex-col items-center gap-2 p-6 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 min-w-[180px]">
-                            <span className="text-emerald-400"><CubeIcon/></span>
-                            <span className="text-emerald-400 font-medium text-sm">mcp-hangar agent</span>
-                            <span className="text-zinc-500 text-xs">OSS · your infrastructure</span>
-                        </div>
-                        <div className="text-zinc-600 text-2xl">→</div>
-                        <div className="flex flex-col items-center gap-2 p-6 rounded-2xl bg-sky-500/10 border border-sky-500/20 min-w-[180px]">
-                            <span className="text-sky-400"><CloudIcon/></span>
-                            <span className="text-sky-400 font-medium text-sm">Hangar Cloud</span>
-                            <span className="text-zinc-500 text-xs">dashboard · audit · policies</span>
+                    <div className="stagger-grid grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <Feature
+                            icon={<ShieldCheckIcon/>}
+                            title="Access control per team"
+                            description="Team A gets read access to the knowledge base MCP. Team B is blocked. Enforced at the proxy level — no changes to your MCP servers required."
+                            accentColor="emerald"
+                        />
+                        <Feature
+                            icon={<AuditIcon/>}
+                            title="Usage you can explain"
+                            description="Your production database MCP was called 4,200 times last week. Here is who called it, from which system, and with what arguments."
+                            accentColor="sky"
+                        />
+                        <div className="group p-6 rounded-2xl bg-zinc-900/30 border border-zinc-800/50 hover:border-amber-500/20 hover:bg-zinc-900/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-amber-500/5">
+                            <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 mb-4 group-hover:scale-110 group-hover:bg-amber-500/20 transition-all duration-300">
+                                <LockIcon/>
+                            </div>
+                            <h3 className="font-semibold text-zinc-100 mb-2 group-hover:text-amber-50 transition-colors duration-300">
+                                Controlled write rollouts
+                            </h3>
+                            <p className="text-sm text-zinc-500 leading-relaxed group-hover:text-zinc-400 transition-colors duration-300">
+                                Your CI pipeline wants write access to the repo MCP. Review the request, approve it, monitor the rollout. Roll back in one config change.
+                            </p>
                         </div>
                     </div>
-                    <p className="text-center text-sm text-zinc-500 mt-2">
-                        The agent runs on your infrastructure and proxies all MCP calls. Cloud adds visibility, governance, and team features.
-                    </p>
                 </div>
 
                 {/* ── Cloud Platform Features (sky accent) ────────── */}
                 <div id="features" className="max-w-6xl mx-auto px-6 pb-20">
                     <div className="flex items-center gap-3 mb-6">
                         <h2 className="text-sm font-semibold text-zinc-500 uppercase tracking-wider">
-                            Cloud Platform
+                            Enterprise features (coming soon)
                         </h2>
                         <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-sky-500/20 text-sky-400 border border-sky-500/30">
                             Cloud
                         </span>
                     </div>
+                    <p className="text-zinc-400 mb-8 max-w-2xl">
+                        Hangar Cloud adds a managed dashboard, team RBAC, and compliance exports on top of the OSS agent.
+                    </p>
                     <div className="stagger-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         <Feature
                             icon={<DashboardIcon/>}
@@ -249,7 +249,7 @@ function App() {
                         <Feature
                             icon={<ParallelIcon/>}
                             title="Parallel Execution"
-                            description="Two-level concurrency control. Global limit (50) + per-provider limit (10). Automatic backpressure and fair scheduling."
+                            description="Concurrent tool calls across providers. Backpressure and fair scheduling keep your fleet stable under load."
                         />
                         <Feature
                             icon={<LockIcon/>}
@@ -259,7 +259,7 @@ function App() {
                         <Feature
                             icon={<FilterIcon/>}
                             title="Tool Access Filtering"
-                            description="Config-driven tool visibility with glob patterns. Deny delete_* tools or allow only read_* operations per provider."
+                            description="Allowlist and denylist tools by glob pattern. Block delete_* across the board, or allow only read_* per provider."
                         />
                         <Feature
                             icon={<LifecycleIcon/>}
@@ -269,7 +269,7 @@ function App() {
                         <Feature
                             icon={<CircuitIcon/>}
                             title="Circuit Breaker"
-                            description="One failing provider doesn't kill your batch. Automatic isolation, exponential backoff recovery, graceful degradation."
+                            description="One failing MCP server does not take down your whole fleet. Automatic isolation, exponential backoff, graceful degradation."
                         />
                         <Feature
                             icon={<ObservabilityIcon/>}
@@ -336,24 +336,11 @@ providers:
 
                             <Step
                                 number={3}
-                                title="Cloud dashboard (coming June 2026)"
-                                description="Fleet visibility, policy governance, and compliance exports. Join the waitlist to get early access."
-                            >
-                                <div className="flex items-center gap-3 p-4 rounded-xl bg-sky-500/10 border border-sky-500/20">
-                                    <span className="text-sky-400 text-lg">&#9729;</span>
-                                    <span className="text-sky-300 font-medium">Cloud launches June 2026</span>
-                                    <span className="text-zinc-500">—</span>
-                                    <a href="/waitlist" className="text-sky-400 hover:text-sky-300 underline underline-offset-2 transition-colors">Join the waitlist</a>
-                                </div>
-                            </Step>
-
-                            <Step
-                                number={4}
                                 title="Start the server"
                                 description="Launch the agent. Providers come online, cloud connection is established."
                             >
                                 <CodeBlock language="bash">{`$ mcp-hangar serve
-🚀 Starting MCP Hangar v1.0...
+Starting MCP Hangar v1.0...
   ● filesystem  ready  (245ms)
   ● fetch       ready  (189ms)
   ● memory      ready  (156ms)
@@ -361,13 +348,13 @@ providers:
                             </Step>
 
                             <Step
-                                number={5}
+                                number={4}
                                 title="You're ready"
                                 description="Restart Claude Desktop. Your tools are available with parallel execution, health monitoring, and circuit breakers — all out of the box."
                                 isLast
                             >
                                 <div className="flex items-center gap-3 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
-                                    <span className="text-emerald-400 text-lg">✓</span>
+                                    <span className="text-emerald-400 text-lg">[ok]</span>
                                     <span className="text-emerald-300 font-medium">3 providers ready · 12 tools · parallel execution enabled</span>
                                 </div>
                             </Step>
@@ -441,7 +428,7 @@ providers:
                                     <DashboardIcon/>
                                 </div>
                                 <h2 className="text-2xl md:text-3xl font-bold text-zinc-100">
-                                    Dashboard & Audit Trail
+                                    Cloud dashboard
                                 </h2>
                                 <span
                                     className="ml-2 px-2 py-0.5 text-xs font-semibold rounded-full bg-sky-500/20 text-sky-400 border border-sky-500/30">
@@ -449,7 +436,7 @@ providers:
                                 </span>
                             </div>
                             <p className="text-zinc-400 mb-8 max-w-2xl">
-                                Full web interface for managing your MCP infrastructure. Fleet-wide visibility, compliance-grade audit log, and policy management across all clusters.
+                                A managed web interface for your MCP infrastructure. Fleet-wide visibility, compliance-grade audit log, and policy management — without running your own backend.
                             </p>
 
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -511,7 +498,7 @@ providers:
                                     href="/waitlist"
                                     className="inline-flex items-center gap-2 px-5 py-2.5 bg-sky-500 hover:bg-sky-400 text-zinc-950 font-semibold rounded-lg transition-all duration-300 hover:-translate-y-0.5"
                                 >
-                                    Join Cloud Waitlist
+                                    Get notified when cloud launches
                                 </a>
                             </div>
                         </div>
@@ -529,9 +516,9 @@ providers:
                             <tr className="border-b border-zinc-800/50">
                                 <th className="text-left font-semibold text-zinc-300 px-6 py-4"/>
                                 <th className="text-center font-semibold text-emerald-400 px-6 py-4">OSS Agent v1.0<br/><span className="font-normal text-zinc-500">Available now</span></th>
-                                <th className="text-center font-semibold text-sky-400 px-6 py-4">Free Cloud<br/><span className="font-normal text-zinc-500">June 2026</span></th>
-                                <th className="text-center font-semibold text-sky-400 px-6 py-4">Pro<br/><span className="font-normal text-zinc-500">September 2026</span></th>
-                                <th className="text-center font-semibold text-amber-400 px-6 py-4">Enterprise<br/><span className="font-normal text-zinc-500">September 2026</span></th>
+                                <th className="text-center font-semibold text-sky-400 px-6 py-4">Cloud Free<br/><span className="font-normal text-zinc-500">coming 2026</span></th>
+                                <th className="text-center font-semibold text-sky-400 px-6 py-4">Pro<br/><span className="font-normal text-zinc-500">coming 2026</span></th>
+                                <th className="text-center font-semibold text-amber-400 px-6 py-4">Enterprise<br/><span className="font-normal text-zinc-500">coming 2026</span></th>
                             </tr>
                             </thead>
                             <tbody>
@@ -596,7 +583,7 @@ providers:
                                     <LockIcon/>
                                 </div>
                                 <h2 className="text-2xl md:text-3xl font-bold text-zinc-100">
-                                    Production Security Built-In
+                                    Security built into the proxy layer
                                 </h2>
                             </div>
 
@@ -712,12 +699,12 @@ providers:
                                 onKeyDown={handleKeyDown}
                                 role="button"
                                 tabIndex={0}
-                                aria-label={copied ? "Installation command copied" : "Copy installation command to clipboard"}
+                                aria-label={copied ? "Installation command copied" : "Copy pip install command to clipboard"}
                                 className="group inline-flex items-center gap-4 bg-zinc-900/80 backdrop-blur border border-zinc-800 hover:border-emerald-500/30 rounded-xl px-5 py-4 font-mono text-sm cursor-pointer transition-all duration-300 hover:bg-zinc-900 hover:shadow-lg hover:shadow-emerald-500/5 hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-zinc-950 mb-8"
                             >
                                 <span className="text-zinc-500">$</span>
                                 <span className="text-zinc-300">
-                                    curl -sSL https://mcp-hangar.io/install.sh | bash
+                                    {INSTALL_COMMAND}
                                 </span>
                                 <span className="text-zinc-600 group-hover:text-emerald-400 transition-colors ml-2">
                                     {copied ? <CheckIcon/> : <CopyIcon/>}
