@@ -181,7 +181,7 @@ export default defineConfig({
           text: 'Blog',
           items: [
             { text: 'All Posts', link: '/blog/' },
-            { text: 'v1.0 Production Release', link: '/blog/2026-03-27-v1-production-release' },
+            { text: 'v1.0 Production Release', link: '/blog/2026-04-11-v1-production-release' },
           ],
         },
         {

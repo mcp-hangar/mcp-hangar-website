@@ -1,6 +1,6 @@
 ---
 title: "MCP Hangar v1.0 -- Production Release"
-date: 2026-03-27
+date: 2026-04-11
 author: MCP Hangar Team
 ---
 
@@ -18,13 +18,13 @@ The core use case: you have multiple MCP servers (filesystem, fetch, memory, cus
 
 ## The path to v1.0
 
-The project started as a Python library focused on parallel MCP tool execution. Over successive releases it grew into a multi-component system:
+The project started as a Python library focused on parallel MCP tool execution. Over 22 releases it grew into a multi-component system:
 
-- **v0.1 -- v0.8**: Core proxy, subprocess provider management, circuit breakers, health checks, parallel batch execution.
-- **v0.9 -- v0.12**: HTTP gateway, REST API, WebSocket streaming, provider groups with load balancing and failover, Docker/Kubernetes discovery.
-- **v0.13 -- v0.14**: Authentication stack (API keys, JWT/OIDC, identity propagation), audit trail with CEF export, behavioral profiling.
-- **v0.15**: Kubernetes operator (MCPProvider and MCPProviderGroup CRDs), validating admission webhooks, NetworkPolicy generation. Web dashboard with fleet overview and audit log viewer.
-- **v1.0**: Production hardening. Performance benchmarks, CI security scanning (Trivy, Semgrep, gosec), dependency audits with SBOM generation, upgrade documentation, and this release.
+- **v0.1 -- v0.2**: Initial release, event sourcing, observability module, provider groups, Langfuse integration. Authentication stack (API keys, JWT/OIDC, RBAC), Kubernetes operator with MCPProvider and MCPProviderGroup CRDs.
+- **v0.3 -- v0.5**: Facade API (`Hangar` class), batch invocations, SingleFlight deduplication.
+- **v0.6 -- v0.8**: Interactive CLI, provider bundles, secrets resolver, observability bootstrap, response truncation, tool access filtering with glob patterns, two-level concurrency model.
+- **v0.9 -- v0.12**: Security hardening (timing attack prevention, rate limiter backoff, JWT lifetime enforcement, API key rotation), saga persistence, circuit breaker persistence, event store snapshots, K8s operator controllers, REST API with provider CRUD, RBAC and tool access policies.
+- **v1.0**: Enterprise module system (BSL 1.1), behavioral profiling with deviation detection, network connection monitoring, tool schema drift detection, resource monitoring, OpenTelemetry governance telemetry, cloud connector with event redaction, approval gate. Production hardening across the board.
 
 ## Architecture
 
@@ -51,15 +51,14 @@ v1.0 ships with comprehensive benchmark suites for both the Python and Go compon
 | Go policy engine | 1,000 policies evaluation | 6.5 microseconds |
 | Go event buffer | WAL-backed persist | 158 microseconds |
 | Go event mapping | Domain event transform | 5.3 microseconds |
-| End-to-end | 15 tools, 2 providers, parallel | 380ms |
 
-The Python proxy adds less than a quarter-millisecond of overhead at p99. The Go policy engine evaluates a thousand rules in under 7 microseconds. These numbers were measured with pytest-benchmark and Go's standard benchmark tooling, running in CI on every commit.
+The Python proxy adds less than a quarter-millisecond of overhead at p99. The Go policy engine evaluates a thousand rules in under 7 microseconds. These numbers were measured with pytest-benchmark and Go's standard benchmark tooling.
 
 ## Security
 
 Production readiness means more than performance. v1.0 includes:
 
-- **CI security scanning**: Trivy container scanning, Semgrep static analysis, and golangci-lint with gosec enabled across all components. Pinned to specific versions for reproducible results.
+- **CI security scanning**: Trivy filesystem scanning, Semgrep static analysis, and golangci-lint across all components. Pinned to specific versions for reproducible results.
 - **Dependency auditing**: pip-audit for Python, npm audit (blocking on HIGH+) for the dashboard, govulncheck for Go components. SBOM generation for all five components.
 - **Auth stack coverage**: 97.5% test coverage on the authentication and authorization code paths, including API key validation, JWT verification, identity propagation, and rate limiting.
 - **Upgrade path**: A detailed upgrade guide covers every breaking change from v0.12 through v1.0, with step-by-step procedures for PyPI, Docker, and Kubernetes deployments.
