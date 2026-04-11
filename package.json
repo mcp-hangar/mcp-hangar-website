@@ -1,7 +1,7 @@
 {
   "name": "mcp-hangar-website",
   "private": true,
-  "version": "0.12.0",
+  "version": "1.0.0",
   "type": "module",
   "description": "Official website for MCP Hangar - The MCP Control Plane",
   "repository": {
@@ -33,7 +33,8 @@
   },
   "dependencies": {
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "react-router-dom": "^7.13.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",
@@ -43,7 +44,9 @@
     "@testing-library/user-event": "^14.6.1",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.0.2",
+    "@vercel/node": "^5.7.4",
     "@vitejs/plugin-react": "^6.0.1",
+    "@vitest/coverage-v8": "^4.1.2",
     "eslint": "^9.39.4",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.5.2",

@@ -46,9 +46,12 @@ function pathToUrl(filePath) {
 
 function priorityForUrl(url) {
   if (url === '/') return '1.0';
-  if (url.includes('/getting-started/')) return '0.9';
-  if (url.includes('/cookbook/')) return '0.8';
+  if (url === '/pricing') return '0.9';
+  if (url.includes('/docs/cloud/')) return '0.8';
+  if (url.includes('/getting-started/')) return '0.8';
+  if (url.includes('/cookbook/')) return '0.7';
   if (url.includes('/guides/')) return '0.7';
+  if (url.includes('/docs/oss/')) return '0.7';
   if (url.includes('/reference/')) return '0.6';
   if (url.includes('/architecture/')) return '0.6';
   return '0.5';

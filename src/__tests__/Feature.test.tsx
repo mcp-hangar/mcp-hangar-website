@@ -24,5 +24,20 @@ describe("Feature", () => {
         );
         expect(screen.getByTestId("icon")).toBeInTheDocument();
     });
-});
 
+    it("defaults to emerald accent", () => {
+        const {container} = render(
+            <Feature icon={<span>IC</span>} title="T" description="D"/>
+        );
+        const iconBox = container.querySelector("[class*='emerald']");
+        expect(iconBox).toBeInTheDocument();
+    });
+
+    it("applies sky accent when specified", () => {
+        const {container} = render(
+            <Feature icon={<span>IC</span>} title="T" description="D" accentColor="sky"/>
+        );
+        const iconBox = container.querySelector("[class*='sky']");
+        expect(iconBox).toBeInTheDocument();
+    });
+});

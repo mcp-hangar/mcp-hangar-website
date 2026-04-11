@@ -1,15 +1,19 @@
 import {useState} from "react";
 import {preconnect} from "react-dom";
+import {Link} from "react-router-dom";
 import {Feature} from "./components/Feature";
 import {Step} from "./components/Step";
 import {StepList} from "./components/StepList";
 import {CodeBlock} from "./components/CodeBlock";
+import {Badge} from "./components/Badge";
+import {Button} from "./components/Button";
+import {SiteNav} from "./components/SiteNav";
+import {SiteFooter} from "./components/SiteFooter";
 import {
     GithubIcon,
     CopyIcon,
     CheckIcon,
     ArrowIcon,
-    PythonIcon,
     LifecycleIcon,
     CircuitIcon,
     ObservabilityIcon,
@@ -17,7 +21,6 @@ import {
     IssueIcon,
     StarIcon,
     RocketIcon,
-    LayersIcon,
     BookOpenIcon,
     FileTextIcon,
     ParallelIcon,
@@ -26,21 +29,30 @@ import {
     LockIcon,
     FilterIcon,
     DashboardIcon,
-    RestApiIcon,
-    WebSocketIcon,
-    LogStreamIcon,
     GroupIcon,
+    IdentityIcon,
+    AuditIcon,
+    K8sIcon,
+    BehavioralIcon,
+    EyeIcon,
+    SlidersIcon,
+    ScaleIcon,
+    BoltIcon,
+    SparklesIcon,
+    CubeIcon,
+    CloudIcon,
 } from "./components/Icons";
+import {INSTALL_COMMAND, LINKS} from "./config";
+
 
 function App() {
     const [copied, setCopied] = useState(false);
 
-    // React 19 resource hints — replaces static <link rel="preconnect"> in HTML
     preconnect("https://fonts.googleapis.com");
     preconnect("https://fonts.gstatic.com", {crossOrigin: "anonymous"});
 
     const copyCommand = () => {
-        navigator.clipboard.writeText("curl -sSL https://mcp-hangar.io/install.sh | bash");
+        navigator.clipboard.writeText(INSTALL_COMMAND);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
     };
@@ -56,184 +68,203 @@ function App() {
         <div className="min-h-screen bg-zinc-950 text-zinc-100 overflow-hidden">
             {/* Background effects */}
             <div
-                className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-900/20 via-zinc-950 to-zinc-950"/>
+                className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-sky-900/20 via-zinc-950 to-zinc-950"/>
             <div
                 className="fixed inset-0 bg-[url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noise%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noise)%22/%3E%3C/svg%3E')] opacity-[0.03]"/>
 
-            {/* Content */}
             <div className="relative">
-                {/* Nav */}
-                <nav className="max-w-6xl mx-auto px-6 py-6 flex items-center justify-between"
-                     aria-label="Main navigation">
-                    <div className="flex items-center gap-2">
-                        <div
-                            className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center"
-                            aria-hidden="true">
-                            <span className="text-zinc-950 font-bold text-sm">H</span>
-                        </div>
-                        <span className="font-semibold">mcp-hangar</span>
-                    </div>
-                    <div className="flex items-center gap-6 text-sm">
-                        <a
-                            href="/docs/"
-                            className="text-zinc-400 hover:text-emerald-400 transition-colors duration-300"
-                        >
-                            Docs
-                        </a>
-                        <a
-                            href="https://github.com/mapyr/mcp-hangar"
-                            className="text-zinc-400 hover:text-emerald-400 transition-colors duration-300 flex items-center gap-2"
-                        >
-                            <GithubIcon/>
-                            GitHub
-                        </a>
-                    </div>
-                </nav>
+                {/* ── Nav ──────────────────────────────────────────── */}
+                <SiteNav activePage="home"/>
 
-                {/* Hero */}
+                {/* ── Hero ─────────────────────────────────────────── */}
                 <div className="max-w-6xl mx-auto px-6 pt-24 pb-32">
                     <div className="max-w-3xl mx-auto text-center">
-                        {/* Badge */}
-                        <div
-                            className="animate-fade-in inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm mb-8 hover:bg-emerald-500/15 transition-all cursor-default">
-                            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"/>
-                            v0.12.0 — Dashboard • REST API • Log Streaming
-                        </div>
+                        <Badge className="animate-fade-in mb-8">v1.0 Released — Open Source, Production Ready</Badge>
 
-                        {/* Title */}
                         <h1 className="animate-slide-up text-5xl md:text-7xl font-bold tracking-tight leading-[1.1] mb-6">
-                            The MCP
+                            MCP Governance
                             <br/>
-                            <span
-                                className="bg-gradient-to-r from-emerald-400 via-emerald-300 to-teal-400 bg-clip-text text-transparent">
-                Control Plane
-              </span>
+                            <span className="bg-gradient-to-r from-emerald-400 via-emerald-300 to-teal-400 bg-clip-text text-transparent">
+                                Platform
+                            </span>
                         </h1>
 
-                        {/* Tagline */}
                         <p className="text-2xl text-zinc-300 mb-4">
-                            All providers. One hangar. Clear skies.
+                            See every MCP call. Control every tool. Ship with confidence.
                         </p>
 
-                        {/* Subtitle */}
                         <p className="text-lg text-zinc-500 max-w-xl mx-auto mb-10">
-                            Parallel execution, lifecycle management, production ready.
+                            Open-source agent with parallel execution, runtime security, and compliance-grade audit trail. Cloud platform coming June 2026.
                         </p>
 
-                        {/* Install command */}
-                        <div
-                            onClick={copyCommand}
-                            onKeyDown={handleKeyDown}
-                            role="button"
-                            tabIndex={0}
-                            aria-label={copied ? "Installation command copied" : "Copy installation command to clipboard"}
-                            className="group inline-flex items-center gap-4 bg-zinc-900/80 backdrop-blur border border-zinc-800 hover:border-emerald-500/30 rounded-xl px-5 py-4 font-mono text-sm cursor-pointer transition-all duration-300 hover:bg-zinc-900 hover:shadow-lg hover:shadow-emerald-500/5 hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-zinc-950"
-                        >
-                            <span className="text-zinc-500">$</span>
-                            <span className="text-zinc-300">
-                curl -sSL https://mcp-hangar.io/install.sh | bash
-              </span>
-                            <span className="text-zinc-600 group-hover:text-emerald-400 transition-colors ml-2">
-                {copied ? <CheckIcon/> : <CopyIcon/>}
-              </span>
-                        </div>
-
-                        {/* CTA buttons */}
-                        <div className="flex flex-wrap justify-center gap-4 mt-8">
-                            <a
-                                href="/docs/getting-started/quickstart.html"
-                                className="group inline-flex items-center gap-2 px-6 py-3 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-semibold rounded-lg transition-all duration-300 hover:shadow-lg hover:shadow-emerald-500/25 hover:-translate-y-0.5"
-                            >
-                                Get Started
-                                <span className="transition-transform duration-300 group-hover:translate-x-1">
-                  <ArrowIcon/>
-                </span>
-                            </a>
-                            <a
-                                href="https://github.com/mapyr/mcp-hangar"
-                                className="inline-flex items-center gap-2 px-6 py-3 bg-zinc-800 hover:bg-zinc-700 text-zinc-100 font-semibold rounded-lg transition-all duration-300 hover:-translate-y-0.5"
-                            >
-                                <GithubIcon/>
-                                View on GitHub
-                            </a>
+                        <div className="flex flex-wrap justify-center gap-4">
+                            <Button href={LINKS.ossQuickstart} variant="primary" withArrow>
+                                Install v1.0
+                            </Button>
+                            <Button href="/waitlist" variant="secondary">
+                                Join Cloud Waitlist
+                            </Button>
+                            <Button href={LINKS.github} variant="secondary" external>
+                                <GithubIcon/> GitHub
+                            </Button>
                         </div>
                     </div>
                 </div>
 
-                {/* What Hangar Does */}
+                {/* ── Value Props ──────────────────────────────────── */}
                 <div className="max-w-6xl mx-auto px-6 pb-20">
                     <h2 className="text-sm font-semibold text-zinc-500 uppercase tracking-wider mb-6">
-                        What Hangar Does
+                        Why Hangar
                     </h2>
                     <div className="stagger-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <div
-                            className="flex items-start gap-3 p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/10 hover:border-emerald-500/25 hover:bg-emerald-500/10 transition-all duration-300">
-                            <span className="text-emerald-400 mt-0.5">⚡</span>
+                        <div className="flex items-start gap-3 p-4 rounded-xl bg-sky-500/5 border border-sky-500/10 hover:border-sky-500/25 hover:bg-sky-500/10 transition-all duration-300">
+                            <span className="text-sky-400 mt-0.5 shrink-0"><EyeIcon/></span>
                             <div>
-                                <span className="text-zinc-200 font-medium">Parallel Calls</span>
+                                <span className="text-zinc-200 font-medium">Visibility</span>
                                 <p className="text-sm text-zinc-500 mt-1">
-                                    15 tools, 2 providers, 380ms. Sequential would take 5+ seconds.
+                                    See every tool call across your fleet. Agent health, provider state, caller identity.
                                 </p>
                             </div>
                         </div>
-                        <div
-                            className="flex items-start gap-3 p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/10 hover:border-emerald-500/25 hover:bg-emerald-500/10 transition-all duration-300">
-                            <span className="text-emerald-400 mt-0.5">🖥️</span>
+                        <div className="flex items-start gap-3 p-4 rounded-xl bg-sky-500/5 border border-sky-500/10 hover:border-sky-500/25 hover:bg-sky-500/10 transition-all duration-300">
+                            <span className="text-sky-400 mt-0.5 shrink-0"><SlidersIcon/></span>
                             <div>
-                                <span className="text-zinc-200 font-medium">Web Dashboard</span>
+                                <span className="text-zinc-200 font-medium">Control</span>
                                 <p className="text-sm text-zinc-500 mt-1">
-                                    Manage providers, view logs, monitor metrics — all from a browser.
+                                    Enforce policies in real time. Allow/deny tools, rate limits, execution timeouts.
                                 </p>
                             </div>
                         </div>
-                        <div
-                            className="flex items-start gap-3 p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/10 hover:border-emerald-500/25 hover:bg-emerald-500/10 transition-all duration-300">
-                            <span className="text-emerald-400 mt-0.5">📁</span>
+                        <div className="flex items-start gap-3 p-4 rounded-xl bg-sky-500/5 border border-sky-500/10 hover:border-sky-500/25 hover:bg-sky-500/10 transition-all duration-300">
+                            <span className="text-sky-400 mt-0.5 shrink-0"><ScaleIcon/></span>
                             <div>
-                                <span className="text-zinc-200 font-medium">One Config</span>
+                                <span className="text-zinc-200 font-medium">Compliance</span>
                                 <p className="text-sm text-zinc-500 mt-1">
-                                    All providers in one place. Subprocess, Docker, remote HTTP.
+                                    Identity-aware audit trail. CEF export for SOC2 and EU AI Act. SIEM integrations.
                                 </p>
                             </div>
                         </div>
-                        <div
-                            className="flex items-start gap-3 p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/10 hover:border-emerald-500/25 hover:bg-emerald-500/10 transition-all duration-300">
-                            <span className="text-emerald-400 mt-0.5">🔄</span>
+                        <div className="flex items-start gap-3 p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/10 hover:border-emerald-500/25 hover:bg-emerald-500/10 transition-all duration-300">
+                            <span className="text-emerald-400 mt-0.5 shrink-0"><BoltIcon/></span>
                             <div>
-                                <span className="text-zinc-200 font-medium">Zero Downtime</span>
+                                <span className="text-zinc-200 font-medium">Performance</span>
                                 <p className="text-sm text-zinc-500 mt-1">
-                                    Hot-reload config. Change providers without restart.
+                                    15 tools, 2 providers, 380ms. Parallel execution with sub-ms proxy overhead.
                                 </p>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {/* Features */}
-                <div className="max-w-6xl mx-auto px-6 pb-32">
-                    <h2 className="text-sm font-semibold text-zinc-500 uppercase tracking-wider mb-6">
-                        Core Features
+                {/* ── How It Works (diagram) ──────────────────────── */}
+                <div className="max-w-4xl mx-auto px-6 pb-20">
+                    <h2 className="text-sm font-semibold text-zinc-500 uppercase tracking-wider mb-6 text-center">
+                        How It Works
                     </h2>
+                    <div className="flex flex-col md:flex-row items-center justify-center gap-6 py-8">
+                        <div className="flex flex-col items-center gap-2 p-6 rounded-2xl bg-zinc-900/50 border border-zinc-800/50 min-w-[180px]">
+                            <span className="text-zinc-400"><SparklesIcon/></span>
+                            <span className="text-zinc-200 font-medium text-sm">AI Agents</span>
+                            <span className="text-zinc-500 text-xs">Claude, GPT, custom</span>
+                        </div>
+                        <div className="text-zinc-600 text-2xl">→</div>
+                        <div className="flex flex-col items-center gap-2 p-6 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 min-w-[180px]">
+                            <span className="text-emerald-400"><CubeIcon/></span>
+                            <span className="text-emerald-400 font-medium text-sm">mcp-hangar agent</span>
+                            <span className="text-zinc-500 text-xs">OSS · your infrastructure</span>
+                        </div>
+                        <div className="text-zinc-600 text-2xl">→</div>
+                        <div className="flex flex-col items-center gap-2 p-6 rounded-2xl bg-sky-500/10 border border-sky-500/20 min-w-[180px]">
+                            <span className="text-sky-400"><CloudIcon/></span>
+                            <span className="text-sky-400 font-medium text-sm">Hangar Cloud</span>
+                            <span className="text-zinc-500 text-xs">dashboard · audit · policies</span>
+                        </div>
+                    </div>
+                    <p className="text-center text-sm text-zinc-500 mt-2">
+                        The agent runs on your infrastructure and proxies all MCP calls. Cloud adds visibility, governance, and team features.
+                    </p>
+                </div>
+
+                {/* ── Cloud Platform Features (sky accent) ────────── */}
+                <div id="features" className="max-w-6xl mx-auto px-6 pb-20">
+                    <div className="flex items-center gap-3 mb-6">
+                        <h2 className="text-sm font-semibold text-zinc-500 uppercase tracking-wider">
+                            Cloud Platform
+                        </h2>
+                        <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-sky-500/20 text-sky-400 border border-sky-500/30">
+                            Cloud
+                        </span>
+                    </div>
                     <div className="stagger-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <Feature
+                            icon={<DashboardIcon/>}
+                            title="Web Dashboard"
+                            description="Fleet overview, audit log viewer, policy management, top callers widget. Full web UI for your MCP infrastructure."
+                            accentColor="sky"
+                        />
+                        <Feature
+                            icon={<IdentityIcon/>}
+                            title="Identity Propagation"
+                            description="Track every caller from tool invocation to audit log. HTTP header and JWT extraction, contextvar binding, end-to-end identity chain."
+                            accentColor="sky"
+                        />
+                        <Feature
+                            icon={<AuditIcon/>}
+                            title="Audit Trail"
+                            description="Identity-aware audit records with queryable REST API. Caller, severity, and time range filters. CEF compliance export."
+                            accentColor="sky"
+                        />
+                        <Feature
+                            icon={<BehavioralIcon/>}
+                            title="Behavioral Profiling"
+                            description="Network behavioral baselines, deviation detection, tool schema drift monitoring. Enterprise-grade runtime analysis."
+                            accentColor="sky"
+                        />
+                        <Feature
+                            icon={<K8sIcon/>}
+                            title="K8s Operator"
+                            description="MCPProvider and MCPProviderGroup CRDs. Validating admission webhook, leader election, health probes. Deploy with Helm."
+                            accentColor="sky"
+                        />
+                        <Feature
+                            icon={<ShieldCheckIcon/>}
+                            title="K8s Enforcement"
+                            description="Kubernetes operator with validating webhooks, NetworkPolicy generation, capability verification, and violation signals."
+                            accentColor="sky"
+                        />
+                    </div>
+                </div>
+
+                {/* ── OSS Agent Features (emerald accent) ─────────── */}
+                <div className="max-w-6xl mx-auto px-6 pb-32">
+                    <div className="flex items-center gap-3 mb-6">
+                        <h2 className="text-sm font-semibold text-zinc-500 uppercase tracking-wider">
+                            Open-Source Agent
+                        </h2>
+                        <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                            Open Source
+                        </span>
+                    </div>
+                    <div className="stagger-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         <Feature
                             icon={<ParallelIcon/>}
                             title="Parallel Execution"
-                            description="Two-level concurrency control. Global limit (50) + per-provider limit (10). Automatic backpressure and fair scheduling across batches."
+                            description="Two-level concurrency control. Global limit (50) + per-provider limit (10). Automatic backpressure and fair scheduling."
                         />
                         <Feature
                             icon={<LockIcon/>}
                             title="Security & Access Control"
-                            description="Constant-time auth validation, exponential rate limiting, JWT lifetime enforcement, zero-downtime key rotation. Production-hardened by default."
+                            description="Constant-time auth validation, exponential rate limiting, JWT lifetime enforcement, zero-downtime key rotation."
                         />
                         <Feature
                             icon={<FilterIcon/>}
                             title="Tool Access Filtering"
-                            description="Config-driven tool visibility with glob patterns. Deny delete_* tools or allow only read_* operations per provider or group."
+                            description="Config-driven tool visibility with glob patterns. Deny delete_* tools or allow only read_* operations per provider."
                         />
                         <Feature
                             icon={<LifecycleIcon/>}
                             title="Lifecycle Management"
-                            description="Lazy loading — providers start on first call. Automatic shutdown after idle TTL. Health monitoring keeps them alive when needed."
+                            description="Lazy loading — providers start on first call. Automatic shutdown after idle TTL. Health monitoring keeps them alive."
                         />
                         <Feature
                             icon={<CircuitIcon/>}
@@ -248,42 +279,17 @@ function App() {
                         <Feature
                             icon={<ServerStackIcon/>}
                             title="Multi-Provider Orchestration"
-                            description="Local subprocess, Docker containers, remote HTTP — mix them in single batch. Unified interface, heterogeneous backends."
-                        />
-                        <Feature
-                            icon={<ShieldCheckIcon/>}
-                            title="Production Ready"
-                            description="Battle-tested config patterns. Works in home lab with 2 providers. Works in enterprise with 50. Same API, same reliability."
-                        />
-                        <Feature
-                            icon={<DashboardIcon/>}
-                            title="Web Dashboard"
-                            description="React 19 UI with live metrics, provider management, topology visualization, config diff viewer, and RBAC management. Baked into the Docker image."
-                        />
-                        <Feature
-                            icon={<RestApiIcon/>}
-                            title="REST API"
-                            description="Full CRUD API at /api/ with CORS, JSON serializers, provider lifecycle, group management, config export, and auth endpoints."
-                        />
-                        <Feature
-                            icon={<WebSocketIcon/>}
-                            title="Real-time WebSockets"
-                            description="Stream domain events, provider state changes, and logs in real-time. Exponential backoff reconnection built into the client."
-                        />
-                        <Feature
-                            icon={<LogStreamIcon/>}
-                            title="Log Streaming"
-                            description="Live stderr capture from subprocess and Docker providers. Ring buffer, REST endpoint, and WebSocket broadcast for real-time viewing."
+                            description="Local subprocess, Docker containers, remote HTTP — mix in single batch. Unified interface, heterogeneous backends."
                         />
                         <Feature
                             icon={<GroupIcon/>}
                             title="Provider Groups"
-                            description="Load balancing, failover, and health tracking across provider pools. Round-robin, weighted, and priority-based routing strategies."
+                            description="Load balancing, failover, and health tracking across provider pools. Round-robin, weighted, and priority-based routing."
                         />
                     </div>
                 </div>
 
-                {/* Quick Start */}
+                {/* ── Quick Start ──────────────────────────────────── */}
                 <div className="max-w-6xl mx-auto px-6 pb-32">
                     <div className="mb-10">
                         <h2 className="text-sm font-semibold text-zinc-500 uppercase tracking-wider mb-2">
@@ -298,15 +304,15 @@ function App() {
                         <StepList>
                             <Step
                                 number={1}
-                                title="Install MCP Hangar"
-                                description="One command. Works on macOS and Linux. Installs the binary and adds it to your PATH."
+                                title="Install the agent"
+                                description="Install from PyPI with pip or uv. Works on macOS, Linux, and Windows."
                             >
-                                <CodeBlock language="bash">{`curl -sSL https://mcp-hangar.io/install.sh | bash`}</CodeBlock>
+                                <CodeBlock language="bash">{`pip install mcp-hangar`}</CodeBlock>
                             </Step>
 
                             <Step
                                 number={2}
-                                title="Initialize your config"
+                                title="Configure providers"
                                 description="The wizard detects your runtimes, lets you pick providers, and configures Claude Desktop automatically."
                             >
                                 <CodeBlock language="yaml">{`# ~/.config/mcp-hangar/config.yaml
@@ -330,11 +336,24 @@ providers:
 
                             <Step
                                 number={3}
+                                title="Cloud dashboard (coming June 2026)"
+                                description="Fleet visibility, policy governance, and compliance exports. Join the waitlist to get early access."
+                            >
+                                <div className="flex items-center gap-3 p-4 rounded-xl bg-sky-500/10 border border-sky-500/20">
+                                    <span className="text-sky-400 text-lg">&#9729;</span>
+                                    <span className="text-sky-300 font-medium">Cloud launches June 2026</span>
+                                    <span className="text-zinc-500">—</span>
+                                    <a href="/waitlist" className="text-sky-400 hover:text-sky-300 underline underline-offset-2 transition-colors">Join the waitlist</a>
+                                </div>
+                            </Step>
+
+                            <Step
+                                number={4}
                                 title="Start the server"
-                                description="Launch Hangar and all your providers come online. Parallel execution is enabled by default."
+                                description="Launch the agent. Providers come online, cloud connection is established."
                             >
                                 <CodeBlock language="bash">{`$ mcp-hangar serve
-🚀 Starting MCP Hangar...
+🚀 Starting MCP Hangar v1.0...
   ● filesystem  ready  (245ms)
   ● fetch       ready  (189ms)
   ● memory      ready  (156ms)
@@ -342,7 +361,7 @@ providers:
                             </Step>
 
                             <Step
-                                number={4}
+                                number={5}
                                 title="You're ready"
                                 description="Restart Claude Desktop. Your tools are available with parallel execution, health monitoring, and circuit breakers — all out of the box."
                                 isLast
@@ -356,7 +375,7 @@ providers:
                     </div>
                 </div>
 
-                {/* Benchmarks */}
+                {/* ── Benchmarks ───────────────────────────────────── */}
                 <div className="max-w-6xl mx-auto px-6 pb-32">
                     <h2 className="text-sm font-semibold text-zinc-500 uppercase tracking-wider mb-6">
                         Benchmarks
@@ -367,39 +386,51 @@ providers:
                             <tr className="border-b border-zinc-800/50">
                                 <th className="text-left text-sm font-semibold text-zinc-300 px-6 py-4">Scenario</th>
                                 <th className="text-left text-sm font-semibold text-zinc-300 px-6 py-4">Time</th>
-                                <th className="text-left text-sm font-semibold text-zinc-300 px-6 py-4">Success Rate
-                                </th>
+                                <th className="text-left text-sm font-semibold text-zinc-300 px-6 py-4">Notes</th>
                             </tr>
                             </thead>
                             <tbody>
                             <tr className="border-b border-zinc-800/30">
-                                <td className="px-6 py-4 text-zinc-400">15 tools, 2 providers</td>
-                                <td className="px-6 py-4 text-emerald-400 font-mono">380ms</td>
+                                <td className="px-6 py-4 text-zinc-400">Full proxy path (p50 / p99)</td>
+                                <td className="px-6 py-4 text-emerald-400 font-mono">0.21ms / 0.24ms</td>
+                                <td className="px-6 py-4 text-emerald-400 font-mono">20x under 5ms target</td>
+                            </tr>
+                            <tr className="border-b border-zinc-800/30">
+                                <td className="px-6 py-4 text-zinc-400">Policy engine (1,000 policies)</td>
+                                <td className="px-6 py-4 text-emerald-400 font-mono">6.5&micro;s</td>
                                 <td className="px-6 py-4 text-emerald-400 font-mono">100%</td>
                             </tr>
                             <tr className="border-b border-zinc-800/30">
-                                <td className="px-6 py-4 text-zinc-400">Thundering herd (50 concurrent)</td>
-                                <td className="px-6 py-4 text-emerald-400 font-mono">1.3s</td>
+                                <td className="px-6 py-4 text-zinc-400">Event buffer with WAL persist</td>
+                                <td className="px-6 py-4 text-emerald-400 font-mono">158&micro;s</td>
+                                <td className="px-6 py-4 text-emerald-400 font-mono">100%</td>
+                            </tr>
+                            <tr className="border-b border-zinc-800/30">
+                                <td className="px-6 py-4 text-zinc-400">15 tools, 2 providers (parallel)</td>
+                                <td className="px-6 py-4 text-emerald-400 font-mono">380ms</td>
                                 <td className="px-6 py-4 text-emerald-400 font-mono">100%</td>
                             </tr>
                             <tr>
-                                <td className="px-6 py-4 text-zinc-400">Cold start + batch</td>
-                                <td className="px-6 py-4 text-emerald-400 font-mono">&lt;500ms</td>
+                                <td className="px-6 py-4 text-zinc-400">Domain event mapping</td>
+                                <td className="px-6 py-4 text-emerald-400 font-mono">5.3&micro;s</td>
                                 <td className="px-6 py-4 text-emerald-400 font-mono">100%</td>
                             </tr>
                             </tbody>
                         </table>
                     </div>
                     <p className="text-sm text-zinc-500 mt-4">
-                        Measured on simple M1 MB Pro. 15 tools across 2 providers (subprocess + Docker). Sequential execution would take 5+ seconds.
+                        Measured via pytest-benchmark (Python) and Go benchmark suite.
+                        Full results in the{" "}
+                        <a href="/docs/oss/reference/benchmarks" className="text-emerald-400 hover:text-emerald-300 underline underline-offset-2 transition-colors">
+                            v1.0 benchmark report
+                        </a>.
                     </p>
                 </div>
 
-                {/* Dashboard UI - New in v0.12.0 */}
+                {/* ── Dashboard Preview (sky accent) ───────────────── */}
                 <div className="max-w-6xl mx-auto px-6 pb-32">
                     <div
                         className="relative rounded-2xl bg-gradient-to-b from-sky-500/10 to-transparent border border-sky-500/20 p-8 md:p-12 overflow-hidden">
-                        {/* Background glow */}
                         <div
                             className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-sky-500/20 rounded-full blur-3xl"/>
 
@@ -410,15 +441,15 @@ providers:
                                     <DashboardIcon/>
                                 </div>
                                 <h2 className="text-2xl md:text-3xl font-bold text-zinc-100">
-                                    Dashboard UI
+                                    Dashboard & Audit Trail
                                 </h2>
                                 <span
                                     className="ml-2 px-2 py-0.5 text-xs font-semibold rounded-full bg-sky-500/20 text-sky-400 border border-sky-500/30">
-                                    NEW in v0.12.0
+                                    Cloud
                                 </span>
                             </div>
                             <p className="text-zinc-400 mb-8 max-w-2xl">
-                                Full web interface for managing your MCP infrastructure. Built with React 19 + TypeScript, served directly by the Hangar HTTP server.
+                                Full web interface for managing your MCP infrastructure. Fleet-wide visibility, compliance-grade audit log, and policy management across all clusters.
                             </p>
 
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -426,20 +457,33 @@ providers:
                                     <h3 className="text-lg font-semibold text-zinc-200 mb-3">Monitor</h3>
                                     <ul className="space-y-2 text-zinc-400">
                                         <li className="flex items-start gap-2">
-                                            <span className="text-sky-400 mt-1">•</span>
-                                            <span>Live metrics charts and time-series data</span>
+                                            <span className="text-sky-400 mt-1">&#x2022;</span>
+                                            <span>Fleet overview with agent health and MCP server inventory</span>
                                         </li>
                                         <li className="flex items-start gap-2">
-                                            <span className="text-sky-400 mt-1">•</span>
-                                            <span>Provider state distribution at a glance</span>
+                                            <span className="text-sky-400 mt-1">&#x2022;</span>
+                                            <span>Top callers widget with call/error counts per user</span>
                                         </li>
                                         <li className="flex items-start gap-2">
-                                            <span className="text-sky-400 mt-1">•</span>
-                                            <span>Real-time event feed and alert stream</span>
+                                            <span className="text-sky-400 mt-1">&#x2022;</span>
+                                            <span>Live metrics charts and provider state distribution</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h3 className="text-lg font-semibold text-zinc-200 mb-3">Audit</h3>
+                                    <ul className="space-y-2 text-zinc-400">
+                                        <li className="flex items-start gap-2">
+                                            <span className="text-sky-400 mt-1">&#x2022;</span>
+                                            <span>Identity-aware audit log with caller tracking</span>
                                         </li>
                                         <li className="flex items-start gap-2">
-                                            <span className="text-sky-400 mt-1">•</span>
-                                            <span>D3 force-graph topology visualization</span>
+                                            <span className="text-sky-400 mt-1">&#x2022;</span>
+                                            <span>Filter by provider, event type, severity, caller</span>
+                                        </li>
+                                        <li className="flex items-start gap-2">
+                                            <span className="text-sky-400 mt-1">&#x2022;</span>
+                                            <span>CEF compliance export for SOC2 and EU AI Act</span>
                                         </li>
                                     </ul>
                                 </div>
@@ -447,90 +491,101 @@ providers:
                                     <h3 className="text-lg font-semibold text-zinc-200 mb-3">Manage</h3>
                                     <ul className="space-y-2 text-zinc-400">
                                         <li className="flex items-start gap-2">
-                                            <span className="text-sky-400 mt-1">•</span>
-                                            <span>Start, stop, and inspect providers</span>
+                                            <span className="text-sky-400 mt-1">&#x2022;</span>
+                                            <span>Start, stop, and inspect providers across clusters</span>
                                         </li>
                                         <li className="flex items-start gap-2">
-                                            <span className="text-sky-400 mt-1">•</span>
-                                            <span>Provider groups and discovery sources</span>
+                                            <span className="text-sky-400 mt-1">&#x2022;</span>
+                                            <span>Policy editor with real-time push to agents</span>
                                         </li>
                                         <li className="flex items-start gap-2">
-                                            <span className="text-sky-400 mt-1">•</span>
-                                            <span>Config export with colored diff viewer</span>
-                                        </li>
-                                        <li className="flex items-start gap-2">
-                                            <span className="text-sky-400 mt-1">•</span>
-                                            <span>RBAC and tool access policy editor</span>
+                                            <span className="text-sky-400 mt-1">&#x2022;</span>
+                                            <span>RBAC and tool access policy configuration</span>
                                         </li>
                                     </ul>
                                 </div>
-                                <div>
-                                    <h3 className="text-lg font-semibold text-zinc-200 mb-3">Stream</h3>
-                                    <ul className="space-y-2 text-zinc-400">
-                                        <li className="flex items-start gap-2">
-                                            <span className="text-sky-400 mt-1">•</span>
-                                            <span>Live provider log viewer (stderr)</span>
-                                        </li>
-                                        <li className="flex items-start gap-2">
-                                            <span className="text-sky-400 mt-1">•</span>
-                                            <span>WebSocket-powered state updates</span>
-                                        </li>
-                                        <li className="flex items-start gap-2">
-                                            <span className="text-sky-400 mt-1">•</span>
-                                            <span>Catalog browser for tool discovery</span>
-                                        </li>
-                                        <li className="flex items-start gap-2">
-                                            <span className="text-sky-400 mt-1">•</span>
-                                            <span>Toast notifications and skeleton loading</span>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-
-                            {/* Code example */}
-                            <div className="bg-zinc-950/80 rounded-xl border border-zinc-800/50 p-5 mb-8 font-mono text-sm overflow-x-auto">
-                                <div className="text-zinc-500 mb-2"># Start Hangar with the dashboard</div>
-                                <div className="text-zinc-300">$ mcp-hangar serve --http --port 8000</div>
-                                <div className="text-zinc-500 mt-3 mb-1"># Dashboard at http://localhost:8000</div>
-                                <div className="text-zinc-500"># REST API at http://localhost:8000/api/</div>
-                                <div className="text-zinc-500"># WebSocket at ws://localhost:8000/api/ws/events</div>
                             </div>
 
                             <div className="flex flex-wrap gap-4">
                                 <a
-                                    href="/docs/guides/DASHBOARD.html"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
+                                    href="/waitlist"
                                     className="inline-flex items-center gap-2 px-5 py-2.5 bg-sky-500 hover:bg-sky-400 text-zinc-950 font-semibold rounded-lg transition-all duration-300 hover:-translate-y-0.5"
                                 >
-                                    Dashboard Guide
-                                </a>
-                                <a
-                                    href="/docs/guides/REST_API.html"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-100 font-semibold rounded-lg transition-all duration-300 hover:-translate-y-0.5"
-                                >
-                                    REST API Docs
-                                </a>
-                                <a
-                                    href="/docs/guides/WEBSOCKETS.html"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-100 font-semibold rounded-lg transition-all duration-300 hover:-translate-y-0.5"
-                                >
-                                    WebSocket Docs
+                                    Join Cloud Waitlist
                                 </a>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {/* Production Security */}
+                {/* ── Plans Preview ─────────────────────────────────── */}
+                <div className="max-w-6xl mx-auto px-6 pb-32">
+                    <h2 className="text-sm font-semibold text-zinc-500 uppercase tracking-wider mb-6">
+                        Open Source vs Cloud
+                    </h2>
+                    <div className="bg-zinc-900/30 border border-zinc-800/50 rounded-2xl overflow-hidden">
+                        <table className="w-full text-sm">
+                            <thead>
+                            <tr className="border-b border-zinc-800/50">
+                                <th className="text-left font-semibold text-zinc-300 px-6 py-4"/>
+                                <th className="text-center font-semibold text-emerald-400 px-6 py-4">OSS Agent v1.0<br/><span className="font-normal text-zinc-500">Available now</span></th>
+                                <th className="text-center font-semibold text-sky-400 px-6 py-4">Free Cloud<br/><span className="font-normal text-zinc-500">June 2026</span></th>
+                                <th className="text-center font-semibold text-sky-400 px-6 py-4">Pro<br/><span className="font-normal text-zinc-500">September 2026</span></th>
+                                <th className="text-center font-semibold text-amber-400 px-6 py-4">Enterprise<br/><span className="font-normal text-zinc-500">September 2026</span></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {[
+                                {f: "MCP providers",           c: "Unlimited", fc: "Unlimited", p: "Unlimited", e: "Unlimited"},
+                                {f: "Hangar instances",        c: "Self-hosted", fc: "2", p: "Unlimited", e: "Unlimited"},
+                                {f: "Cloud dashboard",         c: false,     fc: true,   p: true,        e: true},
+                                {f: "Policy editor",           c: false,     fc: false,  p: true,        e: true},
+                                {f: "CEF compliance export",   c: false,     fc: false,  p: true,        e: true},
+                                {f: "SSO / SAML",              c: false,     fc: false,  p: false,       e: true},
+                                {f: "Uptime SLA",              c: false,     fc: false,  p: false,       e: true},
+                            ].map((row, i) => (
+                                <tr key={i} className="border-b border-zinc-800/30 last:border-b-0">
+                                    <td className="px-6 py-3 text-zinc-400">{row.f}</td>
+                                    <td className="px-6 py-3 text-center">
+                                        {typeof row.c === "boolean"
+                                            ? (row.c ? <span className="text-emerald-400">&#10003;</span> : <span className="text-zinc-600">&#8212;</span>)
+                                            : <span className="text-zinc-300">{row.c}</span>}
+                                    </td>
+                                    <td className="px-6 py-3 text-center">
+                                        {typeof row.fc === "boolean"
+                                            ? (row.fc ? <span className="text-sky-400">&#10003;</span> : <span className="text-zinc-600">&#8212;</span>)
+                                            : <span className="text-zinc-300">{row.fc}</span>}
+                                    </td>
+                                    <td className="px-6 py-3 text-center">
+                                        {typeof row.p === "boolean"
+                                            ? (row.p ? <span className="text-sky-400">&#10003;</span> : <span className="text-zinc-600">&#8212;</span>)
+                                            : <span className="text-zinc-300">{row.p}</span>}
+                                    </td>
+                                    <td className="px-6 py-3 text-center">
+                                        {typeof row.e === "boolean"
+                                            ? (row.e ? <span className="text-amber-400">&#10003;</span> : <span className="text-zinc-600">&#8212;</span>)
+                                            : <span className="text-zinc-300">{row.e}</span>}
+                                    </td>
+                                </tr>
+                            ))}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div className="text-center mt-6">
+                        <Link
+                            to="/plans"
+                            className="inline-flex items-center gap-2 text-sm text-sky-400 hover:text-sky-300 transition-colors"
+                        >
+                            See all plans & feature comparison
+                            <ArrowIcon/>
+                        </Link>
+                    </div>
+                </div>
+
+                {/* ── Production Security (amber accent) ──────────── */}
                 <div className="max-w-6xl mx-auto px-6 pb-32">
                     <div
                         className="relative rounded-2xl bg-gradient-to-b from-amber-500/10 to-transparent border border-amber-500/20 p-8 md:p-12 overflow-hidden">
-                        {/* Background glow */}
                         <div
                             className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-amber-500/20 rounded-full blur-3xl"/>
 
@@ -550,73 +605,52 @@ providers:
                                     <h3 className="text-lg font-semibold text-zinc-200 mb-3">Authentication</h3>
                                     <ul className="space-y-2 text-zinc-400">
                                         <li className="flex items-start gap-2">
-                                            <span className="text-amber-400 mt-1">•</span>
-                                            <span>API Keys with SHA-256 hashing and automatic expiration</span>
+                                            <span className="text-amber-400 mt-1">&#x2022;</span>
+                                            <span>API keys with bcrypt hashing, prefix lookup, automatic expiration</span>
                                         </li>
                                         <li className="flex items-start gap-2">
-                                            <span className="text-amber-400 mt-1">•</span>
+                                            <span className="text-amber-400 mt-1">&#x2022;</span>
                                             <span>JWT/OIDC integration with JWKS validation and SSO support</span>
                                         </li>
                                         <li className="flex items-start gap-2">
-                                            <span className="text-amber-400 mt-1">•</span>
-                                            <span>Role-based access control (RBAC) with built-in roles</span>
-                                        </li>
-                                        <li className="flex items-start gap-2">
-                                            <span className="text-amber-400 mt-1">•</span>
-                                            <span>Zero-downtime key rotation with configurable grace periods</span>
+                                            <span className="text-amber-400 mt-1">&#x2022;</span>
+                                            <span>Identity propagation: track callers from HTTP header to audit log</span>
                                         </li>
                                     </ul>
                                 </div>
                                 <div>
-                                    <h3 className="text-lg font-semibold text-zinc-200 mb-3">Security Hardening</h3>
+                                    <h3 className="text-lg font-semibold text-zinc-200 mb-3">Hardening</h3>
                                     <ul className="space-y-2 text-zinc-400">
                                         <li className="flex items-start gap-2">
-                                            <span className="text-amber-400 mt-1">•</span>
-                                            <span>Constant-time auth lookups preventing timing attacks</span>
+                                            <span className="text-amber-400 mt-1">&#x2022;</span>
+                                            <span>Agent TLS with custom CA and mTLS support</span>
                                         </li>
                                         <li className="flex items-start gap-2">
-                                            <span className="text-amber-400 mt-1">•</span>
-                                            <span>Exponential backoff rate limiting with automatic lockout</span>
-                                        </li>
-                                        <li className="flex items-start gap-2">
-                                            <span className="text-amber-400 mt-1">•</span>
-                                            <span>JWT lifetime enforcement rejecting long-lived tokens</span>
-                                        </li>
-                                        <li className="flex items-start gap-2">
-                                            <span className="text-amber-400 mt-1">•</span>
+                                            <span className="text-amber-400 mt-1">&#x2022;</span>
                                             <span>Tool access filtering with allow/deny lists and glob patterns</span>
+                                        </li>
+                                        <li className="flex items-start gap-2">
+                                            <span className="text-amber-400 mt-1">&#x2022;</span>
+                                            <span>Capability declaration and runtime verification</span>
                                         </li>
                                     </ul>
                                 </div>
-                            </div>
-
-                            <div className="flex flex-wrap gap-4">
-                                <a
-                                    href="/docs/guides/AUTHENTICATION.html"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-amber-500 hover:bg-amber-400 text-zinc-950 font-semibold rounded-lg transition-all duration-300 hover:-translate-y-0.5"
-                                >
-                                    Set Up Authentication
-                                </a>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {/* Documentation */}
+                {/* ── Documentation ────────────────────────────────── */}
                 <div className="max-w-6xl mx-auto px-6 pb-32">
                     <h2 className="text-sm font-semibold text-zinc-500 uppercase tracking-wider mb-6">
                         Documentation
                     </h2>
                     <p className="text-zinc-400 mb-8 max-w-2xl">
-                        Everything you need to get started and make the most of MCP Hangar.
+                        Everything you need to get started with the open-source agent.
                     </p>
-                    <div className="stagger-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                    <div className="stagger-grid grid grid-cols-1 md:grid-cols-3 gap-4">
                         <a
-                            href="/docs/getting-started/quickstart.html"
-                            target="_blank"
-                            rel="noopener noreferrer"
+                            href="/docs/oss/getting-started/quickstart"
                             className="group p-6 rounded-2xl bg-zinc-900/30 border border-zinc-800/50 hover:border-emerald-500/20 hover:bg-zinc-900/50 transition-all duration-300 hover:-translate-y-1"
                         >
                             <div
@@ -624,12 +658,10 @@ providers:
                                 <RocketIcon/>
                             </div>
                             <h3 className="font-semibold text-zinc-100 mb-2">Getting Started</h3>
-                            <p className="text-sm text-zinc-400">From install to first parallel call in 2 minutes</p>
+                            <p className="text-sm text-zinc-400">Install the agent and make your first parallel call</p>
                         </a>
                         <a
-                            href="/docs/cookbook/"
-                            target="_blank"
-                            rel="noopener noreferrer"
+                            href="/docs/oss/cookbook/"
                             className="group p-6 rounded-2xl bg-zinc-900/30 border border-zinc-800/50 hover:border-emerald-500/20 hover:bg-zinc-900/50 transition-all duration-300 hover:-translate-y-1"
                         >
                             <div
@@ -637,27 +669,10 @@ providers:
                                 <BookOpenIcon/>
                             </div>
                             <h3 className="font-semibold text-zinc-100 mb-2">Cookbook</h3>
-                            <p className="text-sm text-zinc-400">13 recipes from zero to production — gateway, failover,
-                                load balancing, auth</p>
+                            <p className="text-sm text-zinc-400">13 recipes from zero to production</p>
                         </a>
                         <a
-                            href="/docs/guides/DASHBOARD.html"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="group p-6 rounded-2xl bg-zinc-900/30 border border-zinc-800/50 hover:border-emerald-500/20 hover:bg-zinc-900/50 transition-all duration-300 hover:-translate-y-1"
-                        >
-                            <div
-                                className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 mb-4">
-                                <DashboardIcon/>
-                            </div>
-                            <h3 className="font-semibold text-zinc-100 mb-2">Guides</h3>
-                            <p className="text-sm text-zinc-400">Dashboard, REST API, WebSockets, provider groups,
-                                observability, containers</p>
-                        </a>
-                        <a
-                            href="/docs/reference/configuration.html"
-                            target="_blank"
-                            rel="noopener noreferrer"
+                            href="/docs/oss/reference/configuration"
                             className="group p-6 rounded-2xl bg-zinc-900/30 border border-zinc-800/50 hover:border-emerald-500/20 hover:bg-zinc-900/50 transition-all duration-300 hover:-translate-y-1"
                         >
                             <div
@@ -665,31 +680,15 @@ providers:
                                 <FileTextIcon/>
                             </div>
                             <h3 className="font-semibold text-zinc-100 mb-2">Reference</h3>
-                            <p className="text-sm text-zinc-400">Configuration, CLI, REST API reference, MCP tools
-                                reference</p>
-                        </a>
-                        <a
-                            href="/docs/architecture/OVERVIEW.html"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="group p-6 rounded-2xl bg-zinc-900/30 border border-zinc-800/50 hover:border-emerald-500/20 hover:bg-zinc-900/50 transition-all duration-300 hover:-translate-y-1"
-                        >
-                            <div
-                                className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 mb-4">
-                                <LayersIcon/>
-                            </div>
-                            <h3 className="font-semibold text-zinc-100 mb-2">Architecture</h3>
-                            <p className="text-sm text-zinc-400">Event sourcing, single-flight, batch execution under
-                                the hood</p>
+                            <p className="text-sm text-zinc-400">Configuration, CLI, REST API, MCP tools</p>
                         </a>
                     </div>
                 </div>
 
-                {/* Contributing */}
+                {/* ── Built on Open Source ─────────────────────────── */}
                 <div className="max-w-6xl mx-auto px-6 pb-32">
                     <div
                         className="relative rounded-2xl bg-gradient-to-b from-emerald-500/10 to-transparent border border-emerald-500/20 p-8 md:p-12 overflow-hidden">
-                        {/* Background glow */}
                         <div
                             className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-emerald-500/20 rounded-full blur-3xl"/>
 
@@ -699,21 +698,38 @@ providers:
                                 <HeartIcon/>
                             </div>
                             <h2 className="text-2xl md:text-3xl font-bold text-zinc-100 mb-4">
-                                Open Source & Community Driven
+                                Built on Open Source
                             </h2>
-                            <p className="text-zinc-400 mb-8">
-                                MCP Hangar is MIT licensed and built in the open. We welcome
-                                contributions of all kinds — whether it's fixing bugs, improving
-                                docs, or proposing new features. Every contribution matters.
+                            <p className="text-zinc-400 mb-6">
+                                The <code className="text-emerald-400 bg-zinc-800/50 px-1.5 py-0.5 rounded text-sm">mcp-hangar</code> agent
+                                is MIT-licensed and always will be. Run it locally, on your servers, or in Kubernetes — no cloud account required.
+                                The platform adds managed infrastructure, team collaboration, and enterprise compliance on top.
                             </p>
+
+                            {/* Install command */}
+                            <div
+                                onClick={copyCommand}
+                                onKeyDown={handleKeyDown}
+                                role="button"
+                                tabIndex={0}
+                                aria-label={copied ? "Installation command copied" : "Copy installation command to clipboard"}
+                                className="group inline-flex items-center gap-4 bg-zinc-900/80 backdrop-blur border border-zinc-800 hover:border-emerald-500/30 rounded-xl px-5 py-4 font-mono text-sm cursor-pointer transition-all duration-300 hover:bg-zinc-900 hover:shadow-lg hover:shadow-emerald-500/5 hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-zinc-950 mb-8"
+                            >
+                                <span className="text-zinc-500">$</span>
+                                <span className="text-zinc-300">
+                                    curl -sSL https://mcp-hangar.io/install.sh | bash
+                                </span>
+                                <span className="text-zinc-600 group-hover:text-emerald-400 transition-colors ml-2">
+                                    {copied ? <CheckIcon/> : <CopyIcon/>}
+                                </span>
+                            </div>
+
                             <div className="flex flex-wrap justify-center gap-4">
                                 <a
-                                    href="/docs/development/CONTRIBUTING.html"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
+                                    href="/docs/oss/development/CONTRIBUTING"
                                     className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-semibold rounded-lg transition-all duration-300 hover:-translate-y-0.5"
                                 >
-                                    Read Contributing Guide
+                                    Contributing Guide
                                 </a>
                                 <a
                                     href="https://github.com/mcp-hangar/mcp-hangar/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22"
@@ -738,174 +754,8 @@ providers:
                     </div>
                 </div>
 
-                {/* Footer */}
-                <footer className="border-t border-zinc-800/50">
-                    <div className="max-w-6xl mx-auto px-6 py-12">
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
-                            {/* Brand */}
-                            <div className="col-span-2 md:col-span-1">
-                                <div className="flex items-center gap-2 mb-4">
-                                    <div
-                                        className="w-6 h-6 rounded bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center">
-                                        <span className="text-zinc-950 font-bold text-xs">H</span>
-                                    </div>
-                                    <span className="font-semibold text-zinc-100">
-                    mcp-hangar
-                  </span>
-                                </div>
-                                <p className="text-sm text-zinc-500 mb-4">
-                                    Production-grade MCP infrastructure. Free and open source.
-                                </p>
-                                <div className="flex items-center gap-3">
-                                    <a
-                                        href="https://github.com/mcp-hangar/mcp-hangar"
-                                        className="text-zinc-500 hover:text-emerald-400 transition-colors duration-300"
-                                    >
-                                        <GithubIcon/>
-                                    </a>
-                                    <a
-                                        href="https://pypi.org/project/mcp-hangar/"
-                                        className="text-zinc-500 hover:text-emerald-400 transition-colors duration-300"
-                                    >
-                                        <PythonIcon/>
-                                    </a>
-                                </div>
-                            </div>
-
-                            {/* Documentation */}
-                            <div>
-                                <h4 className="text-sm font-semibold text-zinc-300 mb-4">
-                                    Documentation
-                                </h4>
-                                <ul className="space-y-2 text-sm">
-                                    <li>
-                                        <a
-                                            href="/docs/getting-started/quickstart.html"
-                                            className="text-zinc-500 hover:text-emerald-400 transition-colors duration-300"
-                                        >
-                                            Quickstart
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a
-                                            href="/docs/cookbook/"
-                                            className="text-zinc-500 hover:text-emerald-400 transition-colors duration-300"
-                                        >
-                                            Cookbook
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a
-                                            href="/docs/guides/DASHBOARD.html"
-                                            className="text-zinc-500 hover:text-emerald-400 transition-colors duration-300"
-                                        >
-                                            Dashboard
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a
-                                            href="/docs/guides/REST_API.html"
-                                            className="text-zinc-500 hover:text-emerald-400 transition-colors duration-300"
-                                        >
-                                            REST API
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a
-                                            href="/docs/reference/configuration.html"
-                                            className="text-zinc-500 hover:text-emerald-400 transition-colors duration-300"
-                                        >
-                                            Configuration
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-
-                            {/* Community */}
-                            <div>
-                                <h4 className="text-sm font-semibold text-zinc-300 mb-4">
-                                    Community
-                                </h4>
-                                <ul className="space-y-2 text-sm">
-                                    <li>
-                                        <a
-                                            href="https://github.com/mcp-hangar/mcp-hangar/issues"
-                                            className="text-zinc-500 hover:text-emerald-400 transition-colors duration-300"
-                                        >
-                                            Issues
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a
-                                            href="/docs/development/CONTRIBUTING.html"
-                                            className="text-zinc-500 hover:text-emerald-400 transition-colors duration-300"
-                                        >
-                                            Contributing
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a
-                                            href="/docs/changelog.html"
-                                            className="text-zinc-500 hover:text-emerald-400 transition-colors duration-300"
-                                        >
-                                            Changelog
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a
-                                            href="/docs/security.html"
-                                            className="text-zinc-500 hover:text-emerald-400 transition-colors duration-300"
-                                        >
-                                            Security
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-
-                            {/* Legal */}
-                            <div>
-                                <h4 className="text-sm font-semibold text-zinc-300 mb-4">
-                                    Project
-                                </h4>
-                                <ul className="space-y-2 text-sm">
-                                    <li>
-                                        <a
-                                            href="https://github.com/mcp-hangar/mcp-hangar/blob/main/LICENSE"
-                                            className="text-zinc-500 hover:text-emerald-400 transition-colors duration-300"
-                                        >
-                                            MIT License
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a
-                                            href="/docs/runbooks/RELEASE.html"
-                                            className="text-zinc-500 hover:text-emerald-400 transition-colors duration-300"
-                                        >
-                                            Releases
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a
-                                            href="https://github.com/mcp-hangar/mcp-hangar"
-                                            className="text-zinc-500 hover:text-emerald-400 transition-colors duration-300"
-                                        >
-                                            Source Code
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-
-                        {/* Bottom bar */}
-                        <div
-                            className="pt-8 border-t border-zinc-800/50 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-zinc-600">
-              <span>
-                © 2026 mcp-hangar contributors. Released under MIT License.
-              </span>
-                            <span>Made with ♥ for the MCP community</span>
-                        </div>
-                    </div>
-                </footer>
+                {/* ── Footer ───────────────────────────────────────── */}
+                <SiteFooter/>
             </div>
         </div>
     );
