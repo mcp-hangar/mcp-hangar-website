@@ -11,10 +11,11 @@ export default function Privacy() {
 
                 <div className="space-y-10 text-sm leading-relaxed">
                     <section>
-                        <h2 className="text-lg font-semibold text-zinc-100 mb-3">1. Who we are</h2>
+                        <h2 className="text-lg font-semibold text-zinc-100 mb-3">1. Data controller</h2>
                         <p>
-                            MCP Hangar is an open-source project maintained by its contributors.
-                            This website is operated from Poland. For privacy-related questions,
+                            The data controller is Marcin Pyrka, Poland (sole proprietor).
+                            MCP Hangar is an open-source project operated from Poland.
+                            For privacy-related questions,
                             contact us at <a href="mailto:privacy@mcp-hangar.io" className="text-emerald-400 hover:underline">privacy@mcp-hangar.io</a>.
                         </p>
                     </section>
@@ -28,6 +29,11 @@ export default function Privacy() {
                                 This data is stored by our email provider (Buttondown) and used solely to notify you about product availability.
                             </li>
                         </ul>
+                        <p className="mt-3">
+                            Providing your email is voluntary. If you choose not to, you will not
+                            receive waitlist notifications, but you can still use the website
+                            and the open-source software freely.
+                        </p>
                         <p className="mt-3">
                             We do <strong className="text-zinc-200">not</strong> use cookies, analytics, tracking pixels,
                             fingerprinting, or any form of behavioral tracking on this website.
@@ -80,8 +86,8 @@ export default function Privacy() {
                             </table>
                         </div>
                         <p className="mt-3">
-                            All US-based processors operate under standard contractual clauses or equivalent safeguards
-                            for international data transfers (GDPR Art. 46).
+                            Vercel and GitHub participate in the EU-US Data Privacy Framework (DPF).
+                            For other processors, transfers are covered by standard contractual clauses (GDPR Art. 46).
                         </p>
                     </section>
 
@@ -122,7 +128,15 @@ export default function Privacy() {
                     </section>
 
                     <section>
-                        <h2 className="text-lg font-semibold text-zinc-100 mb-3">8. Supervisory authority</h2>
+                        <h2 className="text-lg font-semibold text-zinc-100 mb-3">8. Minimum age</h2>
+                        <p>
+                            This website and the waitlist are intended for users aged 16 or older.
+                            We do not knowingly collect personal data from anyone under 16.
+                        </p>
+                    </section>
+
+                    <section>
+                        <h2 className="text-lg font-semibold text-zinc-100 mb-3">9. Supervisory authority</h2>
                         <p>
                             You have the right to lodge a complaint with a supervisory authority,
                             in particular in the EU/EEA member state of your residence.
@@ -131,7 +145,7 @@ export default function Privacy() {
                     </section>
 
                     <section>
-                        <h2 className="text-lg font-semibold text-zinc-100 mb-3">9. Changes</h2>
+                        <h2 className="text-lg font-semibold text-zinc-100 mb-3">10. Changes</h2>
                         <p>
                             We may update this policy from time to time. Changes will be posted on this page
                             with an updated revision date.
