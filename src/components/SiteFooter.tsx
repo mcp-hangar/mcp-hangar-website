@@ -61,8 +61,11 @@ export function SiteFooter() {
                 </div>
 
                 <div className="pt-8 border-t border-zinc-800/50 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-zinc-600">
-                    <span>© 2026 MCP Hangar. Agent released under MIT License.</span>
-                    <span>Made with ♥ for the MCP community</span>
+                    <span>&copy; 2026 MCP Hangar. Agent released under MIT License.</span>
+                    <div className="flex items-center gap-4">
+                        <Link to="/privacy" className="hover:text-zinc-400 transition-colors">Privacy Policy</Link>
+                        <Link to="/terms" className="hover:text-zinc-400 transition-colors">Terms</Link>
+                    </div>
                 </div>
             </div>
         </footer>

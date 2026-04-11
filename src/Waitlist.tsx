@@ -192,6 +192,8 @@ export default function Waitlist() {
 
                                 <p className="text-xs text-zinc-600 text-center">
                                     No spam. We'll only email you when your tier launches.
+                                    By signing up you agree to our{" "}
+                                    <a href="/privacy" className="text-zinc-500 hover:text-emerald-400 underline">Privacy Policy</a>.
                                 </p>
                             </form>
                         </div>
