@@ -33,7 +33,6 @@ export function SiteFooter() {
                         <ul className="space-y-2 text-sm">
                             <li><a href="/#features" className="text-zinc-500 hover:text-emerald-400 transition-colors duration-300">Features</a></li>
                             <li><Link to="/plans" className="text-zinc-500 hover:text-emerald-400 transition-colors duration-300">Plans</Link></li>
-                            <li><Link to="/waitlist" className="text-zinc-500 hover:text-emerald-400 transition-colors duration-300">Cloud Waitlist</Link></li>
                         </ul>
                     </div>
 
