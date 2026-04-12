@@ -25,7 +25,7 @@ docs/.vitepress/cache/
 
 # Internal notes and configs (not for public repo)
 .claude/
-CLAUDE.md
+AGENTS.md
 DEPLOYMENT.md
 DEPLOYMENT_SUMMARY.md
 MAINTENANCE_SUMMARY.md
