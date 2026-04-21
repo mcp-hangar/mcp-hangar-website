@@ -1,17 +1,14 @@
-import {useState, useEffect, type FormEvent} from "react";
+import {useState, type FormEvent} from "react";
 import {SiteNav} from "./components/SiteNav";
 import {SiteFooter} from "./components/SiteFooter";
 import {CheckIcon} from "./components/Icons";
+import {SEO} from "./components/SEO";
 
 export default function Waitlist() {
     const [email, setEmail] = useState("");
     const [submitted, setSubmitted] = useState(false);
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
-
-    useEffect(() => {
-        document.title = "Early Access | mcp-hangar";
-    }, []);
 
     async function handleSubmit(e: FormEvent) {
         e.preventDefault();
@@ -47,6 +44,11 @@ export default function Waitlist() {
 
     return (
         <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col">
+            <SEO 
+                title="Join the Waitlist -- MCP Hangar" 
+                description="Get early access to the MCP Hangar cloud platform. Manage, secure, and govern your AI agent infrastructure."
+                path="/waitlist"
+            />
             <SiteNav/>
 
             <main className="flex-1 flex items-center justify-center px-6 py-24">

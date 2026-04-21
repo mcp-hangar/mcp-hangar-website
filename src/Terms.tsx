@@ -1,9 +1,15 @@
 import {SiteNav} from "./components/SiteNav";
 import {SiteFooter} from "./components/SiteFooter";
+import {SEO} from "./components/SEO";
 
 export default function Terms() {
     return (
         <div className="min-h-screen bg-zinc-950 text-zinc-300">
+            <SEO 
+                title="Terms of Service -- MCP Hangar" 
+                description="Terms of Service governing the use of MCP Hangar's cloud services and website."
+                path="/terms"
+            />
             <SiteNav/>
             <main className="max-w-3xl mx-auto px-6 py-20">
                 <h1 className="text-3xl font-bold text-zinc-100 mb-2">Terms of Service</h1>

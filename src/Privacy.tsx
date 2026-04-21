@@ -1,9 +1,15 @@
 import {SiteNav} from "./components/SiteNav";
 import {SiteFooter} from "./components/SiteFooter";
+import {SEO} from "./components/SEO";
 
 export default function Privacy() {
     return (
         <div className="min-h-screen bg-zinc-950 text-zinc-300">
+            <SEO 
+                title="Privacy Policy -- MCP Hangar" 
+                description="Privacy Policy for MCP Hangar. Learn how we handle your data."
+                path="/privacy"
+            />
             <SiteNav/>
             <main className="max-w-3xl mx-auto px-6 py-20">
                 <h1 className="text-3xl font-bold text-zinc-100 mb-2">Privacy Policy</h1>
