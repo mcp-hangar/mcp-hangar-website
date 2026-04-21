@@ -2,6 +2,7 @@ import {vi} from "vitest";
 import {render, screen} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import {MemoryRouter} from "react-router-dom";
+import {HelmetProvider} from "react-helmet-async";
 import App from "../App";
 
 // Mock clipboard API
@@ -13,9 +14,11 @@ Object.assign(navigator, {
 
 function renderApp() {
     return render(
-        <MemoryRouter>
-            <App/>
-        </MemoryRouter>
+        <HelmetProvider>
+            <MemoryRouter>
+                <App/>
+            </MemoryRouter>
+        </HelmetProvider>
     );
 }
 

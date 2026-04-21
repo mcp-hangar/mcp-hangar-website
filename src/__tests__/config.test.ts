@@ -5,20 +5,18 @@ describe("config", () => {
         expect(CLOUD_APP_URL).toMatch(/^https:\/\//);
     });
 
-    it("exports INSTALL_COMMAND containing curl", () => {
-        expect(INSTALL_COMMAND).toContain("curl");
-        expect(INSTALL_COMMAND).toContain("mcp-hangar.io");
+    it("exports INSTALL_COMMAND containing pip", () => {
+        expect(INSTALL_COMMAND).toContain("pip");
+        expect(INSTALL_COMMAND).toContain("mcp-hangar");
     });
 
     it("exports LINKS with expected keys", () => {
         expect(LINKS.github).toContain("github.com");
-        expect(LINKS.cloudSignup).toContain(CLOUD_APP_URL);
-        expect(LINKS.cloudSignIn).toBe(CLOUD_APP_URL);
+        expect(LINKS.cloudWaitlist).toContain("/waitlist");
         expect(LINKS.ossQuickstart).toContain(DOCS_BASE);
         expect(LINKS.cloudDocs).toContain("/cloud/");
         expect(LINKS.ossDocs).toContain("/oss/");
         expect(LINKS.blog).toContain("/blog/");
-        expect(LINKS.contactSales).toContain("contact-sales");
         expect(LINKS.pypi).toContain("pypi.org");
     });
 
