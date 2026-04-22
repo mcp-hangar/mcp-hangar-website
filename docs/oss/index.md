@@ -12,7 +12,7 @@ title: OSS Agent Documentation
 
 ## What is the MCP Hangar Agent?
 
-The `mcp-hangar` agent is an open-source, MIT-licensed runtime for Model Context Protocol (MCP) providers. It runs on your machine or server and provides:
+The `mcp-hangar` agent is an open-source, MIT-licensed runtime for Model Context Protocol (MCP) MCP servers. It runs on your machine or server and provides:
 
 - **Parallel Execution** -- Batch multiple tool calls, execute simultaneously
 - **Hot-Reload Config** -- Live configuration changes without restart
@@ -36,8 +36,8 @@ The `mcp-hangar` agent is an open-source, MIT-licensed runtime for Model Context
 | [Batch Invocations](/oss/guides/BATCH_INVOCATIONS) | Parallel execution deep dive |
 | [Hot-Reload](/oss/reference/hot-reload) | Live configuration reloading |
 | [Observability](/oss/guides/OBSERVABILITY) | Metrics, traces, logging |
-| [Authentication](/oss/guides/AUTHENTICATION) | Secure your providers |
-| [Containers](/oss/guides/CONTAINERS) | Docker and OCI providers |
+| [Authentication](/oss/guides/AUTHENTICATION) | Secure your MCP servers |
+| [Containers](/oss/guides/CONTAINERS) | Docker and OCI MCP servers |
 | [Kubernetes](/oss/guides/KUBERNETES) | K8s operator and CRDs |
 
 ## Integrations
@@ -50,6 +50,6 @@ The `mcp-hangar` agent is an open-source, MIT-licensed runtime for Model Context
 
 | Scenario | Time | Success Rate |
 |----------|------|--------------|
-| 15 tools, 2 providers | 380ms | 100% |
+| 15 tools, 2 MCP servers | 380ms | 100% |
 | Thundering herd (50 concurrent) | 1.3s | 100% |
 | Cold start + batch | <500ms | 100% |

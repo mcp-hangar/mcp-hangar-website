@@ -52,7 +52,7 @@ Within seconds your agent will appear in the fleet dashboard.
 
 Once connected, you can:
 
-- View provider health and tool inventory
+- View MCP server health and tool inventory
 - Browse the real-time audit trail
 - See top callers and error rates
 - Configure policies (Pro and Enterprise plans)

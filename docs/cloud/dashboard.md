@@ -8,7 +8,7 @@ The Hangar Cloud dashboard provides fleet-wide visibility into your MCP infrastr
 
 ## Fleet Overview
 
-The main dashboard shows all connected agents, their providers, and current health status.
+The main dashboard shows all connected agents, their MCP servers, and current health status.
 
 <!-- TODO: screenshot placeholder -->
 
@@ -17,14 +17,14 @@ The main dashboard shows all connected agents, their providers, and current heal
 Each connected agent reports:
 
 - **Status** — Online, degraded, or offline
-- **Providers** — Count and state distribution (ready, degraded, dead)
-- **Tools** — Total tool count across all providers
+- **MCP Servers** — Count and state distribution (ready, degraded, dead)
+- **Tools** — Total tool count across all MCP servers
 - **Uptime** — Time since last restart
 - **Version** — Agent version and configuration hash
 
-### Provider Health
+### MCP Server Health
 
-Drill into any agent to see individual provider health:
+Drill into any agent to see individual MCP server health:
 
 - State machine visualization (COLD → READY → DEGRADED → DEAD)
 - Circuit breaker status and failure counts
@@ -41,7 +41,7 @@ Filter audit records by:
 
 - **Time range** — Last hour, 24h, 7d, 30d, or custom
 - **Agent** — Specific agent or all agents
-- **Provider** — Specific provider
+- **MCP Server** — Specific MCP server
 - **Caller** — Identity of the invoker
 - **Severity** — Info, warning, error
 - **Event type** — Tool call, lifecycle, policy violation
@@ -63,7 +63,7 @@ Live metrics visualizations for:
 - Tool call rate (calls/second)
 - Error rate and circuit breaker trips
 - Latency distribution
-- Provider state distribution over time
+- MCP Server state distribution over time
 - Top callers by volume
 
 ## Policy Management
@@ -73,7 +73,7 @@ Live metrics visualizations for:
 Create and push policies to agents in real time:
 
 - Tool access filtering (allow/deny lists)
-- Rate limiting per caller or provider
+- Rate limiting per caller or MCP server
 - Execution timeouts
 - Required authentication levels
 

@@ -8,7 +8,7 @@ title: MCP Hangar Documentation
 
 ### [MCP Hangar v1.0 Docs](/oss/)
 
-Open-source `mcp-hangar` Python agent -- parallel execution, circuit breakers, provider orchestration, configuration reference.
+Open-source `mcp-hangar` Python agent -- parallel execution, circuit breakers, MCP server orchestration, configuration reference.
 
 </div>
 
