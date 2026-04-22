@@ -20,7 +20,7 @@ API keys use the format: `hngr_pk_...`
 
 | Scope | Description |
 |-------|-------------|
-| `read:fleet` | View agents, providers, and health status |
+| `read:fleet` | View agents, MCP servers, and health status |
 | `read:audit` | Query audit trail records |
 | `read:metrics` | Access metrics and dashboards |
 | `write:policies` | Create and update policies |

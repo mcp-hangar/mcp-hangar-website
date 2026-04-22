@@ -41,8 +41,8 @@ cloud:
     max_size: 10000       # Max events to buffer locally
     flush_interval_s: 5   # Flush interval in seconds
 
-# ... existing provider config ...
-providers:
+# ... existing mcp_server config ...
+mcp_servers:
   filesystem:
     mode: subprocess
     command: [npx, -y, "@anthropic/mcp-server-filesystem"]
@@ -57,7 +57,7 @@ mcp-hangar serve
 
 The agent will:
 
-1. Start all configured providers
+1. Start all configured MCP servers
 2. Establish a connection to Hangar Cloud
 3. Begin streaming audit events and metrics
 4. Accept policy updates from the cloud dashboard
@@ -89,13 +89,13 @@ cloud:
 
 Tokens can be labeled in the dashboard for easy identification.
 
-> **Free tier note:** The OSS agent works with unlimited MCP providers in standalone mode. Cloud connectivity adds fleet visibility and centralized policy management.
+> **Free tier note:** The OSS agent works with unlimited MCP MCP servers in standalone mode. Cloud connectivity adds fleet visibility and centralized policy management.
 
 ## Offline Mode
 
 If the agent loses connection to Hangar Cloud:
 
-- **Providers continue working** — no impact on MCP tool execution
+- **MCP Servers continue working** — no impact on MCP tool execution
 - **Events are buffered locally** — up to `buffer.max_size`
 - **Reconnection is automatic** — with exponential backoff
 - **Buffered events are flushed** — once connection is restored
@@ -107,5 +107,5 @@ The agent never depends on cloud availability for core functionality.
 - Agent tokens are scoped to a single organization
 - All communication uses TLS 1.3
 - Tokens can be revoked instantly from the dashboard
-- No provider data (tool inputs/outputs) is sent — only metadata and audit events
+- No MCP server data (tool inputs/outputs) is sent — only metadata and audit events
 

@@ -18,7 +18,7 @@ Hangar Cloud is in development. The OSS agent is production-ready today. Join th
 
 Hangar Cloud is the managed governance platform for MCP Hangar. It adds centralized visibility, team collaboration, and enterprise compliance on top of the open-source [mcp-hangar agent](/oss/).
 
-- **📊 Fleet Dashboard** — See every agent, provider, and tool call across your organization
+- **📊 Fleet Dashboard** — See every agent, MCP server, and tool call across your organization
 - **🔍 Audit Trail** — Identity-aware, queryable, with CEF compliance export
 - **👥 Team Management** — Seats, roles, and invitations
 - **🔐 Policy Engine** — Centralized policies pushed to agents in real time

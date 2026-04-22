@@ -12,7 +12,7 @@ This post covers what MCP Hangar is, what changed since the early prototypes, th
 
 ## What is MCP Hangar?
 
-MCP Hangar sits between AI/LLM tools and the MCP servers they call. It intercepts every tool invocation, applies security policies, propagates caller identity, records a compliance-grade audit trail, and orchestrates parallel execution across providers.
+MCP Hangar sits between AI/LLM tools and the MCP servers they call. It intercepts every tool invocation, applies security policies, propagates caller identity, records a compliance-grade audit trail, and orchestrates parallel execution across MCP servers.
 
 The core use case: you have multiple MCP servers (filesystem, fetch, memory, custom tools), and you need visibility and control over what your AI agents are doing with them. Hangar gives you that without modifying any server code.
 
@@ -20,10 +20,10 @@ The core use case: you have multiple MCP servers (filesystem, fetch, memory, cus
 
 The project started as a Python library focused on parallel MCP tool execution. Over 22 releases it grew into a multi-component system:
 
-- **v0.1 -- v0.2**: Initial release, event sourcing, observability module, provider groups, Langfuse integration. Authentication stack (API keys, JWT/OIDC, RBAC), Kubernetes operator with MCPProvider and MCPProviderGroup CRDs.
+- **v0.1 -- v0.2**: Initial release, event sourcing, observability module, MCP server groups, Langfuse integration. Authentication stack (API keys, JWT/OIDC, RBAC), Kubernetes operator with MCPServer and MCPServerGroup CRDs.
 - **v0.3 -- v0.5**: Facade API (`Hangar` class), batch invocations, SingleFlight deduplication.
-- **v0.6 -- v0.8**: Interactive CLI, provider bundles, secrets resolver, observability bootstrap, response truncation, tool access filtering with glob patterns, two-level concurrency model.
-- **v0.9 -- v0.12**: Security hardening (timing attack prevention, rate limiter backoff, JWT lifetime enforcement, API key rotation), saga persistence, circuit breaker persistence, event store snapshots, K8s operator controllers, REST API with provider CRUD, RBAC and tool access policies.
+- **v0.6 -- v0.8**: Interactive CLI, MCP server bundles, secrets resolver, observability bootstrap, response truncation, tool access filtering with glob patterns, two-level concurrency model.
+- **v0.9 -- v0.12**: Security hardening (timing attack prevention, rate limiter backoff, JWT lifetime enforcement, API key rotation), saga persistence, circuit breaker persistence, event store snapshots, K8s operator controllers, REST API with MCP server CRUD, RBAC and tool access policies.
 - **v1.0**: Enterprise module system (BSL 1.1), behavioral profiling with deviation detection, network connection monitoring, tool schema drift detection, resource monitoring, OpenTelemetry governance telemetry, cloud connector with event redaction, approval gate. Production hardening across the board.
 
 ## Architecture
@@ -38,7 +38,7 @@ MCP Hangar is a multi-language, multi-component system designed for both standal
 
 **React dashboard** (`hangar-app`) -- Fleet-wide visibility into agent health, MCP server inventory, audit logs, and policy management. Built with React 19 and served either by the Hangar HTTP server or the cloud control plane.
 
-**Kubernetes operator** -- Manages MCPProvider and MCPProviderGroup custom resources. Includes validating admission webhooks, leader election, health probes, and automatic NetworkPolicy generation for egress control.
+**Kubernetes operator** -- Manages MCPServer and MCPServerGroup custom resources. Includes validating admission webhooks, leader election, health probes, and automatic NetworkPolicy generation for egress control.
 
 ## Performance
 
