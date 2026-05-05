@@ -521,49 +521,49 @@ Starting MCP Hangar v1.0...
                             <tr className="border-b border-zinc-800/50">
                                 <th className="text-left font-semibold text-zinc-300 px-6 py-4"/>
                                 <th className="text-center font-semibold text-emerald-400 px-6 py-4">OSS Agent v1.0<br/><span className="font-normal text-zinc-500">Available now</span></th>
-                                <th className="text-center font-semibold text-sky-400 px-6 py-4">Cloud Free<br/><span className="font-normal text-zinc-500">coming 2026</span></th>
-                                <th className="text-center font-semibold text-sky-400 px-6 py-4">Pro<br/><span className="font-normal text-zinc-500">coming 2026</span></th>
-                                <th className="text-center font-semibold text-amber-400 px-6 py-4">Enterprise<br/><span className="font-normal text-zinc-500">coming 2026</span></th>
+                                <th className="text-center font-semibold text-blue-400 px-6 py-4">Free Cloud<br/><span className="font-normal text-zinc-500">June 2026</span></th>
+                                <th className="text-center font-semibold text-teal-400 px-6 py-4">Pro<br/><span className="font-normal text-zinc-500">September 2026</span></th>
                             </tr>
                             </thead>
                             <tbody>
                             {[
-                                {f: "MCP providers",           c: "Unlimited", fc: "Unlimited", p: "Unlimited", e: "Unlimited"},
-                                {f: "Hangar instances",        c: "Self-hosted", fc: "2", p: "Unlimited", e: "Unlimited"},
-                                {f: "Cloud dashboard",         c: false,     fc: true,   p: true,        e: true},
-                                {f: "Policy editor",           c: false,     fc: false,  p: true,        e: true},
-                                {f: "CEF compliance export",   c: false,     fc: false,  p: true,        e: true},
-                                {f: "SSO / SAML",              c: false,     fc: false,  p: false,       e: true},
-                                {f: "Uptime SLA",              c: false,     fc: false,  p: false,       e: true},
+                                {f: "MCP servers",             oss: "Unlimited",   free: "Unlimited", pro: "Unlimited"},
+                                {f: "Hangar instances",        oss: "Self-hosted", free: "2",         pro: "Unlimited"},
+                                {f: "Event retention",         oss: "Local",       free: "7 days",    pro: "Up to 90 days"},
+                                {f: "Cloud dashboard",         oss: false,         free: true,        pro: true},
+                                {f: "Policy editor",           oss: false,         free: false,       pro: true},
+                                {f: "SSO / SAML / OIDC",       oss: false,         free: false,       pro: true},
+                                {f: "Support",                 oss: "Community",   free: "Community",  pro: "Email"},
                             ].map((row, i) => (
                                 <tr key={i} className="border-b border-zinc-800/30 last:border-b-0">
                                     <td className="px-6 py-3 text-zinc-400">{row.f}</td>
                                     <td className="px-6 py-3 text-center">
-                                        {typeof row.c === "boolean"
-                                            ? (row.c ? <span className="text-emerald-400">&#10003;</span> : <span className="text-zinc-600">&#8212;</span>)
-                                            : <span className="text-zinc-300">{row.c}</span>}
+                                        {typeof row.oss === "boolean"
+                                            ? (row.oss ? <span className="text-emerald-400">&#10003;</span> : <span className="text-zinc-600">&#8212;</span>)
+                                            : <span className="text-zinc-300">{row.oss}</span>}
                                     </td>
                                     <td className="px-6 py-3 text-center">
-                                        {typeof row.fc === "boolean"
-                                            ? (row.fc ? <span className="text-sky-400">&#10003;</span> : <span className="text-zinc-600">&#8212;</span>)
-                                            : <span className="text-zinc-300">{row.fc}</span>}
+                                        {typeof row.free === "boolean"
+                                            ? (row.free ? <span className="text-blue-400">&#10003;</span> : <span className="text-zinc-600">&#8212;</span>)
+                                            : <span className="text-zinc-300">{row.free}</span>}
                                     </td>
                                     <td className="px-6 py-3 text-center">
-                                        {typeof row.p === "boolean"
-                                            ? (row.p ? <span className="text-sky-400">&#10003;</span> : <span className="text-zinc-600">&#8212;</span>)
-                                            : <span className="text-zinc-300">{row.p}</span>}
-                                    </td>
-                                    <td className="px-6 py-3 text-center">
-                                        {typeof row.e === "boolean"
-                                            ? (row.e ? <span className="text-amber-400">&#10003;</span> : <span className="text-zinc-600">&#8212;</span>)
-                                            : <span className="text-zinc-300">{row.e}</span>}
+                                        {typeof row.pro === "boolean"
+                                            ? (row.pro ? <span className="text-teal-400">&#10003;</span> : <span className="text-zinc-600">&#8212;</span>)
+                                            : <span className="text-zinc-300">{row.pro}</span>}
                                     </td>
                                 </tr>
                             ))}
                             </tbody>
                         </table>
                     </div>
-                    <div className="text-center mt-6">
+                    <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <p className="text-sm text-zinc-500">
+                            <span className="text-amber-400">Enterprise</span> — Pro with contracts (SLA, DPA, dedicated support).{" "}
+                            <a href="mailto:sales@mcp-hangar.io" className="text-amber-400 hover:text-amber-300 underline underline-offset-2 transition-colors">
+                                Let's talk
+                            </a>
+                        </p>
                         <Link
                             to="/plans"
                             className="inline-flex items-center gap-2 text-sm text-sky-400 hover:text-sky-300 transition-colors"
