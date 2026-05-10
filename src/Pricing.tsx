@@ -366,7 +366,7 @@ export default function Pricing() {
                     <div className="flex gap-4">
                         <Link to="/" className="hover:text-emerald-500 transition-colors">Home</Link>
                         <a href="/docs/" className="hover:text-emerald-500 transition-colors">Docs</a>
-                        <a href="https://github.com/mcp-hangar/mcp-hangar" className="hover:text-emerald-500 transition-colors">GitHub</a>
+                        <a href="https://github.com/mcp-hangar/mcp-hangar" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-500 transition-colors">GitHub</a>
                     </div>
                 </div>
             </footer>

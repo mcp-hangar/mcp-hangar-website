@@ -51,7 +51,7 @@ export function SiteFooter() {
                         <h4 className="text-sm font-semibold text-zinc-300 mb-4">Community</h4>
                         <ul className="space-y-2 text-sm">
                             <li><a href="/docs/blog/" className="text-zinc-500 hover:text-emerald-400 transition-colors duration-300">Blog</a></li>
-                            <li><a href="https://github.com/mcp-hangar/mcp-hangar" className="text-zinc-500 hover:text-emerald-400 transition-colors duration-300">GitHub</a></li>
+                            <li><a href="https://github.com/mcp-hangar/mcp-hangar" target="_blank" rel="noopener noreferrer" className="text-zinc-500 hover:text-emerald-400 transition-colors duration-300">GitHub</a></li>
                             <li><a href="/docs/oss/development/CONTRIBUTING" className="text-zinc-500 hover:text-emerald-400 transition-colors duration-300">Contributing</a></li>
                             <li><a href="/docs/oss/changelog" className="text-zinc-500 hover:text-emerald-400 transition-colors duration-300">Changelog</a></li>
                             <li><a href="/docs/oss/security" className="text-zinc-500 hover:text-emerald-400 transition-colors duration-300">Security</a></li>
