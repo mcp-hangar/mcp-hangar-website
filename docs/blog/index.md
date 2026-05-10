@@ -6,6 +6,18 @@ Engineering updates, release announcements, and technical deep dives from the MC
 
 ## 2026
 
+### [MCP Hangar v1.1 -- Cost Attribution, Compliance Export, and End-to-End Caller Identity](./2026-05-10-v1-1-cost-attribution-compliance-export)
+
+*May 10, 2026*
+
+v1.1 closes the observability loop: every tool call now carries cost data, caller identity, and compliance-ready export. Three new SIEM formats in OSS, FinOps metrics out of the box, and end-to-end caller tracing in every OTEL span.
+
+### [MCP Hangar v1.0.1 -- Hardening After the April Audit](./2026-04-17-hardening-after-the-april-audit)
+
+*April 17, 2026*
+
+Security hardening release addressing findings from the April 2026 security audit. SSRF protection, default-deny command allow-list, granular RBAC, WebSocket origin validation and backpressure, and trusted proxy resolution.
+
 ### [MCP Hangar v1.0 -- Production Release](./2026-04-11-v1-production-release)
 
 *April 11, 2026*

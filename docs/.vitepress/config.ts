@@ -12,6 +12,9 @@ export default defineConfig({
   outDir: '.vitepress/dist',
   cleanUrls: true,
 
+  // Exclude synced docs with raw HTML-like content in code fences (mermaid diagrams)
+  srcExclude: ['**/development/GIT_FLOW.md'],
+
   // Force dark mode
   appearance: 'dark',
 
@@ -25,6 +28,7 @@ export default defineConfig({
     /^\/plans/,
     /^\/cla/,
     /^\/observability\//,
+    /GIT_FLOW/,
     // OSS docs fetched at build time — some cross-links may not resolve in all envs
     /^\/oss\//,
   ],
