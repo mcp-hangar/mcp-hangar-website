@@ -67,7 +67,7 @@ v1.0 had coarse-grained roles. v1.0.1 adds fine-grained permission strings:
 | `mcp_servers:lifecycle` | Start, stop, restart MCP servers |
 | `config:reload` | Hot-reload configuration |
 
-A new `agent` role is introduced for `hangar-agent` sidecar tokens, scoped to only the permissions the data-plane agent needs. This follows the principle of least privilege -- a compromised agent token cannot modify policies or server configuration.
+A new `agent` role is introduced for data-plane sidecar tokens, scoped to only the permissions the data-plane agent needs. This follows the principle of least privilege -- a compromised agent token cannot modify policies or server configuration.
 
 ## WebSocket hardening
 

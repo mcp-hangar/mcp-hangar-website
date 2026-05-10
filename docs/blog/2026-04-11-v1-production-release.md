@@ -28,44 +28,37 @@ The project started as a Python library focused on parallel MCP tool execution. 
 
 ## Architecture
 
-MCP Hangar is a multi-language, multi-component system designed for both standalone and enterprise deployment:
+MCP Hangar v1.0 ships in two tiers.
 
-**Python core** (`mcp-hangar` on PyPI) -- The main proxy and governance engine. Domain-driven design with event sourcing, CQRS command/query separation, and a single-flight deduplication layer. This is what most users install.
+**The OSS agent** (available today, MIT-licensed, `pip install mcp-hangar`) is the Python core: a runtime proxy that sits between AI tools and MCP servers, intercepts every tool invocation, applies security policies, propagates caller identity, records a compliance-grade audit trail, and orchestrates parallel execution. Domain-driven design with event sourcing, CQRS command/query separation, and single-flight deduplication. This is what most users install. It runs anywhere Python runs -- laptop, container, Kubernetes pod.
 
-**Go sidecar** (`hangar-agent`) -- A data-plane agent that runs alongside your workloads in Kubernetes. It intercepts MCP traffic, applies policies from the Go policy engine, and streams events to the control plane over a bidirectional gRPC connection.
+**The Cloud platform** (in development, [waitlist open](https://mcp-hangar.io/waitlist)) extends the OSS agent into a fleet-managed runtime. A data-plane sidecar runs alongside your workloads in Kubernetes and streams events to a managed control plane over outbound gRPC on port 443 -- no inbound firewall rules. A web dashboard provides fleet-wide visibility into agent health, MCP server inventory, audit logs, and policy management. A Kubernetes operator manages MCPServer and MCPServerGroup custom resources with validating admission webhooks, leader election, and automatic NetworkPolicy generation. Helm charts and a Terraform provider ship with Cloud GA.
 
-**Go control plane** (`hangar-cloud`) -- The SaaS backend that aggregates events from agents, manages policies, and serves the dashboard API. Agents connect outbound on port 443, so no inbound firewall rules are needed.
-
-**React dashboard** (`hangar-app`) -- Fleet-wide visibility into agent health, MCP server inventory, audit logs, and policy management. Built with React 19 and served either by the Hangar HTTP server or the cloud control plane.
-
-**Kubernetes operator** -- Manages MCPServer and MCPServerGroup custom resources. Includes validating admission webhooks, leader election, health probes, and automatic NetworkPolicy generation for egress control.
+Same protocol, same audit semantics, same OTLP export. The OSS agent works standalone today; the Cloud platform makes it operable at fleet scale.
 
 ## Performance
 
-v1.0 ships with comprehensive benchmark suites for both the Python and Go components. The numbers that matter:
+v1.0 ships with a comprehensive benchmark suite for the Python proxy. The numbers that matter:
 
 | Component | Metric | Result |
 |-----------|--------|--------|
 | Python proxy | Full path latency (p50 / p99) | 0.21ms / 0.24ms |
 | Python proxy | SLA target | 20x margin under 5ms |
-| Go policy engine | 1,000 policies evaluation | 6.5 microseconds |
-| Go event buffer | WAL-backed persist | 158 microseconds |
-| Go event mapping | Domain event transform | 5.3 microseconds |
 
-The Python proxy adds less than a quarter-millisecond of overhead at p99. The Go policy engine evaluates a thousand rules in under 7 microseconds. These numbers were measured with pytest-benchmark and Go's standard benchmark tooling.
+The Python proxy adds less than a quarter-millisecond of overhead at p99. These numbers were measured with pytest-benchmark against the public [benchmark suite](https://github.com/mcp-hangar/benchmarks). Cloud-tier component benchmarks publish with Cloud GA.
 
 ## Security
 
 Production readiness means more than performance. v1.0 includes:
 
 - **CI security scanning**: Trivy filesystem scanning, Semgrep static analysis, and golangci-lint across all components. Pinned to specific versions for reproducible results.
-- **Dependency auditing**: pip-audit for Python, npm audit (blocking on HIGH+) for the dashboard, govulncheck for Go components. SBOM generation for all five components.
+- **Dependency auditing**: pip-audit for Python, npm audit (blocking on HIGH+) for the web dashboard, govulncheck for Go components. SBOM generation for all components.
 - **Auth stack coverage**: 97.5% test coverage on the authentication and authorization code paths, including API key validation, JWT verification, identity propagation, and rate limiting.
 - **Upgrade path**: A detailed upgrade guide covers every breaking change from v0.12 through v1.0, with step-by-step procedures for PyPI, Docker, and Kubernetes deployments.
 
 ## Licensing
 
-MCP Hangar core is MIT licensed. Enterprise features (the Go agent, cloud control plane, and operator) use the Business Source License 1.1, which converts to open source after four years. This model lets us invest in the project while keeping the core permanently open.
+MCP Hangar core is MIT licensed. Enterprise features (the data-plane sidecar, managed control plane, and Kubernetes operator) use the Business Source License 1.1, which converts to open source after four years. This model lets us invest in the project while keeping the core permanently open.
 
 ## Getting started
 
@@ -82,7 +75,7 @@ Or with pip:
 pip install mcp-hangar
 ```
 
-For Kubernetes deployments, see the [Helm charts](https://github.com/mcp-hangar/helm-charts) and [operator documentation](/oss/guides/KUBERNETES).
+Helm charts and a Terraform provider ship with the Cloud product. For OSS deployments today, run `mcp-hangar serve` directly or in a container.
 
 Read the full [quickstart guide](/oss/getting-started/quickstart) or browse the [cookbook](/oss/cookbook/) for 13 recipes covering everything from HTTP gateway setup to production checklists.
 
@@ -90,8 +83,8 @@ Read the full [quickstart guide](/oss/getting-started/quickstart) or browse the 
 
 The v1.0 release is a foundation. Near-term work includes:
 
-- **Helm chart hardening**: Pod security standards, resource quotas, network policy tightening.
-- **Operator HA**: Multi-replica leader election, disruption budgets, graceful failover.
-- **CRD versioning**: Conversion webhooks for non-breaking schema evolution.
+- **Security audit hardening**: SSRF protection, command allow-list, granular RBAC, WebSocket origin validation (shipped in [v1.0.1](./2026-04-17-hardening-after-the-april-audit)).
+- **Observability loop**: Cost attribution, compliance export, caller identity in every OTEL span (shipped in [v1.1](./2026-05-10-v1-1-cost-attribution-compliance-export)).
+- **Cloud platform**: Fleet-wide management dashboard, managed SIEM pipelines, Helm charts, and a Kubernetes operator. [Waitlist open](https://mcp-hangar.io/waitlist).
 
 Follow the project on [GitHub](https://github.com/mcp-hangar/mcp-hangar) or check the [upgrade guide](/oss/upgrade) if you are migrating from an earlier version.
