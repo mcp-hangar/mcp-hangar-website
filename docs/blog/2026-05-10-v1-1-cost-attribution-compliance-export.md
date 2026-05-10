@@ -1,0 +1,170 @@
+---
+title: "MCP Hangar v1.1 -- Cost Attribution, Compliance Export, and End-to-End Caller Identity"
+date: 2026-05-10
+author: MCP Hangar Team
+---
+
+# MCP Hangar v1.1 -- Cost Attribution, Compliance Export, and End-to-End Caller Identity
+
+v1.0 gave you governance. v1.1 gives you the numbers to back it up.
+
+This release closes the observability loop: every tool call now carries cost data, caller identity, and compliance-ready export -- all the way from the agent request to your SIEM dashboard. Here is what shipped and how to use it.
+
+## Cost attribution: know what each tool call costs
+
+MCP tool calls are not free. Some hit LLM APIs. Some spin up containers. Some query databases that bill by the row. Until now, there was no standard way to attribute that cost back to the caller, the tool, or the team that triggered it.
+
+v1.1 adds a cost attribution pipeline to the OSS agent. Every `ToolInvocationCompleted` event passes through an `ICostAttributor` that computes cost based on configurable pricing models and emits the result as both a domain event and Prometheus metrics.
+
+### Pricing models
+
+The `DefaultCostAttributor` supports four models:
+
+| Model | When to use | Example |
+|-------|-------------|---------|
+| `token` | LLM-backed tools (GPT, Claude) | $0.003 / 1K input tokens |
+| `duration` | Long-running tools (container exec, batch jobs) | $0.01 / minute |
+| `fixed` | Flat-fee APIs (geocoding, translation) | $0.005 / call |
+| `composite` | Tools that combine multiple cost sources | Token cost + fixed base fee |
+
+Rules match by `mcp_server_id` and `tool_name` with specificity-based precedence -- a rule for `math-server:multiply` overrides a catch-all rule for `math-server:*`.
+
+### Prometheus metrics
+
+Two new counters are exported at `/metrics`:
+
+```
+mcp_hangar_cost_cents_total{mcp_server="openai-tools", tool="chat", cost_model="token"} 4273
+mcp_hangar_cost_attributions_total{mcp_server="openai-tools", tool="chat"} 18420
+```
+
+Example PromQL queries:
+
+```promql
+# Cost per MCP server in the last hour
+sum(increase(mcp_hangar_cost_cents_total[1h])) by (mcp_server)
+
+# Cost per tool, top 10
+topk(10, sum(rate(mcp_hangar_cost_cents_total[5m])) by (tool))
+
+# Average cost per invocation
+sum(rate(mcp_hangar_cost_cents_total[5m])) by (mcp_server)
+  / sum(rate(mcp_hangar_cost_attributions_total[5m])) by (mcp_server)
+```
+
+### OTEL span attributes
+
+When `OTEL_EXPORTER_OTLP_ENDPOINT` is set, cost data flows into every audit span:
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `mcp.cost.cents` | int | Cost in hundredths of a cent |
+| `mcp.cost.model` | string | Pricing model used |
+| `mcp.cost.input_tokens` | int | Input tokens consumed (LLM tools) |
+| `mcp.cost.output_tokens` | int | Output tokens produced (LLM tools) |
+| `mcp.cost.currency` | string | ISO 4217 code (default: `USD`) |
+
+This means your existing Grafana, OpenLIT, or Datadog setup picks up cost data automatically -- no new integrations needed.
+
+Full attribute reference: [OpenTelemetry Integrations](/docs/oss/observability/otel-integrations).
+
+## Compliance export: one env var to your SIEM
+
+v1.1 ships three compliance exporters in the open-source agent: JSON-lines, LEEF 2.0 (IBM QRadar), and Syslog (RFC 5424). Previously, compliance export was limited to CEF in the enterprise module.
+
+Every `ToolInvocationCompleted`, `ToolInvocationFailed`, and `McpServerStateChanged` event is forwarded to the chosen format in real time. The exporter runs independently of the OTLP audit pipeline -- you can run both in parallel.
+
+### Setup
+
+Two environment variables:
+
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `MCP_COMPLIANCE_FORMAT` | Yes | _(unset)_ | `jsonlines`, `leef`, `syslog`, or `cef` |
+| `MCP_COMPLIANCE_OUTPUT` | No | stderr | File path or omit for container log collection |
+
+JSON-lines to stderr (Docker log drivers pick this up):
+
+```bash
+MCP_COMPLIANCE_FORMAT=jsonlines mcp-hangar serve --http --port 8000
+```
+
+LEEF to a file for QRadar:
+
+```bash
+MCP_COMPLIANCE_FORMAT=leef MCP_COMPLIANCE_OUTPUT=/var/log/mcp-hangar/leef.log \
+  mcp-hangar serve --http --port 8000
+```
+
+### Output examples
+
+**JSON-lines:**
+
+```json
+{"timestamp":"2026-05-10T12:00:00+00:00","event_type":"ToolInvocationCompleted","mcp_server_id":"math","tool_name":"add","status":"success","duration_ms":12,"caller_id":"alice","cost_cents":3}
+```
+
+**LEEF 2.0:**
+
+```
+LEEF:2.0|MCP Hangar|MCP Hangar|1.1.0|101|	proto=tool	action=add	...
+```
+
+**Syslog (RFC 5424):**
+
+```
+<134>1 2026-05-10T12:00:00+00:00 mcp-hangar mcp-hangar - - - ToolInvocationCompleted ...
+```
+
+Each record includes `mcp_server_id`, `tool_name`, `status`, `duration_ms`, and -- new in v1.1 -- `caller_*` and `cost_*` fields when identity propagation and cost attribution are active.
+
+Full format reference and field list: [Compliance Export](/docs/oss/operations/COMPLIANCE).
+
+## Caller identity in every audit span
+
+v1.0 introduced identity propagation through HTTP headers and JWT extraction. v1.1 completes the chain: caller identity now flows from the incoming request all the way into OTLP audit spans and compliance export records.
+
+Three new span attributes carry caller context:
+
+| Attribute | Type | Example |
+|-----------|------|---------|
+| `mcp.caller.type` | string | `human`, `agent`, `service` |
+| `mcp.caller.id` | string | `alice`, `ci-bot-7`, `api-key-prod-3` |
+| `mcp.caller.roles` | string | `admin,mcp_servers:read` |
+
+These are extracted from the event's `identity_context` -- the same data that drives RBAC enforcement -- and attached to every `ToolInvocationCompleted` audit log record exported via OTLP.
+
+Combined with cost attribution, this means you can answer questions like:
+
+- *"How much did the `ci-bot` service account spend on the `openai-tools` server last week?"*
+- *"Which human user triggered the most tool calls on the `filesystem` server?"*
+- *"What roles did the caller hold when the `database:write` tool was invoked?"*
+
+Filter on these attributes in your OTEL backend:
+
+```
+mcp.caller.type = "agent" AND mcp.cost.cents > 100
+```
+
+## Also in v1.1
+
+- **Sigstore artifact signing**: PyPI packages ship with build provenance attestation; Docker images are signed with cosign via GitHub OIDC.
+- **Provider → MCP Server rename**: Config files now use `mcp_servers:` instead of `providers:`. The old key still works but will be removed in v2.0.
+
+For security hardening shipped in v1.0.1 (SSRF protection, command allow-list, granular RBAC, WebSocket hardening), see the [v1.0.1 post](./2026-04-17-hardening-after-the-april-audit).
+
+Full changelog: [v1.1.0 on GitHub](https://github.com/mcp-hangar/mcp-hangar/releases/tag/v1.1.0).
+
+## Upgrade
+
+```bash
+pip install --upgrade mcp-hangar
+# or
+uv pip install --upgrade mcp-hangar
+```
+
+No breaking changes. The `providers:` config key is aliased to `mcp_servers:` and will continue to work through v1.x.
+
+## What's next
+
+The cloud dashboard is coming later in 2026 with fleet-wide cost dashboards, aggregated caller analytics, and managed SIEM pipelines. Join the [waitlist](https://mcp-hangar.io/waitlist) to be first.
