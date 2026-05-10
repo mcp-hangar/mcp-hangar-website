@@ -101,22 +101,22 @@ MCP_COMPLIANCE_FORMAT=leef MCP_COMPLIANCE_OUTPUT=/var/log/mcp-hangar/leef.log \
 **JSON-lines:**
 
 ```json
-{"timestamp":"2026-05-10T12:00:00+00:00","event_type":"ToolInvocationCompleted","provider_id":"math","tool_name":"add","status":"success","duration_ms":12,"user_id":"alice"}
+{"timestamp":"2026-05-10T12:00:00+00:00","event_type":"ToolInvocationCompleted","mcp_server_id":"math","tool_name":"add","status":"success","duration_ms":12,"caller_id":"alice"}
 ```
 
 **LEEF 2.0:**
 
 ```
-LEEF:2.0|MCP Hangar|MCP Hangar|0.15.0|101|	devTime=May 10 2026 12:00:00	proto=tool	action=add	duration=12	src=math
+LEEF:2.0|MCP Hangar|MCP Hangar|1.1.0|101|	devTime=May 10 2026 12:00:00	proto=tool	action=add	duration=12	src=math
 ```
 
 **Syslog (RFC 5424):**
 
 ```
-<134>1 2026-05-10T12:00:00Z mcp-hangar mcp-hangar 1234 101 [mcp@49152 provider="math" tool="add" status="success" duration="12" user="alice"] Tool add on provider math success
+<134>1 2026-05-10T12:00:00Z mcp-hangar mcp-hangar 1234 101 [mcp@49152 mcp_server="math" tool="add" status="success" duration="12" caller="alice"] Tool add on mcp_server math success
 ```
 
-Each record includes `provider_id`, `tool_name`, `status`, `duration_ms`, and caller/cost context when identity propagation and cost attribution are active. The `export_tool_invocation` API accepts `caller_type`, `caller_id`, `caller_roles`, `cost_cents`, `cost_model`, `cost_input_tokens`, and `cost_output_tokens` on all four exporters.
+Each record includes `mcp_server_id`, `tool_name`, `status`, `duration_ms`, and caller/cost context when identity propagation and cost attribution are active. The `export_tool_invocation` API accepts `caller_type`, `caller_id`, `caller_roles`, `cost_cents`, `cost_model`, `cost_input_tokens`, and `cost_output_tokens` on all four exporters.
 
 Full format reference and field list: [Compliance Export](/docs/oss/operations/COMPLIANCE).
 
@@ -167,4 +167,4 @@ No breaking changes. The `providers:` config key is aliased to `mcp_servers:` an
 
 ## What's next
 
-The cloud dashboard is coming later in 2026 with fleet-wide cost dashboards, aggregated caller analytics, and managed SIEM pipelines. Join the [waitlist](https://mcp-hangar.io/waitlist) to be first.
+The cloud dashboard is coming with fleet-wide cost dashboards, aggregated caller analytics, and managed SIEM pipelines. Join the [waitlist](https://mcp-hangar.io/waitlist) to be first.
