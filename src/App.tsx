@@ -83,7 +83,7 @@ function App() {
                 {/* ── Hero ─────────────────────────────────────────── */}
                 <div className="max-w-6xl mx-auto px-6 pt-24 pb-32">
                     <div className="max-w-3xl mx-auto text-center">
-                        <Badge className="animate-fade-in mb-8">v1.0 Open Source — MIT License</Badge>
+                        <Badge className="animate-fade-in mb-8">v1.1 Open Source — MIT License</Badge>
 
                         <h1 className="animate-slide-up text-5xl md:text-7xl font-bold tracking-tight leading-[1.1] mb-6">
                             Your organization runs MCP servers.
@@ -103,7 +103,7 @@ function App() {
 
                         <div className="flex flex-wrap justify-center gap-4">
                             <Button href={LINKS.ossQuickstart} variant="primary" withArrow>
-                                Install v1.0
+                                Install v1.1
                             </Button>
                             <Button href={LINKS.github} variant="secondary" external>
                                 <GithubIcon/> GitHub
@@ -128,7 +128,7 @@ function App() {
                             <div>
                                 <span className="text-zinc-200 font-medium">Know who called what</span>
                                 <p className="text-sm text-zinc-500 mt-1">
-                                    Every tool call logged with caller identity, provider, and timestamp. No more guessing what your AI agents are doing.
+                                    Every tool call logged with caller identity, MCP server, and timestamp. No more guessing what your AI agents are doing.
                                 </p>
                             </div>
                         </div>
@@ -137,7 +137,7 @@ function App() {
                             <div>
                                 <span className="text-zinc-200 font-medium">Decide who can do what</span>
                                 <p className="text-sm text-zinc-500 mt-1">
-                                    Per-caller, per-provider, per-tool access policies. Block write operations. Allow read-only access for specific teams.
+                                    Per-caller, per-server, per-tool access policies. Block write operations. Allow read-only access for specific teams.
                                 </p>
                             </div>
                         </div>
@@ -223,7 +223,7 @@ function App() {
                         <Feature
                             icon={<AuditIcon/>}
                             title="Audit Trail"
-                            description="Identity-aware audit records with queryable REST API. Caller, severity, and time range filters. CEF compliance export."
+                            description="Identity-aware audit records with queryable REST API. Caller, severity, and time range filters. Cloud-managed retention and search."
                             accentColor="sky"
                         />
                         <Feature
@@ -235,7 +235,7 @@ function App() {
                         <Feature
                             icon={<K8sIcon/>}
                             title="K8s Operator"
-                            description="MCPProvider and MCPProviderGroup CRDs. Validating admission webhook, leader election, health probes. Deploy with Helm."
+                            description="McpServer and McpServerGroup CRDs. Validating admission webhook, leader election, health probes. Deploy with Helm."
                             accentColor="sky"
                         />
                         <Feature
@@ -261,22 +261,22 @@ function App() {
                         <Feature
                             icon={<ParallelIcon/>}
                             title="Parallel Execution"
-                            description="Concurrent tool calls across providers. Backpressure and fair scheduling keep your fleet stable under load."
+                            description="Concurrent tool calls across MCP servers. Backpressure and fair scheduling keep your fleet stable under load."
                         />
                         <Feature
                             icon={<LockIcon/>}
                             title="Security & Access Control"
-                            description="Constant-time auth validation, exponential rate limiting, JWT lifetime enforcement, zero-downtime key rotation."
+                            description="SSRF protection, command allow-list, granular RBAC with per-resource permissions, constant-time auth, and exponential rate limiting."
                         />
                         <Feature
                             icon={<FilterIcon/>}
                             title="Tool Access Filtering"
-                            description="Allowlist and denylist tools by glob pattern. Block delete_* across the board, or allow only read_* per provider."
+                            description="Allowlist and denylist tools by glob pattern. Block delete_* across the board, or allow only read_* per MCP server."
                         />
                         <Feature
                             icon={<LifecycleIcon/>}
                             title="Lifecycle Management"
-                            description="Lazy loading — providers start on first call. Automatic shutdown after idle TTL. Health monitoring keeps them alive."
+                            description="Lazy loading — MCP servers start on first call. Automatic shutdown after idle TTL. Health monitoring keeps them alive."
                         />
                         <Feature
                             icon={<CircuitIcon/>}
@@ -289,14 +289,24 @@ function App() {
                             description="Correlation IDs across parallel calls. OpenTelemetry traces, Prometheus metrics. Debug batch execution, not black boxes."
                         />
                         <Feature
+                            icon={<ScaleIcon/>}
+                            title="Cost Attribution"
+                            description="Know what each tool call costs. Per-server, per-tool Prometheus metrics with token, duration, and composite pricing models."
+                        />
+                        <Feature
+                            icon={<FileTextIcon/>}
+                            title="Compliance Export"
+                            description="Ship audit logs to your SIEM. Built-in JSONL, LEEF (QRadar), and Syslog (RFC 5424) exporters. File, callback, or stderr output."
+                        />
+                        <Feature
                             icon={<ServerStackIcon/>}
-                            title="Multi-Provider Orchestration"
+                            title="Multi-Server Orchestration"
                             description="Local subprocess, Docker containers, remote HTTP — mix in single batch. Unified interface, heterogeneous backends."
                         />
                         <Feature
                             icon={<GroupIcon/>}
-                            title="Provider Groups"
-                            description="Load balancing, failover, and health tracking across provider pools. Round-robin, weighted, and priority-based routing."
+                            title="Server Groups"
+                            description="Load balancing, failover, and health tracking across MCP server pools. Round-robin, weighted, and priority-based routing."
                         />
                     </div>
                 </div>
@@ -324,11 +334,11 @@ function App() {
 
                             <Step
                                 number={2}
-                                title="Configure providers"
-                                description="The wizard detects your runtimes, lets you pick providers, and configures Claude Desktop automatically."
+                                title="Configure MCP servers"
+                                description="The wizard detects your runtimes, lets you pick MCP servers, and configures Claude Desktop automatically."
                             >
                                 <CodeBlock language="yaml">{`# ~/.config/mcp-hangar/config.yaml
-providers:
+mcp_servers:
   filesystem:
     mode: subprocess
     command: [npx, -y, "@anthropic/mcp-server-filesystem"]
@@ -349,14 +359,14 @@ providers:
                             <Step
                                 number={3}
                                 title="Start the server"
-                                description="Launch the agent. Providers come online, cloud connection is established."
+                                description="Launch the agent. MCP servers come online, cloud connection is established."
                             >
                                 <CodeBlock language="bash">{`$ mcp-hangar serve
-Starting MCP Hangar v1.0...
+Starting MCP Hangar v1.1...
   ● filesystem  ready  (245ms)
   ● fetch       ready  (189ms)
   ● memory      ready  (156ms)
-→ 3 providers ready | 12 tools | parallel execution enabled`}</CodeBlock>
+→ 3 servers ready | 12 tools | parallel execution enabled`}</CodeBlock>
                             </Step>
 
                             <Step
@@ -367,7 +377,7 @@ Starting MCP Hangar v1.0...
                             >
                                 <div className="flex items-center gap-3 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
                                     <span className="text-emerald-400 text-lg">[ok]</span>
-                                    <span className="text-emerald-300 font-medium">3 providers ready · 12 tools · parallel execution enabled</span>
+                                    <span className="text-emerald-300 font-medium">3 servers ready · 12 tools · parallel execution enabled</span>
                                 </div>
                             </Step>
                         </StepList>
@@ -405,7 +415,7 @@ Starting MCP Hangar v1.0...
                                 <td className="px-6 py-4 text-emerald-400 font-mono">100%</td>
                             </tr>
                             <tr className="border-b border-zinc-800/30">
-                                <td className="px-6 py-4 text-zinc-400">15 tools, 2 providers (parallel)</td>
+                                <td className="px-6 py-4 text-zinc-400">15 tools, 2 servers (parallel)</td>
                                 <td className="px-6 py-4 text-emerald-400 font-mono">380ms</td>
                                 <td className="px-6 py-4 text-emerald-400 font-mono">100%</td>
                             </tr>
@@ -421,7 +431,7 @@ Starting MCP Hangar v1.0...
                         Measured via pytest-benchmark (Python) and Go benchmark suite.
                         Full results in the{" "}
                         <a href="/docs/oss/reference/benchmarks" className="text-emerald-400 hover:text-emerald-300 underline underline-offset-2 transition-colors">
-                            v1.0 benchmark report
+                            v1.1 benchmark report
                         </a>.
                     </p>
                 </div>
@@ -465,7 +475,7 @@ Starting MCP Hangar v1.0...
                                         </li>
                                         <li className="flex items-start gap-2">
                                             <span className="text-sky-400 mt-1">&#x2022;</span>
-                                            <span>Live metrics charts and provider state distribution</span>
+                                            <span>Live metrics charts and MCP server state distribution</span>
                                         </li>
                                     </ul>
                                 </div>
@@ -478,7 +488,7 @@ Starting MCP Hangar v1.0...
                                         </li>
                                         <li className="flex items-start gap-2">
                                             <span className="text-sky-400 mt-1">&#x2022;</span>
-                                            <span>Filter by provider, event type, severity, caller</span>
+                                            <span>Filter by MCP server, event type, severity, caller</span>
                                         </li>
                                         <li className="flex items-start gap-2">
                                             <span className="text-sky-400 mt-1">&#x2022;</span>
@@ -491,7 +501,7 @@ Starting MCP Hangar v1.0...
                                     <ul className="space-y-2 text-zinc-400">
                                         <li className="flex items-start gap-2">
                                             <span className="text-sky-400 mt-1">&#x2022;</span>
-                                            <span>Start, stop, and inspect providers across clusters</span>
+                                            <span>Start, stop, and inspect MCP servers across clusters</span>
                                         </li>
                                         <li className="flex items-start gap-2">
                                             <span className="text-sky-400 mt-1">&#x2022;</span>
@@ -520,7 +530,7 @@ Starting MCP Hangar v1.0...
                             <thead>
                             <tr className="border-b border-zinc-800/50">
                                 <th className="text-left font-semibold text-zinc-300 px-6 py-4"/>
-                                <th className="text-center font-semibold text-emerald-400 px-6 py-4">OSS Agent v1.0<br/><span className="font-normal text-zinc-500">Available now</span></th>
+                                <th className="text-center font-semibold text-emerald-400 px-6 py-4">OSS Agent v1.1<br/><span className="font-normal text-zinc-500">Available now</span></th>
                                 <th className="text-center font-semibold text-sky-400 px-6 py-4">Cloud Free<br/><span className="font-normal text-zinc-500">coming 2026</span></th>
                                 <th className="text-center font-semibold text-sky-400 px-6 py-4">Pro<br/><span className="font-normal text-zinc-500">coming 2026</span></th>
                                 <th className="text-center font-semibold text-amber-400 px-6 py-4">Enterprise<br/><span className="font-normal text-zinc-500">coming 2026</span></th>
@@ -528,7 +538,7 @@ Starting MCP Hangar v1.0...
                             </thead>
                             <tbody>
                             {[
-                                {f: "MCP providers",           c: "Unlimited", fc: "Unlimited", p: "Unlimited", e: "Unlimited"},
+                                {f: "MCP servers",             c: "Unlimited", fc: "Unlimited", p: "Unlimited", e: "Unlimited"},
                                 {f: "Hangar instances",        c: "Self-hosted", fc: "2", p: "Unlimited", e: "Unlimited"},
                                 {f: "Cloud dashboard",         c: false,     fc: true,   p: true,        e: true},
                                 {f: "Policy editor",           c: false,     fc: false,  p: true,        e: true},

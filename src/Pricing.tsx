@@ -29,12 +29,12 @@ interface Tier {
 
 const tiers: Tier[] = [
     {
-        name: "OSS Agent v1.0",
+        name: "OSS Agent v1.1",
         price: "Free",
         period: "/forever",
         launchBadge: { text: "Available now", colorClass: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30" },
         description: "No cloud account required. Runs fully on your infrastructure. MIT licensed.",
-        cta: "Install v1.0 →",
+        cta: "Install v1.1 →",
         ctaHref: LINKS.ossQuickstart,
         accent: "emerald",
         features: [
@@ -43,6 +43,9 @@ const tiers: Tier[] = [
             "MCP server groups & policy files",
             "Local audit trail",
             "OpenTelemetry traces & Prometheus metrics",
+            "Cost attribution per tool call",
+            "Compliance export (JSONL, LEEF, Syslog)",
+            "SSRF protection & command allow-list",
             "Community support (GitHub Issues)",
         ],
     },
@@ -87,7 +90,7 @@ const tiers: Tier[] = [
             "Event retention up to 90 days",
             "Multiple team seats",
             "Policy push to agents in real time",
-            "CEF compliance export",
+            "CEF compliance export + managed SIEM pipelines",
             "SIEM integrations (Splunk, Datadog, Sentinel)",
             "SSO / SAML / OIDC",
             "Kubernetes operator & CRDs",
@@ -115,7 +118,8 @@ const comparison: CompRow[] = [
     {feature: "Metrics & tracing", oss: true, free: true, pro: true},
     {feature: "Local audit trail", oss: true, free: true, pro: true},
     {feature: "Policy editor", oss: "–", free: "–", pro: true},
-    {feature: "CEF compliance export", oss: "–", free: "–", pro: true},
+    {feature: "Compliance export", oss: "JSONL, LEEF, Syslog", free: "JSONL, LEEF, Syslog", pro: "JSONL, LEEF, Syslog + CEF"},
+    {feature: "Cost attribution", oss: true, free: true, pro: true},
     {feature: "SIEM integrations", oss: "–", free: "–", pro: true},
     {feature: "SSO / SAML / OIDC", oss: "–", free: "–", pro: true},
     {feature: "Kubernetes operator & CRDs", oss: "–", free: "–", pro: true},
@@ -171,7 +175,7 @@ export default function Pricing() {
 
             <div className="pt-20 pb-16 px-6 text-center max-w-4xl mx-auto">
                 <h1 className="text-[clamp(40px,6vw,72px)] font-bold tracking-tight leading-[1.05]">
-                    Agent v1.0 is here.<br/>
+                    Agent v1.1 is here.<br/>
                     <span className="text-teal-500">Cloud is next.</span>
                 </h1>
                 <p className="max-w-[640px] mx-auto mt-6 text-[#8a8a8a] text-base">
@@ -182,7 +186,7 @@ export default function Pricing() {
                         href={LINKS.ossQuickstart}
                         className="inline-block px-5 py-2.5 bg-zinc-100 hover:bg-white text-zinc-950 font-medium rounded-md transition-colors"
                     >
-                        Install v1.0 →
+                        Install v1.1 →
                     </a>
                     <Link
                         to="/waitlist"
@@ -349,7 +353,7 @@ export default function Pricing() {
                         href={LINKS.ossQuickstart}
                         className="inline-block px-5 py-2.5 bg-zinc-100 hover:bg-white text-zinc-950 font-medium rounded-md transition-colors"
                     >
-                        Install v1.0 →
+                        Install v1.1 →
                     </a>
                     <Link
                         to="/waitlist"
