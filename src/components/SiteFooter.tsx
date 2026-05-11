@@ -32,7 +32,6 @@ export function SiteFooter() {
                         <h4 className="text-sm font-semibold text-zinc-300 mb-4">Product</h4>
                         <ul className="space-y-2 text-sm">
                             <li><a href="/#features" className="text-zinc-500 hover:text-emerald-400 transition-colors duration-300">Features</a></li>
-                            <li><Link to="/plans" className="text-zinc-500 hover:text-emerald-400 transition-colors duration-300">Plans</Link></li>
                         </ul>
                     </div>
 

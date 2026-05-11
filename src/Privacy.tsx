@@ -5,15 +5,15 @@ import {SEO} from "./components/SEO";
 export default function Privacy() {
     return (
         <div className="min-h-screen bg-zinc-950 text-zinc-300">
-            <SEO 
-                title="Privacy Policy -- MCP Hangar" 
+            <SEO
+                title="Privacy Policy -- MCP Hangar"
                 description="Privacy Policy for MCP Hangar. Learn how we handle your data."
                 path="/privacy"
             />
             <SiteNav/>
             <main className="max-w-3xl mx-auto px-6 py-20">
                 <h1 className="text-3xl font-bold text-zinc-100 mb-2">Privacy Policy</h1>
-                <p className="text-sm text-zinc-500 mb-12">Last updated: April 11, 2026</p>
+                <p className="text-sm text-zinc-500 mb-12">Last updated: May 12, 2026</p>
 
                 <div className="space-y-10 text-sm leading-relaxed">
                     <section>
@@ -28,17 +28,9 @@ export default function Privacy() {
 
                     <section>
                         <h2 className="text-lg font-semibold text-zinc-100 mb-3">2. What data we collect</h2>
-                        <p className="mb-3">We collect personal data only when you actively provide it:</p>
-                        <ul className="list-disc pl-6 space-y-2">
-                            <li>
-                                <strong className="text-zinc-200">Waitlist signup:</strong> your email address and selected plan tier.
-                                This data is stored by our email provider (Buttondown) and used solely to notify you about product availability.
-                            </li>
-                        </ul>
-                        <p className="mt-3">
-                            Providing your email is voluntary. If you choose not to, you will not
-                            receive waitlist notifications, but you can still use the website
-                            and the open-source software freely.
+                        <p>
+                            We do not collect any personal data through this website.
+                            Visiting mcp-hangar.io does not require you to provide any information.
                         </p>
                         <p className="mt-3">
                             We do <strong className="text-zinc-200">not</strong> use cookies, analytics, tracking pixels,
@@ -47,16 +39,7 @@ export default function Privacy() {
                     </section>
 
                     <section>
-                        <h2 className="text-lg font-semibold text-zinc-100 mb-3">3. Legal basis (GDPR Art. 6)</h2>
-                        <p>
-                            We process your email address based on your <strong className="text-zinc-200">consent</strong> (Art. 6(1)(a) GDPR),
-                            given when you submit the waitlist form. You can withdraw consent at any time by
-                            clicking "unsubscribe" in any email or contacting us directly.
-                        </p>
-                    </section>
-
-                    <section>
-                        <h2 className="text-lg font-semibold text-zinc-100 mb-3">4. Third-party processors</h2>
+                        <h2 className="text-lg font-semibold text-zinc-100 mb-3">3. Third-party processors</h2>
                         <p className="mb-3">We use the following services to operate this website:</p>
                         <div className="overflow-x-auto">
                             <table className="w-full text-left border-collapse">
@@ -73,16 +56,6 @@ export default function Privacy() {
                                         <td className="py-2 pr-4">Website hosting</td>
                                         <td className="py-2">IP address, request metadata (server logs)</td>
                                     </tr>
-                                    <tr className="border-b border-zinc-800/50">
-                                        <td className="py-2 pr-4">Buttondown (USA)</td>
-                                        <td className="py-2 pr-4">Waitlist email management</td>
-                                        <td className="py-2">Email address, plan selection</td>
-                                    </tr>
-                                    <tr className="border-b border-zinc-800/50">
-                                        <td className="py-2 pr-4">Resend (USA)</td>
-                                        <td className="py-2 pr-4">Transactional emails</td>
-                                        <td className="py-2">Email address</td>
-                                    </tr>
                                     <tr>
                                         <td className="py-2 pr-4">GitHub (USA)</td>
                                         <td className="py-2 pr-4">Source code hosting</td>
@@ -93,12 +66,11 @@ export default function Privacy() {
                         </div>
                         <p className="mt-3">
                             Vercel and GitHub participate in the EU-US Data Privacy Framework (DPF).
-                            For other processors, transfers are covered by standard contractual clauses (GDPR Art. 46).
                         </p>
                     </section>
 
                     <section>
-                        <h2 className="text-lg font-semibold text-zinc-100 mb-3">5. Cookies and tracking</h2>
+                        <h2 className="text-lg font-semibold text-zinc-100 mb-3">4. Cookies and tracking</h2>
                         <p>
                             This website does <strong className="text-zinc-200">not</strong> set any cookies.
                             We do not use Google Analytics, Meta Pixel, or any other tracking service.
@@ -107,15 +79,14 @@ export default function Privacy() {
                     </section>
 
                     <section>
-                        <h2 className="text-lg font-semibold text-zinc-100 mb-3">6. Data retention</h2>
+                        <h2 className="text-lg font-semibold text-zinc-100 mb-3">5. Data retention</h2>
                         <p>
-                            Your waitlist email is retained until you unsubscribe or until the waitlist campaign ends.
                             Vercel server logs are retained per Vercel's data retention policy (typically 30 days).
                         </p>
                     </section>
 
                     <section>
-                        <h2 className="text-lg font-semibold text-zinc-100 mb-3">7. Your rights (GDPR Art. 15-22)</h2>
+                        <h2 className="text-lg font-semibold text-zinc-100 mb-3">6. Your rights (GDPR Art. 15-22)</h2>
                         <p className="mb-3">You have the right to:</p>
                         <ul className="list-disc pl-6 space-y-1">
                             <li>Access your personal data</li>
@@ -124,7 +95,6 @@ export default function Privacy() {
                             <li>Restrict processing</li>
                             <li>Data portability</li>
                             <li>Object to processing</li>
-                            <li>Withdraw consent at any time</li>
                         </ul>
                         <p className="mt-3">
                             To exercise any of these rights, email{" "}
@@ -134,15 +104,15 @@ export default function Privacy() {
                     </section>
 
                     <section>
-                        <h2 className="text-lg font-semibold text-zinc-100 mb-3">8. Minimum age</h2>
+                        <h2 className="text-lg font-semibold text-zinc-100 mb-3">7. Minimum age</h2>
                         <p>
-                            This website and the waitlist are intended for users aged 16 or older.
+                            This website is intended for users aged 16 or older.
                             We do not knowingly collect personal data from anyone under 16.
                         </p>
                     </section>
 
                     <section>
-                        <h2 className="text-lg font-semibold text-zinc-100 mb-3">9. Supervisory authority</h2>
+                        <h2 className="text-lg font-semibold text-zinc-100 mb-3">8. Supervisory authority</h2>
                         <p>
                             You have the right to lodge a complaint with a supervisory authority,
                             in particular in the EU/EEA member state of your residence.
@@ -151,7 +121,7 @@ export default function Privacy() {
                     </section>
 
                     <section>
-                        <h2 className="text-lg font-semibold text-zinc-100 mb-3">10. Changes</h2>
+                        <h2 className="text-lg font-semibold text-zinc-100 mb-3">9. Changes</h2>
                         <p>
                             We may update this policy from time to time. Changes will be posted on this page
                             with an updated revision date.

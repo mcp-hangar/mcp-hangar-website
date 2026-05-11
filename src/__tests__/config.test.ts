@@ -12,7 +12,6 @@ describe("config", () => {
 
     it("exports LINKS with expected keys", () => {
         expect(LINKS.github).toContain("github.com");
-        expect(LINKS.cloudWaitlist).toContain("/waitlist");
         expect(LINKS.ossQuickstart).toContain(DOCS_BASE);
         expect(LINKS.cloudDocs).toContain("/cloud/");
         expect(LINKS.ossDocs).toContain("/oss/");
