@@ -46,7 +46,6 @@ function pathToUrl(filePath) {
 
 function priorityForUrl(url) {
   if (url === '/') return '1.0';
-  if (url === '/pricing') return '0.9';
   if (url.includes('/docs/cloud/')) return '0.8';
   if (url.includes('/getting-started/')) return '0.8';
   if (url.includes('/cookbook/')) return '0.7';

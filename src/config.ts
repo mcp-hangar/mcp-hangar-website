@@ -10,8 +10,6 @@ export const DOCS_BASE = "/docs";
 export const LINKS = {
     github: "https://github.com/mcp-hangar/mcp-hangar",
     pypi: "https://pypi.org/project/mcp-hangar/",
-    cloudWaitlist: "/waitlist",
-    earlyAccess: "/waitlist?plan=pro",
     ossQuickstart: `${DOCS_BASE}/oss/getting-started/quickstart`,
     cloudDocs: `${DOCS_BASE}/cloud/`,
     ossDocs: `${DOCS_BASE}/oss/`,

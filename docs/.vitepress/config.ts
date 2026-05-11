@@ -29,8 +29,6 @@ export default withMermaid(defineConfig({
     /^\.\/\d+-/,
     /^\/docs\//,
     /^\/mcp_hangar\//,
-    /^\/pricing/,
-    /^\/plans/,
     /^\/cla/,
     /^\/observability\//,
     /GIT_FLOW/,
@@ -61,9 +59,7 @@ export default withMermaid(defineConfig({
     nav: [
       { text: 'Home', link: 'https://mcp-hangar.io' },
       { text: 'Docs', link: '/oss/' },
-      { text: 'Plans', link: 'https://mcp-hangar.io/plans' },
       { text: 'Blog', link: '/blog/' },
-      { text: 'Cloud Waitlist', link: 'https://mcp-hangar.io/waitlist' },
       { text: 'GitHub', link: 'https://github.com/mcp-hangar/mcp-hangar' },
     ],
 

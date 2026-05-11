@@ -1,6 +1,5 @@
 import {useState} from "react";
 import {preconnect} from "react-dom";
-import {Link} from "react-router-dom";
 import {Feature} from "./components/Feature";
 import {Step} from "./components/Step";
 import {StepList} from "./components/StepList";
@@ -13,7 +12,6 @@ import {
     GithubIcon,
     CopyIcon,
     CheckIcon,
-    ArrowIcon,
     LifecycleIcon,
     CircuitIcon,
     ObservabilityIcon,
@@ -41,7 +39,6 @@ import {
     LayersIcon,
 } from "./components/Icons";
 import {INSTALL_COMMAND, LINKS} from "./config";
-import {InlineWaitlistForm} from "./components/InlineWaitlistForm";
 import {SEO} from "./components/SEO";
 
 function App() {
@@ -111,10 +108,6 @@ function App() {
                             </Button>
                         </div>
 
-                        <div className="flex flex-col items-center gap-2 mt-6">
-                            <p className="text-xs text-zinc-600 uppercase tracking-wider">Cloud — be first to know</p>
-                            <InlineWaitlistForm source="hero"/>
-                        </div>
                     </div>
                 </div>
 
@@ -531,7 +524,6 @@ Starting MCP Hangar v1.2...
                                 </div>
                             </div>
 
-                            <InlineWaitlistForm source="dashboard"/>
                         </div>
                     </div>
                 </div>
@@ -588,15 +580,6 @@ Starting MCP Hangar v1.2...
                             ))}
                             </tbody>
                         </table>
-                    </div>
-                    <div className="text-center mt-6">
-                        <Link
-                            to="/plans"
-                            className="inline-flex items-center gap-2 text-sm text-sky-400 hover:text-sky-300 transition-colors"
-                        >
-                            See all plans & feature comparison
-                            <ArrowIcon/>
-                        </Link>
                     </div>
                 </div>
 
