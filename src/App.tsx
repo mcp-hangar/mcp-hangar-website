@@ -38,6 +38,7 @@ import {
     SlidersIcon,
     ScaleIcon,
     BoltIcon,
+    LayersIcon,
 } from "./components/Icons";
 import {INSTALL_COMMAND, LINKS} from "./config";
 import {InlineWaitlistForm} from "./components/InlineWaitlistForm";
@@ -83,7 +84,7 @@ function App() {
                 {/* ── Hero ─────────────────────────────────────────── */}
                 <div className="max-w-6xl mx-auto px-6 pt-24 pb-32">
                     <div className="max-w-3xl mx-auto text-center">
-                        <Badge className="animate-fade-in mb-8">v1.1 Open Source — MIT License</Badge>
+                        <Badge className="animate-fade-in mb-8">v1.2 Open Source — MIT License</Badge>
 
                         <h1 className="animate-slide-up text-5xl md:text-7xl font-bold tracking-tight leading-[1.1] mb-6">
                             Your organization runs MCP servers.
@@ -103,7 +104,7 @@ function App() {
 
                         <div className="flex flex-wrap justify-center gap-4">
                             <Button href={LINKS.ossQuickstart} variant="primary" withArrow>
-                                Install v1.1
+                                Install v1.2
                             </Button>
                             <Button href={LINKS.github} variant="secondary" external>
                                 <GithubIcon/> GitHub
@@ -308,6 +309,21 @@ function App() {
                             title="Server Groups"
                             description="Load balancing, failover, and health tracking across MCP server pools. Round-robin, weighted, and priority-based routing."
                         />
+                        <Feature
+                            icon={<ShieldCheckIcon/>}
+                            title="Digest Pinning"
+                            description="SHA-256 fingerprint of every tool schema. Detect drift, block mutations, pin approved versions. Preemptive SEP-1766 compliance."
+                        />
+                        <Feature
+                            icon={<FilterIcon/>}
+                            title="Interceptor Framework"
+                            description="Hook-based event model with wildcard subscriptions. Discoverable via interceptors/list. SEP-1763 compliant interceptor sidecar."
+                        />
+                        <Feature
+                            icon={<LayersIcon/>}
+                            title="Mutator Pipeline"
+                            description="Priority-ordered payload transformations on MCP traffic. Built-in response truncation. Audit-only shadow mode for safe rollouts."
+                        />
                     </div>
                 </div>
 
@@ -362,7 +378,7 @@ mcp_servers:
                                 description="Launch the agent. MCP servers come online, cloud connection is established."
                             >
                                 <CodeBlock language="bash">{`$ mcp-hangar serve
-Starting MCP Hangar v1.1...
+Starting MCP Hangar v1.2...
   ● filesystem  ready  (245ms)
   ● fetch       ready  (189ms)
   ● memory      ready  (156ms)
@@ -431,7 +447,7 @@ Starting MCP Hangar v1.1...
                         Measured via pytest-benchmark (Python) and Go benchmark suite.
                         Full results in the{" "}
                         <a href="/docs/oss/reference/benchmarks" className="text-emerald-400 hover:text-emerald-300 underline underline-offset-2 transition-colors">
-                            v1.1 benchmark report
+                            v1.2 benchmark report
                         </a>.
                     </p>
                 </div>
@@ -530,7 +546,7 @@ Starting MCP Hangar v1.1...
                             <thead>
                             <tr className="border-b border-zinc-800/50">
                                 <th className="text-left font-semibold text-zinc-300 px-6 py-4"/>
-                                <th className="text-center font-semibold text-emerald-400 px-6 py-4">OSS Agent v1.1<br/><span className="font-normal text-zinc-500">Available now</span></th>
+                                <th className="text-center font-semibold text-emerald-400 px-6 py-4">OSS Agent v1.2<br/><span className="font-normal text-zinc-500">Available now</span></th>
                                 <th className="text-center font-semibold text-sky-400 px-6 py-4">Cloud Free<br/><span className="font-normal text-zinc-500">coming 2026</span></th>
                                 <th className="text-center font-semibold text-sky-400 px-6 py-4">Pro<br/><span className="font-normal text-zinc-500">coming 2026</span></th>
                                 <th className="text-center font-semibold text-amber-400 px-6 py-4">Enterprise<br/><span className="font-normal text-zinc-500">coming 2026</span></th>

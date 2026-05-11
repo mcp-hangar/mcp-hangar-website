@@ -37,7 +37,7 @@ describe("App", () => {
 
     it("displays OSS badge", () => {
         renderApp();
-        expect(screen.getByText(/v1\.1 Open Source — MIT License/)).toBeInTheDocument();
+        expect(screen.getByText(/v1\.2 Open Source — MIT License/)).toBeInTheDocument();
     });
 
     it("renders the install command", () => {

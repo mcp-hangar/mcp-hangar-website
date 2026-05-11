@@ -29,12 +29,12 @@ interface Tier {
 
 const tiers: Tier[] = [
     {
-        name: "OSS Agent v1.1",
+        name: "OSS Agent v1.2",
         price: "Free",
         period: "/forever",
         launchBadge: { text: "Available now", colorClass: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30" },
         description: "No cloud account required. Runs fully on your infrastructure. MIT licensed.",
-        cta: "Install v1.1 →",
+        cta: "Install v1.2 →",
         ctaHref: LINKS.ossQuickstart,
         accent: "emerald",
         features: [
@@ -45,6 +45,9 @@ const tiers: Tier[] = [
             "OpenTelemetry traces & Prometheus metrics",
             "Cost attribution per tool call",
             "Compliance export (JSONL, LEEF, Syslog)",
+            "Digest pinning (SEP-1766)",
+            "Interceptor framework (SEP-1763)",
+            "Mutator pipeline & response truncation",
             "SSRF protection & command allow-list",
             "Community support (GitHub Issues)",
         ],
@@ -175,7 +178,7 @@ export default function Pricing() {
 
             <div className="pt-20 pb-16 px-6 text-center max-w-4xl mx-auto">
                 <h1 className="text-[clamp(40px,6vw,72px)] font-bold tracking-tight leading-[1.05]">
-                    Agent v1.1 is here.<br/>
+                    Agent v1.2 is here.<br/>
                     <span className="text-teal-500">Cloud is next.</span>
                 </h1>
                 <p className="max-w-[640px] mx-auto mt-6 text-[#8a8a8a] text-base">
@@ -186,7 +189,7 @@ export default function Pricing() {
                         href={LINKS.ossQuickstart}
                         className="inline-block px-5 py-2.5 bg-zinc-100 hover:bg-white text-zinc-950 font-medium rounded-md transition-colors"
                     >
-                        Install v1.1 →
+                        Install v1.2 →
                     </a>
                     <Link
                         to="/waitlist"
@@ -353,7 +356,7 @@ export default function Pricing() {
                         href={LINKS.ossQuickstart}
                         className="inline-block px-5 py-2.5 bg-zinc-100 hover:bg-white text-zinc-950 font-medium rounded-md transition-colors"
                     >
-                        Install v1.1 →
+                        Install v1.2 →
                     </a>
                     <Link
                         to="/waitlist"

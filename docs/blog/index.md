@@ -6,6 +6,18 @@ Engineering updates, release announcements, and technical deep dives from the MC
 
 ## 2026
 
+### [SEP-1763 Compliance: How MCP Hangar Became an MCP-Native Interceptor](./2026-05-11-interceptor-framework-sep-1763)
+
+*May 11, 2026*
+
+MCP Hangar v1.2 implements the SEP-1763 interceptor framework: hook-based event model, wildcard subscriptions, IMutator contract with priority-ordered pipeline, ResponseTruncator, and discoverable interceptors/list endpoint.
+
+### [Tool Integrity for MCP: Digest Pinning in MCP Hangar v1.2](./2026-05-11-digest-pinning-sep-1766)
+
+*May 11, 2026*
+
+v1.2 introduces digest pinning for MCP tools (SEP-1766). SHA-256 fingerprints of tool schemas enable drift detection, mutation blocking, and allowlist-based version pinning with audit/warn/block enforcement modes.
+
 ### [MCP Hangar v1.1 -- Cost Attribution, Compliance Export, and End-to-End Caller Identity](./2026-05-10-v1-1-cost-attribution-compliance-export)
 
 *May 10, 2026*

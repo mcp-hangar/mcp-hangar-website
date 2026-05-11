@@ -17,14 +17,14 @@ describe("Pricing", () => {
     it("renders the page heading", () => {
         renderPricing();
         const heading = screen.getByRole("heading", {level: 1});
-        expect(heading).toHaveTextContent(/Agent v1.1 is here/i);
+        expect(heading).toHaveTextContent(/Agent v1.2 is here/i);
     });
 
     it("renders the 3 tier cards with headings", () => {
         renderPricing();
         const headings = screen.getAllByRole("heading", {level: 3});
         const texts = headings.map(h => h.textContent);
-        expect(texts).toContain("OSS Agent v1.1");
+        expect(texts).toContain("OSS Agent v1.2");
         expect(texts).toContain("Free Cloud");
         expect(texts).toContain("Pro");
     });
@@ -71,7 +71,7 @@ describe("Pricing", () => {
 
     it("renders hero CTA buttons", () => {
         renderPricing();
-        const installLinks = screen.getAllByRole("link", {name: /Install v1.1/i});
+        const installLinks = screen.getAllByRole("link", {name: /Install v1.2/i});
         expect(installLinks[0]).toHaveAttribute("href", expect.stringContaining("/docs/"));
     });
 });
