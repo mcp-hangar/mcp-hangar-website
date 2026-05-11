@@ -15,6 +15,8 @@ This release introduces digest pinning for Model Context Protocol (MCP) tools, i
 
 In a standard MCP flow, the server provides tool definitions (name, description, and input schema) to the client. If a server update changes a schema or a malicious actor modifies a tool definition in transit, the client might invoke a tool with unexpected parameters or for an unintended purpose. There has been no mechanism to ensure that the tool being executed matches the version approved by security teams.
 
+This is not theoretical. [CVE-2025-54136 ("MCPoison")](https://nvd.nist.gov/vuln/detail/CVE-2025-54136) demonstrated a closely related attack: Cursor IDE trusted previously approved MCP configurations indefinitely, allowing an attacker to swap a benign config for a malicious one without triggering re-approval. The root cause is the same class of vulnerability that digest pinning addresses -- a client that cannot detect when a previously approved tool definition has changed.
+
 ## The Solution: Digest Pinning (SEP-1766)
 
 [SEP-1766](https://github.com/modelcontextprotocol/modelcontextprotocol/issues/1766) proposes that MCP servers publish a SHA-256 digest for every tool, enabling clients to pin specific tool versions and detect changes. The spec envisions the digest computed over the tool's code archive (ZIP/TAR) and published by the server as part of `tools/list`.
