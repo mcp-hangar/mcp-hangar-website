@@ -91,7 +91,7 @@ function transformMarkdown(content, sourcePath) {
 
   // Rewrite absolute internal OSS doc links that are now served under /oss/.
   // e.g. /guides/FOO → /oss/guides/FOO, /code-of-conduct → /oss/code-of-conduct
-  // Skip: already-prefixed (/oss/, /cloud/), SPA routes (/pricing), external URLs.
+  // Skip: already-prefixed (/oss/, /cloud/), external URLs.
   const ossSections = [
     'guides', 'reference', 'architecture', 'getting-started', 'cookbook',
     'adr', 'security', 'runbooks', 'development', 'integrations',

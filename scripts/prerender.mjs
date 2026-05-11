@@ -19,22 +19,6 @@ const routes = [
     type: 'SoftwareApplication',
   },
   {
-    path: '/plans',
-    dir: path.resolve(resolvedDist, 'plans'),
-    title: 'Pricing -- MCP Hangar',
-    description: 'Flexible pricing for the Model Context Protocol governance platform. Choose the right plan for your agents.',
-    text: 'MCP Hangar pricing plans. We offer flexible pricing for the Model Context Protocol governance platform to fit your agent infrastructure needs.',
-    type: 'WebSite',
-  },
-  {
-    path: '/waitlist',
-    dir: path.resolve(resolvedDist, 'waitlist'),
-    title: 'Join the Waitlist -- MCP Hangar',
-    description: 'Get early access to the MCP Hangar cloud platform. Manage, secure, and govern your AI agent infrastructure.',
-    text: 'Join the MCP Hangar waitlist for early access to our cloud platform for AI agent governance and security.',
-    type: 'WebSite',
-  },
-  {
     path: '/privacy',
     dir: path.resolve(resolvedDist, 'privacy'),
     title: 'Privacy Policy -- MCP Hangar',
@@ -101,8 +85,8 @@ function generateHtml(template, route) {
     <p>${route.description}</p>
     <p>${route.text}</p>
     <a href="/">Home</a>
-    <a href="/plans">Pricing</a>
-    <a href="/waitlist">Waitlist</a>
+    <a href="/docs/">Docs</a>
+    <a href="/docs/blog/">Blog</a>
   </div>
 </noscript>
 <div class="prerender-content" style="display: none;" aria-hidden="true">

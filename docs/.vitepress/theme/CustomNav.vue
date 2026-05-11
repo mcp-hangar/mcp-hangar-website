@@ -27,10 +27,8 @@ const goHome = () => {
       <!-- Links -->
       <div class="nav-links">
         <a href="/" class="nav-link">Product</a>
-        <a href="/plans" class="nav-link">Plans</a>
         <a href="/docs/oss/" class="nav-link">Docs</a>
         <a href="/docs/blog/" class="nav-link">Blog</a>
-        <a href="/waitlist" class="nav-link">Cloud Waitlist</a>
         <a href="https://github.com/mcp-hangar/mcp-hangar" class="nav-cta">GitHub</a>
       </div>
     </div>

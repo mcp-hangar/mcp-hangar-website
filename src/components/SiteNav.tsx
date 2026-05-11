@@ -2,7 +2,7 @@ import {Link} from "react-router-dom";
 import {HangarLogoMark} from "./Icons";
 import {LINKS} from "../config";
 
-export type ActivePage = "home" | "pricing" | "docs" | "blog";
+export type ActivePage = "home" | "docs" | "blog";
 
 interface SiteNavProps {
     activePage?: ActivePage;

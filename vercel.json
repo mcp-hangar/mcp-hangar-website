@@ -64,18 +64,6 @@
       ]
     },
     {
-      "source": "/pricing",
-      "destination": "/plans/index.html"
-    },
-    {
-      "source": "/plans",
-      "destination": "/plans/index.html"
-    },
-    {
-      "source": "/waitlist",
-      "destination": "/waitlist/index.html"
-    },
-    {
       "source": "/privacy",
       "destination": "/privacy/index.html"
     },

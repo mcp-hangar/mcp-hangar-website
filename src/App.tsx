@@ -1,6 +1,5 @@
 import {useState} from "react";
 import {preconnect} from "react-dom";
-import {Link} from "react-router-dom";
 import {Feature} from "./components/Feature";
 import {Step} from "./components/Step";
 import {StepList} from "./components/StepList";
@@ -13,7 +12,6 @@ import {
     GithubIcon,
     CopyIcon,
     CheckIcon,
-    ArrowIcon,
     LifecycleIcon,
     CircuitIcon,
     ObservabilityIcon,
