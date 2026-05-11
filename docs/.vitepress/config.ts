@@ -13,6 +13,10 @@ export default withMermaid(defineConfig({
   outDir: '.vitepress/dist',
   cleanUrls: true,
 
+  vite: {
+    build: { target: 'es2022' },
+  },
+
   // GIT_FLOW.md previously excluded due to mermaid syntax — now supported via plugin
   srcExclude: ['**/development/GIT_FLOW.md'],
 
