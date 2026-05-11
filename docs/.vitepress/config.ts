@@ -185,6 +185,10 @@ export default defineConfig({
           text: 'Blog',
           items: [
             { text: 'All Posts', link: '/blog/' },
+            { text: 'SEP-1763 Interceptor Framework', link: '/blog/2026-05-11-interceptor-framework-sep-1763' },
+            { text: 'Digest Pinning (SEP-1766)', link: '/blog/2026-05-11-digest-pinning-sep-1766' },
+            { text: 'v1.1 Cost & Compliance', link: '/blog/2026-05-10-v1-1-cost-attribution-compliance-export' },
+            { text: 'v1.0.1 Security Hardening', link: '/blog/2026-04-17-hardening-after-the-april-audit' },
             { text: 'v1.0 Production Release', link: '/blog/2026-04-11-v1-production-release' },
           ],
         },
