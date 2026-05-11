@@ -1,10 +1,11 @@
 import { defineConfig } from 'vitepress'
+import { withMermaid } from 'vitepress-plugin-mermaid'
 
 // Docs are split into two trees:
 //   /docs/cloud/  — Hangar Cloud (managed platform)
 //   /docs/oss/    — OSS Agent (fetched from github.com/mcp-hangar/mcp-hangar at build time)
 
-export default defineConfig({
+export default withMermaid(defineConfig({
   title: 'MCP Hangar',
   description: 'MCP Hangar — open-source MCP proxy agent with security, observability, and compliance',
 
@@ -12,7 +13,7 @@ export default defineConfig({
   outDir: '.vitepress/dist',
   cleanUrls: true,
 
-  // Exclude synced docs with raw HTML-like content in code fences (mermaid diagrams)
+  // GIT_FLOW.md previously excluded due to mermaid syntax — now supported via plugin
   srcExclude: ['**/development/GIT_FLOW.md'],
 
   // Force dark mode
@@ -229,4 +230,4 @@ export default defineConfig({
       copyright: 'Copyright © 2025-present MCP Hangar',
     },
   },
-})
+}))

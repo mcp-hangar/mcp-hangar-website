@@ -17,6 +17,20 @@ SEP-1763 proposes a standardized interceptor framework for MCP. Originally filed
 
 The spec evolved from a 3-type model (validation / mutation / observability) to a 2-type model: Validators and Mutators, with audit mode available on both. This is the right call -- the original three-way split was orthogonal to the actual trust boundary. Observability collapses cleanly into audit mode on the other two types, and the resulting surface is simpler to implement and reason about. The trust-boundary execution ordering is: Mutate -> Validate -> Send for outbound requests, and Validate -> Mutate -> Process for inbound responses.
 
+```mermaid
+flowchart LR
+    subgraph Outbound["Outbound (client → server)"]
+        OC[Client] --> OM[Mutate]
+        OM --> OV[Validate]
+        OV --> OS[Send to server]
+    end
+    subgraph Inbound["Inbound (server → client)"]
+        IS[Server response] --> IV[Validate]
+        IV --> IM[Mutate]
+        IM --> IP[Process by client]
+    end
+```
+
 MCP Hangar's agent already operated as an interceptor sidecar before the spec existed. v1.2 aligns the internals with SEP-1763 terminology and adds the missing contracts.
 
 | SEP-1763 Concept | MCP Hangar Before v1.2 | What v1.2 Adds |
