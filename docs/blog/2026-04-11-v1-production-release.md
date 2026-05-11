@@ -2,6 +2,7 @@
 title: "MCP Hangar v1.0 -- Production Release"
 date: 2026-04-11
 author: MCP Hangar Team
+description: "MCP Hangar v1.0 ships identity propagation, compliance-grade audit, Kubernetes enforcement, and sub-millisecond proxy overhead."
 ---
 
 # MCP Hangar v1.0 -- Production Release

@@ -2,6 +2,7 @@
 title: "SEP-1763 Compliance: How MCP Hangar Became an MCP-Native Interceptor"
 date: 2026-05-11
 author: MCP Hangar Team
+description: "v1.2 implements SEP-1763 P1: hook-based event model, wildcard subscriptions, IMutator contract with priority-ordered pipeline, and interceptors/list endpoint."
 ---
 
 # SEP-1763 Compliance: How MCP Hangar Became an MCP-Native Interceptor
@@ -14,7 +15,21 @@ This release implements the P1 surface of SEP-1763: hook-based event delivery, w
 
 SEP-1763 proposes a standardized interceptor framework for MCP. Originally filed as [issue 1763](https://github.com/modelcontextprotocol/modelcontextprotocol/issues/1763), the proposal was refined in [PR 2624](https://github.com/modelcontextprotocol/modelcontextprotocol/pull/2624) with a formal working group chartered in April 2026. An [experimental multi-language SDK](https://github.com/modelcontextprotocol/experimental-ext-interceptors) is under active development.
 
-The spec evolved from a 3-type model (validation / mutation / observability) to a 2-type model: Validators and Mutators, with audit mode available on both. The trust-boundary execution ordering is: Mutate -> Validate -> Send for outbound requests, and Validate -> Mutate -> Process for inbound responses.
+The spec evolved from a 3-type model (validation / mutation / observability) to a 2-type model: Validators and Mutators, with audit mode available on both. This is the right call -- the original three-way split was orthogonal to the actual trust boundary. Observability collapses cleanly into audit mode on the other two types, and the resulting surface is simpler to implement and reason about. The trust-boundary execution ordering is: Mutate -> Validate -> Send for outbound requests, and Validate -> Mutate -> Process for inbound responses.
+
+```mermaid
+flowchart LR
+    subgraph Outbound["Outbound (client → server)"]
+        OC[Client] --> OM[Mutate]
+        OM --> OV[Validate]
+        OV --> OS[Send to server]
+    end
+    subgraph Inbound["Inbound (server → client)"]
+        IS[Server response] --> IV[Validate]
+        IV --> IM[Mutate]
+        IM --> IP[Process by client]
+    end
+```
 
 MCP Hangar's agent already operated as an interceptor sidecar before the spec existed. v1.2 aligns the internals with SEP-1763 terminology and adds the missing contracts.
 
@@ -142,7 +157,7 @@ class ResponseTruncator:
         return frozenset({"tools/call"})
 ```
 
-When truncation occurs, a `ResponseTruncated` domain event is emitted with the original size, truncated size, and threshold. The default limit is 900 KB.
+When truncation occurs, a `ResponseTruncated` domain event is emitted with the original size, truncated size, and threshold. The 900 KB default sits just below the per-message threshold where most production LLM context windows start aggressive truncation, leaving headroom for system prompts and prior conversation turns. Override per-deployment via the `max_bytes` constructor parameter based on your model and prompt strategy.
 
 ## Interceptor Discovery
 
@@ -181,3 +196,9 @@ v1.2 ships the P1 surface of SEP-1763 compliance. P2 work includes:
 The SEP-1763 successor (PR #2624) is still open. As the spec evolves, MCP Hangar will adapt. The internal abstraction layer (Hook wrapping DomainEvent) is designed for this: expose spec-compliant hooks externally while keeping internal event types for backward compatibility.
 
 For the companion feature in this release, see [Tool Integrity for MCP: Digest Pinning in MCP Hangar v1.2](./2026-05-11-digest-pinning-sep-1766).
+
+---
+
+**Try it.** `pip install mcp-hangar` · [Quickstart](/docs/oss/getting-started/quickstart) · [Helm chart](https://github.com/mcp-hangar/helm-charts)
+
+**Discuss:** [GitHub Discussions](https://github.com/mcp-hangar/mcp-hangar/discussions)

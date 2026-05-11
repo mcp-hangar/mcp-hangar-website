@@ -2,6 +2,7 @@
 title: "Tool Integrity for MCP: Digest Pinning in MCP Hangar v1.2"
 date: 2026-05-11
 author: MCP Hangar Team
+description: "v1.2 introduces SHA-256 digest pinning for MCP tool schemas, implementing a preemptive version of SEP-1766 to detect drift and block unauthorized mutations."
 ---
 
 # Tool Integrity for MCP: Digest Pinning in MCP Hangar v1.2
@@ -13,6 +14,8 @@ This release introduces digest pinning for Model Context Protocol (MCP) tools, i
 ## The Problem: Tool Mutation and Drift
 
 In a standard MCP flow, the server provides tool definitions (name, description, and input schema) to the client. If a server update changes a schema or a malicious actor modifies a tool definition in transit, the client might invoke a tool with unexpected parameters or for an unintended purpose. There has been no mechanism to ensure that the tool being executed matches the version approved by security teams.
+
+This is not theoretical. [CVE-2025-54136 ("MCPoison")](https://nvd.nist.gov/vuln/detail/CVE-2025-54136) demonstrated a closely related attack: Cursor IDE trusted previously approved MCP configurations indefinitely, allowing an attacker to swap a benign config for a malicious one without triggering re-approval. The root cause is the same class of vulnerability that digest pinning addresses -- a client that cannot detect when a previously approved tool definition has changed.
 
 ## The Solution: Digest Pinning (SEP-1766)
 
@@ -111,4 +114,10 @@ class DigestPolicy:
 
 ## What's Next
 
-Digest pinning is the first step toward a full chain of custody for MCP tools. Upcoming work includes automated policy generation from observed behavior in `audit` mode and integration with the [SEP-1763 interceptor framework](./2026-05-11-interceptor-framework-sep-1763) for runtime enforcement.
+Digest pinning is the first step toward a full chain of custody for MCP tools. Upcoming work includes automated policy generation from observed behavior in `audit` mode and integration with the [SEP-1763 Compliance: How MCP Hangar Became an MCP-Native Interceptor](./2026-05-11-interceptor-framework-sep-1763) for runtime enforcement.
+
+---
+
+**Try it.** `pip install mcp-hangar` · [Quickstart](/docs/oss/getting-started/quickstart) · [Helm chart](https://github.com/mcp-hangar/helm-charts)
+
+**Discuss:** [GitHub Discussions](https://github.com/mcp-hangar/mcp-hangar/discussions)

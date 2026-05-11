@@ -1,18 +1,23 @@
 import { defineConfig } from 'vitepress'
+import { withMermaid } from 'vitepress-plugin-mermaid'
 
 // Docs are split into two trees:
 //   /docs/cloud/  — Hangar Cloud (managed platform)
 //   /docs/oss/    — OSS Agent (fetched from github.com/mcp-hangar/mcp-hangar at build time)
 
-export default defineConfig({
+export default withMermaid(defineConfig({
   title: 'MCP Hangar',
-  description: 'MCP Hangar v1.0 — OSS agent documentation and reference',
+  description: 'MCP Hangar — open-source MCP proxy agent with security, observability, and compliance',
 
   base: '/docs/',
   outDir: '.vitepress/dist',
   cleanUrls: true,
 
-  // Exclude synced docs with raw HTML-like content in code fences (mermaid diagrams)
+  vite: {
+    build: { target: 'es2022' },
+  },
+
+  // GIT_FLOW.md previously excluded due to mermaid syntax — now supported via plugin
   srcExclude: ['**/development/GIT_FLOW.md'],
 
   // Force dark mode
@@ -39,6 +44,16 @@ export default defineConfig({
     ['meta', { property: 'og:type', content: 'website' }],
     ['meta', { property: 'og:site_name', content: 'MCP Hangar Docs' }],
   ],
+
+  transformHead({ pageData }) {
+    const tags: Array<[string, Record<string, string>]> = []
+    const desc = pageData.frontmatter.description
+    if (desc) {
+      tags.push(['meta', { name: 'description', content: desc }])
+      tags.push(['meta', { property: 'og:description', content: desc }])
+    }
+    return tags
+  },
 
   themeConfig: {
     logo: '/favicon.svg',
@@ -185,6 +200,10 @@ export default defineConfig({
           text: 'Blog',
           items: [
             { text: 'All Posts', link: '/blog/' },
+            { text: 'SEP-1763 Interceptor Framework', link: '/blog/2026-05-11-interceptor-framework-sep-1763' },
+            { text: 'Digest Pinning (SEP-1766)', link: '/blog/2026-05-11-digest-pinning-sep-1766' },
+            { text: 'v1.1 Cost & Compliance', link: '/blog/2026-05-10-v1-1-cost-attribution-compliance-export' },
+            { text: 'v1.0.1 Security Hardening', link: '/blog/2026-04-17-hardening-after-the-april-audit' },
             { text: 'v1.0 Production Release', link: '/blog/2026-04-11-v1-production-release' },
           ],
         },
@@ -215,4 +234,4 @@ export default defineConfig({
       copyright: 'Copyright © 2025-present MCP Hangar',
     },
   },
-})
+}))

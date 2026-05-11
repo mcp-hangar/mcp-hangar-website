@@ -2,6 +2,7 @@
 title: "MCP Hangar v1.0.1 -- Hardening After the April Audit"
 date: 2026-04-17
 author: MCP Hangar Team
+description: "Security hardening release: SSRF protection, default-deny command allow-list, granular RBAC, WebSocket origin validation, and trusted proxy resolution."
 ---
 
 # MCP Hangar v1.0.1 -- Hardening After the April Audit

@@ -2,6 +2,7 @@
 title: "MCP Hangar v1.1 -- Cost Attribution, Compliance Export, and End-to-End Caller Identity"
 date: 2026-05-10
 author: MCP Hangar Team
+description: "v1.1 adds per-tool-call cost tracking, SIEM-ready compliance export (Splunk, Datadog, Sentinel), and end-to-end caller identity in every OTEL span."
 ---
 
 # MCP Hangar v1.1 -- Cost Attribution, Compliance Export, and End-to-End Caller Identity
