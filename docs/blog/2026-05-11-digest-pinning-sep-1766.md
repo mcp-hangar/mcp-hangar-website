@@ -2,6 +2,7 @@
 title: "Tool Integrity for MCP: Digest Pinning in MCP Hangar v1.2"
 date: 2026-05-11
 author: MCP Hangar Team
+description: "v1.2 introduces SHA-256 digest pinning for MCP tool schemas, implementing a preemptive version of SEP-1766 to detect drift and block unauthorized mutations."
 ---
 
 # Tool Integrity for MCP: Digest Pinning in MCP Hangar v1.2

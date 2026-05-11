@@ -2,6 +2,7 @@
 title: "SEP-1763 Compliance: How MCP Hangar Became an MCP-Native Interceptor"
 date: 2026-05-11
 author: MCP Hangar Team
+description: "v1.2 implements SEP-1763 P1: hook-based event model, wildcard subscriptions, IMutator contract with priority-ordered pipeline, and interceptors/list endpoint."
 ---
 
 # SEP-1763 Compliance: How MCP Hangar Became an MCP-Native Interceptor

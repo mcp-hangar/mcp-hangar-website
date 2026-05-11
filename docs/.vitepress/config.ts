@@ -6,7 +6,7 @@ import { defineConfig } from 'vitepress'
 
 export default defineConfig({
   title: 'MCP Hangar',
-  description: 'MCP Hangar v1.0 — OSS agent documentation and reference',
+  description: 'MCP Hangar — open-source MCP proxy agent with security, observability, and compliance',
 
   base: '/docs/',
   outDir: '.vitepress/dist',
@@ -39,6 +39,16 @@ export default defineConfig({
     ['meta', { property: 'og:type', content: 'website' }],
     ['meta', { property: 'og:site_name', content: 'MCP Hangar Docs' }],
   ],
+
+  transformHead({ pageData }) {
+    const tags: Array<[string, Record<string, string>]> = []
+    const desc = pageData.frontmatter.description
+    if (desc) {
+      tags.push(['meta', { name: 'description', content: desc }])
+      tags.push(['meta', { property: 'og:description', content: desc }])
+    }
+    return tags
+  },
 
   themeConfig: {
     logo: '/favicon.svg',
