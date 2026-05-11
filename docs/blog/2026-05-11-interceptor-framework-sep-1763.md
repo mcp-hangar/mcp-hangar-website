@@ -182,3 +182,9 @@ v1.2 ships the P1 surface of SEP-1763 compliance. P2 work includes:
 The SEP-1763 successor (PR #2624) is still open. As the spec evolves, MCP Hangar will adapt. The internal abstraction layer (Hook wrapping DomainEvent) is designed for this: expose spec-compliant hooks externally while keeping internal event types for backward compatibility.
 
 For the companion feature in this release, see [Tool Integrity for MCP: Digest Pinning in MCP Hangar v1.2](./2026-05-11-digest-pinning-sep-1766).
+
+---
+
+**Try it.** `pip install mcp-hangar` · [Quickstart](/docs/oss/getting-started/quickstart) · [Helm chart](https://github.com/mcp-hangar/helm-charts)
+
+**Discuss:** [GitHub Discussions](https://github.com/mcp-hangar/mcp-hangar/discussions)

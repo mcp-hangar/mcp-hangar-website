@@ -115,3 +115,9 @@ class DigestPolicy:
 ## What's Next
 
 Digest pinning is the first step toward a full chain of custody for MCP tools. Upcoming work includes automated policy generation from observed behavior in `audit` mode and integration with the [SEP-1763 Compliance: How MCP Hangar Became an MCP-Native Interceptor](./2026-05-11-interceptor-framework-sep-1763) for runtime enforcement.
+
+---
+
+**Try it.** `pip install mcp-hangar` · [Quickstart](/docs/oss/getting-started/quickstart) · [Helm chart](https://github.com/mcp-hangar/helm-charts)
+
+**Discuss:** [GitHub Discussions](https://github.com/mcp-hangar/mcp-hangar/discussions)
