@@ -8,6 +8,11 @@ export default defineConfig({
   site: 'https://mcp-hangar.io',
   output: 'static',
   integrations: [react(), mdx(), sitemap()],
+  markdown: {
+    shikiConfig: {
+      theme: 'github-dark',
+    }
+  },
   vite: {
     plugins: [tailwindcss()]
   }
