@@ -1,0 +1,67 @@
+---
+import HangarLogoMark from "./icons/HangarLogoMark.astro";
+import { LINKS } from "../config";
+---
+
+<footer class="border-t border-zinc-800/50">
+    <div class="max-w-6xl mx-auto px-6 py-16">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
+            <!-- Brand -->
+            <div class="col-span-2 md:col-span-1">
+                <div class="flex items-center gap-2 mb-4">
+                    <span class="text-emerald-400">
+                        <HangarLogoMark size={22}/>
+                    </span>
+                    <span class="font-semibold text-zinc-100">mcp-hangar</span>
+                </div>
+                <p class="text-sm text-zinc-500 leading-relaxed mb-4">
+                    MCP governance platform. Cloud managed or self-hosted.
+                </p>
+                <a
+                    href={LINKS.ossQuickstart}
+                    class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-semibold rounded-lg transition-all duration-300 hover:-translate-y-0.5 text-sm"
+                >
+                    Install v1.2
+                </a>
+            </div>
+
+            <!-- Product -->
+            <div>
+                <h4 class="text-sm font-semibold text-zinc-300 mb-4">Product</h4>
+                <ul class="space-y-2 text-sm">
+                    <li><a href="/#features" class="text-zinc-500 hover:text-emerald-400 transition-colors duration-300">Features</a></li>
+                </ul>
+            </div>
+
+            <!-- Documentation -->
+            <div>
+                <h4 class="text-sm font-semibold text-zinc-300 mb-4">Documentation</h4>
+                <ul class="space-y-2 text-sm">
+                    <li><a href="/docs/oss/" class="text-zinc-500 hover:text-emerald-400 transition-colors duration-300">OSS Agent Docs</a></li>
+                    <li><a href="/docs/oss/cookbook/" class="text-zinc-500 hover:text-emerald-400 transition-colors duration-300">Cookbook</a></li>
+                    <li><a href="/docs/oss/reference/configuration" class="text-zinc-500 hover:text-emerald-400 transition-colors duration-300">Configuration</a></li>
+                </ul>
+            </div>
+
+            <!-- Community -->
+            <div>
+                <h4 class="text-sm font-semibold text-zinc-300 mb-4">Community</h4>
+                <ul class="space-y-2 text-sm">
+                    <li><a href="/docs/blog/" class="text-zinc-500 hover:text-emerald-400 transition-colors duration-300">Blog</a></li>
+                    <li><a href="https://github.com/mcp-hangar/mcp-hangar" target="_blank" rel="noopener noreferrer" class="text-zinc-500 hover:text-emerald-400 transition-colors duration-300">GitHub</a></li>
+                    <li><a href="/docs/oss/development/CONTRIBUTING" class="text-zinc-500 hover:text-emerald-400 transition-colors duration-300">Contributing</a></li>
+                    <li><a href="/docs/oss/changelog" class="text-zinc-500 hover:text-emerald-400 transition-colors duration-300">Changelog</a></li>
+                    <li><a href="/docs/oss/security" class="text-zinc-500 hover:text-emerald-400 transition-colors duration-300">Security</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="pt-8 border-t border-zinc-800/50 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-zinc-600">
+            <span>&copy; 2026 MCP Hangar. Agent released under MIT License.</span>
+            <div class="flex items-center gap-4">
+                <a href="/privacy" class="hover:text-zinc-400 transition-colors">Privacy Policy</a>
+                <a href="/terms" class="hover:text-zinc-400 transition-colors">Terms</a>
+            </div>
+        </div>
+    </div>
+</footer>

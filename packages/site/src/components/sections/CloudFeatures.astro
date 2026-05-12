@@ -1,0 +1,66 @@
+---
+import Feature from "../Feature.astro";
+import IdentityIcon from "../icons/IdentityIcon.astro";
+import DashboardIcon from "../icons/DashboardIcon.astro";
+import K8sIcon from "../icons/K8sIcon.astro";
+import AuditIcon from "../icons/AuditIcon.astro";
+import BehavioralIcon from "../icons/BehavioralIcon.astro";
+import ShieldCheckIcon from "../icons/ShieldCheckIcon.astro";
+---
+<div id="features" class="max-w-6xl mx-auto px-6 pb-20">
+                    <div class="flex items-center gap-3 mb-6">
+                        <h2 class="text-sm font-semibold text-zinc-500 uppercase tracking-wider">
+                            Enterprise features (coming soon)
+                        </h2>
+                        <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-sky-500/20 text-sky-400 border border-sky-500/30">
+                            Cloud
+                        </span>
+                    </div>
+                    <p class="text-zinc-400 mb-8 max-w-2xl">
+                        Hangar Cloud adds a managed dashboard, team RBAC, and compliance exports on top of the OSS agent.
+                    </p>
+                    <div class="stagger-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <Feature 
+                            title="Web Dashboard"
+                            description="Fleet overview, audit log viewer, policy management, top callers widget. Full web UI for your MCP infrastructure."
+                            accentColor="sky"
+                        >
+    <DashboardIcon slot="icon" />
+</Feature>
+                        <Feature 
+                            title="Identity Propagation"
+                            description="Track every caller from tool invocation to audit log. HTTP header and JWT extraction, contextvar binding, end-to-end identity chain."
+                            accentColor="sky"
+                        >
+    <IdentityIcon slot="icon" />
+</Feature>
+                        <Feature 
+                            title="Audit Trail"
+                            description="Identity-aware audit records with queryable REST API. Caller, severity, and time range filters. Cloud-managed retention and search."
+                            accentColor="sky"
+                        >
+    <AuditIcon slot="icon" />
+</Feature>
+                        <Feature 
+                            title="Behavioral Profiling"
+                            description="Network behavioral baselines, deviation detection, tool schema drift monitoring. Enterprise-grade runtime analysis."
+                            accentColor="sky"
+                        >
+    <BehavioralIcon slot="icon" />
+</Feature>
+                        <Feature 
+                            title="K8s Operator"
+                            description="McpServer and McpServerGroup CRDs. Validating admission webhook, leader election, health probes. Deploy with Helm."
+                            accentColor="sky"
+                        >
+    <K8sIcon slot="icon" />
+</Feature>
+                        <Feature 
+                            title="K8s Enforcement"
+                            description="Kubernetes operator with validating webhooks, NetworkPolicy generation, capability verification, and violation signals."
+                            accentColor="sky"
+                        >
+    <ShieldCheckIcon slot="icon" />
+</Feature>
+                    </div>
+                </div>

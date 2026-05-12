@@ -1,0 +1,58 @@
+---
+import Badge from "../Badge.astro";
+import Button from "../Button.astro";
+import GithubIcon from "../icons/GithubIcon.astro";
+import { LINKS } from "../../config";
+---
+<div class="max-w-6xl mx-auto px-6 pt-24 pb-32">
+                    <div class="max-w-3xl mx-auto text-center">
+                        <Badge class="animate-fade-in mb-8">v1.2 Open Source — MIT License</Badge>
+
+                        <h1 class="animate-slide-up text-5xl md:text-7xl font-bold tracking-tight leading-[1.1] mb-6">
+                            Your organization runs MCP servers.
+                            <br/>
+                            <span class="bg-gradient-to-r from-emerald-400 via-emerald-300 to-teal-400 bg-clip-text text-transparent">
+                                Do you control who uses them?
+                            </span>
+                        </h1>
+
+                        <p class="text-2xl text-zinc-300 mb-4">
+                            Hangar is the control plane between your AI agents and your MCP servers. One place to decide who can call what, see what's happening, and prove it to your auditors.
+                        </p>
+
+                        <p class="text-lg text-zinc-500 max-w-xl mx-auto mb-10">
+                            Open-source, self-hosted. No cloud account required to get started.
+                        </p>
+
+                        <div class="flex flex-wrap justify-center gap-4">
+                            <Button href={LINKS.ossQuickstart} variant="primary" withArrow>
+                                Install v1.2
+                            </Button>
+                            <Button href={LINKS.github} variant="secondary" external>
+                                <GithubIcon/> GitHub
+                            </Button>
+                        </div>
+
+                    </div>
+                </div>
+
+                
+
+<script>
+    const btn = document.getElementById('hero-copy-btn');
+    if (btn) {
+        btn.addEventListener('click', async () => {
+            await navigator.clipboard.writeText('pip install mcp-hangar');
+            const idle = btn.querySelector('.copy-idle');
+            const success = btn.querySelector('.copy-success');
+            if (idle && success) {
+                idle.classList.add('hidden');
+                success.classList.remove('hidden');
+                setTimeout(() => {
+                    idle.classList.remove('hidden');
+                    success.classList.add('hidden');
+                }, 2000);
+            }
+        });
+    }
+</script>
