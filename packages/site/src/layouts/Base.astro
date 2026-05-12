@@ -1,0 +1,48 @@
+---
+import '../styles/global.css';
+
+interface Props {
+    title: string;
+    description: string;
+    path: string;
+    keywords?: string;
+}
+
+const { title, description, path, keywords } = Astro.props;
+const siteUrl = 'https://mcp-hangar.io';
+const url = `${siteUrl}${path}`;
+const defaultKeywords = "MCP, Context Protocol, AI agents, LLM, governance, SSO, RBAC";
+---
+
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="keywords" content={keywords || defaultKeywords} />
+    <link rel="canonical" href={url} />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={url} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={`${siteUrl}/og-image.png`} />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content={url} />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={`${siteUrl}/og-image.png`} />
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="theme-color" content="#09090b" />
+</head>
+<body class="bg-zinc-950 text-zinc-300 font-sans antialiased">
+    <slot />
+</body>
+</html>

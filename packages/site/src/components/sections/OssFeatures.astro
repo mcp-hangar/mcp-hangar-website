@@ -1,0 +1,105 @@
+---
+import Feature from "../Feature.astro";
+import ParallelIcon from "../icons/ParallelIcon.astro";
+import ScaleIcon from "../icons/ScaleIcon.astro";
+import ObservabilityIcon from "../icons/ObservabilityIcon.astro";
+import FileTextIcon from "../icons/FileTextIcon.astro";
+import ServerStackIcon from "../icons/ServerStackIcon.astro";
+import CircuitIcon from "../icons/CircuitIcon.astro";
+import LayersIcon from "../icons/LayersIcon.astro";
+import ShieldCheckIcon from "../icons/ShieldCheckIcon.astro";
+import GroupIcon from "../icons/GroupIcon.astro";
+import LifecycleIcon from "../icons/LifecycleIcon.astro";
+import FilterIcon from "../icons/FilterIcon.astro";
+import LockIcon from "../icons/LockIcon.astro";
+---
+<div class="max-w-6xl mx-auto px-6 pb-32">
+                    <div class="flex items-center gap-3 mb-6">
+                        <h2 class="text-sm font-semibold text-zinc-500 uppercase tracking-wider">
+                            Open-Source Agent
+                        </h2>
+                        <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                            Open Source
+                        </span>
+                    </div>
+                    <div class="stagger-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <Feature 
+                            title="Parallel Execution"
+                            description="Concurrent tool calls across MCP servers. Backpressure and fair scheduling keep your fleet stable under load."
+                        >
+    <ParallelIcon slot="icon" />
+</Feature>
+                        <Feature 
+                            title="Security & Access Control"
+                            description="SSRF protection, command allow-list, granular RBAC with per-resource permissions, constant-time auth, and exponential rate limiting."
+                        >
+    <LockIcon slot="icon" />
+</Feature>
+                        <Feature 
+                            title="Tool Access Filtering"
+                            description="Allowlist and denylist tools by glob pattern. Block delete_* across the board, or allow only read_* per MCP server."
+                        >
+    <FilterIcon slot="icon" />
+</Feature>
+                        <Feature 
+                            title="Lifecycle Management"
+                            description="Lazy loading — MCP servers start on first call. Automatic shutdown after idle TTL. Health monitoring keeps them alive."
+                        >
+    <LifecycleIcon slot="icon" />
+</Feature>
+                        <Feature 
+                            title="Circuit Breaker"
+                            description="One failing MCP server does not take down your whole fleet. Automatic isolation, exponential backoff, graceful degradation."
+                        >
+    <CircuitIcon slot="icon" />
+</Feature>
+                        <Feature 
+                            title="Observability"
+                            description="Correlation IDs across parallel calls. OpenTelemetry traces, Prometheus metrics. Debug batch execution, not black boxes."
+                        >
+    <ObservabilityIcon slot="icon" />
+</Feature>
+                        <Feature 
+                            title="Cost Attribution"
+                            description="Know what each tool call costs. Per-server, per-tool Prometheus metrics with token, duration, and composite pricing models."
+                        >
+    <ScaleIcon slot="icon" />
+</Feature>
+                        <Feature 
+                            title="Compliance Export"
+                            description="Ship audit logs to your SIEM. Built-in JSONL, LEEF (QRadar), and Syslog (RFC 5424) exporters. File, callback, or stderr output."
+                        >
+    <FileTextIcon slot="icon" />
+</Feature>
+                        <Feature 
+                            title="Multi-Server Orchestration"
+                            description="Local subprocess, Docker containers, remote HTTP — mix in single batch. Unified interface, heterogeneous backends."
+                        >
+    <ServerStackIcon slot="icon" />
+</Feature>
+                        <Feature 
+                            title="Server Groups"
+                            description="Load balancing, failover, and health tracking across MCP server pools. Round-robin, weighted, and priority-based routing."
+                        >
+    <GroupIcon slot="icon" />
+</Feature>
+                        <Feature 
+                            title="Digest Pinning"
+                            description="SHA-256 fingerprint of every tool schema. Detect drift, block mutations, pin approved versions. Preemptive SEP-1766 compliance."
+                        >
+    <ShieldCheckIcon slot="icon" />
+</Feature>
+                        <Feature 
+                            title="Interceptor Framework"
+                            description="Hook-based event model with wildcard subscriptions. Discoverable via interceptors/list. SEP-1763 compliant interceptor sidecar."
+                        >
+    <FilterIcon slot="icon" />
+</Feature>
+                        <Feature 
+                            title="Mutator Pipeline"
+                            description="Priority-ordered payload transformations on MCP traffic. Built-in response truncation. Audit-only shadow mode for safe rollouts."
+                        >
+    <LayersIcon slot="icon" />
+</Feature>
+                    </div>
+                </div>

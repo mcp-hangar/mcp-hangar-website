@@ -1,0 +1,59 @@
+---
+import ArrowIcon from "./icons/ArrowIcon.astro";
+
+type ButtonVariant = "primary" | "secondary" | "ghost";
+type ButtonSize = "sm" | "md" | "lg";
+
+interface Props {
+    href: string;
+    variant?: ButtonVariant;
+    size?: ButtonSize;
+    withArrow?: boolean;
+    class?: string;
+    external?: boolean;
+}
+
+const {
+    href,
+    variant = "secondary",
+    size = "md",
+    withArrow = false,
+    class: className = "",
+    external = false,
+} = Astro.props;
+
+const variantClasses: Record<ButtonVariant, string> = {
+    primary:   "bg-sky-500 hover:bg-sky-400 text-zinc-950 hover:shadow-lg hover:shadow-sky-500/25",
+    secondary: "bg-zinc-800 hover:bg-zinc-700 text-zinc-100",
+    ghost:     "bg-transparent border border-zinc-700 hover:border-zinc-500 text-zinc-300 hover:text-zinc-100",
+};
+
+const sizeClasses: Record<ButtonSize, string> = {
+    sm: "px-4 py-2 text-sm",
+    md: "px-6 py-3 text-sm",
+    lg: "px-8 py-4 text-base",
+};
+
+const base = "group inline-flex items-center gap-2 font-semibold rounded-lg transition-all duration-300 hover:-translate-y-0.5";
+const classes = `${base} ${variantClasses[variant]} ${sizeClasses[size]} ${className}`;
+---
+
+{external ? (
+    <a href={href} class={classes} target="_blank" rel="noopener noreferrer">
+        <slot />
+        {withArrow && (
+            <span class="transition-transform duration-300 group-hover:translate-x-1 flex items-center justify-center">
+                <ArrowIcon />
+            </span>
+        )}
+    </a>
+) : (
+    <a href={href} class={classes}>
+        <slot />
+        {withArrow && (
+            <span class="transition-transform duration-300 group-hover:translate-x-1 flex items-center justify-center">
+                <ArrowIcon />
+            </span>
+        )}
+    </a>
+)}
