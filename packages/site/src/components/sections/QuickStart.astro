@@ -20,7 +20,7 @@ import { CodeBlock } from "../CodeBlock.tsx";
                                 title="Install the agent"
                                 description="Install from PyPI with pip or uv. Works on macOS, Linux, and Windows."
                             >
-                                <CodeBlock language="bash">{`pip install mcp-hangar`}</CodeBlock>
+                                <CodeBlock client:load language="bash">{`pip install mcp-hangar`}</CodeBlock>
                             </Step>
 
                             <Step
@@ -28,7 +28,7 @@ import { CodeBlock } from "../CodeBlock.tsx";
                                 title="Configure MCP servers"
                                 description="The wizard detects your runtimes, lets you pick MCP servers, and configures Claude Desktop automatically."
                             >
-                                <CodeBlock language="yaml">{`# ~/.config/mcp-hangar/config.yaml
+                                <CodeBlock client:load language="yaml">{`# ~/.config/mcp-hangar/config.yaml
 mcp_servers:
   filesystem:
     mode: subprocess
@@ -52,7 +52,7 @@ mcp_servers:
                                 title="Start the server"
                                 description="Launch the agent. MCP servers come online, cloud connection is established."
                             >
-                                <CodeBlock language="bash">{`$ mcp-hangar serve
+                                <CodeBlock client:load language="bash">{`$ mcp-hangar serve
 Starting MCP Hangar v1.2...
   ● filesystem  ready  (245ms)
   ● fetch       ready  (189ms)
