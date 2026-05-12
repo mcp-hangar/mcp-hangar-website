@@ -1,7 +1,7 @@
 {
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist",
-  "installCommand": "npm install",
+  "buildCommand": "pnpm install && pnpm --filter site build",
+  "outputDirectory": "packages/site/dist",
+  "installCommand": "pnpm install",
   "framework": null,
   "cleanUrls": true,
   "trailingSlash": false,
@@ -47,57 +47,37 @@
     {
       "source": "/sitemap.xml",
       "headers": [
-        { "key": "Content-Type", "value": "application/xml; charset=utf-8" },
-        { "key": "Cache-Control", "value": "public, max-age=3600" }
+        {
+          "key": "Content-Type",
+          "value": "application/xml; charset=utf-8"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
+        }
       ]
     }
   ],
-  "rewrites": [
+  "redirects": [
     {
-      "source": "/:path*",
-      "destination": "/docs/:path*",
-      "has": [
-        {
-          "type": "host",
-          "value": "docs.mcp-hangar.io"
-        }
-      ]
-    },
-    {
-      "source": "/privacy",
-      "destination": "/privacy/index.html"
-    },
-    {
-      "source": "/terms",
-      "destination": "/terms/index.html"
-    },
-    {
-      "source": "/docs",
-      "destination": "/docs/index.html"
-    },
-    {
-      "source": "/docs/cloud",
-      "destination": "/docs/cloud/index.html"
+      "source": "/docs/blog/:path*",
+      "destination": "/blog/:path*",
+      "permanent": true
     },
     {
       "source": "/docs/cloud/:path*",
-      "destination": "/docs/cloud/:path*.html"
+      "destination": "/docs/:path*",
+      "permanent": true
     },
     {
-      "source": "/docs/oss",
-      "destination": "/docs/oss/index.html"
+      "source": "/plans",
+      "destination": "/",
+      "permanent": true
     },
     {
-      "source": "/docs/oss/:path*",
-      "destination": "/docs/oss/:path*.html"
-    },
-    {
-      "source": "/docs/:path*",
-      "destination": "/docs/:path*.html"
-    },
-    {
-      "source": "/((?!api|docs|assets|favicon|install).*)",
-      "destination": "/index.html"
+      "source": "/waitlist",
+      "destination": "/",
+      "permanent": true
     }
   ]
 }
