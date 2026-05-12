@@ -27,9 +27,9 @@ const sidebarDocs = allDocs
 >
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex flex-col md:flex-row gap-8">
     {/* Sidebar */}
-    <aside class="w-full md:w-64 flex-shrink-0 border-r border-gray-100 pr-4">
-      <nav class="sticky top-8">
-        <h3 class="font-semibold text-gray-900 mb-4 px-3 uppercase tracking-wider text-sm">Cloud Platform</h3>
+    <aside class="w-full md:w-64 flex-shrink-0">
+      <nav class="sticky top-8 bg-zinc-900/50 rounded-xl p-4 border border-zinc-800/50">
+        <h3 class="font-semibold text-zinc-300 mb-4 px-3 uppercase tracking-wider text-sm">Cloud Platform</h3>
         <ul class="space-y-1">
           {sidebarDocs.map(d => {
             const path = d.id === 'index' ? '/docs' : `/docs/${d.id}`;
@@ -38,7 +38,7 @@ const sidebarDocs = allDocs
               <li>
                 <a 
                   href={path} 
-                  class={`block px-3 py-2 rounded-md text-sm ${isActive ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}`}
+                  class={`block px-3 py-2 rounded-md text-sm transition-colors ${isActive ? 'bg-emerald-500/10 text-emerald-400 font-medium' : 'text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-200'}`}
                 >
                   {d.data.sidebar?.label || d.data.title}
                 </a>
@@ -51,7 +51,7 @@ const sidebarDocs = allDocs
 
     {/* Content */}
     <main class="flex-1 min-w-0">
-      <article class="prose prose-blue max-w-none">
+      <article class="prose prose-invert prose-emerald max-w-none">
         <Content />
       </article>
     </main>
