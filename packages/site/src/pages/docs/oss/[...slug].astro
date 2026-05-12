@@ -1,0 +1,27 @@
+---
+import Base from '../../../layouts/Base.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const docs = await getCollection('oss');
+  return docs.map(doc => ({
+    params: { slug: doc.id === 'index' ? undefined : doc.id },
+    props: { doc },
+  }));
+}
+
+const { doc } = Astro.props;
+const { Content } = await render(doc);
+---
+
+<Base
+  title={`${doc.data.title} | OSS Docs | MCP Hangar`}
+  description={doc.data.description || 'MCP Hangar OSS Documentation'}
+  path={doc.id === 'index' ? '/docs/oss' : `/docs/oss/${doc.id}`}
+>
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <article class="prose prose-invert max-w-none">
+      <Content />
+    </article>
+  </div>
+</Base>
