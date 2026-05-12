@@ -31,3 +31,5 @@ DEPLOYMENT_SUMMARY.md
 MAINTENANCE_SUMMARY.md
 INSTALL_SCRIPT_FIX.md
 
+packages/*/dist/
+packages/*/.astro/
