@@ -1,0 +1,39 @@
+---
+title: "MCP Hangar Is Now Fully MIT"
+date: 2026-05-17
+author: MCP Hangar Team
+description: "Everything in mcp-hangar is now MIT, effective v1.3.0. This release removes the dual-license model and simplifies the codebase for all users."
+---
+
+# MCP Hangar Is Now Fully MIT
+
+Everything in mcp-hangar is now MIT, effective v1.3.0.
+
+## Why we changed
+
+The shift to a single permissive license maximizes adoption and simplifies the legal landscape for contributors and users alike. MCP Hangar started with a dual-license model, but this added legal complexity that did not match the commercial returns.
+
+The previous "5 servers / no hosted-embedded" carve-out generated more uncertainty and friction than revenue. Moving to MIT removes these barriers and allows the community to build without restriction.
+
+## What changes for users
+
+All features are now unconditionally available under the MIT license.
+
+- **Environment variables**: The `MCP_LICENSE_KEY` environment variable is no longer read. Existing deployments can safely drop this variable.
+- **Python importers**: The `LicenseTier` enum has been removed. Downstream Python importers should update their code to remove references to this enum.
+- **Codebase consolidation**: The `enterprise/` directory has been absorbed into `src/mcp_hangar/`. All features previously in the enterprise directory are now part of the main codebase under the MIT license.
+- **Contribution process**: `CLA.md` has been deleted. Contributions now flow inbound and outbound under the same MIT terms.
+
+## What does NOT change
+
+- **Previous versions**: Already-published v1.x artifacts remain under their original license terms. This change applies starting with v1.3.0.
+- **Cloud platform**: The MCP Hangar Cloud platform is unaffected by this change.
+- **Features**: All existing features continue to work as expected.
+
+## Next steps
+
+For more details on the transition and instructions for updating your deployments, refer to the following resources:
+
+- [v1.3.0 GitHub release](https://github.com/mcp-hangar/mcp-hangar/releases/tag/v1.3.0)
+- [Upgrade guide](/docs/oss/upgrade)
+- [GitHub discussions](https://github.com/mcp-hangar/mcp-hangar/discussions)
