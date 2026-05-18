@@ -1,5 +1,7 @@
 ---
 import '../styles/global.css';
+import SiteNav from '../components/SiteNav.astro';
+import SiteFooter from '../components/SiteFooter.astro';
 
 interface Props {
     title: string;
@@ -26,7 +28,7 @@ const defaultKeywords = "MCP, Context Protocol, AI agents, LLM, governance, SSO,
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    
+
     <meta property="og:type" content="website" />
     <meta property="og:url" content={url} />
     <meta property="og:title" content={title} />
@@ -42,7 +44,11 @@ const defaultKeywords = "MCP, Context Protocol, AI agents, LLM, governance, SSO,
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="theme-color" content="#09090b" />
 </head>
-<body class="bg-zinc-950 text-zinc-300 font-sans antialiased">
-    <slot />
+<body class="bg-zinc-950 text-zinc-300 font-sans antialiased min-h-screen flex flex-col">
+    <SiteNav />
+    <div class="flex-1">
+        <slot />
+    </div>
+    <SiteFooter />
 </body>
 </html>

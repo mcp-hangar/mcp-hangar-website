@@ -1,6 +1,7 @@
 @import "@fontsource-variable/space-grotesk";
 @import "@fontsource-variable/jetbrains-mono";
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
 @theme {
     --font-sans: 'Space Grotesk', system-ui, sans-serif;

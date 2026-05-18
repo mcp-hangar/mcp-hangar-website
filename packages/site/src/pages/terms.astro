@@ -1,13 +1,9 @@
 ---
 import Base from '../layouts/Base.astro';
-import SiteNav from '../components/SiteNav.astro';
-import SiteFooter from '../components/SiteFooter.astro';
 ---
 
 <Base title="Terms of Service -- MCP Hangar" description="Terms of Service governing the use of the MCP Hangar website." path="/terms">
-    <div class="min-h-screen flex flex-col">
-        <SiteNav />
-        <main class="max-w-3xl mx-auto px-6 py-20">
+    <main class="max-w-3xl mx-auto px-6 py-20">
                 <h1 class="text-3xl font-bold text-zinc-100 mb-2">Terms of Service</h1>
                 <p class="text-sm text-zinc-500 mb-12">Last updated: May 12, 2026</p>
 
@@ -88,9 +84,5 @@ import SiteFooter from '../components/SiteFooter.astro';
                         </p>
                     </section>
                 </div>
-            </main>
-        <div class="mt-auto">
-            <SiteFooter />
-        </div>
-    </div>
+    </main>
 </Base>
