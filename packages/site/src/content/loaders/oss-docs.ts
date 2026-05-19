@@ -45,7 +45,7 @@ export function ossDocsLoader(): Loader {
 
       const files = await fg('**/*.md', {
         cwd: docsDir,
-        ignore: ['**/README.md'],
+        ignore: ['**/README.md', 'index.md'],
       });
       
       logger.info(`Found ${files.length} files`);

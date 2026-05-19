@@ -5,7 +5,7 @@ import { getCollection, render } from 'astro:content';
 export async function getStaticPaths() {
   const docs = await getCollection('oss');
   return docs.map(doc => ({
-    params: { slug: doc.id === 'index' ? undefined : doc.id },
+    params: { slug: doc.id },
     props: { doc },
   }));
 }
@@ -17,7 +17,7 @@ const { Content } = await render(doc);
 <Base
   title={`${doc.data.title} | Docs | MCP Hangar`}
   description={doc.data.description || 'MCP Hangar Documentation'}
-  path={doc.id === 'index' ? '/docs' : `/docs/${doc.id}`}
+  path={`/docs/${doc.id}`}
 >
   <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
     <article class="prose prose-invert max-w-none">

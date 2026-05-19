@@ -1,0 +1,112 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+const docs = await getCollection('oss');
+
+const sections = [
+  {
+    title: 'Getting Started',
+    description: 'Install and run MCP Hangar in under 2 minutes.',
+    links: [
+      { href: '/docs/getting-started/quickstart', label: 'Quick Start' },
+      { href: '/docs/getting-started/installation', label: 'Installation' },
+    ],
+  },
+  {
+    title: 'Guides',
+    description: 'In-depth guides for specific features and use cases.',
+    links: [
+      { href: '/docs/guides/HTTP_TRANSPORT', label: 'HTTP Transport' },
+      { href: '/docs/guides/AUTHENTICATION', label: 'Authentication & RBAC' },
+      { href: '/docs/guides/KUBERNETES', label: 'Kubernetes' },
+      { href: '/docs/guides/OBSERVABILITY', label: 'Observability' },
+      { href: '/docs/guides/MCP_SERVER_GROUPS', label: 'Server Groups' },
+      { href: '/docs/guides/REST_API', label: 'REST API' },
+    ],
+  },
+  {
+    title: 'Cookbook',
+    description: '13 recipes from zero to production.',
+    links: [
+      { href: '/docs/cookbook/', label: 'All Recipes' },
+      { href: '/docs/cookbook/01-http-gateway', label: 'HTTP Gateway' },
+      { href: '/docs/cookbook/03-circuit-breaker', label: 'Circuit Breaker' },
+      { href: '/docs/cookbook/12-auth-rbac', label: 'Auth & RBAC' },
+      { href: '/docs/cookbook/13-production-checklist', label: 'Production Checklist' },
+    ],
+  },
+  {
+    title: 'Reference',
+    description: 'Configuration, CLI, API, and tools reference.',
+    links: [
+      { href: '/docs/reference/configuration', label: 'Configuration' },
+      { href: '/docs/reference/cli', label: 'CLI' },
+      { href: '/docs/reference/rest-api', label: 'REST API' },
+      { href: '/docs/reference/tools', label: 'MCP Tools' },
+    ],
+  },
+  {
+    title: 'Operations',
+    description: 'Running MCP Hangar in production.',
+    links: [
+      { href: '/docs/operations/COMPLIANCE', label: 'Compliance Export' },
+      { href: '/docs/observability/otel-integrations', label: 'OpenTelemetry' },
+      { href: '/docs/runbooks/RELEASE', label: 'Release Runbook' },
+      { href: '/docs/upgrade', label: 'Upgrade Guide' },
+    ],
+  },
+  {
+    title: 'Architecture',
+    description: 'Design decisions and internal architecture.',
+    links: [
+      { href: '/docs/architecture/OVERVIEW', label: 'Overview' },
+      { href: '/docs/architecture/EVENT_SOURCING', label: 'Event Sourcing' },
+      { href: '/docs/architecture/INTERCEPTOR_FRAMEWORK', label: 'Interceptor Framework' },
+    ],
+  },
+];
+---
+
+<Base
+  title="Documentation | MCP Hangar"
+  description="Complete documentation for MCP Hangar — the open-source control plane for MCP servers."
+  path="/docs"
+>
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="mb-12">
+      <h1 class="text-4xl font-bold text-zinc-100 mb-4">Documentation</h1>
+      <p class="text-lg text-zinc-400 max-w-2xl">
+        Everything you need to install, configure, and run MCP Hangar in production.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {sections.map((section) => (
+        <div class="p-6 rounded-2xl bg-zinc-900/30 border border-zinc-800/50">
+          <h2 class="text-lg font-semibold text-zinc-100 mb-2">{section.title}</h2>
+          <p class="text-sm text-zinc-500 mb-4">{section.description}</p>
+          <ul class="space-y-1.5">
+            {section.links.map((link) => (
+              <li>
+                <a
+                  href={link.href}
+                  class="text-sm text-zinc-400 hover:text-emerald-400 transition-colors"
+                >
+                  {link.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+
+    <div class="mt-12 pt-8 border-t border-zinc-800/50">
+      <p class="text-sm text-zinc-500">
+        {docs.length} pages in the documentation. Can't find what you need? Check the
+        <a href="https://github.com/mcp-hangar/mcp-hangar" class="text-emerald-400 hover:text-emerald-300"> source on GitHub</a>.
+      </p>
+    </div>
+  </div>
+</Base>
