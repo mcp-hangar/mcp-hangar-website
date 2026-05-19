@@ -1,0 +1,111 @@
+---
+/**
+ * Prev/Next navigation at the bottom of docs pages.
+ * Uses the same ordered list as the sidebar for consistency.
+ */
+
+interface Props {
+  currentPath: string;
+}
+
+interface NavItem {
+  href: string;
+  label: string;
+}
+
+// Flat ordered list matching sidebar order
+const allPages: NavItem[] = [
+  { href: '/docs/getting-started/quickstart', label: 'Quick Start' },
+  { href: '/docs/getting-started/installation', label: 'Installation' },
+  { href: '/docs/guides/HTTP_TRANSPORT', label: 'HTTP Transport' },
+  { href: '/docs/guides/AUTHENTICATION', label: 'Authentication & RBAC' },
+  { href: '/docs/guides/MCP_SERVER_GROUPS', label: 'Server Groups' },
+  { href: '/docs/guides/DISCOVERY', label: 'Discovery' },
+  { href: '/docs/guides/KUBERNETES', label: 'Kubernetes' },
+  { href: '/docs/guides/CONTAINERS', label: 'Containers' },
+  { href: '/docs/guides/OBSERVABILITY', label: 'Observability' },
+  { href: '/docs/guides/REST_API', label: 'REST API' },
+  { href: '/docs/guides/FACADE_API', label: 'Facade API' },
+  { href: '/docs/guides/WEBSOCKETS', label: 'WebSockets' },
+  { href: '/docs/guides/LOG_STREAMING', label: 'Log Streaming' },
+  { href: '/docs/guides/BATCH_INVOCATIONS', label: 'Batch Invocations' },
+  { href: '/docs/guides/TESTING', label: 'Testing' },
+  { href: '/docs/cookbook/01-http-gateway', label: 'HTTP Gateway' },
+  { href: '/docs/cookbook/02-health-checks', label: 'Health Checks' },
+  { href: '/docs/cookbook/03-circuit-breaker', label: 'Circuit Breaker' },
+  { href: '/docs/cookbook/04-failover', label: 'Failover' },
+  { href: '/docs/cookbook/05-load-balancing', label: 'Load Balancing' },
+  { href: '/docs/cookbook/06-rate-limiting', label: 'Rate Limiting' },
+  { href: '/docs/cookbook/07-observability-metrics', label: 'Metrics' },
+  { href: '/docs/cookbook/08-observability-langfuse', label: 'Langfuse' },
+  { href: '/docs/cookbook/09-subprocess-mcp-servers', label: 'Subprocess Servers' },
+  { href: '/docs/cookbook/10-discovery-docker', label: 'Docker Discovery' },
+  { href: '/docs/cookbook/11-discovery-kubernetes', label: 'K8s Discovery' },
+  { href: '/docs/cookbook/12-auth-rbac', label: 'Auth & RBAC' },
+  { href: '/docs/cookbook/13-production-checklist', label: 'Production Checklist' },
+  { href: '/docs/reference/configuration', label: 'Configuration' },
+  { href: '/docs/reference/cli', label: 'CLI' },
+  { href: '/docs/reference/rest-api', label: 'REST API Reference' },
+  { href: '/docs/reference/tools', label: 'MCP Tools' },
+  { href: '/docs/reference/hot-reload', label: 'Hot Reload' },
+  { href: '/docs/architecture/OVERVIEW', label: 'Architecture Overview' },
+  { href: '/docs/architecture/EVENT_SOURCING', label: 'Event Sourcing' },
+  { href: '/docs/architecture/INTERCEPTOR_FRAMEWORK', label: 'Interceptor Framework' },
+  { href: '/docs/operations/COMPLIANCE', label: 'Compliance Export' },
+  { href: '/docs/observability/otel-integrations', label: 'OpenTelemetry' },
+  { href: '/docs/integrations/openlit-otlp', label: 'OpenLIT OTLP' },
+  { href: '/docs/runbooks/RELEASE', label: 'Release Runbook' },
+  { href: '/docs/security', label: 'Security Policy' },
+  { href: '/docs/security/AUTH_SECURITY_AUDIT', label: 'Auth Security Audit' },
+  { href: '/docs/upgrade', label: 'Upgrade Guide' },
+  { href: '/docs/changelog', label: 'Changelog' },
+  { href: '/docs/adr/ADR-001-cqrs', label: 'ADR-001 CQRS' },
+  { href: '/docs/adr/ADR-002-event-sourcing', label: 'ADR-002 Event Sourcing' },
+  { href: '/docs/adr/ADR-003-sagas', label: 'ADR-003 Sagas' },
+  { href: '/docs/adr/ADR-004-sep-1766-digest-pinning', label: 'ADR-004 Digest Pinning' },
+  { href: '/docs/adr/ADR-005-sep-1763-interceptor-compliance', label: 'ADR-005 Interceptor Compliance' },
+  { href: '/docs/adr/ADR-006-tetragon', label: 'ADR-006 Tetragon' },
+  { href: '/docs/adr/ADR-007-langfuse-integration', label: 'ADR-007 Langfuse' },
+  { href: '/docs/development/CONTRIBUTING', label: 'Contributing' },
+  { href: '/docs/development/GIT_FLOW', label: 'Git Flow' },
+  { href: '/docs/development/BRANCH_PROTECTION', label: 'Branch Protection' },
+  { href: '/docs/development/PROJECT_BOARD', label: 'Project Board' },
+  { href: '/docs/development/EPIC_PLAYBOOK', label: 'Epic Playbook' },
+  { href: '/docs/development/HOTFIX_RUNBOOK', label: 'Hotfix Runbook' },
+  { href: '/docs/testing/approval-gate-manual-testing', label: 'Approval Gate Testing' },
+];
+
+const { currentPath } = Astro.props;
+const normalized = currentPath.replace(/\/$/, '');
+
+const currentIndex = allPages.findIndex(p => p.href === normalized);
+const prev = currentIndex > 0 ? allPages[currentIndex - 1] : null;
+const next = currentIndex >= 0 && currentIndex < allPages.length - 1 ? allPages[currentIndex + 1] : null;
+---
+
+{(prev || next) && (
+  <nav class="mt-12 pt-6 border-t border-zinc-800/50 flex items-center justify-between gap-4" aria-label="Pagination">
+    {prev ? (
+      <a
+        href={prev.href}
+        class="group flex items-center gap-2 text-sm text-zinc-400 hover:text-emerald-400 transition-colors"
+      >
+        <svg class="w-4 h-4 transition-transform group-hover:-translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+        <span>{prev.label}</span>
+      </a>
+    ) : <span />}
+    {next ? (
+      <a
+        href={next.href}
+        class="group flex items-center gap-2 text-sm text-zinc-400 hover:text-emerald-400 transition-colors ml-auto"
+      >
+        <span>{next.label}</span>
+        <svg class="w-4 h-4 transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+      </a>
+    ) : <span />}
+  </nav>
+)}

@@ -1,0 +1,171 @@
+---
+/**
+ * Structured navigation for the documentation sidebar.
+ * Each section has a title and ordered list of links.
+ */
+
+interface Props {
+  mobile?: boolean;
+}
+
+interface NavLink {
+  href: string;
+  label: string;
+}
+
+interface NavSection {
+  title: string;
+  links: NavLink[];
+}
+
+const sections: NavSection[] = [
+  {
+    title: 'Getting Started',
+    links: [
+      { href: '/docs/getting-started/quickstart', label: 'Quick Start' },
+      { href: '/docs/getting-started/installation', label: 'Installation' },
+    ],
+  },
+  {
+    title: 'Guides',
+    links: [
+      { href: '/docs/guides/HTTP_TRANSPORT', label: 'HTTP Transport' },
+      { href: '/docs/guides/AUTHENTICATION', label: 'Authentication & RBAC' },
+      { href: '/docs/guides/MCP_SERVER_GROUPS', label: 'Server Groups' },
+      { href: '/docs/guides/DISCOVERY', label: 'Discovery' },
+      { href: '/docs/guides/KUBERNETES', label: 'Kubernetes' },
+      { href: '/docs/guides/CONTAINERS', label: 'Containers' },
+      { href: '/docs/guides/OBSERVABILITY', label: 'Observability' },
+      { href: '/docs/guides/REST_API', label: 'REST API' },
+      { href: '/docs/guides/FACADE_API', label: 'Facade API' },
+      { href: '/docs/guides/WEBSOCKETS', label: 'WebSockets' },
+      { href: '/docs/guides/LOG_STREAMING', label: 'Log Streaming' },
+      { href: '/docs/guides/BATCH_INVOCATIONS', label: 'Batch Invocations' },
+      { href: '/docs/guides/TESTING', label: 'Testing' },
+    ],
+  },
+  {
+    title: 'Cookbook',
+    links: [
+      { href: '/docs/cookbook/', label: 'Overview' },
+      { href: '/docs/cookbook/01-http-gateway', label: '01 HTTP Gateway' },
+      { href: '/docs/cookbook/02-health-checks', label: '02 Health Checks' },
+      { href: '/docs/cookbook/03-circuit-breaker', label: '03 Circuit Breaker' },
+      { href: '/docs/cookbook/04-failover', label: '04 Failover' },
+      { href: '/docs/cookbook/05-load-balancing', label: '05 Load Balancing' },
+      { href: '/docs/cookbook/06-rate-limiting', label: '06 Rate Limiting' },
+      { href: '/docs/cookbook/07-observability-metrics', label: '07 Metrics' },
+      { href: '/docs/cookbook/08-observability-langfuse', label: '08 Langfuse' },
+      { href: '/docs/cookbook/09-subprocess-mcp-servers', label: '09 Subprocess Servers' },
+      { href: '/docs/cookbook/10-discovery-docker', label: '10 Docker Discovery' },
+      { href: '/docs/cookbook/11-discovery-kubernetes', label: '11 K8s Discovery' },
+      { href: '/docs/cookbook/12-auth-rbac', label: '12 Auth & RBAC' },
+      { href: '/docs/cookbook/13-production-checklist', label: '13 Production Checklist' },
+    ],
+  },
+  {
+    title: 'Reference',
+    links: [
+      { href: '/docs/reference/configuration', label: 'Configuration' },
+      { href: '/docs/reference/cli', label: 'CLI' },
+      { href: '/docs/reference/rest-api', label: 'REST API' },
+      { href: '/docs/reference/tools', label: 'MCP Tools' },
+      { href: '/docs/reference/hot-reload', label: 'Hot Reload' },
+    ],
+  },
+  {
+    title: 'Architecture',
+    links: [
+      { href: '/docs/architecture/OVERVIEW', label: 'Overview' },
+      { href: '/docs/architecture/EVENT_SOURCING', label: 'Event Sourcing' },
+      { href: '/docs/architecture/INTERCEPTOR_FRAMEWORK', label: 'Interceptor Framework' },
+    ],
+  },
+  {
+    title: 'Operations',
+    links: [
+      { href: '/docs/operations/COMPLIANCE', label: 'Compliance Export' },
+      { href: '/docs/observability/otel-integrations', label: 'OpenTelemetry' },
+      { href: '/docs/integrations/openlit-otlp', label: 'OpenLIT OTLP' },
+      { href: '/docs/runbooks/RELEASE', label: 'Release Runbook' },
+      { href: '/docs/security', label: 'Security Policy' },
+      { href: '/docs/security/AUTH_SECURITY_AUDIT', label: 'Auth Security Audit' },
+      { href: '/docs/upgrade', label: 'Upgrade Guide' },
+      { href: '/docs/changelog', label: 'Changelog' },
+    ],
+  },
+  {
+    title: 'ADRs',
+    links: [
+      { href: '/docs/adr/ADR-001-cqrs', label: 'ADR-001 CQRS' },
+      { href: '/docs/adr/ADR-002-event-sourcing', label: 'ADR-002 Event Sourcing' },
+      { href: '/docs/adr/ADR-003-sagas', label: 'ADR-003 Sagas' },
+      { href: '/docs/adr/ADR-004-sep-1766-digest-pinning', label: 'ADR-004 Digest Pinning' },
+      { href: '/docs/adr/ADR-005-sep-1763-interceptor-compliance', label: 'ADR-005 Interceptor Compliance' },
+      { href: '/docs/adr/ADR-006-tetragon', label: 'ADR-006 Tetragon' },
+      { href: '/docs/adr/ADR-007-langfuse-integration', label: 'ADR-007 Langfuse' },
+    ],
+  },
+  {
+    title: 'Development',
+    links: [
+      { href: '/docs/development/CONTRIBUTING', label: 'Contributing' },
+      { href: '/docs/development/GIT_FLOW', label: 'Git Flow' },
+      { href: '/docs/development/BRANCH_PROTECTION', label: 'Branch Protection' },
+      { href: '/docs/development/PROJECT_BOARD', label: 'Project Board' },
+      { href: '/docs/development/EPIC_PLAYBOOK', label: 'Epic Playbook' },
+      { href: '/docs/development/HOTFIX_RUNBOOK', label: 'Hotfix Runbook' },
+      { href: '/docs/testing/approval-gate-manual-testing', label: 'Approval Gate Testing' },
+    ],
+  },
+];
+
+const { mobile = false } = Astro.props;
+const currentPath = Astro.url.pathname.replace(/\/$/, '');
+---
+
+<aside class:list={["docs-sidebar", mobile ? "w-full" : "w-64 shrink-0 hidden lg:block"]}>
+  <nav class:list={[
+    "overflow-y-auto pb-8",
+    mobile ? "" : "sticky top-8 max-h-[calc(100vh-4rem)] pr-4"
+  ]} aria-label="Documentation">
+    <a
+      href="/docs/"
+      class:list={[
+        "block text-sm font-semibold mb-4 transition-colors duration-200",
+        currentPath === '/docs' ? 'text-emerald-400' : 'text-zinc-200 hover:text-emerald-400'
+      ]}
+    >
+      Documentation
+    </a>
+
+    {sections.map((section) => (
+      <div class="mb-5">
+        <h3 class="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2">
+          {section.title}
+        </h3>
+        <ul class="space-y-0.5">
+          {section.links.map((link) => {
+            const linkPath = link.href.replace(/\/$/, '');
+            const isActive = currentPath === linkPath;
+            return (
+              <li>
+                <a
+                  href={link.href}
+                  class:list={[
+                    "block text-[13px] py-1 px-2 rounded transition-colors duration-200",
+                    isActive
+                      ? 'text-emerald-400 bg-emerald-400/10 font-medium'
+                      : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50'
+                  ]}
+                >
+                  {link.label}
+                </a>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    ))}
+  </nav>
+</aside>

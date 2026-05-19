@@ -1,5 +1,5 @@
 ---
-import Base from '../../layouts/Base.astro';
+import DocsLayout from '../../layouts/DocsLayout.astro';
 import { getCollection } from 'astro:content';
 
 const docs = await getCollection('oss');
@@ -8,6 +8,7 @@ const sections = [
   {
     title: 'Getting Started',
     description: 'Install and run MCP Hangar in under 2 minutes.',
+    icon: '&#9889;',
     links: [
       { href: '/docs/getting-started/quickstart', label: 'Quick Start' },
       { href: '/docs/getting-started/installation', label: 'Installation' },
@@ -16,6 +17,7 @@ const sections = [
   {
     title: 'Guides',
     description: 'In-depth guides for specific features and use cases.',
+    icon: '&#128218;',
     links: [
       { href: '/docs/guides/HTTP_TRANSPORT', label: 'HTTP Transport' },
       { href: '/docs/guides/AUTHENTICATION', label: 'Authentication & RBAC' },
@@ -28,6 +30,7 @@ const sections = [
   {
     title: 'Cookbook',
     description: '13 recipes from zero to production.',
+    icon: '&#127859;',
     links: [
       { href: '/docs/cookbook/', label: 'All Recipes' },
       { href: '/docs/cookbook/01-http-gateway', label: 'HTTP Gateway' },
@@ -39,6 +42,7 @@ const sections = [
   {
     title: 'Reference',
     description: 'Configuration, CLI, API, and tools reference.',
+    icon: '&#128196;',
     links: [
       { href: '/docs/reference/configuration', label: 'Configuration' },
       { href: '/docs/reference/cli', label: 'CLI' },
@@ -47,8 +51,19 @@ const sections = [
     ],
   },
   {
+    title: 'Architecture',
+    description: 'Design decisions and internal architecture.',
+    icon: '&#127959;',
+    links: [
+      { href: '/docs/architecture/OVERVIEW', label: 'Overview' },
+      { href: '/docs/architecture/EVENT_SOURCING', label: 'Event Sourcing' },
+      { href: '/docs/architecture/INTERCEPTOR_FRAMEWORK', label: 'Interceptor Framework' },
+    ],
+  },
+  {
     title: 'Operations',
     description: 'Running MCP Hangar in production.',
+    icon: '&#9881;',
     links: [
       { href: '/docs/operations/COMPLIANCE', label: 'Compliance Export' },
       { href: '/docs/observability/otel-integrations', label: 'OpenTelemetry' },
@@ -56,37 +71,38 @@ const sections = [
       { href: '/docs/upgrade', label: 'Upgrade Guide' },
     ],
   },
-  {
-    title: 'Architecture',
-    description: 'Design decisions and internal architecture.',
-    links: [
-      { href: '/docs/architecture/OVERVIEW', label: 'Overview' },
-      { href: '/docs/architecture/EVENT_SOURCING', label: 'Event Sourcing' },
-      { href: '/docs/architecture/INTERCEPTOR_FRAMEWORK', label: 'Interceptor Framework' },
-    ],
-  },
 ];
 ---
 
-<Base
+<DocsLayout
   title="Documentation | MCP Hangar"
   description="Complete documentation for MCP Hangar — the open-source control plane for MCP servers."
   path="/docs"
 >
-  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-    <div class="mb-12">
-      <h1 class="text-4xl font-bold text-zinc-100 mb-4">Documentation</h1>
-      <p class="text-lg text-zinc-400 max-w-2xl">
+  <div class="space-y-10">
+    <!-- Header -->
+    <div>
+      <h1 class="text-3xl font-bold text-zinc-100 mb-3">Documentation</h1>
+      <p class="text-zinc-400 text-lg leading-relaxed max-w-2xl">
         Everything you need to install, configure, and run MCP Hangar in production.
+        Start with the <a href="/docs/getting-started/quickstart" class="text-emerald-400 hover:text-emerald-300 transition-colors">Quick Start</a> or explore the sections below.
       </p>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <!-- Section cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 stagger-grid">
       {sections.map((section) => (
-        <div class="p-6 rounded-2xl bg-zinc-900/30 border border-zinc-800/50">
-          <h2 class="text-lg font-semibold text-zinc-100 mb-2">{section.title}</h2>
-          <p class="text-sm text-zinc-500 mb-4">{section.description}</p>
-          <ul class="space-y-1.5">
+        <div class="group p-5 rounded-xl bg-zinc-900/40 border border-zinc-800/60 hover:border-zinc-700/80 transition-all duration-300">
+          <div class="flex items-start gap-3 mb-3">
+            <span class="text-lg" set:html={section.icon} />
+            <div>
+              <h2 class="text-base font-semibold text-zinc-100 group-hover:text-emerald-400 transition-colors">
+                {section.title}
+              </h2>
+              <p class="text-sm text-zinc-500 mt-0.5">{section.description}</p>
+            </div>
+          </div>
+          <ul class="space-y-1 ml-7">
             {section.links.map((link) => (
               <li>
                 <a
@@ -102,11 +118,12 @@ const sections = [
       ))}
     </div>
 
-    <div class="mt-12 pt-8 border-t border-zinc-800/50">
+    <!-- Footer note -->
+    <div class="pt-6 border-t border-zinc-800/50">
       <p class="text-sm text-zinc-500">
-        {docs.length} pages in the documentation. Can't find what you need? Check the
-        <a href="https://github.com/mcp-hangar/mcp-hangar" class="text-emerald-400 hover:text-emerald-300"> source on GitHub</a>.
+        {docs.length} pages in the documentation.
+        <a href="https://github.com/mcp-hangar/mcp-hangar" class="text-emerald-400 hover:text-emerald-300 transition-colors">View source on GitHub</a>
       </p>
     </div>
   </div>
-</Base>
+</DocsLayout>

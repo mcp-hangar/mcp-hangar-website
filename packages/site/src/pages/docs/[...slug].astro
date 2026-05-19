@@ -1,5 +1,6 @@
 ---
-import Base from '../../layouts/Base.astro';
+import DocsLayout from '../../layouts/DocsLayout.astro';
+import DocsNavPrevNext from '../../components/DocsNavPrevNext.astro';
 import { getCollection, render } from 'astro:content';
 
 export async function getStaticPaths() {
@@ -12,16 +13,17 @@ export async function getStaticPaths() {
 
 const { doc } = Astro.props;
 const { Content } = await render(doc);
+const currentPath = `/docs/${doc.id}`;
 ---
 
-<Base
+<DocsLayout
   title={`${doc.data.title} | Docs | MCP Hangar`}
   description={doc.data.description || 'MCP Hangar Documentation'}
-  path={`/docs/${doc.id}`}
+  path={currentPath}
 >
-  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-    <article class="prose prose-invert max-w-none">
-      <Content />
-    </article>
-  </div>
-</Base>
+  <article class="prose prose-invert max-w-none docs-article">
+    <h1>{doc.data.title}</h1>
+    <Content />
+  </article>
+  <DocsNavPrevNext currentPath={currentPath} />
+</DocsLayout>

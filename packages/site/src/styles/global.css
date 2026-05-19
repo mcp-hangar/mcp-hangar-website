@@ -19,6 +19,132 @@
   --tw-prose-code: #e4e4e7;
   --tw-prose-pre-bg: #18181b;
   --tw-prose-pre-code: #e4e4e7;
+  --tw-prose-counters: #71717a;
+  --tw-prose-bullets: #52525b;
+  --tw-prose-hr: #27272a;
+  --tw-prose-quotes: #a1a1aa;
+  --tw-prose-quote-borders: #34d399;
+  --tw-prose-th-borders: #3f3f46;
+  --tw-prose-td-borders: #27272a;
+}
+
+/* Documentation article styling */
+.docs-article {
+  line-height: 1.8;
+}
+
+.docs-article h1 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #27272a;
+}
+
+.docs-article h2 {
+  font-size: 1.5rem;
+  margin-top: 2.5rem;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #27272a40;
+}
+
+.docs-article h3 {
+  font-size: 1.25rem;
+  margin-top: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.docs-article code:not(pre code) {
+  background: #27272a;
+  padding: 0.15em 0.4em;
+  border-radius: 0.25rem;
+  font-size: 0.875em;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+.docs-article pre {
+  background: #0c0c0e !important;
+  border: 1px solid #27272a;
+  border-radius: 0.5rem;
+  padding: 1rem 1.25rem;
+  overflow-x: auto;
+  font-size: 0.85rem;
+  line-height: 1.7;
+}
+
+.docs-article pre code {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+.docs-article a {
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.2s;
+}
+
+.docs-article a:hover {
+  border-bottom-color: #34d399;
+}
+
+.docs-article blockquote {
+  border-left: 3px solid #34d399;
+  background: #27272a20;
+  padding: 0.75rem 1rem;
+  border-radius: 0 0.375rem 0.375rem 0;
+}
+
+.docs-article table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.docs-article th {
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  background: #18181b;
+  border-bottom: 1px solid #3f3f46;
+  font-weight: 600;
+}
+
+.docs-article td {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid #27272a;
+}
+
+.docs-article tr:last-child td {
+  border-bottom: none;
+}
+
+.docs-article img {
+  border-radius: 0.5rem;
+  border: 1px solid #27272a;
+}
+
+.docs-article ul, .docs-article ol {
+  padding-left: 1.5rem;
+}
+
+.docs-article li + li {
+  margin-top: 0.375rem;
+}
+
+/* Sidebar scrollbar */
+.docs-sidebar nav::-webkit-scrollbar {
+  width: 4px;
+}
+
+.docs-sidebar nav::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.docs-sidebar nav::-webkit-scrollbar-thumb {
+  background: #3f3f46;
+  border-radius: 2px;
+}
+
+.docs-sidebar nav::-webkit-scrollbar-thumb:hover {
+  background: #52525b;
 }
 
 /* Entry animations — Tailwind v4 @starting-style */

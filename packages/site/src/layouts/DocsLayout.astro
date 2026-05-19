@@ -1,0 +1,63 @@
+---
+import Base from './Base.astro';
+import DocsSidebar from '../components/DocsSidebar.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  path: string;
+}
+
+const { title, description, path } = Astro.props;
+---
+
+<Base title={title} description={description} path={path}>
+  <div class="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex gap-8 py-8 lg:py-12">
+      <DocsSidebar />
+
+      <!-- Mobile nav toggle -->
+      <button
+        id="docs-mobile-toggle"
+        class="lg:hidden fixed bottom-6 right-6 z-50 bg-emerald-500 text-zinc-950 p-3 rounded-full shadow-lg hover:bg-emerald-400 transition-colors"
+        aria-label="Toggle documentation navigation"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+
+      <!-- Mobile sidebar overlay -->
+      <div id="docs-mobile-sidebar" class="hidden fixed inset-0 z-40 lg:hidden">
+        <div class="absolute inset-0 bg-zinc-950/80 backdrop-blur-sm" id="docs-mobile-backdrop"></div>
+        <div class="absolute left-0 top-0 bottom-0 w-72 bg-zinc-950 border-r border-zinc-800 p-6 overflow-y-auto">
+          <DocsSidebar mobile />
+        </div>
+      </div>
+
+      <!-- Main content -->
+      <main class="min-w-0 flex-1 max-w-4xl">
+        <slot />
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const toggle = document.getElementById('docs-mobile-toggle');
+    const sidebar = document.getElementById('docs-mobile-sidebar');
+    const backdrop = document.getElementById('docs-mobile-backdrop');
+
+    function openSidebar() {
+      sidebar?.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeSidebar() {
+      sidebar?.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+
+    toggle?.addEventListener('click', openSidebar);
+    backdrop?.addEventListener('click', closeSidebar);
+  </script>
+</Base>
