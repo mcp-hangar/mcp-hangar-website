@@ -1,45 +1,99 @@
 ---
 import HangarLogoMark from "./icons/HangarLogoMark.astro";
 import { LINKS } from "../config";
+
+const navLinks = [
+  { href: "/#features", label: "Features" },
+  { href: "/docs/", label: "Docs" },
+  { href: "/docs/blog/", label: "Blog" },
+  { href: LINKS.github, label: "GitHub", external: true },
+];
 ---
 
-<nav
-    class="max-w-6xl mx-auto px-6 py-6 flex items-center justify-between"
+<header class="sticky top-0 z-50 bg-zinc-950/80 backdrop-blur-md border-b border-zinc-800/50">
+  <nav
+    class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between"
     aria-label="Main navigation"
->
+  >
     <!-- Logo -->
-    <a href="/" class="flex items-center gap-2.5">
-        <span class="text-emerald-400">
-            <HangarLogoMark size={28}/>
-        </span>
-        <span class="font-semibold">mcp-hangar</span>
+    <a href="/" class="flex items-center gap-2.5 shrink-0">
+      <span class="text-emerald-400">
+        <HangarLogoMark size={24} />
+      </span>
+      <span class="font-semibold text-zinc-100 text-[15px]">mcp-hangar</span>
     </a>
 
-    <!-- Links -->
-    <div class="flex items-center gap-6 text-sm">
+    <!-- Desktop links -->
+    <div class="hidden md:flex items-center gap-1">
+      {navLinks.map((link) => (
         <a
-            href="/#features"
-            class="text-zinc-400 hover:text-emerald-400 transition-colors duration-300"
+          href={link.href}
+          class="px-3 py-2 text-sm text-zinc-400 hover:text-zinc-100 rounded-md hover:bg-zinc-800/50 transition-colors duration-200"
+          {...(link.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
         >
-            Product
+          {link.label}
         </a>
-        <a
-            href="/docs/"
-            class="text-zinc-400 hover:text-emerald-400 transition-colors duration-300"
-        >
-            Docs
-        </a>
-        <a
-            href="/docs/blog/"
-            class="text-zinc-400 hover:text-emerald-400 transition-colors duration-300"
-        >
-            Blog
-        </a>
-        <a
-            href={LINKS.ossQuickstart}
-            class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-semibold rounded-lg transition-all duration-300 hover:-translate-y-0.5"
-        >
-            Install v1.2.2
-        </a>
+      ))}
+      <div class="w-px h-5 bg-zinc-800 mx-2" />
+      <a
+        href={LINKS.ossQuickstart}
+        class="ml-1 inline-flex items-center px-3.5 py-1.5 text-sm bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-semibold rounded-md transition-colors duration-200"
+      >
+        Get Started
+      </a>
     </div>
-</nav>
+
+    <!-- Mobile hamburger -->
+    <button
+      id="nav-mobile-toggle"
+      class="md:hidden p-2 -mr-2 text-zinc-400 hover:text-zinc-100 transition-colors"
+      aria-label="Open menu"
+      aria-expanded="false"
+    >
+      <svg class="w-5 h-5" id="nav-icon-open" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+      <svg class="w-5 h-5 hidden" id="nav-icon-close" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+  </nav>
+
+  <!-- Mobile menu -->
+  <div id="nav-mobile-menu" class="hidden md:hidden border-t border-zinc-800/50">
+    <div class="px-4 py-4 space-y-1">
+      {navLinks.map((link) => (
+        <a
+          href={link.href}
+          class="block px-3 py-2.5 text-sm text-zinc-300 hover:text-zinc-100 hover:bg-zinc-800/50 rounded-md transition-colors"
+          {...(link.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+        >
+          {link.label}
+        </a>
+      ))}
+      <div class="pt-2">
+        <a
+          href={LINKS.ossQuickstart}
+          class="block text-center px-3 py-2.5 text-sm bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-semibold rounded-md transition-colors"
+        >
+          Get Started
+        </a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<script>
+  const toggle = document.getElementById('nav-mobile-toggle');
+  const menu = document.getElementById('nav-mobile-menu');
+  const iconOpen = document.getElementById('nav-icon-open');
+  const iconClose = document.getElementById('nav-icon-close');
+
+  toggle?.addEventListener('click', () => {
+    const isOpen = !menu?.classList.contains('hidden');
+    menu?.classList.toggle('hidden');
+    iconOpen?.classList.toggle('hidden');
+    iconClose?.classList.toggle('hidden');
+    toggle?.setAttribute('aria-expanded', String(!isOpen));
+  });
+</script>
