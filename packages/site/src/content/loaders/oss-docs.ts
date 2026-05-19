@@ -4,6 +4,19 @@ import fs from 'node:fs/promises';
 import fg from 'fast-glob';
 import matter from 'gray-matter';
 import type { Loader } from 'astro/loaders';
+import { unified } from 'unified';
+import remarkParse from 'remark-parse';
+import remarkGfm from 'remark-gfm';
+import remarkRehype from 'remark-rehype';
+import rehypeRaw from 'rehype-raw';
+import rehypeStringify from 'rehype-stringify';
+
+const markdownProcessor = unified()
+  .use(remarkParse)
+  .use(remarkGfm)
+  .use(remarkRehype, { allowDangerousHtml: true })
+  .use(rehypeRaw)
+  .use(rehypeStringify);
 
 export function ossDocsLoader(): Loader {
   return {
@@ -49,13 +62,16 @@ export function ossDocsLoader(): Loader {
           data.title = titleMatch ? titleMatch[1].trim() : id;
         }
 
-
         const parsedData = await parseData({ id, data });
+
+        const rendered = await markdownProcessor.process(body);
+        const html = String(rendered);
 
         store.set({
           id,
           data: parsedData,
           body,
+          rendered: { html },
         });
       }
     }
