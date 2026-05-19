@@ -1,20 +1,16 @@
 /** Shared configuration constants used across the marketing site. */
 
-/** Base URL for the Hangar Cloud web application. */
-export const CLOUD_APP_URL = "https://app.mcp-hangar.io";
-
-/** Base URL for the OSS docs (VitePress). */
+/** Base URL for the docs. */
 export const DOCS_BASE = "/docs";
 
 /** External links used in multiple places. */
 export const LINKS = {
     github: "https://github.com/mcp-hangar/mcp-hangar",
     pypi: "https://pypi.org/project/mcp-hangar/",
-    ossQuickstart: `${DOCS_BASE}/oss/getting-started/quickstart`,
-    cloudDocs: `${DOCS_BASE}/cloud/`,
-    ossDocs: `${DOCS_BASE}/oss/`,
+    ossQuickstart: `${DOCS_BASE}/getting-started/quickstart`,
+    ossDocs: `${DOCS_BASE}/`,
     blog: `${DOCS_BASE}/blog/`,
-    changelog: `${DOCS_BASE}/oss/changelog`,
+    changelog: `${DOCS_BASE}/changelog`,
 } as const;
 
 /** The install command shown in the landing page. */

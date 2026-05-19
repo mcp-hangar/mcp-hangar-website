@@ -25,17 +25,11 @@ The project started as a Python library focused on parallel MCP tool execution. 
 - **v0.3 -- v0.5**: Facade API (`Hangar` class), batch invocations, SingleFlight deduplication.
 - **v0.6 -- v0.8**: Interactive CLI, MCP server bundles, secrets resolver, observability bootstrap, response truncation, tool access filtering with glob patterns, two-level concurrency model.
 - **v0.9 -- v0.12**: Security hardening (timing attack prevention, rate limiter backoff, JWT lifetime enforcement, API key rotation), saga persistence, circuit breaker persistence, event store snapshots, K8s operator controllers, REST API with MCP server CRUD, RBAC and tool access policies.
-- **v1.0**: Enterprise module system (BSL 1.1), behavioral profiling with deviation detection, network connection monitoring, tool schema drift detection, resource monitoring, OpenTelemetry governance telemetry, cloud connector with event redaction, approval gate. Production hardening across the board.
+- **v1.0**: Behavioral profiling with deviation detection, network connection monitoring, tool schema drift detection, resource monitoring, OpenTelemetry governance telemetry, approval gate. Production hardening across the board.
 
 ## Architecture
 
-MCP Hangar v1.0 ships in two tiers.
-
-**The OSS agent** (available today, MIT-licensed, `pip install mcp-hangar`) is the Python core: a runtime proxy that sits between AI tools and MCP servers, intercepts every tool invocation, applies security policies, propagates caller identity, records a compliance-grade audit trail, and orchestrates parallel execution. Domain-driven design with event sourcing, CQRS command/query separation, and single-flight deduplication. This is what most users install. It runs anywhere Python runs -- laptop, container, Kubernetes pod.
-
-**The Cloud platform** (in development, [waitlist open](https://mcp-hangar.io/waitlist)) extends the OSS agent into a fleet-managed runtime. A data-plane sidecar runs alongside your workloads in Kubernetes and streams events to a managed control plane over outbound gRPC on port 443 -- no inbound firewall rules. A web dashboard provides fleet-wide visibility into agent health, MCP server inventory, audit logs, and policy management. A Kubernetes operator manages MCPServer and MCPServerGroup custom resources with validating admission webhooks, leader election, and automatic NetworkPolicy generation. Helm charts and a Terraform provider ship with Cloud GA.
-
-Same protocol, same audit semantics, same OTLP export. The OSS agent works standalone today; the Cloud platform makes it operable at fleet scale.
+**The OSS agent** (MIT-licensed, `pip install mcp-hangar`) is the Python core: a runtime proxy that sits between AI tools and MCP servers, intercepts every tool invocation, applies security policies, propagates caller identity, records a compliance-grade audit trail, and orchestrates parallel execution. Domain-driven design with event sourcing, CQRS command/query separation, and single-flight deduplication. It runs anywhere Python runs -- laptop, container, Kubernetes pod.
 
 ## Performance
 
@@ -46,7 +40,7 @@ v1.0 ships with a comprehensive benchmark suite for the Python proxy. The number
 | Python proxy | Full path latency (p50 / p99) | 0.21ms / 0.24ms |
 | Python proxy | SLA target | 20x margin under 5ms |
 
-The Python proxy adds less than a quarter-millisecond of overhead at p99. These numbers were measured with pytest-benchmark against the public [benchmark suite](https://github.com/mcp-hangar/benchmarks). Cloud-tier component benchmarks publish with Cloud GA.
+The Python proxy adds less than a quarter-millisecond of overhead at p99. These numbers were measured with pytest-benchmark against the public [benchmark suite](https://github.com/mcp-hangar/benchmarks).
 
 ## Security
 
@@ -59,9 +53,9 @@ Production readiness means more than performance. v1.0 includes:
 
 ## Licensing
 
-MCP Hangar core is MIT licensed. Enterprise features (the data-plane sidecar, managed control plane, and Kubernetes operator) use the Business Source License 1.1, which converts to open source after four years. This model lets us invest in the project while keeping the core permanently open.
+MCP Hangar is MIT licensed. All features are unconditionally available under the MIT license.
 
-> **Update (2026-05-17):** As of v1.3.0, MCP Hangar is fully MIT-licensed. The BSL dual-license model described above no longer applies. All features are unconditionally available under MIT. See the [announcement post](./2026-05-17-mcp-hangar-is-now-mit).
+> **Update (2026-05-17):** As of v1.2.2, MCP Hangar is fully MIT-licensed with no restrictions. See the [announcement post](./2026-05-17-mcp-hangar-is-now-mit).
 
 ## Getting started
 
@@ -78,9 +72,9 @@ Or with pip:
 pip install mcp-hangar
 ```
 
-Helm charts and a Terraform provider ship with the Cloud product. For OSS deployments today, run `mcp-hangar serve` directly or in a container.
+Helm charts and a Terraform provider are available for Kubernetes deployments. For simpler setups, run `mcp-hangar serve` directly or in a container.
 
-Read the full [quickstart guide](/oss/getting-started/quickstart) or browse the [cookbook](/oss/cookbook/) for 13 recipes covering everything from HTTP gateway setup to production checklists.
+Read the full [quickstart guide](/docs/getting-started/quickstart) or browse the [cookbook](/docs/cookbook/) for 13 recipes covering everything from HTTP gateway setup to production checklists.
 
 ## What comes next
 
@@ -88,6 +82,5 @@ The v1.0 release is a foundation. Near-term work includes:
 
 - **Security audit hardening**: SSRF protection, command allow-list, granular RBAC, WebSocket origin validation (shipped in [v1.0.1](./2026-04-17-hardening-after-the-april-audit)).
 - **Observability loop**: Cost attribution, compliance export, caller identity in every OTEL span (shipped in [v1.1](./2026-05-10-v1-1-cost-attribution-compliance-export)).
-- **Cloud platform**: Fleet-wide management dashboard, managed SIEM pipelines, Helm charts, and a Kubernetes operator. [Waitlist open](https://mcp-hangar.io/waitlist).
 
-Follow the project on [GitHub](https://github.com/mcp-hangar/mcp-hangar) or check the [upgrade guide](/oss/upgrade) if you are migrating from an earlier version.
+Follow the project on [GitHub](https://github.com/mcp-hangar/mcp-hangar) or check the [upgrade guide](/docs/upgrade) if you are migrating from an earlier version.

@@ -28,6 +28,9 @@ importers:
       '@fontsource-variable/space-grotesk':
         specifier: ^5.1.0
         version: 5.2.10
+      '@mcp-hangar/docs':
+        specifier: github:mcp-hangar/docs
+        version: https://codeload.github.com/mcp-hangar/docs/tar.gz/c7b752a594d937fd1da35cc4428d56760de24e29
       '@tailwindcss/typography':
         specifier: ^0.5.19
         version: 0.5.19(tailwindcss@4.3.0)
@@ -850,6 +853,10 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
+
+  '@mcp-hangar/docs@https://codeload.github.com/mcp-hangar/docs/tar.gz/c7b752a594d937fd1da35cc4428d56760de24e29':
+    resolution: {gitHosted: true, integrity: sha512-yEP7Lt6PhRnVCu3fwvJUHwcq58vTWiISVAr07ezh3XGrAUZFSCN+GC8VqRUNnVWxklr2GrIH9zExXmTcFmWaQA==, tarball: https://codeload.github.com/mcp-hangar/docs/tar.gz/c7b752a594d937fd1da35cc4428d56760de24e29}
+    version: 0.0.0
 
   '@mdx-js/mdx@3.1.1':
     resolution: {integrity: sha512-f6ZO2ifpwAQIpzGWaBQT2TXxPv6z3RBzQKpVftEWN78Vl/YweF1uwussDx8ECAXVtr3Rs89fKyG9YlzUs9DyGQ==}
@@ -4327,6 +4334,8 @@ snapshots:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
+
+  '@mcp-hangar/docs@https://codeload.github.com/mcp-hangar/docs/tar.gz/c7b752a594d937fd1da35cc4428d56760de24e29': {}
 
   '@mdx-js/mdx@3.1.1':
     dependencies:

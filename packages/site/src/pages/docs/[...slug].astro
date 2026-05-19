@@ -3,7 +3,7 @@ import Base from '../../layouts/Base.astro';
 import { getCollection, render } from 'astro:content';
 
 export async function getStaticPaths() {
-  const docs = await getCollection('cloud');
+  const docs = await getCollection('oss');
   return docs.map(doc => ({
     params: { slug: doc.id === 'index' ? undefined : doc.id },
     props: { doc },
@@ -12,48 +12,16 @@ export async function getStaticPaths() {
 
 const { doc } = Astro.props;
 const { Content } = await render(doc);
-
-// Get all docs for the sidebar
-const allDocs = await getCollection('cloud');
-const sidebarDocs = allDocs
-  .filter(d => d.data.sidebar)
-  .sort((a, b) => (a.data.sidebar?.order || 0) - (b.data.sidebar?.order || 0));
 ---
 
-<Base 
-  title={`${doc.data.title} | Cloud Docs | MCP Hangar`} 
-  description={doc.data.description || 'MCP Hangar Cloud Documentation'} 
+<Base
+  title={`${doc.data.title} | Docs | MCP Hangar`}
+  description={doc.data.description || 'MCP Hangar Documentation'}
   path={doc.id === 'index' ? '/docs' : `/docs/${doc.id}`}
 >
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex flex-col md:flex-row gap-8">
-    {/* Sidebar */}
-    <aside class="w-full md:w-64 flex-shrink-0">
-      <nav class="sticky top-8 bg-zinc-900/50 rounded-xl p-4 border border-zinc-800/50">
-        <h3 class="font-semibold text-zinc-300 mb-4 px-3 uppercase tracking-wider text-sm">Cloud Platform</h3>
-        <ul class="space-y-1">
-          {sidebarDocs.map(d => {
-            const path = d.id === 'index' ? '/docs' : `/docs/${d.id}`;
-            const isActive = doc.id === d.id;
-            return (
-              <li>
-                <a 
-                  href={path} 
-                  class={`block px-3 py-2 rounded-md text-sm transition-colors ${isActive ? 'bg-emerald-500/10 text-emerald-400 font-medium' : 'text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-200'}`}
-                >
-                  {d.data.sidebar?.label || d.data.title}
-                </a>
-              </li>
-            );
-          })}
-        </ul>
-      </nav>
-    </aside>
-
-    {/* Content */}
-    <main class="flex-1 min-w-0">
-      <article class="prose prose-invert prose-emerald max-w-none">
-        <Content />
-      </article>
-    </main>
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <article class="prose prose-invert max-w-none">
+      <Content />
+    </article>
   </div>
 </Base>

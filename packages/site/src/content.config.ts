@@ -15,20 +15,6 @@ const blog = defineCollection({
   }),
 });
 
-const cloud = defineCollection({
-  loader: glob({ pattern: '**/*.mdx', base: './src/content/cloud' }),
-  schema: z.object({
-    title: z.string(),
-    description: z.string().optional(),
-    sidebar: z.object({
-      label: z.string(),
-      order: z.number(),
-    }).optional(),
-    prev: z.string().optional(),
-    next: z.string().optional(),
-  }),
-});
-
 const oss = defineCollection({
   loader: ossDocsLoader(),
   schema: z.object({
@@ -41,4 +27,4 @@ const oss = defineCollection({
   }),
 });
 
-export const collections = { blog, cloud, oss };
+export const collections = { blog, oss };

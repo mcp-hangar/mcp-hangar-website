@@ -67,7 +67,7 @@ When `OTEL_EXPORTER_OTLP_ENDPOINT` is set, cost data flows into every audit span
 
 This means your existing Grafana, OpenLIT, or Datadog setup picks up cost data automatically -- no new integrations needed.
 
-Full attribute reference: [OpenTelemetry Integrations](/docs/oss/observability/otel-integrations).
+Full attribute reference: [OpenTelemetry Integrations](/docs/observability/otel-integrations).
 
 ## Compliance export: one env var to your SIEM
 
@@ -119,7 +119,7 @@ LEEF:2.0|MCP Hangar|MCP Hangar|1.1.0|101|	devTime=May 10 2026 12:00:00	proto=too
 
 Each record includes `mcp_server_id`, `tool_name`, `status`, `duration_ms`, and caller/cost context when identity propagation and cost attribution are active. The `export_tool_invocation` API accepts `caller_type`, `caller_id`, `caller_roles`, `cost_cents`, `cost_model`, `cost_input_tokens`, and `cost_output_tokens` on all four exporters.
 
-Full format reference and field list: [Compliance Export](/docs/oss/operations/COMPLIANCE).
+Full format reference and field list: [Compliance Export](/docs/operations/COMPLIANCE).
 
 ## Caller identity in every audit span
 
@@ -168,4 +168,4 @@ No breaking changes. The `providers:` config key is aliased to `mcp_servers:` an
 
 ## What's next
 
-The cloud dashboard is coming with fleet-wide cost dashboards, aggregated caller analytics, and managed SIEM pipelines. Join the [waitlist](https://mcp-hangar.io/waitlist) to be first.
+Further improvements to observability, cost dashboards, and security governance are planned for upcoming releases.

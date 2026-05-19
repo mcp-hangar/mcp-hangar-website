@@ -65,6 +65,11 @@
       "permanent": true
     },
     {
+      "source": "/docs/oss/:path*",
+      "destination": "/docs/:path*",
+      "permanent": true
+    },
+    {
       "source": "/docs/cloud/:path*",
       "destination": "/docs/:path*",
       "permanent": true
