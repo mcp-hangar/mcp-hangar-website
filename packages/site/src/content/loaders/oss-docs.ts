@@ -64,7 +64,8 @@ export function ossDocsLoader(): Loader {
 
         const parsedData = await parseData({ id, data });
 
-        const rendered = await markdownProcessor.process(body);
+        const cleanBody = body.replace(/^#\s+.+$/m, '').trim();
+        const rendered = await markdownProcessor.process(cleanBody);
         const html = String(rendered);
 
         store.set({
