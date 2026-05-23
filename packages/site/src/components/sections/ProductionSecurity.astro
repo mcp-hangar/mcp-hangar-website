@@ -2,58 +2,72 @@
 import LockIcon from "../icons/LockIcon.astro";
 ---
 <div class="max-w-6xl mx-auto px-6 pb-32">
-                    <div
-                        class="relative rounded-2xl bg-gradient-to-b from-amber-500/10 to-transparent border border-amber-500/20 p-8 md:p-12 overflow-hidden">
-                        <div
-                            class="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-amber-500/20 rounded-full blur-3xl"/>
+    <div class="relative rounded-2xl bg-gradient-to-b from-amber-500/10 to-transparent border border-amber-500/20 p-8 md:p-12 overflow-hidden">
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-amber-500/20 rounded-full blur-3xl"/>
 
-                        <div class="relative">
-                            <div class="flex items-center gap-3 mb-6">
-                                <div
-                                    class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/30 text-amber-400">
-                                    <LockIcon/>
-                                </div>
-                                <h2 class="text-2xl md:text-3xl font-bold text-zinc-100">
-                                    Security built into the proxy layer
-                                </h2>
-                            </div>
-
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                                <div>
-                                    <h3 class="text-lg font-semibold text-zinc-200 mb-3">Authentication</h3>
-                                    <ul class="space-y-2 text-zinc-400">
-                                        <li class="flex items-start gap-2">
-                                            <span class="text-amber-400 mt-1">&#x2022;</span>
-                                            <span>API keys with bcrypt hashing, prefix lookup, automatic expiration</span>
-                                        </li>
-                                        <li class="flex items-start gap-2">
-                                            <span class="text-amber-400 mt-1">&#x2022;</span>
-                                            <span>JWT/OIDC integration with JWKS validation and SSO support</span>
-                                        </li>
-                                        <li class="flex items-start gap-2">
-                                            <span class="text-amber-400 mt-1">&#x2022;</span>
-                                            <span>Identity propagation: track callers from HTTP header to audit log</span>
-                                        </li>
-                                    </ul>
-                                </div>
-                                <div>
-                                    <h3 class="text-lg font-semibold text-zinc-200 mb-3">Hardening</h3>
-                                    <ul class="space-y-2 text-zinc-400">
-                                        <li class="flex items-start gap-2">
-                                            <span class="text-amber-400 mt-1">&#x2022;</span>
-                                            <span>Agent TLS with custom CA and mTLS support</span>
-                                        </li>
-                                        <li class="flex items-start gap-2">
-                                            <span class="text-amber-400 mt-1">&#x2022;</span>
-                                            <span>Tool access filtering with allow/deny lists and glob patterns</span>
-                                        </li>
-                                        <li class="flex items-start gap-2">
-                                            <span class="text-amber-400 mt-1">&#x2022;</span>
-                                            <span>Capability declaration and runtime verification</span>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+        <div class="relative">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/30 text-amber-400">
+                    <LockIcon/>
                 </div>
+                <h2 class="text-2xl md:text-3xl font-bold text-zinc-100">
+                    Production hardening
+                </h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                    <h3 class="text-sm font-semibold text-amber-400 uppercase tracking-wider mb-3">Transport</h3>
+                    <ul class="space-y-2 text-zinc-400 text-sm">
+                        <li class="flex items-start gap-2">
+                            <span class="text-amber-400 mt-1">&#x2022;</span>
+                            <span>TLS with custom CA support</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-amber-400 mt-1">&#x2022;</span>
+                            <span>Mutual TLS (mTLS) for agent auth</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-amber-400 mt-1">&#x2022;</span>
+                            <span>SSRF protection layer</span>
+                        </li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-sm font-semibold text-amber-400 uppercase tracking-wider mb-3">Identity</h3>
+                    <ul class="space-y-2 text-zinc-400 text-sm">
+                        <li class="flex items-start gap-2">
+                            <span class="text-amber-400 mt-1">&#x2022;</span>
+                            <span>JWT/OIDC with JWKS validation</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-amber-400 mt-1">&#x2022;</span>
+                            <span>API keys with bcrypt + auto-expiry</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-amber-400 mt-1">&#x2022;</span>
+                            <span>End-to-end identity propagation</span>
+                        </li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-sm font-semibold text-amber-400 uppercase tracking-wider mb-3">Runtime</h3>
+                    <ul class="space-y-2 text-zinc-400 text-sm">
+                        <li class="flex items-start gap-2">
+                            <span class="text-amber-400 mt-1">&#x2022;</span>
+                            <span>Capability declaration & verification</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-amber-400 mt-1">&#x2022;</span>
+                            <span>Exponential rate limiting</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-amber-400 mt-1">&#x2022;</span>
+                            <span>Command allow-list enforcement</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

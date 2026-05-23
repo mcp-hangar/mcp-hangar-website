@@ -1,0 +1,179 @@
+---
+import ShieldCheckIcon from "../icons/ShieldCheckIcon.astro";
+import EyeIcon from "../icons/EyeIcon.astro";
+import BoltIcon from "../icons/BoltIcon.astro";
+import ScaleIcon from "../icons/ScaleIcon.astro";
+---
+
+<section id="features" class="max-w-6xl mx-auto px-6 pb-32">
+    <div class="text-center mb-12">
+        <h2 class="text-sm font-semibold text-zinc-500 uppercase tracking-wider mb-3">
+            Capabilities
+        </h2>
+        <p class="text-2xl md:text-3xl font-bold text-zinc-100">
+            Everything you need to run MCP in production
+        </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Governance -->
+        <div class="group p-6 rounded-2xl bg-zinc-900/30 border border-zinc-800/50 hover:border-emerald-500/20 transition-all duration-300">
+            <div class="flex items-center gap-3 mb-5">
+                <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+                    <ShieldCheckIcon />
+                </div>
+                <h3 class="text-lg font-semibold text-zinc-100">Governance</h3>
+            </div>
+            <ul class="space-y-3">
+                <li class="flex items-start gap-2">
+                    <span class="text-emerald-400 mt-1 text-xs">&#9654;</span>
+                    <div>
+                        <span class="text-zinc-200 text-sm font-medium">Per-caller access policies</span>
+                        <p class="text-zinc-500 text-xs mt-0.5">Per-server, per-tool RBAC. Block writes, allow read-only per team.</p>
+                    </div>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="text-emerald-400 mt-1 text-xs">&#9654;</span>
+                    <div>
+                        <span class="text-zinc-200 text-sm font-medium">Tool access filtering</span>
+                        <p class="text-zinc-500 text-xs mt-0.5">Allow/deny by glob pattern. Block delete_* across the board.</p>
+                    </div>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="text-emerald-400 mt-1 text-xs">&#9654;</span>
+                    <div>
+                        <span class="text-zinc-200 text-sm font-medium">Authentication</span>
+                        <p class="text-zinc-500 text-xs mt-0.5">API keys with bcrypt, JWT/OIDC, identity propagation to audit logs.</p>
+                    </div>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="text-emerald-400 mt-1 text-xs">&#9654;</span>
+                    <div>
+                        <span class="text-zinc-200 text-sm font-medium">Mutator pipeline</span>
+                        <p class="text-zinc-500 text-xs mt-0.5">Priority-ordered payload transformations. Audit-only shadow mode for safe rollouts.</p>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Observability -->
+        <div class="group p-6 rounded-2xl bg-zinc-900/30 border border-zinc-800/50 hover:border-sky-500/20 transition-all duration-300">
+            <div class="flex items-center gap-3 mb-5">
+                <div class="w-10 h-10 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400">
+                    <EyeIcon />
+                </div>
+                <h3 class="text-lg font-semibold text-zinc-100">Observability</h3>
+            </div>
+            <ul class="space-y-3">
+                <li class="flex items-start gap-2">
+                    <span class="text-sky-400 mt-1 text-xs">&#9654;</span>
+                    <div>
+                        <span class="text-zinc-200 text-sm font-medium">Full call logging</span>
+                        <p class="text-zinc-500 text-xs mt-0.5">Every tool call logged with caller identity, server, timestamp, and arguments.</p>
+                    </div>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="text-sky-400 mt-1 text-xs">&#9654;</span>
+                    <div>
+                        <span class="text-zinc-200 text-sm font-medium">OpenTelemetry & Prometheus</span>
+                        <p class="text-zinc-500 text-xs mt-0.5">Correlation IDs across parallel calls. Traces, metrics, debug batch execution.</p>
+                    </div>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="text-sky-400 mt-1 text-xs">&#9654;</span>
+                    <div>
+                        <span class="text-zinc-200 text-sm font-medium">Cost attribution</span>
+                        <p class="text-zinc-500 text-xs mt-0.5">Per-server, per-tool metrics with token, duration, and composite pricing models.</p>
+                    </div>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="text-sky-400 mt-1 text-xs">&#9654;</span>
+                    <div>
+                        <span class="text-zinc-200 text-sm font-medium">Interceptor framework</span>
+                        <p class="text-zinc-500 text-xs mt-0.5">Hook-based event model with wildcard subscriptions. Discoverable interceptor sidecar.</p>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Reliability -->
+        <div class="group p-6 rounded-2xl bg-zinc-900/30 border border-zinc-800/50 hover:border-emerald-500/20 transition-all duration-300">
+            <div class="flex items-center gap-3 mb-5">
+                <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+                    <BoltIcon />
+                </div>
+                <h3 class="text-lg font-semibold text-zinc-100">Reliability</h3>
+            </div>
+            <ul class="space-y-3">
+                <li class="flex items-start gap-2">
+                    <span class="text-emerald-400 mt-1 text-xs">&#9654;</span>
+                    <div>
+                        <span class="text-zinc-200 text-sm font-medium">Parallel execution</span>
+                        <p class="text-zinc-500 text-xs mt-0.5">Concurrent tool calls across servers. Backpressure and fair scheduling under load.</p>
+                    </div>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="text-emerald-400 mt-1 text-xs">&#9654;</span>
+                    <div>
+                        <span class="text-zinc-200 text-sm font-medium">Circuit breaker</span>
+                        <p class="text-zinc-500 text-xs mt-0.5">Failing servers isolated automatically. Exponential backoff, graceful degradation.</p>
+                    </div>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="text-emerald-400 mt-1 text-xs">&#9654;</span>
+                    <div>
+                        <span class="text-zinc-200 text-sm font-medium">Server groups & load balancing</span>
+                        <p class="text-zinc-500 text-xs mt-0.5">Failover, health tracking, round-robin, weighted, and priority-based routing.</p>
+                    </div>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="text-emerald-400 mt-1 text-xs">&#9654;</span>
+                    <div>
+                        <span class="text-zinc-200 text-sm font-medium">Lifecycle management</span>
+                        <p class="text-zinc-500 text-xs mt-0.5">Lazy loading on first call. Auto shutdown after idle TTL. Health monitoring.</p>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Compliance -->
+        <div class="group p-6 rounded-2xl bg-zinc-900/30 border border-zinc-800/50 hover:border-amber-500/20 transition-all duration-300">
+            <div class="flex items-center gap-3 mb-5">
+                <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+                    <ScaleIcon />
+                </div>
+                <h3 class="text-lg font-semibold text-zinc-100">Compliance</h3>
+            </div>
+            <ul class="space-y-3">
+                <li class="flex items-start gap-2">
+                    <span class="text-amber-400 mt-1 text-xs">&#9654;</span>
+                    <div>
+                        <span class="text-zinc-200 text-sm font-medium">Audit trail</span>
+                        <p class="text-zinc-500 text-xs mt-0.5">Identity-aware logs. SOC2 evidence generation. EU AI Act readiness.</p>
+                    </div>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="text-amber-400 mt-1 text-xs">&#9654;</span>
+                    <div>
+                        <span class="text-zinc-200 text-sm font-medium">SIEM export</span>
+                        <p class="text-zinc-500 text-xs mt-0.5">JSONL, CEF, LEEF (QRadar), Syslog (RFC 5424). File, callback, or stderr.</p>
+                    </div>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="text-amber-400 mt-1 text-xs">&#9654;</span>
+                    <div>
+                        <span class="text-zinc-200 text-sm font-medium">Digest pinning</span>
+                        <p class="text-zinc-500 text-xs mt-0.5">SHA-256 fingerprint of tool schemas. Detect drift, block mutations, pin versions.</p>
+                    </div>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="text-amber-400 mt-1 text-xs">&#9654;</span>
+                    <div>
+                        <span class="text-zinc-200 text-sm font-medium">Multi-server orchestration</span>
+                        <p class="text-zinc-500 text-xs mt-0.5">Local, Docker, remote HTTP — unified interface, heterogeneous backends.</p>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</section>
