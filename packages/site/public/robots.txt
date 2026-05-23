@@ -2,3 +2,6 @@ User-agent: *
 Allow: /
 
 Sitemap: https://mcp-hangar.io/sitemap.xml
+
+# LLM-friendly documentation index (llmstxt.org standard)
+# See: https://mcp-hangar.io/llms.txt

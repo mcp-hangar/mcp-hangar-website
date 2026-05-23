@@ -43,6 +43,21 @@ const defaultKeywords = "MCP, Context Protocol, AI agents, LLM, governance, SSO,
 
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="theme-color" content="#09090b" />
+
+    <!-- Structured data for AI/search -->
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "MCP Hangar",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Linux, macOS, Windows",
+      "url": siteUrl,
+      "description": "Open-source control plane for Model Context Protocol (MCP) servers. Authentication, access control, observability, and compliance for your MCP server fleet.",
+      "license": "https://opensource.org/licenses/MIT",
+      "softwareVersion": "1.2.2",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "author": { "@type": "Organization", "name": "MCP Hangar", "url": siteUrl }
+    })} />
 </head>
 <body class="bg-zinc-950 text-zinc-300 font-sans antialiased min-h-screen flex flex-col">
     <SiteNav />

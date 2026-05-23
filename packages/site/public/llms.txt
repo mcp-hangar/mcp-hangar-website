@@ -1,0 +1,43 @@
+# MCP Hangar
+
+> MCP Hangar is the open-source control plane for Model Context Protocol (MCP) servers. It sits between AI agents and MCP servers to provide authentication, access control policies, observability, and compliance-grade audit logging. MIT-licensed, self-hosted, sub-millisecond overhead.
+
+## Key facts
+
+- Language: Python (pip install mcp-hangar)
+- License: MIT
+- Current version: v1.2.2
+- Proxy architecture: agents connect to Hangar via MCP, Hangar enforces policies and forwards to upstream MCP servers
+- Supports: subprocess, Docker, and remote HTTP MCP server backends
+- Zero cloud dependency: runs locally, on bare metal, or in Kubernetes
+
+## Docs
+
+- [Quick Start](https://mcp-hangar.io/docs/getting-started/quickstart): Install and make your first parallel call in 2 minutes
+- [Installation](https://mcp-hangar.io/docs/getting-started/installation): All installation methods (pip, uv, curl)
+- [Configuration Reference](https://mcp-hangar.io/docs/reference/configuration): YAML config schema for mcp_servers, policies, auth, and export
+- [Architecture](https://mcp-hangar.io/docs/architecture): How the proxy, policy engine, and event system work together
+- [Cookbook](https://mcp-hangar.io/docs/cookbook): 13 production recipes from zero to production
+
+## Features
+
+- [Access Control](https://mcp-hangar.io/docs/guides/access-control): Per-caller, per-server, per-tool RBAC policies
+- [Tool Filtering](https://mcp-hangar.io/docs/guides/tool-filtering): Allow/deny tools by glob pattern
+- [Observability](https://mcp-hangar.io/docs/guides/observability): OpenTelemetry traces, Prometheus metrics, correlation IDs
+- [Compliance Export](https://mcp-hangar.io/docs/guides/compliance-export): JSONL, CEF, LEEF, Syslog exporters for SIEM integration
+- [Circuit Breaker](https://mcp-hangar.io/docs/guides/circuit-breaker): Automatic isolation of failing servers
+- [Digest Pinning](https://mcp-hangar.io/docs/guides/digest-pinning): SHA-256 tool schema integrity verification
+- [Cost Attribution](https://mcp-hangar.io/docs/guides/cost-attribution): Per-tool-call cost tracking with Prometheus metrics
+
+## API
+
+- [REST API](https://mcp-hangar.io/docs/reference/rest-api): HTTP endpoints for management and monitoring
+- [CLI Reference](https://mcp-hangar.io/docs/reference/cli): Command-line interface documentation
+- [MCP Tools](https://mcp-hangar.io/docs/reference/mcp-tools): Built-in MCP tools exposed by Hangar
+
+## Optional
+
+- [Contributing Guide](https://mcp-hangar.io/docs/development/CONTRIBUTING): How to contribute to MCP Hangar
+- [ADR Index](https://mcp-hangar.io/docs/adr): Architecture Decision Records
+- [Changelog](https://mcp-hangar.io/docs/changelog): Version history and release notes
+- [Blog](https://mcp-hangar.io/blog): Engineering updates and deep-dives
