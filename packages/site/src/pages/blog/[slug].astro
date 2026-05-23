@@ -13,6 +13,12 @@ export async function getStaticPaths() {
 
 const { post } = Astro.props;
 const { Content } = await render(post);
+
+// Get prev/next posts
+const allPosts = (await getCollection('blog')).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+const currentIndex = allPosts.findIndex(p => p.id === post.id);
+const prevPost = currentIndex > 0 ? allPosts[currentIndex - 1] : null;
+const nextPost = currentIndex < allPosts.length - 1 ? allPosts[currentIndex + 1] : null;
 ---
 
 <Base 
@@ -20,16 +26,49 @@ const { Content } = await render(post);
   description={post.data.description} 
   path={`/blog/${post.id}`}
 >
-  <main class="max-w-3xl mx-auto px-4 py-12">
-    <article class="prose prose-invert prose-emerald max-w-none">
-      <h1 class="text-4xl font-bold text-zinc-50 mb-4">{post.data.title}</h1>
-      <div class="mb-8 pb-8 border-b border-zinc-800/50">
+  <main class="max-w-3xl mx-auto px-6 py-16">
+    <!-- Back link -->
+    <a href="/blog" class="inline-flex items-center gap-1.5 text-sm text-zinc-500 hover:text-emerald-400 transition-colors mb-8 group">
+      <span class="group-hover:-translate-x-0.5 transition-transform">&larr;</span>
+      All posts
+    </a>
+
+    <article class="prose prose-invert prose-emerald max-w-none docs-article">
+      <header class="not-prose mb-10">
+        {post.data.tags && (
+          <div class="flex flex-wrap gap-2 mb-4">
+            {post.data.tags.map(tag => (
+              <span class="px-2 py-0.5 text-xs rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
+        <h1 class="text-3xl md:text-4xl font-bold text-zinc-50 mb-4 leading-tight">{post.data.title}</h1>
         <BlogByline date={post.data.date} author={post.data.author} />
-      </div>
+      </header>
       
       <div class="mt-8">
         <Content />
       </div>
     </article>
+
+    <!-- Prev/Next navigation -->
+    {(prevPost || nextPost) && (
+      <nav class="mt-16 pt-8 border-t border-zinc-800/50 grid grid-cols-1 md:grid-cols-2 gap-4">
+        {nextPost ? (
+          <a href={`/blog/${nextPost.id}`} class="group p-4 rounded-xl border border-zinc-800/50 hover:border-emerald-500/15 hover:bg-zinc-900/30 transition-all">
+            <span class="text-xs text-zinc-600 uppercase tracking-wider">Older</span>
+            <p class="text-sm text-zinc-300 font-medium mt-1 group-hover:text-emerald-300 transition-colors">{nextPost.data.title}</p>
+          </a>
+        ) : <div />}
+        {prevPost && (
+          <a href={`/blog/${prevPost.id}`} class="group p-4 rounded-xl border border-zinc-800/50 hover:border-emerald-500/15 hover:bg-zinc-900/30 transition-all text-right">
+            <span class="text-xs text-zinc-600 uppercase tracking-wider">Newer</span>
+            <p class="text-sm text-zinc-300 font-medium mt-1 group-hover:text-emerald-300 transition-colors">{prevPost.data.title}</p>
+          </a>
+        )}
+      </nav>
+    )}
   </main>
 </Base>
