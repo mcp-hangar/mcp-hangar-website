@@ -9,20 +9,27 @@ import remarkParse from 'remark-parse';
 import remarkGfm from 'remark-gfm';
 import remarkRehype from 'remark-rehype';
 import rehypeRaw from 'rehype-raw';
+import rehypeShiki from '@shikijs/rehype';
 import rehypeStringify from 'rehype-stringify';
 
-const markdownProcessor = unified()
-  .use(remarkParse)
-  .use(remarkGfm)
-  .use(remarkRehype, { allowDangerousHtml: true })
-  .use(rehypeRaw)
-  .use(rehypeStringify);
+async function createMarkdownProcessor() {
+  return unified()
+    .use(remarkParse)
+    .use(remarkGfm)
+    .use(remarkRehype, { allowDangerousHtml: true })
+    .use(rehypeRaw)
+    .use(rehypeShiki, {
+      theme: 'github-dark',
+    })
+    .use(rehypeStringify);
+}
 
 export function ossDocsLoader(): Loader {
   return {
     name: 'oss-docs-loader',
     load: async (context) => {
       const { store, logger, parseData } = context;
+      const markdownProcessor = await createMarkdownProcessor();
 
       let docsDir: string;
       const require = createRequire(import.meta.url);

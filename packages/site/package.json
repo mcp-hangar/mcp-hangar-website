@@ -20,6 +20,7 @@
     "@fontsource-variable/jetbrains-mono": "^5.1.0",
     "@fontsource-variable/space-grotesk": "^5.1.0",
     "@mcp-hangar/docs": "github:mcp-hangar/docs",
+    "@shikijs/rehype": "^4.1.0",
     "@tailwindcss/typography": "^0.5.19",
     "@tailwindcss/vite": "^4.0.0",
     "astro": "^5.0.0",
