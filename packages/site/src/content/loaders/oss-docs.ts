@@ -71,14 +71,34 @@ export function ossDocsLoader(): Loader {
 
         const parsedData = await parseData({ id, data });
 
-        const cleanBody = body.replace(/^#\s+.+$/m, '').trim();
+        // Resolve pymdownx.snippets includes (--8<-- "file") if the target exists
+        let resolvedBody = body;
+        const snippetPattern = /^--8<--\s+"([^"]+)"$/gm;
+        let match;
+        while ((match = snippetPattern.exec(body)) !== null) {
+          const snippetFile = path.join(docsDir, match[1]);
+          // Skip self-references (case-insensitive FS can resolve UPGRADE.md → upgrade.md)
+          if (path.resolve(snippetFile).toLowerCase() === path.resolve(filePath).toLowerCase()) {
+            resolvedBody = resolvedBody.replace(match[0], '');
+            continue;
+          }
+          try {
+            const snippetContent = await fs.readFile(snippetFile, 'utf-8');
+            resolvedBody = resolvedBody.replace(match[0], snippetContent.trim());
+          } catch {
+            // Target file doesn't exist — remove the directive
+            resolvedBody = resolvedBody.replace(match[0], '');
+          }
+        }
+
+        const cleanBody = resolvedBody.replace(/^#\s+.+$/m, '').trim();
         const rendered = await markdownProcessor.process(cleanBody);
         const html = String(rendered);
 
         store.set({
           id,
           data: parsedData,
-          body,
+          body: resolvedBody,
           rendered: { html },
         });
       }

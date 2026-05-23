@@ -56,9 +56,24 @@
           "value": "public, max-age=3600"
         }
       ]
+    },
+    {
+      "source": "/og-image.png",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400, immutable"
+        }
+      ]
     }
   ],
   "redirects": [
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "www.mcp-hangar.io" }],
+      "destination": "https://mcp-hangar.io/:path*",
+      "permanent": true
+    },
     {
       "source": "/docs/blog/:path*",
       "destination": "/blog/:path*",
@@ -83,6 +98,12 @@
       "source": "/waitlist",
       "destination": "/",
       "permanent": true
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/sitemap.xml",
+      "destination": "/sitemap-index.xml"
     }
   ]
 }

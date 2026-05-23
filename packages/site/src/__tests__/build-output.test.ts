@@ -113,4 +113,88 @@ describe('Build Output', () => {
   it.skip('should pass accessibility tests', () => {
     // a11y testing goes here
   });
+
+  // --- SEO / LLM content layer smoke tests ---
+
+  describe('SEO & LLM content layer', () => {
+    it('should generate og-image.png in public output', () => {
+      const filePath = path.join(process.cwd(), 'dist', 'og-image.png');
+      expect(fs.existsSync(filePath)).toBe(true);
+      const stat = fs.statSync(filePath);
+      expect(stat.size).toBeGreaterThan(1000); // Not an empty placeholder
+    });
+
+    it('should generate llms.txt with valid structure', () => {
+      const content = readDistFile('llms.txt');
+      expect(content).toMatch(/^# MCP Hangar/);
+      expect(content).toContain('> MCP Hangar');
+      expect(content).toContain('## Getting Started');
+      expect(content).toContain('.md)');
+    });
+
+    it('should generate llms-full.txt with inlined content', () => {
+      const content = readDistFile('llms-full.txt');
+      expect(content).toMatch(/^# MCP Hangar/);
+      expect(content.length).toBeGreaterThan(50000); // Full docs are large
+      expect(content).toContain('## Getting Started');
+      expect(content).toContain('```'); // Code blocks should be present
+    });
+
+    it('should generate .md endpoints for docs', () => {
+      const md = readDistFile('docs/getting-started/quickstart.md');
+      expect(md).toContain('# Quick Start');
+      expect(md).toContain('Source: https://mcp-hangar.io/docs/getting-started/quickstart');
+      expect(md).not.toContain('<nav');
+      expect(md).not.toContain('<footer');
+    });
+
+    it('should generate .md endpoints for blog posts', () => {
+      const files = fs.readdirSync(path.join(process.cwd(), 'dist', 'blog'))
+        .filter(f => f.endsWith('.md'));
+      expect(files.length).toBeGreaterThan(0);
+      const md = readDistFile(`blog/${files[0]}`);
+      expect(md).toContain('Source: https://mcp-hangar.io/blog/');
+      expect(md).toContain('Author:');
+    });
+
+    it('should have no broken snippet directives in .md output', () => {
+      const md = readDistFile('docs/upgrade.md');
+      expect(md).not.toContain('--8<--');
+    });
+
+    it('should reference sitemap in robots.txt', () => {
+      const robots = readDistFile('robots.txt');
+      expect(robots).toContain('Sitemap:');
+      expect(robots).toContain('mcp-hangar.io/sitemap');
+    });
+
+    it('should generate sitemap-index.xml with valid URLs', () => {
+      const sitemap = readDistFile('sitemap-index.xml');
+      expect(sitemap).toContain('https://mcp-hangar.io/');
+      expect(sitemap).toContain('sitemap-0.xml');
+    });
+
+    it('should include JSON-LD structured data in homepage', () => {
+      const html = readDistFile('index.html');
+      expect(html).toContain('application/ld+json');
+      expect(html).toContain('schema.org');
+      expect(html).toContain('SoftwareApplication');
+    });
+
+    it('all llms.txt links should have corresponding .md files', () => {
+      const content = readDistFile('llms.txt');
+      const links = content.match(/https:\/\/mcp-hangar\.io\/([^\s)]+\.md)/g) || [];
+      expect(links.length).toBeGreaterThan(10);
+
+      const missing: string[] = [];
+      for (const link of links) {
+        const localPath = link.replace('https://mcp-hangar.io/', '');
+        const filePath = path.join(process.cwd(), 'dist', localPath);
+        if (!fs.existsSync(filePath)) {
+          missing.push(localPath);
+        }
+      }
+      expect(missing).toEqual([]);
+    });
+  });
 });
