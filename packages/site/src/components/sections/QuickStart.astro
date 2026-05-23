@@ -3,32 +3,33 @@ import StepList from "../StepList.astro";
 import Step from "../Step.astro";
 import { CodeBlock } from "../CodeBlock.tsx";
 ---
-<div class="max-w-6xl mx-auto px-6 pb-32">
-                    <div class="mb-10 text-center">
-                        <h2 class="text-sm font-semibold text-zinc-500 uppercase tracking-wider mb-2">
-                            Quick Start
-                        </h2>
-                        <p class="text-zinc-400 text-lg">
-                            From install to first parallel call in 2 minutes.
-                        </p>
-                    </div>
 
-                    <div class="max-w-3xl mx-auto">
-                        <StepList>
-                            <Step
-                                number={1}
-                                title="Install the agent"
-                                description="Install from PyPI with pip or uv. Works on macOS, Linux, and Windows."
-                            >
-                                <CodeBlock client:load language="bash">{`pip install mcp-hangar`}</CodeBlock>
-                            </Step>
+<section class="max-w-6xl mx-auto px-6 pb-32">
+  <div class="mb-10 text-center">
+    <h2 class="text-sm font-semibold text-zinc-500 uppercase tracking-wider mb-2">
+      Quick Start
+    </h2>
+    <p class="text-zinc-400 text-lg">
+      From install to first parallel call in 2 minutes.
+    </p>
+  </div>
 
-                            <Step
-                                number={2}
-                                title="Configure MCP servers"
-                                description="The wizard detects your runtimes, lets you pick MCP servers, and configures Claude Desktop automatically."
-                            >
-                                <CodeBlock client:load language="yaml">{`# ~/.config/mcp-hangar/config.yaml
+  <div class="max-w-3xl mx-auto">
+    <StepList>
+      <Step
+        number={1}
+        title="Install the agent"
+        description="Install from PyPI with pip or uv. Works on macOS, Linux, and Windows."
+      >
+        <CodeBlock client:load language="bash">{`pip install mcp-hangar`}</CodeBlock>
+      </Step>
+
+      <Step
+        number={2}
+        title="Configure MCP servers"
+        description="The wizard detects your runtimes, lets you pick MCP servers, and configures Claude Desktop automatically."
+      >
+        <CodeBlock client:load language="yaml">{`# ~/.config/mcp-hangar/config.yaml
 mcp_servers:
   filesystem:
     mode: subprocess
@@ -45,32 +46,32 @@ mcp_servers:
     mode: subprocess
     command: [npx, -y, "@anthropic/mcp-server-memory"]
     idle_ttl_s: 300`}</CodeBlock>
-                            </Step>
+      </Step>
 
-                            <Step
-                                number={3}
-                                title="Start the server"
-                                description="Launch the agent. MCP servers come online and are ready to serve tool calls."
-                            >
-                                <CodeBlock client:load language="bash">{`$ mcp-hangar serve
+      <Step
+        number={3}
+        title="Start the server"
+        description="Launch the agent. MCP servers come online and are ready to serve tool calls."
+      >
+        <CodeBlock client:load language="bash">{`$ mcp-hangar serve
 Starting MCP Hangar v1.2.2...
   ● filesystem  ready  (245ms)
   ● fetch       ready  (189ms)
   ● memory      ready  (156ms)
 → 3 servers ready | 12 tools | parallel execution enabled`}</CodeBlock>
-                            </Step>
+      </Step>
 
-                            <Step
-                                number={4}
-                                title="You're ready"
-                                description="Restart Claude Desktop. Your tools are available with parallel execution, health monitoring, and circuit breakers — all out of the box."
-                                isLast
-                            >
-                                <div class="flex items-center gap-3 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
-                                    <span class="text-emerald-400 text-lg">[ok]</span>
-                                    <span class="text-emerald-300 font-medium">3 servers ready · 12 tools · parallel execution enabled</span>
-                                </div>
-                            </Step>
-                        </StepList>
-                    </div>
-                </div>
+      <Step
+        number={4}
+        title="You're ready"
+        description="Restart Claude Desktop. Your tools are available with parallel execution, health monitoring, and circuit breakers — all out of the box."
+        isLast
+      >
+        <div class="flex items-center gap-3 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+          <span class="text-emerald-400 text-lg">[ok]</span>
+          <span class="text-emerald-300 font-medium">3 servers ready · 12 tools · parallel execution enabled</span>
+        </div>
+      </Step>
+    </StepList>
+  </div>
+</section>

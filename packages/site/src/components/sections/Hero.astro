@@ -4,49 +4,47 @@ import Button from "../Button.astro";
 import GithubIcon from "../icons/GithubIcon.astro";
 import { LINKS } from "../../config";
 ---
-<div class="max-w-6xl mx-auto px-6 pt-24 pb-32">
-                    <div class="max-w-3xl mx-auto text-center">
-                        <Badge class="animate-fade-in mb-8">v1.2.2 — Open Source — MIT License</Badge>
 
-                        <h1 class="animate-slide-up text-5xl md:text-7xl font-bold tracking-tight leading-[1.1] mb-6">
-                            Your organization runs MCP servers.
-                            <br/>
-                            <span class="bg-gradient-to-r from-emerald-400 via-emerald-300 to-teal-400 bg-clip-text text-transparent">
-                                Do you control who uses them?
-                            </span>
-                        </h1>
+<section class="max-w-6xl mx-auto px-6 pt-24 pb-32">
+  <div class="max-w-3xl mx-auto text-center">
+    <Badge class="animate-fade-in mb-8">v1.2.2 — Open Source — MIT License</Badge>
 
-                        <p class="text-2xl text-zinc-300 mb-4">
-                            Hangar is the control plane between your AI agents and your MCP servers. One place to decide who can call what, see what's happening, and prove it to your auditors.
-                        </p>
+    <h1 class="animate-slide-up text-5xl md:text-7xl font-bold tracking-tight leading-[1.1] mb-6">
+      Your organization runs MCP servers.
+      <br/>
+      <span class="bg-gradient-to-r from-emerald-400 via-emerald-300 to-teal-400 bg-clip-text text-transparent">
+        Do you control who uses them?
+      </span>
+    </h1>
 
-                        <p class="text-lg text-zinc-500 max-w-xl mx-auto mb-10">
-                            Open-source, self-hosted. No cloud account required to get started.
-                        </p>
+    <p class="text-2xl text-zinc-300 mb-4">
+      Hangar is the control plane between your AI agents and your MCP servers. One place to decide who can call what, see what's happening, and prove it to your auditors.
+    </p>
 
-                        <div class="flex flex-wrap justify-center gap-4">
-                            <Button href={LINKS.ossQuickstart} variant="primary" withArrow>
-                                Install v1.2.2
-                            </Button>
-                            <Button href={LINKS.github} variant="secondary" external>
-                                <GithubIcon/> GitHub
-                            </Button>
-                        </div>
+    <p class="text-lg text-zinc-500 max-w-xl mx-auto mb-10">
+      Open-source, self-hosted. No cloud account required to get started.
+    </p>
 
-                        <div class="mt-6 flex justify-center">
-                            <a href={`${LINKS.github}/stargazers`} class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-800/50 border border-zinc-700/50 hover:border-zinc-600/50 transition-colors text-xs text-zinc-400 hover:text-zinc-300">
-                                <svg class="w-3.5 h-3.5 text-amber-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                                <img 
-                                    src="https://img.shields.io/github/stars/mcp-hangar/mcp-hangar?style=flat&label=&color=27272a&labelColor=27272a" 
-                                    alt="GitHub stars" 
-                                    class="h-4"
-                                    loading="lazy"
-                                />
-                                <span>stars on GitHub</span>
-                            </a>
-                        </div>
+    <div class="flex flex-wrap justify-center gap-4">
+      <Button href={LINKS.ossQuickstart} variant="primary" withArrow>
+        Install v1.2.2
+      </Button>
+      <Button href={LINKS.github} variant="secondary" external>
+        <GithubIcon /> GitHub
+      </Button>
+    </div>
 
-                    </div>
-                </div>
-
-                
+    <div class="mt-6 flex justify-center">
+      <a href={`${LINKS.github}/stargazers`} class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-800/50 border border-zinc-700/50 hover:border-zinc-600/50 transition-colors text-xs text-zinc-400 hover:text-zinc-300">
+        <svg class="w-3.5 h-3.5 text-amber-400" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        <img
+          src="https://img.shields.io/github/stars/mcp-hangar/mcp-hangar?style=flat&label=&color=27272a&labelColor=27272a"
+          alt="GitHub stars"
+          class="h-4"
+          loading="lazy"
+        />
+        <span>stars on GitHub</span>
+      </a>
+    </div>
+  </div>
+</section>

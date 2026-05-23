@@ -6,100 +6,92 @@ import IssueIcon from "../icons/IssueIcon.astro";
 import StarIcon from "../icons/StarIcon.astro";
 import { INSTALL_COMMAND } from "../../config";
 ---
-<div class="max-w-6xl mx-auto px-6 pb-32">
-                    <div
-                        class="relative rounded-2xl bg-gradient-to-b from-emerald-500/10 to-transparent border border-emerald-500/20 p-8 md:p-12 overflow-hidden">
-                        <div
-                            class="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-emerald-500/20 rounded-full blur-3xl"/>
 
-                        <div class="relative text-center max-w-2xl mx-auto">
-                            <div
-                                class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 mb-6">
-                                <HeartIcon/>
-                            </div>
-                            <h2 class="text-2xl md:text-3xl font-bold text-zinc-100 mb-4">
-                                Built on Open Source
-                            </h2>
-                            <p class="text-zinc-400 mb-6">
-                                The <code class="text-emerald-400 bg-zinc-800/50 px-1.5 py-0.5 rounded text-sm">mcp-hangar</code> agent
-                                is MIT-licensed and always will be. Run it locally, on your servers, or in Kubernetes — no cloud account required.
-                                The platform adds managed infrastructure, team collaboration, and enterprise compliance on top.
-                            </p>
+<section class="max-w-6xl mx-auto px-6 pb-32">
+  <div class="relative rounded-2xl bg-gradient-to-b from-emerald-500/10 to-transparent border border-emerald-500/20 p-8 md:p-12 overflow-hidden">
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-emerald-500/20 rounded-full blur-3xl" aria-hidden="true" />
 
-                            {/* Install command */}
-                            <div
-                                id="bos-copy-btn"
-                                
-                                role="button"
-                                tabindex={0}
-                                aria-label="Copy pip install command to clipboard"
-                                class="group inline-flex items-center gap-4 bg-zinc-900/80 backdrop-blur border border-zinc-800 hover:border-emerald-500/30 rounded-xl px-5 py-4 font-mono text-sm cursor-pointer transition-all duration-300 hover:bg-zinc-900 hover:shadow-lg hover:shadow-emerald-500/5 hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-zinc-950 mb-8"
-                            >
-                                <span class="text-zinc-500">$</span>
-                                <span class="text-zinc-300">
-                                    {INSTALL_COMMAND}
-                                </span>
-                                <span class="text-zinc-600 group-hover:text-emerald-400 transition-colors ml-2">
-                                    
-<span class="bos-copy-idle"><CopyIcon/></span>
-<span class="bos-copy-success hidden"><CheckIcon/></span>
+    <div class="relative text-center max-w-2xl mx-auto">
+      <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 mb-6">
+        <HeartIcon />
+      </div>
+      <h2 class="text-2xl md:text-3xl font-bold text-zinc-100 mb-4">
+        Built on Open Source
+      </h2>
+      <p class="text-zinc-400 mb-6">
+        The <code class="text-emerald-400 bg-zinc-800/50 px-1.5 py-0.5 rounded text-sm">mcp-hangar</code> agent
+        is MIT-licensed and always will be. Run it locally, on your servers, or in Kubernetes — no cloud account required.
+        The platform adds managed infrastructure, team collaboration, and enterprise compliance on top.
+      </p>
 
-                                </span>
-                            </div>
+      <!-- Install command -->
+      <div
+        id="bos-copy-btn"
+        role="button"
+        tabindex={0}
+        aria-label="Copy pip install command to clipboard"
+        class="group inline-flex items-center gap-4 bg-zinc-900/80 backdrop-blur border border-zinc-800 hover:border-emerald-500/30 rounded-xl px-5 py-4 font-mono text-sm cursor-pointer transition-all duration-300 hover:bg-zinc-900 hover:shadow-lg hover:shadow-emerald-500/5 hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-zinc-950 mb-8"
+      >
+        <span class="text-zinc-500">$</span>
+        <span class="text-zinc-300">{INSTALL_COMMAND}</span>
+        <span class="text-zinc-600 group-hover:text-emerald-400 transition-colors ml-2">
+          <span class="bos-copy-idle"><CopyIcon /></span>
+          <span class="bos-copy-success hidden"><CheckIcon /></span>
+        </span>
+      </div>
 
-                            <div class="flex flex-wrap justify-center gap-4">
-                                <a
-                                    href="/docs/development/CONTRIBUTING"
-                                    class="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-semibold rounded-lg transition-all duration-300 hover:-translate-y-0.5"
-                                >
-                                    Contributing Guide
-                                </a>
-                                <a
-                                    href="https://github.com/mcp-hangar/mcp-hangar/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    class="inline-flex items-center gap-2 px-5 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-100 font-semibold rounded-lg transition-all duration-300 hover:-translate-y-0.5"
-                                >
-                                    <IssueIcon/>
-                                    Good First Issues
-                                </a>
-                                <a
-                                    href="https://github.com/mcp-hangar/mcp-hangar/stargazers"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    class="inline-flex items-center gap-2 px-5 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-100 font-semibold rounded-lg transition-all duration-300 hover:-translate-y-0.5"
-                                >
-                                    <StarIcon/>
-                                    Star on GitHub
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
+      <div class="flex flex-wrap justify-center gap-4">
+        <a
+          href="/docs/development/CONTRIBUTING"
+          class="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-semibold rounded-lg transition-all duration-300 hover:-translate-y-0.5"
+        >
+          Contributing Guide
+        </a>
+        <a
+          href="https://github.com/mcp-hangar/mcp-hangar/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center gap-2 px-5 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-100 font-semibold rounded-lg transition-all duration-300 hover:-translate-y-0.5"
+        >
+          <IssueIcon />
+          Good First Issues
+        </a>
+        <a
+          href="https://github.com/mcp-hangar/mcp-hangar/stargazers"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center gap-2 px-5 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-100 font-semibold rounded-lg transition-all duration-300 hover:-translate-y-0.5"
+        >
+          <StarIcon />
+          Star on GitHub
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
 
 <script>
-    const bosBtn = document.getElementById('bos-copy-btn');
-    if (bosBtn) {
-        bosBtn.addEventListener('click', async () => {
-            const txtNode = bosBtn.querySelector('.text-zinc-300');
-            const command = txtNode ? txtNode.textContent.trim() : '';
-            await navigator.clipboard.writeText(command);
-            const idle = bosBtn.querySelector('.bos-copy-idle');
-            const success = bosBtn.querySelector('.bos-copy-success');
-            if (idle && success) {
-                idle.classList.add('hidden');
-                success.classList.remove('hidden');
-                setTimeout(() => {
-                    idle.classList.remove('hidden');
-                    success.classList.add('hidden');
-                }, 2000);
-            }
-        });
-        bosBtn.addEventListener('keydown', async (e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-                bosBtn.click();
-            }
-        });
-    }
+  const bosBtn = document.getElementById('bos-copy-btn');
+  if (bosBtn) {
+    bosBtn.addEventListener('click', async () => {
+      const txtNode = bosBtn.querySelector('.text-zinc-300');
+      const command = txtNode ? txtNode.textContent.trim() : '';
+      await navigator.clipboard.writeText(command);
+      const idle = bosBtn.querySelector('.bos-copy-idle');
+      const success = bosBtn.querySelector('.bos-copy-success');
+      if (idle && success) {
+        idle.classList.add('hidden');
+        success.classList.remove('hidden');
+        setTimeout(() => {
+          idle.classList.remove('hidden');
+          success.classList.add('hidden');
+        }, 2000);
+      }
+    });
+    bosBtn.addEventListener('keydown', async (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        bosBtn.click();
+      }
+    });
+  }
 </script>

@@ -30,10 +30,10 @@ describe('Build Output', () => {
     expect(html).toContain('pip install mcp-hangar');
   });
 
-  it('should render key sections like Why Hangar and Built for real problems', () => {
+  it('should render key sections', () => {
     const html = readDistFile('index.html');
-    expect(html).toContain('Why Hangar');
-    expect(html).toContain('Built for real problems');
+    expect(html).toContain('How it works');
+    expect(html).toContain('Capabilities');
   });
 
   it('should render footer with copyright or open source text', () => {
@@ -42,10 +42,10 @@ describe('Build Output', () => {
     expect(html).toContain('MIT License');
   });
 
-  it('should render feature titles and descriptions', () => {
+  it('should render capability titles and descriptions', () => {
     const html = readDistFile('index.html');
-    expect(html).toContain('Parallel Execution');
-    expect(html).toContain('Concurrent tool calls');
+    expect(html).toContain('Governance');
+    expect(html).toContain('Per-caller access policies');
   });
 
   it('should render features with icons', () => {
