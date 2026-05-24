@@ -1,0 +1,206 @@
+---
+title: "The Layer Cake That Saved a 3 AM Incident"
+date: 2026-05-23
+author: MCP Hangar Team
+description: "03:14:22 — a provider starts returning HTTP 200 responses with malformed payloads. Three seconds later, every agent call is succeeding through the backup. Nobody got paged. The interesting part is which layer did the work — and which layer was insurance the incident never needed."
+tags: [mcp, mcp-hangar, reliability, incidents, observability, architecture]
+---
+
+# The Layer Cake That Saved a 3 AM Incident
+
+The most interesting incidents are the ones nobody hears about.
+
+This one happened on a Tuesday at 03:14:22. An upstream API the MCP server was wrapping started returning HTTP 200 responses with malformed JSON bodies. Status code green, content broken. The MCP server forwarded the broken payloads to Hangar, which forwarded them to the agents. The agents — being agents — tried to do something with the garbage. Failures cascaded into the LLM's reasoning loop in unhelpful ways.
+
+A few seconds later — two failed calls' worth — the same requests were succeeding through a backup server. Agents resumed normal operation. No pager. The on-call slept through it.
+
+The postmortem the next morning was three lines: provider returned malformed payloads, primary left rotation, backup took over. Deal with the provider in the daylight.
+
+That outcome wasn't free. It came from a stack of mechanisms doing their jobs in sequence, each one designed for a failure mode the others wouldn't catch. Here's what each layer did, and what the incident would have looked like with any of them missing. The story includes one mechanism that *didn't* do anything during this incident — and that's worth more attention than the ones that did.
+
+## The Configuration
+
+```yaml
+mcp_servers:
+  my-mcp-group:
+    mode: group
+    strategy: priority
+    min_healthy: 1
+    health:
+      unhealthy_threshold: 2
+      healthy_threshold: 1
+    circuit_breaker:
+      failure_threshold: 10
+      reset_timeout_s: 60.0
+    members:
+      - id: my-mcp-primary
+        priority: 1
+      - id: my-mcp-backup
+        priority: 50
+```
+
+Two members. Priority routing — primary handles everything until it can't. A group-level health policy with `unhealthy_threshold: 2` for rotation removal. A group-level circuit breaker with `failure_threshold: 10` as last resort.
+
+These are defaults plus realistic priority assignments. Nothing exotic.
+
+## The Timeline
+
+```
+03:14:22  Primary starts returning HTTP 200 + malformed JSON
+03:14:22  Tool call #1 to primary: agent receives garbage, parse error.
+          Group records 1 invocation failure on my-mcp-primary.
+03:14:24  Tool call #2 to primary: garbage. consecutive_failures = 2.
+03:14:24  health.unhealthy_threshold reached. my-mcp-primary REMOVED
+          from rotation. Group state: healthy → healthy (still healthy
+          because backup remains; min_healthy: 1 is satisfied).
+03:14:25  Tool call #3 routed by priority strategy: backup is now the
+          only member in rotation. Backup responds correctly.
+...
+          Calls 4–N: all flow through backup. All succeed.
+          No further failures contribute to the group's breaker count.
+          Circuit breaker stays CLOSED throughout the incident.
+
+(meanwhile, in the background)
+03:14:54  Primary's per-server health check probe runs (tools/list).
+          Probe succeeds — the broken handler isn't on the probe path.
+          Primary's mcp_server_state stays at READY. But it's out
+          of group rotation regardless, because the rotation
+          decision uses real invocation failures, not the probe.
+03:15:24  Next probe. Same result. Primary still READY, still
+          out of rotation.
+...
+          (hours later, provider recovers)
+06:42:11  Provider returns valid payloads again.
+06:42:11  Primary's next invocation would succeed — but the group
+          isn't sending invocations to it (it's out of rotation).
+06:43:00  hangar_group_rebalance triggered manually or via background
+          re-evaluation. Primary's next health check passes, and
+          since mcp_server_state is READY (it always was), primary
+          re-enters rotation.
+06:43:00  Priority strategy: primary (priority 1) reclaims traffic.
+
+(the next morning)
+07:30:00  Engineer checks dashboards.
+          mcp_hangar_tool_call_errors_total{mcp_server="my-mcp-primary"}
+          shows a spike from 03:14 to 03:15.
+          mcp_hangar_tool_calls_total{mcp_server="my-mcp-backup"}
+          shows traffic from 03:15 to 06:43.
+          mcp_hangar_circuit_breaker_state{mcp_server="my-mcp-group"}
+          stayed at 0 (CLOSED) the whole time.
+```
+
+Total agent-visible impact: two failed calls (~3 seconds of degraded behavior). The breaker never tripped. The on-call never woke up.
+
+## Layer 1: The Group
+
+The first layer is structural. `my-mcp` isn't a single server — it's a group. Agents call `my-mcp-group`; the group orchestrator selects a member.
+
+Without the group, agents call a single endpoint. When that endpoint returns garbage, the agent sees garbage. Retry loops. Eventually a ticket: "MCP server returning bad data, can you look at it?"
+
+Two failed calls becomes thirty minutes of failed calls. Definitely a page.
+
+## Layer 2: The Group's Health Policy
+
+This is the layer that actually did the work in this incident.
+
+The group tracks each member's consecutive invocation failures independently. With `health.unhealthy_threshold: 2` (the default), a member that fails two invocations in a row is removed from rotation. It stays out until it passes `healthy_threshold` consecutive health checks (default: 1).
+
+Critically: the trigger for removal here is *invocation failures*, not probe failures. The group's rotation decision watches the real workload. When the primary returned malformed JSON on calls 1 and 2, the rotation policy saw two failures and pulled it out.
+
+This is the mechanism the cookbook narrative tends to skip past. The per-server `max_consecutive_failures` setting (cookbook 02) governs the `READY → DEGRADED` transition based on synthetic probes — slow, scheduled, doesn't catch handler bugs. The group's `health.unhealthy_threshold` governs rotation — fast, real-workload, catches the cases the probe misses.
+
+Without the group's health policy: the primary stays in rotation despite failing real calls. Priority strategy keeps sending traffic to priority 1. Every call fails until the breaker eventually trips (next layer) or until the per-server health check belatedly notices (also next-next layer). Either way, the failure window grows.
+
+## Layer 3: The Per-Server Health Check
+
+This is the layer that *didn't* do anything during this incident.
+
+The per-server health check is a background probe — `tools/list` every `health_check_interval_s` seconds (default: 30). After `max_consecutive_failures` consecutive failed probes (default: 3), the server transitions to `DEGRADED` and emits an event.
+
+But `tools/list` doesn't exercise the broken handler. It returns the server's static tool registry, which works fine even when the underlying API is returning garbage to real tool calls. The probe kept reporting success throughout the incident. The primary's `mcp_server_state` gauge stayed at 2 (READY).
+
+The probe was wrong. Or — more precisely — it was answering a different question than the one that mattered. It can't tell you "this server's tools are working." It can only tell you "this server is reachable and willing to answer." The previous post on this blog walked through this distinction in detail; the cookbook 02 mechanism is liveness, not usefulness.
+
+So why include it at all? Because it catches what the rotation mechanism can't: idle servers. If nobody is calling the primary, there are no invocation failures to trip the rotation policy. The periodic probe runs anyway, regardless of workload. If the primary's process dies at 03:14 in a fleet with no traffic, the probe catches it. The rotation mechanism doesn't, because the rotation mechanism only watches real calls.
+
+Without the periodic health check: dead servers in idle groups stay marked READY indefinitely. Recovery becomes manual. The cost of including the layer is two probes per minute per server. Cheap insurance.
+
+## Layer 4: The Circuit Breaker
+
+This is the other layer that didn't do anything during this incident — and the design of the incident is the reason.
+
+The group-level circuit breaker tracks total group failures. With the default `failure_threshold: 10`, it opens after the group as a whole sees ten failures. When it opens, the group goes `degraded` and rejects every call for `reset_timeout_s` (default: 60 seconds).
+
+In this incident, the group saw exactly two failures before the rotation policy removed the bad member and shifted traffic to the backup. From that point on, calls succeeded. The breaker's failure counter never reached double digits. It stayed CLOSED.
+
+This is the right outcome. The breaker is the last-resort layer, the one that fires when nothing else has stopped the bleeding. If the rotation policy had been misconfigured, or if both members had failed at once, the breaker would have eventually tripped and prevented the group from acting as a black hole for agent calls. With `failure_threshold: 10` and a healthy backup, that scenario didn't materialize.
+
+But the breaker's existence shapes the failure mode you're protected against. Without it:
+
+- If the rotation policy had a bug and didn't remove the bad member: every call fails. Forever. Until manual intervention.
+- If both members started failing simultaneously: every call fails. Forever. The agent retry loop maxes out, the application calling the agent times out, the cascade reaches the user.
+
+The breaker turns "forever" into 60 seconds — and during those 60 seconds, the agent's retry logic sees `circuit_open` errors and (if implemented correctly) backs off. The breaker is the cliff that catches you when the rotation policy didn't.
+
+## Layer 5: The Metrics
+
+The metrics layer didn't intervene in the incident at all. Its job was to make the incident knowable after the fact.
+
+The engineer the next morning could reconstruct the timeline from three series:
+
+```promql
+# Primary's failure spike at 03:14
+rate(mcp_hangar_tool_call_errors_total{mcp_server="my-mcp-primary"}[1m])
+
+# Backup absorbing traffic from 03:14 to 06:43
+rate(mcp_hangar_tool_calls_total{mcp_server="my-mcp-backup",status="success"}[1m])
+
+# Circuit breaker never tripped
+mcp_hangar_circuit_breaker_state{mcp_server="my-mcp-group"}
+```
+
+The third line is the most informative. A flat zero for the entire incident is the signal that the rotation policy did the work — the breaker never had to intervene. If that line had spiked to 1 (OPEN), the story would be different: rotation didn't catch it, the breaker did, and the group spent 60 seconds rejecting calls.
+
+The two stories — rotation save vs. breaker save — have very different operational implications. A rotation save means the bad member was pulled cleanly and traffic kept flowing. A breaker save means the whole group went dark for 60 seconds. From the metrics, you can tell which one happened, and tune accordingly. Tighten `unhealthy_threshold` if the breaker is doing too much work; loosen it if the breaker never fires when it should.
+
+Without metrics: the incident is invisible. There's no record of rotation, no spike on the error counter, no evidence that anything unusual happened during a 30-minute window. The team would learn from the provider's status page hours later, with no internal data to verify the impact was contained, and no way to know whether their layer cake worked or whether they just got lucky.
+
+## What Each Counter-Factual Looks Like
+
+The interesting exercise isn't congratulating the layer cake for working. It's asking: which layer, if removed, turns this from a non-incident into a pager?
+
+**No group (single-server deployment).** Two failures, then continuous failures. Agent retry storm. ~50 failed calls over the ~30 minutes the provider was broken. Definitely a page. Postmortem item: "set up a backup."
+
+**No group health policy (just circuit breaker on top of priority routing).** The breaker sees failures slowly accumulate but with `failure_threshold: 10`, it takes ten failures before it fires. All ten land on the primary; agents see ten failed calls. Then the group goes `degraded` for 60 seconds — agents see *all* calls fail for that minute. Then the breaker resets, allows traffic, primary still bad, ten more failures, repeat. The pattern thrashes for the duration of the upstream incident. Postmortem item: "we need per-member rotation, not just per-group circuit breaker."
+
+**No per-server health check.** Day-of impact: identical. Rotation pulled the primary out, calls flowed to backup. But the primary is stuck in rotation-removed state with no independent recovery signal. When the provider recovers six hours later, the primary stays out of rotation until something triggers a re-evaluation — `hangar_group_rebalance` manually, or the next per-server probe. Without the probe, that "next probe" never happens. Manual intervention required. Postmortem item: "we need an independent liveness signal."
+
+**No circuit breaker.** Day-of impact: identical, because the rotation policy handled it. But if the failure had been different — say, both members started failing simultaneously, or rotation removal had a bug — there's no last-resort fail-fast mechanism. Agents see retry-loop failures until manual intervention. The breaker is insurance for the case where the cheaper layers fail too. Postmortem item: "we need a fail-fast for the case where both members go bad at once."
+
+**No metrics.** Incident happens, gets handled, nobody knows. Including the team. Provider's bad period passes, the team finds out from a Slack message hours later, with no internal data to verify the impact was contained. The next time the provider has a bad day, the team has no baseline. Postmortem item: "we got lucky we noticed."
+
+Each layer covers something the others can't see. Pull any one out and the failure window expands.
+
+## What This Actually Solves
+
+Each layer alone doesn't do much. A group without a health policy is just two endpoints with manual routing. A health policy without a circuit breaker can't fail-fast when rotation breaks. A circuit breaker without a group can't fail over to anywhere. A health check without metrics is a tree falling in a forest.
+
+Stacked, they compress the failure-window from human-detection time (minutes to hours) to mechanism-detection time (sub-second to seconds). That compression is the value proposition — not any individual feature, but the way the layers compose to make 3 AM incidents quiet.
+
+The interesting part isn't that the cake worked. It's that two of the five layers were insurance the incident never needed — and that they were the *right* two to have anyway. The breaker wasn't doing useful work that night, but its presence is what bounds the worst case. The probe wasn't doing useful work either, but it covers the idle-server case the rotation mechanism can't see.
+
+The team that built this layer cake didn't get woken up on Tuesday. That's the whole story. The layers that did the work that night are not the layers that would have done the work on Wednesday, when the failure mode would have been different. You build the whole cake because you don't get to pick which slice each incident needs.
+
+## References
+
+- [Cookbook 02 — Health Checks](https://mcp-hangar.io/docs/cookbook/02-health-checks)
+- [Cookbook 03 — Circuit Breaker](https://mcp-hangar.io/docs/cookbook/03-circuit-breaker)
+- [Cookbook 04 — Failover](https://mcp-hangar.io/docs/cookbook/04-failover)
+- [Cookbook 07 — Observability: Metrics](https://mcp-hangar.io/docs/cookbook/07-observability-metrics)
+- [Cookbook 13 — Production Checklist](https://mcp-hangar.io/docs/cookbook/13-production-checklist)
+- [MCP Server Groups — guide](https://mcp-hangar.io/docs/guides/MCP_SERVER_GROUPS) — group health policy and circuit breaker semantics
+- [Chapter 14: Managing Incidents — Google SRE Book](https://sre.google/sre-book/managing-incidents/) — Google
+- [Defense in Depth](https://en.wikipedia.org/wiki/Defense_in_depth_(computing)) — Wikipedia
+
+
+*Source: [github.com/mcp-hangar/mcp-hangar](https://github.com/mcp-hangar/mcp-hangar).*

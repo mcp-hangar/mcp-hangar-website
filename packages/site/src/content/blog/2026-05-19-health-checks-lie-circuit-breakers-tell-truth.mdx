@@ -1,0 +1,185 @@
+---
+title: "Health Checks Lie. Circuit Breakers Tell the Truth."
+date: 2026-05-19
+author: MCP Hangar Team
+description: "Your MCP server passes every 30-second tools/list probe and fails 4 out of 5 real tool calls. The dashboard is green. The agent is producing garbage. Here's why the probe is the wrong instrument — and what the right one looks like."
+tags: [mcp, mcp-hangar, reliability, observability, architecture]
+---
+
+# Health Checks Lie. Circuit Breakers Tell the Truth.
+
+Your dashboard is green. Every MCP server in the registry shows `state=ready`. The health check worker has logged a successful probe every thirty seconds for the last hour.
+
+The agent is producing garbage.
+
+You pull a few traces. The same backend tool is failing four times out of five — but only on real requests. The synthetic probe Hangar sends every thirty seconds, the one that just calls `tools/list`, succeeds every time. The patient is technically alive. The patient is also failing 80% of surgeries.
+
+This is the gap between two things that look like the same thing. They're not. And the instinct most teams have — ratchet the health check interval down to 10 seconds, then 5, then 2 — is the wrong fix to the wrong problem.
+
+## What a Health Check Actually Measures
+
+Hangar's health check worker is a background task that wakes up every `health_check_interval_s` seconds (default: 30) and sends a `tools/list` JSON-RPC request to each `READY` MCP server. The probe has a 5-second timeout. If the server responds, `consecutive_failures` resets to 0. If it doesn't, the failure count increments.
+
+After `max_consecutive_failures` (default: 3) failed probes in a row, the server transitions:
+
+```
+READY → DEGRADED
+```
+
+Hangar emits a `McpServerDegraded` domain event. Metrics update. Alerts fire (if you've configured them).
+
+The state machine is straightforward:
+
+```
+READY ──fail×3──► DEGRADED
+DEGRADED ──recovery──► INITIALIZING ──ready──► READY
+```
+
+This catches one specific failure mode: the server is gone. Process died. Connection refused. TCP timeout. The probe can't reach it at all. After ~90 seconds, Hangar knows.
+
+That's it. That's what a health check measures. The server's *willingness to answer a synthetic question*.
+
+## What a Health Check Doesn't Measure
+
+A server can answer `tools/list` instantly while failing every real call.
+
+Concretely: the tool handler depends on an upstream API. The upstream API has started returning 500s. The MCP server's `tools/list` handler doesn't touch the upstream — it just returns its static tool registry. The probe sees a happy response. The real callers see errors.
+
+Or: the tool handler is dependent on a database connection pool that's exhausted. `tools/list` doesn't hit the pool. Probe passes. Tool calls hang.
+
+Or: the server has a bug where one tool out of twelve raises an exception on every call. Probe doesn't exercise that tool. Probe passes. The agent that needs that tool fails every time.
+
+The probe is a function of the server's willingness to respond. The real workload is a function of the server's *ability to do its job*. These are different properties.
+
+A health check that returned `200 OK` on an HTTP endpoint famously gave Knight Capital 45 minutes to lose $440 million in 2012. The check was measuring liveness; the failure was logical. Same shape of mistake.
+
+## What a Circuit Breaker Measures
+
+Hangar's circuit breaker lives at the *group* level — a logical grouping of one or more MCP servers with shared policies. It tracks failures of *real tool calls*, not synthetic probes.
+
+```yaml
+mcp_servers:
+  my-mcp-group:
+    mode: group
+    members:
+      - id: my-mcp
+    circuit_breaker:
+      failure_threshold: 10
+      reset_timeout_s: 60.0
+```
+
+When a tool call to a member fails — connection error, timeout, RPC-level error — the breaker increments a counter. After `failure_threshold` failures (default: 10), the circuit opens:
+
+```
+CLOSED ──N failures──► OPEN ──timeout──► CLOSED
+```
+
+While the circuit is `OPEN`, the group enters `degraded` state and every subsequent call is rejected immediately. Not after a 10-second timeout. Immediately. The caller gets a `circuit_open` error in milliseconds. After `reset_timeout_s` (default: 60 seconds), the next call closes the circuit and traffic resumes.
+
+The key property: the breaker doesn't ask anything. It listens. The signal is the real workload — the same calls the agents are making. If those calls are failing, the breaker sees that, regardless of what `tools/list` says.
+
+There's a related workload-based mechanism worth flagging: a group also has a per-member rotation policy with `health.unhealthy_threshold` (default: 2) that pulls a misbehaving member out of rotation after consecutive invocation failures. It uses the same kind of signal as the breaker — real call results — but acts on a single member rather than the whole group. For the rest of this post, "the breaker" is shorthand for the group-level workload-driven defenses; the broader point is the same regardless of which one trips first.
+
+## The Detection Time Math
+
+The two mechanisms have very different detection windows.
+
+**Health check (probe-based):**
+
+- Worst case: failure happens immediately after a probe, the server keeps accepting requests and failing them until the next probe.
+- Detection time: `health_check_interval_s × max_consecutive_failures` = up to **90 seconds** at defaults.
+- During that window: every real call hits the broken server. Every one fails or hangs.
+
+**Circuit breaker (workload-based):**
+
+- Trip happens after the Nth failure (`failure_threshold`, default: 10).
+- For per-member rotation removal, the threshold is lower (`health.unhealthy_threshold`, default: 2).
+- At, say, 5 RPS to that group, rotation pulls a bad member at ~400ms; the breaker fires at ~2 seconds.
+- During that window: a handful of real calls fail. Subsequent calls fail-fast in milliseconds, or route to another healthy member if one exists.
+
+Same failure mode. Two orders of magnitude difference in detection time. The breaker isn't faster because it's smarter — it's faster because it's looking at the right signal.
+
+## Why Probe Ratcheting Doesn't Help
+
+The instinct, when health checks miss a flaky server, is to lower the interval. Run the probe every 10 seconds. Then every 5. Then every 2.
+
+This doesn't fix the problem. It papers over it.
+
+The probe is still asking the wrong question. Lowering the interval means asking the wrong question more often. The detection latency goes down, but the answer is still "the server is willing to answer `tools/list`" — which is true even when every real call is failing.
+
+The side effects are worse:
+
+- Probe traffic grows linearly with frequency. At 10× the rate, that's 10× the synthetic load on the server you're monitoring.
+- Network noise on every cycle. Connection establishment, JSON-RPC handshake, teardown.
+- The probe and the real workload start competing for the same connection pools — and you can't tell from metrics which one is causing problems.
+- Most importantly: the floor doesn't approach zero. Even at 1-second intervals, you've got up to 3 seconds of detection latency. The breaker, at meaningful workload, trips in hundreds of milliseconds.
+
+The fix isn't a faster probe. The fix is a different instrument.
+
+## Why You Still Need Both
+
+Circuit breakers are reactive. They need a real workload to learn from. A server that's broken at 3 AM, with no traffic, won't trip its circuit until the first call after 9 AM — and that's a bad place to discover it.
+
+Health checks are proactive. They generate synthetic load, on a schedule, regardless of whether anyone is using the server. They catch the dead-process case during off-hours, when there's no real traffic to fail.
+
+The two layers cover complementary failure modes:
+
+| Mechanism | Signal | Detects | Misses |
+|---|---|---|---|
+| Health check | Synthetic `tools/list` | Process died, network gone, RPC layer broken | Tool-handler bugs, partial degradation, dependency failure |
+| Circuit breaker | Real call failure rate | Tool-handler bugs, partial degradation, dependency failure | Idle servers (no workload to measure) |
+
+You configure them differently because they answer different questions:
+
+```yaml
+my-mcp:
+  health_check_interval_s: 30        # default
+  max_consecutive_failures: 3        # default
+
+my-mcp-group:
+  health:
+    unhealthy_threshold: 2           # default — rotation removal
+  circuit_breaker:
+    failure_threshold: 10            # default — group fail-fast
+    reset_timeout_s: 60.0            # default
+```
+
+The health check interval is a function of your tolerance for an idle-server failure going unnoticed. Thirty seconds is conservative — three minutes is plausible for cost-sensitive deployments.
+
+The breaker threshold is a function of your tolerance for collateral damage during a flaky-server incident. The default of 10 is forgiving — it absorbs transient bursts and trips only when something is genuinely wrong. Lowering it to 3 makes it aggressive — it'll trip on isolated network glitches, which is sometimes what you want and sometimes not. The right number depends on whether errors are cheap (retry-safe idempotent calls) or expensive (anything writing state).
+
+## The Metric You Should Be Watching
+
+In Grafana, the obvious metric to alert on is `mcp_hangar_mcp_server_state` — the state-machine gauge that flips to `3` (DEGRADED) on health check failure. That's the health-check view.
+
+The metric most teams ignore is `mcp_hangar_circuit_breaker_state`. It flips to `1` (OPEN) the moment a group sees a real-workload failure burst. Alerting on this gives you the partial-degradation case that the state gauge will never catch.
+
+Stacked correctly, the two alerts tell you different things:
+
+- `mcp_server_state=3` alone: a server died. Hangar's working on it. Affect blast: that one server, until it recovers.
+- `circuit_breaker_state=1` alone: a server is responsive but its tools are broken. Hangar is protecting agents from the bleed. Affect blast: the group is partially or fully unavailable for `reset_timeout_s`.
+- Both at once: something is comprehensively wrong. The server probably just crashed mid-call, and the breaker tripped before the next probe could.
+
+Three different incidents, three different responses, two metrics.
+
+## What This Actually Solves
+
+Health checks aren't broken. They're scoped. They answer one question — is the process reachable — and they answer it well. The mistake is assuming that's the only question worth asking.
+
+The circuit breaker exists because the question "is this server reachable" and the question "is this server doing useful work" have different answers more often than people expect. The probe says yes to the first. The real workload tells you about the second.
+
+You don't pick one. You stack them. The probe catches dead servers during quiet hours. The breaker catches degraded servers during traffic. Together, they cover the case where a flaky upstream API turns a "ready" server into a black hole that swallows agent calls — without anyone noticing until the support tickets arrive.
+
+The synthetic probe will never see that. The breaker sees it on the third call.
+
+## References
+
+- [Cookbook 02 — Health Checks](https://mcp-hangar.io/docs/cookbook/02-health-checks)
+- [Cookbook 03 — Circuit Breaker](https://mcp-hangar.io/docs/cookbook/03-circuit-breaker)
+- [Cookbook 07 — Observability: Metrics](https://mcp-hangar.io/docs/cookbook/07-observability-metrics)
+- [MCP Server Groups — guide](https://mcp-hangar.io/docs/guides/MCP_SERVER_GROUPS) — group health policy and circuit breaker semantics
+- [Knight Capital trading loss (2012)](https://en.wikipedia.org/wiki/Knight_Capital_Group#2012_stock_trading_disruption) — Wikipedia
+- [Release It! — Michael Nygard](https://pragprog.com/titles/mnee2/release-it-second-edition/) — origin of the circuit breaker pattern for distributed systems
+
+
+*Source: [github.com/mcp-hangar/mcp-hangar](https://github.com/mcp-hangar/mcp-hangar).*

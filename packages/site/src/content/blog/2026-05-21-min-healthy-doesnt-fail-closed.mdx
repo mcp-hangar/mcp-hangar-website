@@ -1,0 +1,123 @@
+---
+title: "min_healthy Doesn't Fail Closed. It Labels."
+date: 2026-05-21
+author: MCP Hangar Team
+description: "Most teams read min_healthy as a quorum: drop below it, the group rejects. That's not what it does. The group keeps serving as long as one member is up. min_healthy is the threshold where the state label flips — and if you're not alerting on the label, the number is doing nothing."
+tags: [mcp, mcp-hangar, reliability, sla, observability]
+---
+
+# min_healthy Doesn't Fail Closed. It Labels.
+
+You set up a group with two members:
+
+```yaml
+my-mcp-group:
+  mode: group
+  strategy: round_robin
+  min_healthy: 1
+  members:
+    - id: my-mcp-a
+    - id: my-mcp-b
+```
+
+A deploy rolls one member at a time. While `my-mcp-a` restarts, the group has one healthy member. `my-mcp-b`. That's below `min_healthy: 1`? No — exactly at it. Calls keep flowing.
+
+Then `my-mcp-b` returns 500s for a few minutes and gets removed from rotation. Now you have zero healthy members. The group state changes to `inactive`. *Now* calls are rejected.
+
+The interesting question is what happened in the middle. With one healthy member you were exactly at `min_healthy`. With one healthy member and `min_healthy: 2`, what would have changed? The answer is: not much. The group's *state label* would have been `partial` instead of `healthy`. Calls would have still been served. The behavior would have been identical from an agent's perspective.
+
+`min_healthy` is not a quorum. It's a labeling threshold. And if you don't know that, you've been picking the number for the wrong reason.
+
+## The Actual State Machine
+
+The group has four states. The mapping from `(healthy_count, circuit_state)` to state is in the docs, but it's worth reading carefully:
+
+| State | When | Accepts requests? |
+|---|---|---|
+| `inactive` | 0 healthy members | No |
+| `partial` | `healthy_count < min_healthy` (and ≥ 1) | **Yes** (if circuit closed) |
+| `healthy` | `healthy_count >= min_healthy` | Yes |
+| `degraded` | Circuit breaker open | No |
+
+The hard cliffs are `inactive` (no members to route to) and `degraded` (circuit tripped). Those are the states where agents see errors.
+
+`partial` is not a cliff. It's a label. The group is *less than fully healthy* but still serving traffic. Round-robin is happily cycling between the remaining members. Priority routing is failing over. The agent doesn't see a degradation.
+
+This matters because the operational signal you actually care about — *"the group is doing okay but losing redundancy"* — is the `partial` state. And `min_healthy` is the number that decides where the `partial` label fires.
+
+## What Changes When You Change the Number
+
+Think of a group with five members and consider the spectrum:
+
+```
+min_healthy: 1   → partial fires when 0 healthy (i.e., never — inactive fires first)
+min_healthy: 2   → partial fires at 1 healthy
+min_healthy: 3   → partial fires at 1–2 healthy
+min_healthy: 4   → partial fires at 1–3 healthy
+min_healthy: 5   → partial fires at 1–4 healthy
+```
+
+`min_healthy: 1` is the default in every cookbook example. It's also the configuration that produces the least signal. The `partial` state can't fire under it — you go straight from `healthy` to `inactive`. The label is doing nothing.
+
+`min_healthy: 5` (require all members) is the opposite extreme. The group is `partial` the moment one member is unhealthy. That's a lot of `partial` signal — including during normal rolling deploys.
+
+Somewhere in between is "the number of degraded-but-not-broken members that should wake someone up." That number is your alert threshold, not your config knob. The two are the same.
+
+## The Default Is a Decision You Didn't Make
+
+When you copy `min_healthy: 1` from a cookbook, you're choosing to receive zero advance warning before a group goes down. There is no `partial` state under that configuration — only `healthy` → `inactive`, with no intermediate signal.
+
+That might be correct for your workload. A stateless idempotent tool group where one healthy member is fine and the alert at zero healthy is sufficient — that's a real use case, and `min_healthy: 1` is the right answer.
+
+It might also be wrong. A group of five members where you'd like to know when you're down to two is a different use case, and `min_healthy: 3` is the right answer. The transition `healthy → partial` becomes your "we're approaching the floor" warning, with hours or days to investigate before things actually break.
+
+The bug isn't picking the wrong number. The bug is picking *the default* without picking, then later wondering why you got paged at zero healthy with no leading indicator.
+
+## Where to Put the Number
+
+Three constraints, in order of how often they bite:
+
+**1. Where you want the warning to fire.** This is the constraint people don't articulate. "We have five members; I want to be paged when we're down to two healthy" means `min_healthy: 3`. The group goes `partial` at three or fewer, you alert on `partial`, you have time to react before `inactive`.
+
+**2. Your rolling deploy must not trigger the alert.** If you deploy one member at a time and your `min_healthy` is `N`, then `partial` fires during every deploy — and either your alert is noisy or you alert-suppress during deploys. For five members deploying one at a time, `min_healthy: 4` and below avoids deploy-time `partial`. `min_healthy: 5` does not.
+
+**3. Failure correlation.** Members sharing infrastructure (same AZ, same node, same upstream) fail together. The math on `min_healthy` is per-member, but the failure events are not. If your two-member group lives in the same AZ, `min_healthy: 2` doesn't actually buy you AZ-survival — it buys you a slightly louder failure when the AZ goes down (label change from `healthy` straight to `inactive`).
+
+These constraints often conflict. You can't always satisfy all three. The point isn't that there's a magic formula — it's that the number is encoding *which warning you want* and *when*. Defaults don't encode warnings, because the team that wrote the default doesn't know your deployment.
+
+## What to Actually Alert On
+
+Most teams alert on `mcp_hangar_mcp_server_state` — the per-member gauge that flips to 3 (DEGRADED) on member health failure. That's a per-member signal. During a rolling deploy of a five-member group, you'll get five flips. During an infrastructure blip, you'll get N flips. The signal is real but it's not actionable for the group as a whole.
+
+The signal you want is the *group state* changing to `partial`. There isn't a direct gauge for the group's labeled state — Hangar exposes the per-member state and the circuit breaker state. To get the `partial` alert, you compute it yourself, by counting ready members and comparing to `min_healthy`:
+
+```promql
+# Number of READY members in the group (state value 2 = ready)
+count(mcp_hangar_mcp_server_state{mcp_server=~"member-.+"} == 2)
+```
+
+Compare that to your `min_healthy` value. Alert when the result drops below it. (Hangar doesn't expose `min_healthy` as a metric — you hardcode it in the alert expression or pull it from your config management.)
+
+The result is the alert that fires *before* you have an outage, telling you the group is approaching the floor. Which is the alert `min_healthy` exists to enable. Without that alert, the number is unused.
+
+## What This Actually Solves
+
+`min_healthy: 1` is not a bug. It's an *uncommitted* config — the team didn't decide, so the cookbook decided. The cookbook's number maximizes the chance the default works (any single member surviving means the group keeps going), which makes sense as a starter setting. It also minimizes the operational signal you get before things go down, which doesn't make sense for production.
+
+The fix isn't to set the number higher by default. The fix is to make the number reflect a choice: *at what level of degradation do you want the group to start telling you something is wrong?* The number you write into `min_healthy` is the answer to that question — encoded as a YAML integer, transmitted to Hangar's state machine, surfaced as a state label, observed by your alerting.
+
+If you skip that chain, the integer is doing nothing. It's a label boundary that never fires, attached to an alert you don't have.
+
+The whole point of `min_healthy` is the alert, not the number.
+
+## References
+
+- [Cookbook 03 — Circuit Breaker](https://mcp-hangar.io/docs/cookbook/03-circuit-breaker)
+- [Cookbook 04 — Failover](https://mcp-hangar.io/docs/cookbook/04-failover)
+- [Cookbook 05 — Load Balancing](https://mcp-hangar.io/docs/cookbook/05-load-balancing)
+- [Cookbook 13 — Production Checklist](https://mcp-hangar.io/docs/cookbook/13-production-checklist)
+- [MCP Server Groups — guide](https://mcp-hangar.io/docs/guides/MCP_SERVER_GROUPS) — group state machine and policy interactions
+- [Site Reliability Engineering — Chapter 4: Service Level Objectives](https://sre.google/sre-book/service-level-objectives/) — Google
+
+
+*Source: [github.com/mcp-hangar/mcp-hangar](https://github.com/mcp-hangar/mcp-hangar).*
