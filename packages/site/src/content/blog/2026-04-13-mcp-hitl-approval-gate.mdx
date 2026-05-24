@@ -1,0 +1,228 @@
+---
+title: "Human-in-the-Loop for MCP: How the Approval Gate Works"
+date: 2026-04-13
+author: MCP Hangar Team
+description: "Your LLM just decided to delete a production alert rule. You didn't ask it to. The approval gate puts a human between the decision and the execution — not for every tool call, but for the ones where 'undo' is a support ticket."
+tags: [mcp, mcp-hangar, governance, security, llm, enterprise, human-in-the-loop]
+---
+
+# Human-in-the-Loop for MCP: How the Approval Gate Works
+
+## The Core Idea
+
+Your LLM just decided to delete a production alert rule. You didn't ask it to. You asked it to "clean up the old ones" and it made a judgment call.
+
+This is the problem with giving LLMs tool access without a pause point. The model is helpful, confident, and wrong — and by the time you notice, the action is done.
+
+The approval gate is a mechanism to put a human between the decision and the execution. Not for every tool call — that would be unusable — but for the ones that matter. The ones where "undo" is a support ticket.
+
+Every tool invocation in MCP Hangar passes through a policy resolver before execution. The resolver checks the tool name against three lists:
+
+- `deny_list` — blocked entirely, no appeal
+- `approval_list` — held for human decision
+- `allow_list` — passes through immediately
+
+Precedence is strict: deny beats approval beats allow. If a tool matches both `deny_list` and `approval_list`, it's blocked. No exceptions, no ambiguity.
+
+```yaml
+providers:
+  grafana:
+    tool_access_policy:
+      deny_list:
+        - "admin_*"           # blocked entirely
+      approval_list:
+        - "delete_*"          # held for human approval
+        - "create_alert_rule"
+      approval_timeout_seconds: 300
+      approval_channel: dashboard
+```
+
+When a tool hits the `approval_list`, execution stops. The gate creates a pending approval record, routes a notification to the configured channel, and waits. The LLM waits too — the tool call is suspended until a human resolves it.
+
+## What Happens During a Hold
+
+The flow from the inside:
+
+```
+MCP Client invokes tool
+        │
+        ▼
+ToolAccessResolver.check(tool_name, policy)
+        │
+        ├── deny_list match? → BLOCK immediately
+        │
+        ├── approval_list match? → CREATE pending approval
+        │       │
+        │       ├── notify channel (dashboard / Slack / noop)
+        │       │
+        │       └── wait for decision (up to approval_timeout_seconds)
+        │               │
+        │               ├── approved → EXECUTE
+        │               ├── denied  → REJECT with reason
+        │               └── timeout → ERROR (error_code: "approval_timeout")
+        │
+        └── allow_list match (or no rule) → EXECUTE
+```
+
+The pending approval carries: `approval_id`, `provider_id`, `tool_name`, an `arguments_hash` (not the raw arguments — more on that below), the channel, and an expiry timestamp.
+
+The domain events emitted:
+
+```python
+ToolApprovalRequested(approval_id, provider_id, tool_name,
+                      arguments_hash, channel, expires_at, correlation_id)
+
+ToolApprovalGranted(approval_id, provider_id, tool_name,
+                    decided_by, decided_at)
+
+ToolApprovalDenied(approval_id, provider_id, tool_name,
+                   decided_by, decided_at, reason=None)
+
+ToolApprovalExpired(approval_id, provider_id, tool_name, expired_at)
+```
+
+Every state transition is an event. Nothing is mutated silently.
+
+## Resolving an Approval
+
+The REST API is straightforward:
+
+```bash
+# See what's waiting
+GET /enterprise/approvals?state=pending
+
+# Approve
+POST /enterprise/approvals/{approval_id}/resolve
+  -H "x-principal-id: alice"
+  -d '{"decision": "approve"}'
+
+# Deny with reason
+POST /enterprise/approvals/{approval_id}/resolve
+  -H "x-principal-id: alice"
+  -d '{"decision": "deny", "reason": "Not authorized for production"}'
+```
+
+Double resolve returns `409 Conflict`. The first decision wins — no race conditions between two approvers clicking simultaneously.
+
+The `x-principal-id` header is who made the call. It ends up in `ToolApprovalGranted` / `ToolApprovalDenied`, which ends up in the audit log. When someone asks "who approved that delete last Tuesday," you have a name.
+
+## Claude Code Integration
+
+If you're using Claude Code, Hangar hooks into the permission prompt spec directly. Claude Code has a native mechanism for tools to request human confirmation before execution — Hangar implements it:
+
+```python
+async def hangar_approve_prompt(
+    provider_id: str,
+    tool_name: str,
+    arguments: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    result = await gate_service.check(
+        provider_id=provider_id,
+        tool_name=tool_name,
+        arguments=arguments or {},
+        policy=policy,
+    )
+    if result.approved:
+        return {"behavior": "allow"}
+    return {
+        "behavior": "deny",
+        "message": result.reason or f"Tool {tool_name} was not approved"
+    }
+```
+
+`{"behavior": "allow"}` lets execution proceed. `{"behavior": "deny", "message": ...}` surfaces the denial reason back to the model, which can then explain to the user why it couldn't complete the action.
+
+## Notification Channels
+
+Where the approval request goes depends on `approval_channel`:
+
+**`dashboard`** — shows up in the Hangar web UI at `/approvals`. Approve or deny from the browser. Works out of the box, no external configuration.
+
+**`slack`** — posts to a webhook with Approve / Deny buttons. The Slack app calls back to `POST /enterprise/approvals/{id}/resolve`. Requires a webhook URL and signing secret in config:
+
+```yaml
+enterprise:
+  approvals:
+    channel: slack
+    slack:
+      webhook_url: "https://hooks.slack.com/services/..."
+      signing_secret: "..."
+```
+
+**`noop`** — does nothing. Useful in tests when you don't want real notifications but want the approval flow to exercise.
+
+## Argument Redaction
+
+The approval notification shows what the tool was called with — enough context for a human to make an informed decision. But not everything.
+
+Fields matching `password`, `api_token`, or `secret` are replaced with `[REDACTED]` before the notification reaches the dashboard or Slack. The raw arguments never leave the process boundary.
+
+The `arguments_hash` in the domain event is a hash of the original arguments. If you need to verify post-approval that the executed arguments matched what was approved, you have a reference point without storing the values themselves.
+
+## Dynamic Policy via Agent Push
+
+Static config covers the common case. For dynamic policy — pushing changes without restarting Hangar — the agent endpoint accepts policy updates at runtime:
+
+```json
+POST /agent/policy
+{
+  "version": 1,
+  "tool_policies": [
+    {
+      "provider_id": "*",
+      "tool_name": "delete_*",
+      "action": "require_approval",
+      "approval_timeout_seconds": 600
+    },
+    {
+      "provider_id": "*",
+      "tool_name": "*",
+      "action": "allow"
+    }
+  ]
+}
+```
+
+Actions: `require_approval`, `deny`, `audit`, `allow`. The policy applies immediately on receipt — no restart, no reload.
+
+This is the path hangar-agent uses when pushing policy updates at runtime. You can also call it directly if you're managing policy programmatically.
+
+## Policy Merge Across Scopes
+
+When policies exist at multiple levels — provider, group, member — they merge with a security-first rule:
+
+- `deny_list` → union (grows at narrower scope)
+- `approval_list` → union (grows at narrower scope)
+- `allow_list` → intersection (shrinks at narrower scope)
+
+Narrower scope can only restrict, never widen. A member-level policy can add tools to the deny list, but cannot remove them from the provider-level deny list. Security flows downhill.
+
+## The Timeout Question
+
+`approval_timeout_seconds` defaults to 300 (5 minutes). After expiry, the pending approval moves to `expired` state and the tool call returns `error_code: "approval_timeout"`.
+
+What value makes sense depends on your channel. Dashboard approvals during business hours: 300 seconds is reasonable. Slack with on-call rotation: you might want 900 or more. Overnight batch jobs that hit an approval gate: you probably have a config problem — those tools should be pre-approved or denied, not waiting for a human who's asleep.
+
+Expiry is not failure. It's the gate doing its job when no one shows up to open it.
+
+## What This Actually Solves
+
+The approval gate doesn't prevent the LLM from attempting a dangerous action. It prevents the action from executing without human sign-off.
+
+The model can still decide "I should delete these alert rules." It will try. The gate will hold it. A human will see the request, read the arguments, and make a call. Approve if it's right. Deny if it's wrong. Either way, the decision is recorded, attributed, and auditable.
+
+That's the difference between "the LLM did something" and "a human authorized the LLM to do something."
+
+For regulated environments, that difference is the entire compliance story.
+
+## References
+
+- [Handle Approvals and User Input — Claude Code](https://code.claude.com/docs/en/agent-sdk/user-input) — Anthropic
+- [Choose a Permission Mode — Claude Code](https://code.claude.com/docs/en/permission-modes) — Anthropic
+- [Article 14: Human Oversight — EU AI Act](https://artificialintelligenceact.eu/article/14/) — European Commission (2024)
+- [NIST AI Risk Management Framework Playbook](https://www.nist.gov/itl/ai-risk-management-framework/nist-ai-rmf-playbook) — NIST (2023)
+- [Chapter 14: Managing Incidents — Google SRE Book](https://sre.google/sre-book/managing-incidents/) — Google
+- [Anatomy of an Incident](https://static.googleusercontent.com/media/sre.google/en//static/pdf/Anatomy_Of_An_Incident.pdf) — Google / O'Reilly (2022)
+
+
+*Source: [github.com/mcp-hangar/mcp-hangar](https://github.com/mcp-hangar/mcp-hangar).*

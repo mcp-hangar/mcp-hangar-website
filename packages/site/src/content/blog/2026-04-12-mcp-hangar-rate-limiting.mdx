@@ -1,0 +1,274 @@
+---
+title: "When Your LLM Won't Stop Talking: Rate Limiting in MCP Hangar"
+date: 2026-04-12
+author: MCP Hangar Team
+description: "Your agent just discovered it can call hangar_call in a loop. Twelve hundred requests in ninety seconds. Here's how MCP Hangar's two-system rate limiting — token bucket at the command bus, exponential backoff on auth — puts a ceiling on that."
+tags: [mcp, mcp-hangar, security, observability, architecture, open-source]
+---
+
+# When Your LLM Won't Stop Talking: Rate Limiting in MCP Hangar
+
+Your agent just discovered it can call `hangar_call` in a loop. It's doing exactly that. Twelve hundred requests in ninety seconds, all legitimate from the model's perspective — it's just being thorough. Your MCP server is on its knees. The provider it's hammering has started returning garbage. The agent, undeterred, keeps calling.
+
+This is not a hypothetical. It's what happens when you give a sufficiently motivated LLM tool access and no ceiling.
+
+Rate limiting is the ceiling. Here's how it works in MCP Hangar — two independent systems, different threat models, one coherent defense.
+
+
+## The Core Idea
+
+MCP Hangar has two rate limiters. They exist for different reasons and protect different things.
+
+**System A** — token bucket at the command bus level. Protects the entire API from runaway volume. Every tool call, every management command, every request passes through it.
+
+**System B** — exponential backoff on auth. Protects authentication from brute-force. Lives in the enterprise auth layer, tracks per-IP failure counts, escalates lockout duration on repeat offenses.
+
+They don't share state. They don't need to. Different attack surfaces, different responses.
+
+
+## The Token Bucket
+
+System A uses a token bucket algorithm. The intuition: a bucket fills with tokens at a constant rate. Each request costs one token. If the bucket is empty, the request is rejected and the caller is told when to retry.
+
+```python
+class TokenBucket:
+    def consume(self, tokens: int = 1) -> tuple[bool, float]:
+        with self._lock:
+            self._refill()
+            if self.tokens >= tokens:
+                self.tokens -= tokens
+                return True, 0.0
+            else:
+                needed = tokens - self.tokens
+                wait_time = needed / self.rate
+                return False, wait_time
+```
+
+Two parameters control behavior:
+
+- `requests_per_second` — steady-state throughput. Default: 10 rps.
+- `burst_size` — maximum tokens the bucket can hold. Default: 20.
+
+Burst allows a caller to fire twenty requests instantly after a quiet period, then get throttled to ten per second. This is intentional — legitimate clients have bursty patterns. A CI pipeline runs, calls a bunch of tools, goes quiet. Token bucket handles that gracefully. A runaway loop doesn't get the same courtesy.
+
+The refill math is straightforward:
+
+```
+tokens = min(burst_size, tokens + elapsed_seconds * rate)
+```
+
+One detail worth noting: `TokenBucket` uses `time.monotonic()` for refill calculations. Monotonic time is immune to system clock adjustments. The `RateLimitResult.reset_at` field uses `time.time()` — unix timestamp required for HTTP headers. Two different clocks for two different purposes. Don't conflate them.
+
+
+## Where It Sits in the Request Path
+
+Rate limiting is the first check. Not the second. Not after validation. First.
+
+```
+MCP Client → CommandBus.send(command)
+                    │
+                    ▼
+        RateLimitMiddleware.__call__()
+                    │
+          rate_limiter.consume(key)
+                    │
+            ┌───────┴────────┐
+            │                │
+          allowed          rejected
+            │                │
+         next handler    HTTP 429
+                         + X-RateLimit headers
+                         + Retry-After
+```
+
+The comment in the source is unambiguous: *"Rate limit first (cheapest check) to reduce abuse surface."* Validation is more expensive. Approval gate is more expensive. If a caller is going to be rejected, reject them before spending cycles on anything else.
+
+The middleware generates standard headers on every response:
+
+```python
+def to_headers(self) -> dict[str, str]:
+    headers = {
+        "X-RateLimit-Limit": str(self.limit),
+        "X-RateLimit-Remaining": str(max(0, self.remaining)),
+        "X-RateLimit-Reset": str(int(self.reset_at)),
+    }
+    if self.retry_after is not None and self.retry_after > 0:
+        headers["Retry-After"] = str(int(self.retry_after) + 1)
+    return headers
+```
+
+`Retry-After` is `int(wait_time) + 1` — the extra second is a conservative buffer against clock skew between client and server. Small, but intentional.
+
+
+## Per-Tool Buckets
+
+Global rate limiting catches volume abuse. Per-tool limiting catches targeted abuse — hammering one expensive operation while staying under the global threshold.
+
+`mcp_tool_wrapper` takes a `rate_limit_key` callable that determines which bucket a tool call hits. Three helper functions ship with the library:
+
+```python
+def key_global(*_: Any, **__: Any) -> str:
+    """Rate limit key for globally-scoped tools."""
+    return "global"
+
+def key_per_provider(provider: str, *_: Any, **__: Any) -> str:
+    """Rate limit key scoped per provider."""
+    return f"provider:{provider}"
+
+def key_hangar_call(provider: str, tool: str, *_: Any, **__: Any) -> str:
+    """Rate limit key specialized for tool invocation (per provider)."""
+    return f"hangar_call:{provider}"
+```
+
+`key_global` puts all calls into one shared bucket — appropriate for tools that don't vary by target. `key_per_provider` gives each provider its own bucket — a slow provider can be throttled without penalizing others. `key_hangar_call` is the same shape but semantically distinct for tool invocations specifically.
+
+The execution order inside `mcp_tool_wrapper` matters: rate limit → validate → approval gate → execute. Rate limit is still first.
+
+
+## Composite Limiting
+
+`CompositeRateLimiter` chains multiple limiters with AND logic — all must allow the request. The most restrictive limit wins.
+
+The use case: apply a global limit of 10 rps across all traffic, and a per-provider limit of 2 rps for an expensive provider. A caller gets 10 rps until they target that provider, at which point they get 2 rps. The global bucket and the provider bucket are separate — one caller's per-provider throttle doesn't bleed into other callers' global budget.
+
+Zero cross-tenant leaking. Separate bucket, separate state.
+
+
+## The Brute-Force Problem
+
+System B exists because authentication is a different attack surface. The concern isn't volume — it's repeated failure. Someone trying to guess credentials doesn't necessarily generate high request volume. They can be methodical, slow, and patient.
+
+Exponential backoff makes patience expensive:
+
+```python
+@dataclass
+class AuthRateLimitConfig:
+    max_attempts: int = 10        # attempts before first lockout
+    window_seconds: int = 60      # sliding window
+    lockout_seconds: int = 300    # initial lockout: 5 minutes
+    lockout_escalation_factor: float = 2.0
+    max_lockout_seconds: int = 3600  # cap: 1 hour
+```
+
+The escalation math:
+
+```
+effective_lockout = min(base * factor^(lockout_count - 1), max)
+```
+
+In practice:
+
+| Lockout | Duration |
+|---------|----------|
+| 1st | 5 min |
+| 2nd | 10 min |
+| 3rd | 20 min |
+| 4th | 40 min |
+| 5th+ | 1 hour (cap) |
+
+After the fifth offense, every subsequent lockout costs an hour. The attacker can continue. The math stops caring.
+
+One notable behavior: successful authentication calls `record_success(ip)`, which does `del self._trackers[ip]`. The tracker is erased entirely. A legitimate user who fat-fingered their password ten times, got locked out, waited, then authenticated correctly — starts clean. No residual penalty for recovery.
+
+Note: `RateLimitUnlock` with `unlock_reason="success"` is emitted only if the IP was actively locked at the time of successful auth. If a user accumulated failed attempts below the lockout threshold and then succeeded, the tracker is still cleared, but no event is emitted. The audit trail reflects lockout state transitions, not every tracker lifecycle event.
+
+
+## Domain Events
+
+System B emits domain events on state transitions. These aren't logs — they're first-class events in the event stream, available to handlers downstream.
+
+```python
+@dataclass
+class RateLimitLockout(DomainEvent):
+    source_ip: str
+    lockout_duration_seconds: float
+    lockout_count: int
+    failed_attempts: int
+
+@dataclass
+class RateLimitUnlock(DomainEvent):
+    source_ip: str
+    lockout_count: int
+    unlock_reason: str  # "expired" | "success" | "manual_clear" | "cleanup"
+```
+
+`unlock_reason` tells you why the lockout ended. `"success"` means legitimate auth while locked. `"expired"` means the lockout timer ran out. `"manual_clear"` means an operator intervened. `"cleanup"` means garbage collection swept an expired lockout.
+
+If an IP hits lockout repeatedly and you're seeing `"expired"` as the unlock reason rather than `"success"`, the attacker is waiting out each lockout and retrying. The escalation ladder is working as designed — each wait costs more. The event stream makes this pattern visible.
+
+
+## Observability
+
+Two Prometheus metrics:
+
+```python
+RATE_LIMIT_HITS_TOTAL = Counter(
+    name="mcp_hangar_rate_limit_hits",
+    description="Total number of rate limit decisions by result",
+    labels=["result"],  # "allowed" | "rejected"
+)
+
+RATE_LIMIT_ACTIVE_BUCKETS = Gauge(
+    name="mcp_hangar_rate_limit_active_buckets",
+    description="Number of active rate limit token buckets",
+)
+```
+
+`mcp_hangar_rate_limit_hits_total{result="rejected"}` rising sharply is the signal. Either a legitimate caller has a bug, or something is probing the surface. Either way, you want to know before it becomes a support ticket.
+
+The metrics update is wrapped in try/except. If Prometheus is unavailable, rate limiting continues. The comment: *"fault-barrier: metrics failure must not block rate limit enforcement."* The defense mechanism is not contingent on the monitoring layer.
+
+
+## Memory Management
+
+`InMemoryRateLimiter` runs cleanup every 60 seconds. Buckets unused for longer than `cleanup_interval` are removed. Without this, every unique rate limit key that ever existed accumulates in memory indefinitely.
+
+One implementation detail: `_maybe_cleanup` is called inside `_get_bucket`, which itself runs under `self._lock`. The cleanup and the normal bucket operation share the same lock. This is safe — `InMemoryRateLimiter` uses `threading.Lock` (non-reentrant), and cleanup is never called recursively from within itself. `AuthRateLimiter` (System B) uses `threading.RLock` — reentrant, appropriate because its cleanup path is more complex and can be triggered from within the lock context.
+
+No Redis required for single-instance deployments. The in-memory implementation is the default. Redis appears in integration tests as proof-of-concept for distributed deployments. If you're running multiple Hangar instances behind a load balancer, you'll need a shared backing store — but that's not the common case, and the in-memory default doesn't pretend otherwise.
+
+
+## Configuration
+
+```bash
+# Environment variables
+MCP_RATE_LIMIT_RPS=10    # steady-state requests/second
+MCP_RATE_LIMIT_BURST=20  # burst capacity
+```
+
+```yaml
+# Auth rate limiting (config.yaml)
+auth:
+  rate_limit:
+    enabled: true
+    max_attempts: 10
+    window_seconds: 60
+    lockout_seconds: 300
+```
+
+Defaults are conservative. A single legitimate client shouldn't approach 10 rps under normal usage. If you're seeing legitimate traffic rejected, the first question is whether you have a client bug, not whether the defaults are too tight.
+
+
+## What This Actually Solves
+
+Rate limiting doesn't stop a determined attacker. Nothing does, entirely. What it does is make attacks expensive, make abuse visible, and make recovery predictable.
+
+The token bucket bounds damage from runaway agents. An LLM in a loop hits the ceiling, gets 429s, and — if the client is implemented correctly — backs off. If it isn't, you have a client bug to fix rather than a server to recover.
+
+The exponential backoff makes credential stuffing economically unviable. Ten attempts per minute, escalating lockouts, an hour cap. At that rate, a meaningful credential space takes longer than anyone's operational patience.
+
+The domain events make both attack patterns observable after the fact. Not just "something was rejected" — but what, from where, how many times, and whether it stopped.
+
+That's the real value. Not prevention as a guarantee, but prevention as a measurable, auditable property of the system.
+
+
+## References
+
+- [Token Bucket Algorithm](https://en.wikipedia.org/wiki/Token_bucket) — Wikipedia
+- [RFC 2212 — Specification of Guaranteed Quality of Service](https://www.rfc-editor.org/rfc/rfc2212.txt) — IETF (1997)
+- [Rate Limit Header Fields for HTTP (draft-ietf-httpapi-ratelimit-headers)](https://datatracker.ietf.org/doc/html/draft-ietf-httpapi-ratelimit-headers) — IETF HTTPAPI Working Group
+- [`time` — Time Access and Conversions](https://docs.python.org/3/library/time.html) — Python Software Foundation
+- [RFC 7231 — HTTP/1.1 Semantics and Content (Retry-After)](https://www.rfc-editor.org/rfc/rfc7231.html) — IETF (2014)
+
+
+*Source: [github.com/mcp-hangar/mcp-hangar](https://github.com/mcp-hangar/mcp-hangar).*
