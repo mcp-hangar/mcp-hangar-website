@@ -29,11 +29,11 @@ jobs:
       - name: Type check
         run: pnpm --filter site check
 
-      - name: Run tests
-        run: pnpm --filter site test
-
       - name: Build
         run: pnpm --filter site build
+
+      - name: Run tests
+        run: pnpm --filter site test
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
