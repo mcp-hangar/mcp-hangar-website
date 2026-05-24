@@ -19,12 +19,6 @@
     "build": "pnpm --filter site build",
     "preview": "pnpm --filter site preview",
     "check": "pnpm --filter site check",
-    "test": "pnpm --filter site test",
-    "lint": "pnpm --filter site lint"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "*"
-    ]
+    "test": "pnpm --filter site test"
   }
 }

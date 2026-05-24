@@ -1,3 +1,4 @@
+import {describe, it, expect} from "vitest";
 import {LINKS, INSTALL_COMMAND, DOCS_BASE} from "../config";
 
 describe("config", () => {

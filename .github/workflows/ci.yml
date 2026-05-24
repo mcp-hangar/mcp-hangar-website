@@ -7,58 +7,37 @@ on:
     branches: [main, dev]
 
 jobs:
-  lint-and-test:
+  build-and-test:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [20.x]
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Use Node.js ${{ matrix.node-version }}
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - name: Use Node.js 22
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: '22'
+          cache: 'pnpm'
 
       - name: Install dependencies
-        run: |
-          rm -rf node_modules package-lock.json
-          npm install
+        run: pnpm install --frozen-lockfile
 
-      - name: Run linter
-        run: npm run lint
+      - name: Type check
+        run: pnpm --filter site check
 
       - name: Run tests
-        run: npm test -- --run
+        run: pnpm --filter site test
 
       - name: Build
-        run: npm run build
+        run: pnpm --filter site build
 
       - name: Upload build artifacts
-        if: matrix.node-version == '20.x'
         uses: actions/upload-artifact@v4
         with:
           name: dist
-          path: dist/
+          path: packages/site/dist/
           retention-days: 7
-
-  type-check:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Use Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20.x'
-
-      - name: Install dependencies
-        run: |
-          rm -rf node_modules package-lock.json
-          npm install
-
-      - name: Type check
-        run: npx tsc --noEmit
