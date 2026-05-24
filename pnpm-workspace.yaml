@@ -3,3 +3,7 @@ packages:
 allowBuilds:
   esbuild: true
   sharp: true
+overrides:
+  mermaid: '>=11.15.0'
+  devalue: '>=5.8.1'
+  yaml: '>=2.8.3'
