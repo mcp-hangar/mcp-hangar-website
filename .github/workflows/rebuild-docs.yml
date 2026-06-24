@@ -1,7 +1,11 @@
 name: Rebuild on Docs Update
 
-# Triggered when main mcp-hangar repo docs change
-# Add to main repo workflow:
+# Bumps the @mcp-hangar/docs lockfile entry to the latest docs commit and
+# pushes, which triggers a Vercel rebuild with the new docs. A plain empty
+# commit is NOT enough: pnpm-lock.yaml pins the docs tarball to a specific
+# commit, so without updating the lockfile the rebuild ships stale docs.
+#
+# Trigger from the main mcp-hangar repo on docs changes:
 #
 #   - name: Trigger website rebuild
 #     uses: peter-evans/repository-dispatch@v2
@@ -21,7 +25,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  trigger-vercel:
+  bump-docs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -32,10 +36,27 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Trigger Vercel rebuild
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - name: Use Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - name: Bump @mcp-hangar/docs to latest commit
+        run: pnpm --filter site update @mcp-hangar/docs
+
+      - name: Commit and push if docs changed
         run: |
-          # Empty commit triggers Vercel rebuild
+          if git diff --quiet -- pnpm-lock.yaml; then
+            echo "Docs already up to date — nothing to rebuild."
+            exit 0
+          fi
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git commit --allow-empty -m "chore: rebuild docs [skip ci]"
+          git add pnpm-lock.yaml
+          git commit -m "chore: bump docs to latest [skip ci]"
           git push
