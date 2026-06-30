@@ -35,7 +35,7 @@ importers:
         version: 5.2.10
       '@mcp-hangar/docs':
         specifier: github:mcp-hangar/docs
-        version: https://codeload.github.com/mcp-hangar/docs/tar.gz/45bef08e07222c2b9062a3ee93810a9ea655772d
+        version: https://codeload.github.com/mcp-hangar/docs/tar.gz/9cda48c1e9b4dfb96397f0e00518b54be0533513
       '@shikijs/rehype':
         specifier: ^4.1.0
         version: 4.1.0
@@ -880,8 +880,8 @@ packages:
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
 
-  '@mcp-hangar/docs@https://codeload.github.com/mcp-hangar/docs/tar.gz/45bef08e07222c2b9062a3ee93810a9ea655772d':
-    resolution: {gitHosted: true, integrity: sha512-cacLLMFvtxUjNSuDKJUn90i7QCCogoLQlRvoHrZBhfv7xySTTm1B8VooDIXPF4QGL4qWJD7QImPGh9ZxFUyM1w==, tarball: https://codeload.github.com/mcp-hangar/docs/tar.gz/45bef08e07222c2b9062a3ee93810a9ea655772d}
+  '@mcp-hangar/docs@https://codeload.github.com/mcp-hangar/docs/tar.gz/9cda48c1e9b4dfb96397f0e00518b54be0533513':
+    resolution: {gitHosted: true, integrity: sha512-xygbPIwSQ9MmOgdU1cwGYx8itzxtyUS+TP+uvGdFkpF6JV6j6fF7yfWa3+m+TQybhhkL24EcMhtLYGm6A6PmPQ==, tarball: https://codeload.github.com/mcp-hangar/docs/tar.gz/9cda48c1e9b4dfb96397f0e00518b54be0533513}
     version: 0.0.0
 
   '@mdx-js/mdx@3.1.1':
@@ -3244,7 +3244,6 @@ packages:
   tsconfck@3.1.6:
     resolution: {integrity: sha512-ks6Vjr/jEw0P1gmOVwutM3B7fWxoWBL2KRDb1JfqGVawBmO5UsvmWOQFGHBPl5yxYz4eERr19E6L7NMv+Fej4w==}
     engines: {node: ^18 || >=20}
-    deprecated: unmaintained
     hasBin: true
     peerDependencies:
       typescript: ^5.0.0
@@ -4396,7 +4395,7 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@mcp-hangar/docs@https://codeload.github.com/mcp-hangar/docs/tar.gz/45bef08e07222c2b9062a3ee93810a9ea655772d': {}
+  '@mcp-hangar/docs@https://codeload.github.com/mcp-hangar/docs/tar.gz/9cda48c1e9b4dfb96397f0e00518b54be0533513': {}
 
   '@mdx-js/mdx@3.1.1':
     dependencies:
