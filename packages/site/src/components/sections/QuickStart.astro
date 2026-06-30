@@ -2,6 +2,7 @@
 import StepList from "../StepList.astro";
 import Step from "../Step.astro";
 import { CodeBlock } from "../CodeBlock.tsx";
+import { VERSION } from "../../config";
 ---
 
 <section class="max-w-6xl mx-auto px-6 pb-32">
@@ -54,7 +55,7 @@ mcp_servers:
         description="Launch the agent. MCP servers come online and are ready to serve tool calls."
       >
         <CodeBlock client:load language="bash">{`$ mcp-hangar serve
-Starting MCP Hangar v1.2.3...
+Starting MCP Hangar v${VERSION}...
   ● filesystem  ready  (245ms)
   ● fetch       ready  (189ms)
   ● memory      ready  (156ms)
