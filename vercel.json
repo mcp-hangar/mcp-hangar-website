@@ -69,6 +69,12 @@
   ],
   "redirects": [
     {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "www.mcp-hangar.io" }],
+      "destination": "https://mcp-hangar.io/:path*",
+      "permanent": true
+    },
+    {
       "source": "/docs/blog/:path*",
       "destination": "/blog/:path*",
       "permanent": true
