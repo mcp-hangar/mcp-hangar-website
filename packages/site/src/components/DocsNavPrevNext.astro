@@ -1,86 +1,18 @@
 ---
 /**
  * Prev/Next navigation at the bottom of docs pages.
- * Uses the same ordered list as the sidebar for consistency.
+ * Built from the same `buildDocsNav` source as the sidebar, so the two stay in
+ * sync by construction and cover every doc in the collection.
  */
+import { getCollection } from 'astro:content';
+import { buildDocsNav } from '../docsNav';
 
 interface Props {
   currentPath: string;
 }
 
-interface NavItem {
-  href: string;
-  label: string;
-}
-
-// Flat ordered list matching sidebar order
-const allPages: NavItem[] = [
-  { href: '/docs/getting-started/quickstart', label: 'Quick Start' },
-  { href: '/docs/getting-started/installation', label: 'Installation' },
-  { href: '/docs/guides/HTTP_TRANSPORT', label: 'HTTP Transport' },
-  { href: '/docs/guides/AUTHENTICATION', label: 'Authentication & RBAC' },
-  { href: '/docs/guides/FRONT_DOOR', label: 'Front-Door Mode' },
-  { href: '/docs/guides/MCP_SERVER_GROUPS', label: 'Server Groups' },
-  { href: '/docs/guides/DISCOVERY', label: 'Discovery' },
-  { href: '/docs/guides/KUBERNETES', label: 'Kubernetes' },
-  { href: '/docs/guides/CONTAINERS', label: 'Containers' },
-  { href: '/docs/guides/OBSERVABILITY', label: 'Observability' },
-  { href: '/docs/guides/REST_API', label: 'REST API' },
-  { href: '/docs/guides/FACADE_API', label: 'Facade API' },
-  { href: '/docs/guides/WEBSOCKETS', label: 'WebSockets' },
-  { href: '/docs/guides/LOG_STREAMING', label: 'Log Streaming' },
-  { href: '/docs/guides/BATCH_INVOCATIONS', label: 'Batch Invocations' },
-  { href: '/docs/guides/TESTING', label: 'Testing' },
-  { href: '/docs/cookbook/01-http-gateway', label: 'HTTP Gateway' },
-  { href: '/docs/cookbook/02-health-checks', label: 'Health Checks' },
-  { href: '/docs/cookbook/03-circuit-breaker', label: 'Circuit Breaker' },
-  { href: '/docs/cookbook/04-failover', label: 'Failover' },
-  { href: '/docs/cookbook/05-load-balancing', label: 'Load Balancing' },
-  { href: '/docs/cookbook/06-rate-limiting', label: 'Rate Limiting' },
-  { href: '/docs/cookbook/07-observability-metrics', label: 'Metrics' },
-  { href: '/docs/cookbook/08-observability-langfuse', label: 'Langfuse' },
-  { href: '/docs/cookbook/09-subprocess-mcp-servers', label: 'Subprocess Servers' },
-  { href: '/docs/cookbook/10-discovery-docker', label: 'Docker Discovery' },
-  { href: '/docs/cookbook/11-discovery-kubernetes', label: 'K8s Discovery' },
-  { href: '/docs/cookbook/12-auth-rbac', label: 'Auth & RBAC' },
-  { href: '/docs/cookbook/13-production-checklist', label: 'Production Checklist' },
-  { href: '/docs/cookbook/14-upgrade-1.3-digest-pinning', label: 'Upgrade: Digest Pinning' },
-  { href: '/docs/cookbook/15-interceptor-discovery', label: 'Interceptor Discovery' },
-  { href: '/docs/cookbook/16-front-door-multi-tenant', label: 'Front-Door Multi-Tenant' },
-  { href: '/docs/cookbook/17-multi-issuer-front-door', label: 'Multi-Issuer Front Door' },
-  { href: '/docs/cookbook/18-tenant-digest-pins', label: 'Per-Tenant Digest Pins' },
-  { href: '/docs/cookbook/19-canary-group-routing', label: 'Canary Group Routing' },
-  { href: '/docs/reference/configuration', label: 'Configuration' },
-  { href: '/docs/reference/cli', label: 'CLI' },
-  { href: '/docs/reference/rest-api', label: 'REST API Reference' },
-  { href: '/docs/reference/tools', label: 'MCP Tools' },
-  { href: '/docs/reference/hot-reload', label: 'Hot Reload' },
-  { href: '/docs/architecture/OVERVIEW', label: 'Architecture Overview' },
-  { href: '/docs/architecture/EVENT_SOURCING', label: 'Event Sourcing' },
-  { href: '/docs/architecture/INTERCEPTOR_FRAMEWORK', label: 'Interceptor Framework' },
-  { href: '/docs/operations/COMPLIANCE', label: 'Compliance Export' },
-  { href: '/docs/observability/otel-integrations', label: 'OpenTelemetry' },
-  { href: '/docs/integrations/openlit-otlp', label: 'OpenLIT OTLP' },
-  { href: '/docs/runbooks/RELEASE', label: 'Release Runbook' },
-  { href: '/docs/security', label: 'Security Policy' },
-  { href: '/docs/security/AUTH_SECURITY_AUDIT', label: 'Auth Security Audit' },
-  { href: '/docs/upgrade', label: 'Upgrade Guide' },
-  { href: '/docs/changelog', label: 'Changelog' },
-  { href: '/docs/adr/ADR-001-cqrs', label: 'ADR-001 CQRS' },
-  { href: '/docs/adr/ADR-002-event-sourcing', label: 'ADR-002 Event Sourcing' },
-  { href: '/docs/adr/ADR-003-sagas', label: 'ADR-003 Sagas' },
-  { href: '/docs/adr/ADR-004-sep-1766-digest-pinning', label: 'ADR-004 Digest Pinning' },
-  { href: '/docs/adr/ADR-005-sep-1763-interceptor-compliance', label: 'ADR-005 Interceptor Compliance' },
-  { href: '/docs/adr/ADR-006-tetragon', label: 'ADR-006 Tetragon' },
-  { href: '/docs/adr/ADR-007-langfuse-integration', label: 'ADR-007 Langfuse' },
-  { href: '/docs/development/CONTRIBUTING', label: 'Contributing' },
-  { href: '/docs/development/GIT_FLOW', label: 'Git Flow' },
-  { href: '/docs/development/BRANCH_PROTECTION', label: 'Branch Protection' },
-  { href: '/docs/development/PROJECT_BOARD', label: 'Project Board' },
-  { href: '/docs/development/EPIC_PLAYBOOK', label: 'Epic Playbook' },
-  { href: '/docs/development/HOTFIX_RUNBOOK', label: 'Hotfix Runbook' },
-  { href: '/docs/testing/approval-gate-manual-testing', label: 'Approval Gate Testing' },
-];
+const docs = await getCollection('oss');
+const { flat: allPages } = buildDocsNav(docs);
 
 const { currentPath } = Astro.props;
 const normalized = currentPath.replace(/\/$/, '');
