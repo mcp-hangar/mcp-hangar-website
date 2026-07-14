@@ -281,3 +281,12 @@ export function buildDocsNav(docs: DocEntry[]): DocsNav {
   const flat = sections.flatMap((s) => s.links);
   return { sections, flat };
 }
+
+/**
+ * Count numbered cookbook recipes (e.g. `cookbook/01-http-gateway`), excluding
+ * the `cookbook/index` overview. Used by the landing page so the advertised
+ * recipe count is derived from the docs collection instead of hand-maintained.
+ */
+export function countCookbookRecipes(docs: DocEntry[]): number {
+  return docs.filter((d) => /^cookbook\/\d+-/.test(d.id)).length;
+}

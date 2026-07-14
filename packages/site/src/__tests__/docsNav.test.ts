@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildDocsNav, type DocEntry } from '../docsNav';
+import { buildDocsNav, countCookbookRecipes, type DocEntry } from '../docsNav';
 
 /** Minimal collection-entry factory. */
 function doc(id: string, title?: string, sidebar?: DocEntry['data']['sidebar']): DocEntry {
@@ -84,6 +84,17 @@ describe('buildDocsNav', () => {
     expect(byHref['/docs/guides/HTTP_TRANSPORT']).toBe('HTTP Transport');
     expect(byHref['/docs/guides/NEW_WITH_FRONTMATTER']).toBe('Short');
     expect(byHref['/docs/guides/NEW_PLAIN']).toBe('Plain Title');
+  });
+
+  it('counts numbered cookbook recipes, excluding the overview and non-cookbook docs', () => {
+    const docs = [
+      doc('cookbook/index', 'Overview'),
+      doc('cookbook/01-http-gateway', '01'),
+      doc('cookbook/02-health-checks', '02'),
+      doc('cookbook/23-harden-public-gateway', '23'),
+      doc('guides/HTTP_TRANSPORT', 'not a recipe'),
+    ];
+    expect(countCookbookRecipes(docs)).toBe(3);
   });
 
   it('groups the mixed Operations directories under one section', () => {

@@ -34,18 +34,18 @@ import { VERSION } from "../../config";
 mcp_servers:
   filesystem:
     mode: subprocess
-    command: [npx, -y, "@anthropic/mcp-server-filesystem"]
+    command: [npx, -y, "@modelcontextprotocol/server-filesystem"]
     args: [/Users/you/Documents]
     idle_ttl_s: 300
 
   fetch:
     mode: subprocess
-    command: [npx, -y, "@anthropic/mcp-server-fetch"]
+    command: [npx, -y, "@modelcontextprotocol/server-fetch"]
     idle_ttl_s: 300
 
   memory:
     mode: subprocess
-    command: [npx, -y, "@anthropic/mcp-server-memory"]
+    command: [npx, -y, "@modelcontextprotocol/server-memory"]
     idle_ttl_s: 300`}</CodeBlock>
       </Step>
 

@@ -1,8 +1,10 @@
 ---
 import DocsLayout from '../../layouts/DocsLayout.astro';
 import { getCollection } from 'astro:content';
+import { countCookbookRecipes } from '../../docsNav';
 
 const docs = await getCollection('oss');
+const recipeCount = countCookbookRecipes(docs);
 
 const sections = [
   {
@@ -29,10 +31,10 @@ const sections = [
   },
   {
     title: 'Cookbook',
-    description: '13 recipes from zero to production.',
+    description: `${recipeCount} recipes from zero to production.`,
     icon: '&#127859;',
     links: [
-      { href: '/docs/cookbook/', label: 'All Recipes' },
+      { href: '/docs/cookbook/index', label: 'All Recipes' },
       { href: '/docs/cookbook/01-http-gateway', label: 'HTTP Gateway' },
       { href: '/docs/cookbook/03-circuit-breaker', label: 'Circuit Breaker' },
       { href: '/docs/cookbook/12-auth-rbac', label: 'Auth & RBAC' },
