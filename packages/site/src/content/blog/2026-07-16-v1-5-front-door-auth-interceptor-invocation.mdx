@@ -1,0 +1,75 @@
+---
+title: "MCP Hangar v1.5 -- Front-Door Auth End-to-End, Interceptor Invocation, and Task Governance"
+date: 2026-07-16
+author: MCP Hangar Team
+description: "v1.5 makes OIDC front-door auth work end-to-end over the HTTP server, adds a one-time admin bootstrap, a phase-aware interceptor invocation surface, and task-lifecycle audit events."
+tags: [mcp, mcp-hangar, security, governance, auth, open-source]
+---
+
+# MCP Hangar v1.5 -- Front-Door Auth End-to-End, Interceptor Invocation, and Task Governance
+
+v1.4 shipped the front door -- multi-issuer OIDC trust, resource-bound audiences, per-tenant tool projection. v1.5 makes sure the right callers actually get through it, and gives you two new places to govern the call path: interceptor invocation and task lifecycle.
+
+Upgrade is drop-in -- `pip install --upgrade mcp-hangar`. Here is what changed.
+
+## OIDC bearer auth, end to end over `serve --http`
+
+If you enabled `auth.oidc` on the HTTP server before, you may have hit a wall: a valid token still came back `401`, `auth_method: none`. The JWT authenticator matched the `Authorization` header case-sensitively while the HTTP layer normalizes header names to lowercase, so every bearer request fell through the authenticator without ever being evaluated.
+
+v1.5 fixes that. Existing `auth.oidc` config now authenticates bearer tokens over `serve --http` exactly as advertised -- no config change needed. The front door that v1.4 built is now open to the tokens it was designed to accept.
+
+```yaml
+auth:
+  enabled: true
+  allow_anonymous: false
+  oidc:
+    enabled: true
+    issuers:
+      - issuer: https://issuer.example.com/realms/mcp-hangar
+        audience: mcp-hangar
+        groups_claim: groups
+```
+
+Unauthenticated calls are denied, tokens from untrusted issuers are rejected, and the Protected Resource Metadata endpoint (RFC 9728) advertises your trusted issuers -- all verified end-to-end against a real identity provider in the release suite.
+
+## Bootstrap the first administrator
+
+A fresh durable auth store with anonymous access disabled had a chicken-and-egg problem: you could not create the first administrator through an API that already requires one. v1.5 adds a local operator command:
+
+```bash
+mcp-hangar auth bootstrap-admin --config config.yaml --principal user:alice@example.com
+```
+
+It grants the one-time global `admin` role to an existing external (OIDC) principal, using the server's own durable backend -- never an in-memory store. It fails closed when auth is disabled, anonymous access is allowed, or the store is non-durable, and a second run is refused without touching storage. No secret is printed; the grant is a role for an identity you already own, and it is auditable.
+
+## Interceptor invocation with phase-aware hooks
+
+The interceptor framework (SEP-1763) gets an invocation surface: `interceptor/invoke` with phase-aware hooks, so an interceptor participates at the point in the call path where its decision belongs rather than as an all-or-nothing wrapper. This is the same seam Hangar uses for governance, now callable with explicit lifecycle phases.
+
+## Task-lifecycle audit events
+
+Long-running work is part of the call path too. v1.5 emits task-lifecycle audit events -- `created`, `input_required`, `completed`, `failed`, `cancelled` -- into the same event-sourced audit trail as tool invocations, so a task that pauses for input or fails is as visible as a synchronous call.
+
+## Smaller, but you will feel them
+
+- **A tool `isError` result is a failure.** A backend MCP result with `isError: true` now counts as a tool failure across per-call results, batch `succeeded`/`failed` counts, health, and `ToolInvocationFailed` events -- so your failure metrics reflect reality instead of counting error payloads as successes.
+- **The SQLite event store fails fast.** If a durable event store cannot initialize, Hangar refuses to start instead of silently degrading to an in-memory store and dropping your audit trail. Opt into the fallback explicitly with `event_store.allow_memory_fallback: true`; `/health/ready` returns 503 if it degraded while a durable driver was configured.
+- **The group circuit breaker stopped over-tripping.** A breaker open on one group member no longer blocks a healthy remaining member from serving.
+- **The command-bus rate limit is configurable** from `config.yaml` instead of a fixed value.
+- **OTLP export failures are metered**, and the tracing off-switch is documented.
+
+## Upgrade
+
+```bash
+pip install --upgrade mcp-hangar
+# or
+uv pip install --upgrade mcp-hangar
+```
+
+No breaking changes. Review the behavior notes above if you rely on error-result counting or the implicit in-memory event-store fallback; the full migration steps are in the [upgrade guide](/docs/upgrade).
+
+The core image is published and cosign-signed at `ghcr.io/mcp-hangar/mcp-hangar:1.5.0`.
+
+## What's next
+
+Continued spec alignment with the MCP `2026-07-28` release candidate, deeper enforcement on the Kubernetes path, and forensic provenance across the call chain.
