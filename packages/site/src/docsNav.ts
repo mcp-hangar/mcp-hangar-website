@@ -82,6 +82,7 @@ const SECTIONS: SectionDef[] = [
 const HIDDEN_IDS = new Set<string>([
   'code-of-conduct',
   'CONTRIBUTING', // root duplicate of development/CONTRIBUTING
+  'CHANGELOG', // uppercase root file; duplicates the lowercase `changelog` doc
 ]);
 
 /**
