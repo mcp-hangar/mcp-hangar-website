@@ -19,7 +19,7 @@ set -euo pipefail
 # Constants
 # ------------------------------------------------------------------------------
 
-readonly INSTALLER_VERSION="1.0.0"
+readonly INSTALLER_VERSION="1.1.0"
 readonly DEFAULT_INSTALL_DIR="${HOME}/.mcp-hangar"
 readonly PACKAGE_NAME="mcp-hangar"
 readonly MIN_PYTHON_MAJOR=3
@@ -41,9 +41,12 @@ UPGRADE=false
 FORCE=false
 QUIET=false
 NO_CONFIRM=false
-DETECTED_SHELL=""
 PYTHON_CMD=""
 RESOLVED_VERSION=""
+HAVE_UV=false
+CREATED_DIR=false
+ORIGINAL_ARGS=()
+SKIP_FAILURE_NOTICE=false
 
 # ------------------------------------------------------------------------------
 # Terminal / Color support
@@ -215,7 +218,6 @@ detect_shell() {
         shell_name="bash"
     fi
 
-    DETECTED_SHELL="$shell_name"
     echo "$shell_name"
 }
 
@@ -335,7 +337,9 @@ get_latest_version() {
     elif command_exists jq; then
         echo "$json_data" | jq -r '.info.version'
     else
-        echo "$json_data" | grep -o '"version":"[^"]*"' | head -1 | cut -d'"' -f4
+        # PyPI's JSON is pretty-printed ("version": "x", with a space after
+        # the colon), so the pattern must tolerate optional whitespace.
+        echo "$json_data" | grep -o '"version"[[:space:]]*:[[:space:]]*"[^"]*"' | head -1 | sed -E 's/.*"([^"]*)"$/\1/'
     fi
 }
 
@@ -343,10 +347,55 @@ get_latest_version() {
 # Installation
 # ------------------------------------------------------------------------------
 
-create_venv() {
+check_existing_install() {
     local venv_dir="$1"
 
-    log_info "Creating virtual environment..."
+    if [[ ! -d "$venv_dir" ]] || [[ "$FORCE" == "true" ]] || [[ "$UPGRADE" == "true" ]]; then
+        return 0
+    fi
+
+    if [[ "$DRY_RUN" == "true" ]]; then
+        log_warn "mcp-hangar is already installed at ${INSTALL_DIR} (would require --force or --upgrade)"
+        return 0
+    fi
+
+    local installed_version="unknown"
+    if [[ -x "${venv_dir}/bin/python" ]]; then
+        installed_version=$("${venv_dir}/bin/python" -c "import mcp_hangar; print(mcp_hangar.__version__)" 2>/dev/null) || installed_version="unknown"
+    fi
+
+    local target_label="Latest"
+    if [[ "$REQUESTED_VERSION" != "latest" ]]; then
+        target_label="Requested"
+    fi
+
+    echo ""
+    log_warn "mcp-hangar is already installed at ${INSTALL_DIR}"
+    echo -e "  ${BOLD}Installed:${NC}  ${MAGENTA}${installed_version}${NC}"
+    echo -e "  ${BOLD}${target_label}:${NC} ${CYAN}${RESOLVED_VERSION}${NC}"
+    echo ""
+
+    if [[ "$installed_version" == "$RESOLVED_VERSION" ]]; then
+        echo "You already have the latest version."
+        echo ""
+    fi
+
+    echo "Run again with one of the following to proceed:"
+    echo -e "  ${CYAN}--upgrade${NC}   Upgrade the existing installation in place"
+    echo -e "  ${CYAN}--force${NC}     Remove and reinstall from scratch"
+    echo ""
+    SKIP_FAILURE_NOTICE=true
+    exit 1
+}
+
+create_venv() {
+    local venv_dir="$1"
+    local backend="python -m venv"
+    if [[ "$HAVE_UV" == "true" ]]; then
+        backend="uv"
+    fi
+
+    log_info "Creating virtual environment (${backend})..."
 
     if [[ -d "$venv_dir" ]] && [[ "$FORCE" != "true" ]]; then
         if [[ "$UPGRADE" == "true" ]]; then
@@ -366,39 +415,63 @@ create_venv() {
         rm -rf "$venv_dir"
     fi
 
-    "$PYTHON_CMD" -m venv "$venv_dir" || die "Failed to create virtual environment"
+    if [[ "$HAVE_UV" == "true" ]]; then
+        uv venv "$venv_dir" --python "$PYTHON_CMD" --quiet || die "Failed to create virtual environment"
+    else
+        "$PYTHON_CMD" -m venv "$venv_dir" || die "Failed to create virtual environment"
+    fi
     log_success "Virtual environment created"
 }
 
 install_package() {
     local venv_dir="$1"
     local version="$2"
-    local pip_cmd="${venv_dir}/bin/pip"
-
-    # Ensure pip is up to date
-    log_info "Upgrading pip..."
-    if [[ "$DRY_RUN" != "true" ]]; then
-        "$pip_cmd" install --upgrade pip --quiet || log_warn "Failed to upgrade pip, continuing anyway"
-    fi
-
     local package_spec="$PACKAGE_NAME"
+
     if [[ "$version" != "latest" ]]; then
         package_spec="${PACKAGE_NAME}==${version}"
     fi
 
-    log_info "Installing ${package_spec}..."
+    if [[ "$HAVE_UV" == "true" ]]; then
+        # uv installs directly into the venv's interpreter; there's no
+        # separate pip-upgrade step and installs are dramatically faster.
+        log_info "Installing ${package_spec} (uv)..."
 
-    if [[ "$DRY_RUN" == "true" ]]; then
-        log_info "[dry-run] Would install $package_spec"
-        return 0
+        if [[ "$DRY_RUN" == "true" ]]; then
+            log_info "[dry-run] Would install $package_spec"
+            return 0
+        fi
+
+        local uv_opts=(pip install --python "${venv_dir}/bin/python" --quiet)
+        if [[ "$UPGRADE" == "true" ]]; then
+            uv_opts+=(--upgrade)
+        fi
+
+        uv "${uv_opts[@]}" "$package_spec" || die "Failed to install $package_spec"
+    else
+        local pip_cmd="${venv_dir}/bin/pip"
+
+        # Ensure pip is up to date
+        log_info "Upgrading pip..."
+        if [[ "$DRY_RUN" != "true" ]]; then
+            "$pip_cmd" install --upgrade pip --quiet || log_warn "Failed to upgrade pip, continuing anyway"
+        fi
+
+        log_info "Installing ${package_spec}..."
+
+        if [[ "$DRY_RUN" == "true" ]]; then
+            log_info "[dry-run] Would install $package_spec"
+            return 0
+        fi
+
+        local pip_opts=(--quiet)
+        if [[ "$UPGRADE" == "true" ]]; then
+            pip_opts+=(--upgrade)
+        fi
+
+        "$pip_cmd" install "${pip_opts[@]}" "$package_spec" || die "Failed to install $package_spec"
     fi
 
-    local pip_opts=(--quiet)
-    if [[ "$UPGRADE" == "true" ]]; then
-        pip_opts+=(--upgrade)
-    fi
-
-    "$pip_cmd" install "${pip_opts[@]}" "$package_spec" || die "Failed to install $package_spec"
     log_success "Installed $package_spec"
 }
 
@@ -513,8 +586,70 @@ verify_installation() {
     local installed_version
     installed_version=$("$python" -c "import mcp_hangar; print(mcp_hangar.__version__)" 2>/dev/null) || die "Installation verification failed: cannot import mcp_hangar"
 
+    if [[ "$REQUESTED_VERSION" != "latest" ]] && [[ "$installed_version" != "$REQUESTED_VERSION" ]]; then
+        die "Version mismatch: requested ${REQUESTED_VERSION} but ${installed_version} was installed"
+    fi
+
     RESOLVED_VERSION="$installed_version"
     log_success "mcp-hangar ${installed_version} installed successfully"
+}
+
+setup_completions() {
+    local venv_dir="$1"
+    local cli="${venv_dir}/bin/mcp-hangar"
+    local shell_name
+    local completion_output rc_file completion_line
+
+    # detect_shell echoes the shell name; callers must capture it via command
+    # substitution (a global would not survive the subshell).
+    shell_name="$(detect_shell)"
+
+    if [[ ! -x "$cli" ]]; then
+        return 0
+    fi
+
+    case "$shell_name" in
+        bash|zsh|fish) ;;
+        *)
+            log_debug "Shell completions not supported for '$shell_name'"
+            return 0
+            ;;
+    esac
+
+    log_info "Checking shell completion support..."
+
+    completion_output=$(SHELL="/bin/${shell_name}" "$cli" --show-completion 2>/dev/null) || {
+        log_debug "CLI does not support --show-completion; skipping completions"
+        return 0
+    }
+
+    if [[ -z "$completion_output" ]]; then
+        return 0
+    fi
+
+    completion_line="eval \"\$(${cli} --show-completion)\""
+
+    if [[ "$MODIFY_PATH" == "true" ]] && [[ -z "${MCP_HANGAR_NO_MODIFY_PATH:-}" ]]; then
+        rc_file=$(get_shell_rc_file "$shell_name")
+
+        if [[ -f "$rc_file" ]] && grep -q "MCP Hangar completions" "$rc_file" 2>/dev/null; then
+            log_debug "Completions already configured in $rc_file"
+            return 0
+        fi
+
+        mkdir -p "$(dirname "$rc_file")"
+        touch "$rc_file"
+        {
+            echo ""
+            echo "# MCP Hangar completions"
+            echo "$completion_line"
+        } >> "$rc_file"
+
+        log_success "Shell completions configured in $rc_file"
+    else
+        log_info "To enable shell completions, add this to your shell config:"
+        echo -e "  ${CYAN}${completion_line}${NC}"
+    fi
 }
 
 # ------------------------------------------------------------------------------
@@ -647,8 +782,52 @@ check_prerequisites() {
 
     # Optional: Check for uv (faster installs)
     if command_exists uv; then
-        log_success "uv found (faster package installation)"
+        HAVE_UV=true
+        log_success "uv found (will be used for a faster install)"
+    else
+        log_info "uv not found (falling back to python -m venv + pip)"
     fi
+}
+
+# ------------------------------------------------------------------------------
+# Failure handling / rollback
+# ------------------------------------------------------------------------------
+
+# Fires on any non-zero exit (explicit `die`, a `set -e` abort, or a signal).
+# If *this run* created INSTALL_DIR from scratch, remove the partial install
+# so a failed run never leaves a half-configured ~/.mcp-hangar behind. A
+# pre-existing installation being upgraded/forced is never touched.
+cleanup_on_failure() {
+    local exit_code=$?
+    trap - EXIT ERR INT TERM
+
+    if [[ "$exit_code" -ne 0 ]]; then
+        if [[ "$CREATED_DIR" == "true" ]] && [[ "$DRY_RUN" != "true" ]] && [[ -d "$INSTALL_DIR" ]]; then
+            log_warn "Rolling back partial install at ${INSTALL_DIR}"
+            rm -rf "$INSTALL_DIR"
+        fi
+
+        if [[ "$SKIP_FAILURE_NOTICE" != "true" ]]; then
+            echo "" >&2
+            log_error "Installation did not complete."
+            log_info "Re-run to try again:"
+            if [[ "${#ORIGINAL_ARGS[@]}" -gt 0 ]]; then
+                printf '  curl -sSL https://mcp-hangar.io/install.sh | bash -s --' >&2
+                printf ' %q' "${ORIGINAL_ARGS[@]}" >&2
+                printf '\n' >&2
+            else
+                echo "  curl -sSL https://mcp-hangar.io/install.sh | bash" >&2
+            fi
+        fi
+    fi
+
+    exit "$exit_code"
+}
+
+on_interrupt() {
+    echo "" >&2
+    log_warn "Interrupted"
+    exit 130
 }
 
 # ------------------------------------------------------------------------------
@@ -673,6 +852,9 @@ do_install() {
 
     echo ""
 
+    # If already installed, guide the user instead of failing blindly
+    check_existing_install "$venv_dir"
+
     # Confirm installation
     if [[ "$DRY_RUN" != "true" ]] && [[ "$NO_CONFIRM" != "true" ]]; then
         if ! confirm "Install mcp-hangar ${RESOLVED_VERSION} to ${INSTALL_DIR}?"; then
@@ -682,7 +864,12 @@ do_install() {
         echo ""
     fi
 
-    # Create installation directory
+    # Create installation directory. Track whether *this* run created it so
+    # a failed install can be rolled back without touching a pre-existing
+    # installation that's being upgraded/forced.
+    if [[ ! -e "$INSTALL_DIR" ]]; then
+        CREATED_DIR=true
+    fi
     if [[ "$DRY_RUN" != "true" ]]; then
         mkdir -p "$INSTALL_DIR"
     fi
@@ -701,6 +888,9 @@ do_install() {
 
     # Verify
     verify_installation "$venv_dir"
+
+    # Shell completions are a nice-to-have; never fail the install for them
+    setup_completions "$venv_dir" || log_debug "Shell completion setup skipped"
 }
 
 print_banner() {
@@ -802,6 +992,12 @@ Examples:
   # Uninstall
   curl -sSL https://mcp-hangar.io/install.sh | bash -s -- --uninstall
 
+Notes:
+  If uv (https://docs.astral.sh/uv/) is on PATH it is used to create the
+  virtual environment and install the package, which is significantly
+  faster than python -m venv + pip. Otherwise the installer falls back to
+  the standard library venv module and pip automatically.
+
 EOF
 }
 
@@ -856,6 +1052,10 @@ parse_args() {
 }
 
 main() {
+    ORIGINAL_ARGS=("$@")
+    trap cleanup_on_failure EXIT ERR TERM
+    trap on_interrupt INT
+
     setup_colors
     parse_args "$@"
 
