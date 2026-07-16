@@ -82,6 +82,7 @@ const SECTIONS: SectionDef[] = [
 const HIDDEN_IDS = new Set<string>([
   'code-of-conduct',
   'CONTRIBUTING', // root duplicate of development/CONTRIBUTING
+  'CHANGELOG', // uppercase root file; duplicates the lowercase `changelog` doc
 ]);
 
 /**
@@ -180,6 +181,9 @@ const LABEL_OVERRIDES: Record<string, string> = {
   'adr/ADR-005-sep-1763-interceptor-compliance': 'ADR-005 Interceptor Compliance',
   'adr/ADR-006-tetragon': 'ADR-006 Tetragon',
   'adr/ADR-007-langfuse-integration': 'ADR-007 Langfuse',
+  'adr/ADR-008-tasks-relay-only': 'ADR-008 Tasks Relay-Only',
+  'adr/ADR-009-independent-release-topology': 'ADR-009 Release Topology',
+  'adr/ADR-010-retire-agent-cloud-tier': 'ADR-010 Retire Agent/Cloud',
   'development/CONTRIBUTING': 'Contributing',
   'development/GIT_FLOW': 'Git Flow',
   'development/BRANCH_PROTECTION': 'Branch Protection',
@@ -217,8 +221,28 @@ function sectionFor(id: string): number {
   return SECTIONS.findIndex((s) => s.prefixes.some((p) => matchesPrefix(id, p)));
 }
 
+/**
+ * Tidies a fallback label derived from a doc title so the sidebar reads clean:
+ *   - drops a leading ordering prefix (`05 -- `, `01 — `) — the number is
+ *     redundant once the list is already sorted;
+ *   - keeps only the concise lead before a ` -- ` / em-dash subtitle separator.
+ * So `05 -- Load Balancing` -> `Load Balancing` and
+ * `ADR-009: … -- Core, Operator …` -> `ADR-009: …`. Single hyphens inside a word
+ * (`Relay-Only`) are untouched. Curated LABEL_OVERRIDES bypass this entirely.
+ */
+function cleanLabel(raw: string): string {
+  const tidy = raw
+    .trim()
+    .replace(/^\d+\s*[—–-]{1,2}\s*/, '')
+    .split(/\s+(?:--|[—–])\s+/)[0]
+    .trim();
+  return tidy || raw.trim();
+}
+
 function labelFor(doc: DocEntry): string {
-  return LABEL_OVERRIDES[doc.id] ?? doc.data.sidebar?.label ?? doc.data.title;
+  const override = LABEL_OVERRIDES[doc.id];
+  if (override !== undefined) return override;
+  return cleanLabel(doc.data.sidebar?.label ?? doc.data.title);
 }
 
 function toLink(doc: DocEntry): NavLink {

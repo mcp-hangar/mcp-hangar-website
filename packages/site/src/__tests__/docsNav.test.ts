@@ -86,6 +86,21 @@ describe('buildDocsNav', () => {
     expect(byHref['/docs/guides/NEW_PLAIN']).toBe('Plain Title');
   });
 
+  it('tidies fallback labels: strips the ordering prefix and any -- subtitle', () => {
+    const docs = [
+      doc('cookbook/05-load-balancing', '05 -- Load Balancing'),
+      doc('cookbook/01-http-gateway', '01 — HTTP Gateway'),
+      doc('guides/SOMETHING', 'Feature Name -- with a long subtitle'),
+      doc('guides/HYPHENATED', 'Read-Only Rootfs'),
+    ];
+    const { flat } = buildDocsNav(docs);
+    const byHref = Object.fromEntries(flat.map((l) => [l.href, l.label]));
+    expect(byHref['/docs/cookbook/05-load-balancing']).toBe('Load Balancing');
+    expect(byHref['/docs/cookbook/01-http-gateway']).toBe('HTTP Gateway');
+    expect(byHref['/docs/guides/SOMETHING']).toBe('Feature Name');
+    expect(byHref['/docs/guides/HYPHENATED']).toBe('Read-Only Rootfs'); // single hyphen in a word preserved
+  });
+
   it('counts numbered cookbook recipes, excluding the overview and non-cookbook docs', () => {
     const docs = [
       doc('cookbook/index', 'Overview'),
