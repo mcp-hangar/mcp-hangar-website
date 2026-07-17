@@ -43,7 +43,7 @@ import ScaleIcon from "../icons/ScaleIcon.astro";
                     <span class="text-emerald-400 mt-1 text-xs">&#9654;</span>
                     <div>
                         <span class="text-zinc-200 text-sm font-medium">Authentication</span>
-                        <p class="text-zinc-500 text-xs mt-0.5">API keys with bcrypt, JWT/OIDC, identity propagation to audit logs.</p>
+                        <p class="text-zinc-500 text-xs mt-0.5">API keys (SHA-256 at rest), JWT/OIDC, identity propagation to audit logs.</p>
                     </div>
                 </li>
                 <li class="flex items-start gap-2">
@@ -90,7 +90,7 @@ import ScaleIcon from "../icons/ScaleIcon.astro";
                     <span class="text-sky-400 mt-1 text-xs">&#9654;</span>
                     <div>
                         <span class="text-zinc-200 text-sm font-medium">Interceptor framework</span>
-                        <p class="text-zinc-500 text-xs mt-0.5">Hook-based event model with wildcard subscriptions. Discoverable interceptor sidecar.</p>
+                        <p class="text-zinc-500 text-xs mt-0.5">Hook-based event model with wildcard subscriptions. In-process interceptor invocation on the call path (experimental).</p>
                     </div>
                 </li>
             </ul>
@@ -149,7 +149,7 @@ import ScaleIcon from "../icons/ScaleIcon.astro";
                     <span class="text-amber-400 mt-1 text-xs">&#9654;</span>
                     <div>
                         <span class="text-zinc-200 text-sm font-medium">Audit trail</span>
-                        <p class="text-zinc-500 text-xs mt-0.5">Identity-aware logs. SOC2 evidence generation. EU AI Act readiness.</p>
+                        <p class="text-zinc-500 text-xs mt-0.5">Identity-aware logs. Exportable audit evidence for compliance workflows.</p>
                     </div>
                 </li>
                 <li class="flex items-start gap-2">
