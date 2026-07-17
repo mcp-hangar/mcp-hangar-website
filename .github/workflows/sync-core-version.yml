@@ -1,0 +1,76 @@
+# Keeps the site's advertised version (`config.ts` VERSION, which drives the hero
+# badge, footer "Install v…", and quickstart via VERSION_TAG) tracking the latest
+# published core (mcp-hangar) release, so the landing page never promotes a stale
+# version by hand. Pull-based (reads a public release); runs daily and on demand,
+# and opens a PR when the site is behind.
+name: sync-core-version
+
+on:
+  schedule:
+    - cron: "23 6 * * *" # daily; manual trigger covers "just released"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  pull-requests: write
+
+env:
+  # If an App-token secret is configured, open the PR with it (so any checks run);
+  # otherwise fall back to GITHUB_TOKEN — the PR still opens for a human to merge.
+  RELEASE_BOT_APP_ID: ${{ secrets.RELEASE_BOT_APP_ID }}
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/create-github-app-token@v1
+        id: app-token
+        if: ${{ env.RELEASE_BOT_APP_ID != '' }}
+        with:
+          app-id: ${{ secrets.RELEASE_BOT_APP_ID }}
+          private-key: ${{ secrets.RELEASE_BOT_PRIVATE_KEY }}
+
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ steps.app-token.outputs.token || secrets.GITHUB_TOKEN }}
+
+      - name: Compare site VERSION to the latest core release
+        id: v
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token || secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          core="$(gh release view -R mcp-hangar/mcp-hangar --json tagName --jq '.tagName' | sed 's/^v//')"
+          cur="$(sed -n 's/.*export const VERSION = "\([^"]*\)".*/\1/p' packages/site/src/config.ts | head -1)"
+          echo "core=$core" >> "$GITHUB_OUTPUT"
+          echo "cur=$cur"   >> "$GITHUB_OUTPUT"
+          if [ "$core" != "$cur" ] && [ "$(printf '%s\n%s\n' "$cur" "$core" | sort -V | tail -1)" = "$core" ]; then
+            echo "behind=true" >> "$GITHUB_OUTPUT"
+            echo "::notice::site VERSION $cur is behind core release $core — opening a bump PR."
+          else
+            echo "behind=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::site VERSION $cur is current with core $core — nothing to do."
+          fi
+
+      - name: Bump VERSION
+        if: steps.v.outputs.behind == 'true'
+        run: |
+          set -euo pipefail
+          sed -i "s/export const VERSION = \"[^\"]*\";/export const VERSION = \"${{ steps.v.outputs.core }}\";/" packages/site/src/config.ts
+          grep -n 'export const VERSION' packages/site/src/config.ts
+
+      - name: Open PR
+        if: steps.v.outputs.behind == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ steps.app-token.outputs.token || secrets.GITHUB_TOKEN }}
+          branch: chore/sync-core-version
+          delete-branch: true
+          commit-message: "site: bump advertised version to ${{ steps.v.outputs.core }}"
+          title: "site: bump advertised version to ${{ steps.v.outputs.core }}"
+          body: |
+            Automated by `sync-core-version` — the site's `config.ts` VERSION lagged the latest published core release.
+
+            Core released **${{ steps.v.outputs.core }}**; the site still advertised **${{ steps.v.outputs.cur }}** (hero badge, footer, quickstart). Bumps the single source (`VERSION`, which `VERSION_TAG` derives from).
+
+            Review the deploy preview before merging.
