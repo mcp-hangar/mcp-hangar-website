@@ -14,7 +14,7 @@ interface Props {
 const { title, description, path, keywords } = Astro.props;
 const siteUrl = 'https://mcp-hangar.io';
 const url = `${siteUrl}${path}`;
-const defaultKeywords = "MCP, Context Protocol, AI agents, LLM, governance, SSO, RBAC";
+const defaultKeywords = "MCP, Model Context Protocol, policy enforcement, admission control, Kubernetes, egress policy, governance, audit, SIEM";
 ---
 
 <!DOCTYPE html>
@@ -53,7 +53,7 @@ const defaultKeywords = "MCP, Context Protocol, AI agents, LLM, governance, SSO,
       "applicationCategory": "DeveloperApplication",
       "operatingSystem": "Linux, macOS, Windows",
       "url": siteUrl,
-      "description": "Open-source control plane for Model Context Protocol (MCP) servers. Authentication, access control, observability, and compliance for your MCP server fleet.",
+      "description": "Kubernetes-native policy enforcement plane for Model Context Protocol (MCP). Deterministic admission and egress policy, attributable audit with identity, and SIEM export (LEEF 2.0, RFC 5424 syslog, OTLP). MIT-licensed and self-hosted.",
       "license": "https://opensource.org/licenses/MIT",
       "softwareVersion": VERSION,
       "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
