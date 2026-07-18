@@ -12,6 +12,8 @@ updates:
     commit-message:
       prefix: "chore"
       include: "scope"
+    cooldown:
+      default-days: 7   # ~match pnpm minimumReleaseAge; nie proponuj za-świeżych wersji
     groups:
       root-minor-patch:
         update-types:
@@ -27,6 +29,8 @@ updates:
     commit-message:
       prefix: "chore"
       include: "scope"
+    cooldown:
+      default-days: 7   # ~match pnpm minimumReleaseAge; nie proponuj za-świeżych wersji
     groups:
       site-minor-patch:
         update-types:
