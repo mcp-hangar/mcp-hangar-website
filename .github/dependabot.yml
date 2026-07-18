@@ -1,53 +1,35 @@
-# Dependabot version-updates (security updates run separately). npm monorepo:
-# both the root and packages/site manifests. Grouped minor+patch so routine
-# bumps arrive as one reviewable PR; majors come individually.
+# Dependabot version-updates. pnpm workspace: the root manifest + lockfile
+# covers all workspace packages, so a separate /packages/site npm entry only
+# produced duplicate PRs (see #79/#81) and was removed.
 version: 2
 updates:
-  - package-ecosystem: "npm"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-    open-pull-requests-limit: 10
-    commit-message:
-      prefix: "chore"
-      include: "scope"
-    cooldown:
-      default-days: 7   # ~match pnpm minimumReleaseAge; nie proponuj za-świeżych wersji
-    groups:
-      root-minor-patch:
-        update-types:
-          - "minor"
-          - "patch"
-
-  - package-ecosystem: "npm"
-    directory: "/packages/site"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-    open-pull-requests-limit: 10
-    commit-message:
-      prefix: "chore"
-      include: "scope"
-    cooldown:
-      default-days: 7   # ~match pnpm minimumReleaseAge; nie proponuj za-świeżych wersji
-    groups:
-      site-minor-patch:
-        update-types:
-          - "minor"
-          - "patch"
-
-  - package-ecosystem: "github-actions"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-    open-pull-requests-limit: 5
-    commit-message:
-      prefix: "ci"
-      include: "scope"
-    groups:
-      github-actions:
-        update-types:
-          - "minor"
-          - "patch"
+- package-ecosystem: npm
+  directory: /
+  schedule:
+    interval: weekly
+    day: monday
+  open-pull-requests-limit: 10
+  commit-message:
+    prefix: chore
+    include: scope
+  cooldown:
+    default-days: 7
+  groups:
+    root-minor-patch:
+      update-types:
+      - minor
+      - patch
+- package-ecosystem: github-actions
+  directory: /
+  schedule:
+    interval: weekly
+    day: monday
+  open-pull-requests-limit: 5
+  commit-message:
+    prefix: ci
+    include: scope
+  groups:
+    github-actions:
+      update-types:
+      - minor
+      - patch
