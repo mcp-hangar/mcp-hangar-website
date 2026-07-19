@@ -1,0 +1,46 @@
+---
+title: "MCP Hangar v1.6 -- OTel Semantic Conventions, Transport Tracing, and the Egress-Policy Plane"
+date: 2026-07-19
+author: MCP Hangar Team
+description: "v1.6 puts Hangar's telemetry on the OpenTelemetry GenAI/MCP semantic conventions, traces the upstream call boundary end to end, and ships the L7 MCPEgressPolicy enforcement plane across core, operator, and Helm."
+tags: [mcp, mcp-hangar, observability, opentelemetry, tracing, enforcement, open-source]
+---
+
+# MCP Hangar v1.6 -- OTel Semantic Conventions, Transport Tracing, and the Egress-Policy Plane
+
+v1.5 opened the front door. v1.6 is about seeing through it -- and about the last mile of enforcement. Two themes: Hangar's telemetry now speaks the OpenTelemetry GenAI/MCP semantic conventions end to end, and the L7 `MCPEgressPolicy` enforcement plane is shipped across all three components (core `1.6.0`, operator `v0.14.0`, Helm charts).
+
+Upgrade is drop-in -- `pip install --upgrade mcp-hangar`, or pull `ghcr.io/mcp-hangar/mcp-hangar:1.6.0`. One breaking change for telemetry consumers is called out below and in the [upgrade guide](/docs/upgrade).
+
+## Telemetry that any OTel backend already understands
+
+Before v1.6, Hangar emitted its own `mcp.tool.*` and `mcp.cost.*` span attributes and a `tool.invoke.{tool}` span. Correct, but Hangar-specific -- a GenAI-aware backend or the OTel Collector needed custom mapping to make sense of it.
+
+v1.6 aligns tool-invocation telemetry to the OTel GenAI/MCP semantic conventions:
+
+- The tool name is `gen_ai.tool.name`; token usage is `gen_ai.usage.input_tokens` / `output_tokens`.
+- The span is `execute_tool {tool}` with `gen_ai.operation.name` and `mcp.method.name`.
+- Hangar's governance namespaces that have no semconv equivalent -- `mcp.enforcement.*`, `mcp.risk.*`, `mcp.audit.*`, `mcp.session.id` -- are unchanged.
+
+**This is breaking if you query or alert on Hangar's traces by attribute.** Rename `mcp.tool.name` to `gen_ai.tool.name` (and the cost-token attributes) in your saved queries. The [upgrade guide](/docs/upgrade) has the full list.
+
+## Tracing the upstream call boundary
+
+The outgoing call to an upstream MCP server is now a proper `SpanKind.CLIENT` span, and W3C trace context propagates across the boundary on both transports -- HTTP headers as before, and now the stdio transport via the MCP `_meta` field. So a distributed trace stays connected from the agent, through Hangar, to a stdio subprocess server. `OTEL_TRACES_SAMPLER` / `OTEL_TRACES_SAMPLER_ARG` are honored, and a failed tool call now marks its span `ERROR` -- so failures are findable in Jaeger/Tempo instead of looking like successful traces.
+
+There are new per-server transport metrics too -- `mcp_hangar_messages_sent_total`, `messages_received_total`, and a `mcp_hangar_message_size_bytes` histogram -- and two telemetry-health alerts (`MCPHangarTelemetryExportFailing`, `MCPHangarDiscoveryValidationFailing`) that page you when the pipeline itself breaks. Three never-emitted metrics were removed; drop any dashboard panel that referenced them.
+
+## The egress-policy plane, end to end
+
+`MCPEgressPolicy` -- the L7 half of Hangar's enforcement plane -- is now shipped across the stack. Declare, per MCP server or server group, a deny-by-default allow-list of upstreams (matched against the same digest/issuer primitives you already pin), plus deterministic tool-call and argument rules and a network backstop. The operator (`v0.14.0`) compiles the policy and pushes it to core, which enforces every tool call at the invocation chokepoint before it touches the wire. Audit-by-default, so you can watch before you block.
+
+The Helm chart now installs the `MCPEgressPolicy` CRD and grants the operator the RBAC to reconcile it, so the feature works from a plain `helm install`. See the [Egress Policy guide](/docs/guides/egress-policy) to get started.
+
+## Get it
+
+```bash
+pip install --upgrade mcp-hangar            # or: ghcr.io/mcp-hangar/mcp-hangar:1.6.0
+helm repo update && helm upgrade mcp-hangar mcp-hangar/mcp-hangar
+```
+
+As always, everything is MIT and self-hosted -- no SaaS.
