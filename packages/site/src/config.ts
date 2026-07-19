@@ -5,7 +5,7 @@
  * (hero badge/button, footer, quick-start output, structured data).
  * Bump this in one place when a new release ships.
  */
-export const VERSION = "1.5.1";
+export const VERSION = "1.6.0";
 
 /** Version prefixed with a leading "v", e.g. "v1.4.0". */
 export const VERSION_TAG = `v${VERSION}`;
