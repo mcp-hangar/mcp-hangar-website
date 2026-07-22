@@ -391,25 +391,25 @@ const statusText = (s: string) => (s === 'ship' ? '1.6.0' : 'v2 preview');
      neutral like the rest of the map; only the active mark uses brand. ---- */
   .learn-hub .plane {
     border: 1px dashed var(--line-2); border-radius: 12px; background: var(--panel-2);
-    padding: 11px 12px 12px; margin-bottom: 4px;
+    padding: 11px 12px 12px; margin-bottom: 10px;
   }
   .learn-hub .planehead { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
   .learn-hub .planetag {
-    font-size: 10.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .09em; color: var(--muted);
+    font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .09em; color: var(--muted);
     border: 1px solid var(--line-2); border-radius: 999px; padding: 2px 9px;
   }
-  .learn-hub .planewhen { font-size: 11.5px; color: var(--faint); }
+  .learn-hub .planewhen { font-size: 12.5px; color: var(--faint); }
   .learn-hub .planerow { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-  .learn-hub .pbox { padding: 10px 12px; display: flex; flex-direction: column; }
-  .learn-hub .pbox .ph { font-weight: 700; font-size: 12.5px; color: var(--ink); }
-  .learn-hub .pbox .pd { font-size: 11px; color: var(--muted); margin-top: 2px; }
-  .learn-hub .planenote { font-size: 11px; color: var(--faint); margin-top: 9px; }
+  .learn-hub .pbox { padding: 12px 14px; display: flex; flex-direction: column; }
+  .learn-hub .pbox .ph { font-weight: 700; font-size: 13.5px; color: var(--ink); }
+  .learn-hub .pbox .pd { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .learn-hub .planenote { font-size: 12px; color: var(--faint); margin-top: 9px; }
   .learn-hub .planenote code, .learn-hub .asyncnote code, .learn-hub .naside code {
     font-family: var(--font-mono, ui-monospace, monospace); font-size: .92em; color: var(--ink-2);
   }
 
   /* the seam between the two planes — signals a change of plane + moment */
-  .learn-hub .planegap { display: flex; align-items: center; gap: 12px; margin: 10px 2px 12px; }
+  .learn-hub .planegap { display: flex; align-items: center; gap: 12px; margin: 20px 2px 20px; }
   .learn-hub .planegap .gapline { flex: 1; height: 1px; background: var(--line); }
   .learn-hub .planegap .gaptext { font-size: 10.5px; text-transform: uppercase; letter-spacing: .08em; color: var(--faint); font-weight: 700; }
 
@@ -423,22 +423,22 @@ const statusText = (s: string) => (s === 'ship' ? '1.6.0' : 'v2 preview');
 
   /* spine endpoints (client / auth / upstream) */
   .learn-hub .node {
-    padding: 12px 14px; display: flex; flex-direction: column;
+    padding: 14px 16px; display: flex; flex-direction: column;
     border-style: dashed; border-color: var(--line-2);
   }
-  .learn-hub .node .nt { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--faint); font-weight: 700; }
-  .learn-hub .node .nh { font-weight: 700; font-size: 14.5px; margin: 4px 0 3px; color: var(--ink); }
-  .learn-hub .node .nd { font-size: 12px; color: var(--muted); }
-  .learn-hub .node .naside { font-size: 10.5px; color: var(--faint); margin-top: 6px; padding-top: 6px; border-top: 1px dotted var(--line-2); }
+  .learn-hub .node .nt { font-size: 11.5px; text-transform: uppercase; letter-spacing: .08em; color: var(--faint); font-weight: 700; }
+  .learn-hub .node .nh { font-weight: 700; font-size: 16px; margin: 4px 0 3px; color: var(--ink); }
+  .learn-hub .node .nd { font-size: 13px; color: var(--muted); }
+  .learn-hub .node .naside { font-size: 11.5px; color: var(--faint); margin-top: 6px; padding-top: 6px; border-top: 1px dotted var(--line-2); }
 
   /* the enforcement seam — the dense, ORDERED pipeline: the tall centrepiece */
   .learn-hub .seam {
     border: 1px solid color-mix(in srgb, var(--brand) 40%, var(--line));
-    background: linear-gradient(180deg, var(--brand-dim), var(--panel)); border-radius: 12px; padding: 12px 11px;
+    background: linear-gradient(180deg, var(--brand-dim), var(--panel)); border-radius: 12px; padding: 14px 13px;
   }
-  .learn-hub .seam .seamlabel { text-align: center; font-size: 11px; text-transform: uppercase; letter-spacing: .1em; color: var(--brand); font-weight: 800; }
-  .learn-hub .seam .seamsub { text-align: center; font-size: 11px; color: var(--faint); margin: 2px 0 8px; }
-  .learn-hub .pipelegend { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; font-size: 10px; color: var(--faint); }
+  .learn-hub .seam .seamlabel { text-align: center; font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color: var(--brand); font-weight: 800; }
+  .learn-hub .seam .seamsub { text-align: center; font-size: 12px; color: var(--faint); margin: 2px 0 8px; }
+  .learn-hub .pipelegend { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; font-size: 11px; color: var(--faint); }
   .learn-hub .pipelegend span { display: inline-flex; align-items: center; gap: 5px; }
   .learn-hub .pipelegend .k { width: 9px; height: 9px; border-radius: 2px; }
   .learn-hub .pipelegend .k-gate { background: var(--ink-2); }
@@ -446,17 +446,17 @@ const statusText = (s: string) => (s === 'ship' ? '1.6.0' : 'v2 preview');
   .learn-hub .pipelegend .k-off { background: transparent; border: 1px dashed var(--line-2); }
 
   /* the ordered pipeline: top -> bottom is execution order (a spine + ordinals) */
-  .learn-hub .pipe { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; position: relative; }
-  .learn-hub .step { width: 100%; padding: 8px 10px; display: flex; align-items: flex-start; gap: 9px; }
+  .learn-hub .pipe { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; position: relative; }
+  .learn-hub .step { width: 100%; padding: 10px 12px; display: flex; align-items: flex-start; gap: 10px; }
   .learn-hub .step .sord {
-    flex: 0 0 auto; width: 17px; height: 17px; border-radius: 50%; display: grid; place-items: center; margin-top: 1px;
-    font-family: var(--font-mono, ui-monospace, monospace); font-size: 10px; font-weight: 700;
+    flex: 0 0 auto; width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; margin-top: 1px;
+    font-family: var(--font-mono, ui-monospace, monospace); font-size: 11px; font-weight: 700;
     color: var(--muted); background: var(--raise); border: 1px solid var(--line-2);
   }
   .learn-hub .step .sbody { display: flex; flex-direction: column; min-width: 0; }
-  .learn-hub .step .sh { font-weight: 700; font-size: 12.5px; color: var(--ink); display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
-  .learn-hub .step .sd { font-size: 11px; color: var(--muted); margin-top: 1px; }
-  .learn-hub .step .sstat { font-size: 10px; color: var(--faint); margin-top: 4px; }
+  .learn-hub .step .sh { font-weight: 700; font-size: 14px; color: var(--ink); display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+  .learn-hub .step .sd { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .learn-hub .step .sstat { font-size: 11px; color: var(--faint); margin-top: 4px; }
 
   /* PRIMARY governance gates: solid, full-contrast, prominent */
   .learn-hub .step.is-gate { border-color: var(--line-2); }
@@ -490,7 +490,7 @@ const statusText = (s: string) => (s === 'ship' ? '1.6.0' : 'v2 preview');
 
   /* async branch — hangs off the upstream RESPONSE (not a client-chosen lane) */
   .learn-hub .asyncwrap {
-    margin-top: 12px; border: 1px dashed var(--line-2); border-radius: 12px; background: var(--panel-2);
+    margin-top: 22px; border: 1px dashed var(--line-2); border-radius: 12px; background: var(--panel-2);
     padding: 11px 12px 12px;
   }
   .learn-hub .asynclead { font-size: 12px; color: var(--ink-2); font-weight: 600; margin-bottom: 10px; }
@@ -525,7 +525,7 @@ const statusText = (s: string) => (s === 'ship' ? '1.6.0' : 'v2 preview');
 
   /* cross-cutting audit band spanning under the per-request path */
   .learn-hub .auditband {
-    margin-top: 12px; width: 100%; display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    margin-top: 20px; width: 100%; display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
     padding: 12px 14px; border-style: dashed; border-color: var(--line-2);
     background: var(--panel-2);
   }
@@ -647,15 +647,27 @@ const statusText = (s: string) => (s === 'ship' ? '1.6.0' : 'v2 preview');
     // architecture map: click a control -> filter the grid by its own slug set
     controls.forEach(c =>
       c.addEventListener('click', () => {
+        let applying: boolean;
         if (active.control === c) {
           active.control = null;
           active.mapSlugs = null;
+          applying = false;
         } else {
           active.control = c;
           active.mapSlugs = new Set((c.dataset.filter || '').split(/\s+/).filter(Boolean));
+          applying = true;
         }
         markControls();
         apply();
+        // On APPLY (a box was selected), bring the filtered results into view so
+        // the "N of M" count + cards are visible. On toggle-off, don't scroll.
+        if (applying) {
+          const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+          document.querySelector('.facets')?.scrollIntoView({
+            behavior: reduce ? 'auto' : 'smooth',
+            block: 'start',
+          });
+        }
       })
     );
 
