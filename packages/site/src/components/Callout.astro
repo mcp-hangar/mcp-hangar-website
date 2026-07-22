@@ -1,0 +1,43 @@
+---
+interface Props {
+    variant?: "preview" | "note";
+    class?: string;
+}
+
+const { variant = "note", class: className = "" } = Astro.props;
+
+const variants = {
+    // "Landing in 2.0" preview banner -- amber/warning accent, distinct from
+    // the emerald "shipped" surfaces so it reads as a not-yet/coming signal.
+    preview: {
+        wrap: "bg-amber-500/[0.06] border-amber-500/20 text-amber-100/90",
+        label: "Landing in 2.0",
+        labelClass: "bg-amber-500/10 border-amber-500/30 text-amber-300",
+        dot: "bg-amber-400",
+        showDot: true,
+    },
+    note: {
+        wrap: "bg-zinc-900/40 border-zinc-800/60 text-zinc-300",
+        label: "Note",
+        labelClass: "bg-zinc-800/60 border-zinc-700/50 text-zinc-400",
+        dot: "bg-zinc-500",
+        showDot: false,
+    },
+};
+
+const v = variants[variant] ?? variants.note;
+---
+
+<aside class={`not-prose my-6 p-4 sm:p-5 rounded-2xl border ${v.wrap} ${className}`} role="note">
+    <div class="flex items-center gap-2 mb-2">
+        <span
+            class={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border text-[11px] font-semibold uppercase tracking-wider ${v.labelClass}`}
+        >
+            {v.showDot && <span class={`w-1.5 h-1.5 rounded-full ${v.dot} animate-pulse`} aria-hidden="true" />}
+            {v.label}
+        </span>
+    </div>
+    <div class="text-sm leading-relaxed [&_code]:text-inherit [&_code]:font-mono [&_strong]:font-semibold [&_p]:m-0 [&_p+p]:mt-2">
+        <slot />
+    </div>
+</aside>
