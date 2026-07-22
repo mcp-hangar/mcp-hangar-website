@@ -1,0 +1,83 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+const entries = await getCollection('learn');
+const sorted = entries.sort((a, b) => b.data.updated.valueOf() - a.data.updated.valueOf());
+const [featured, ...rest] = sorted;
+
+const fmtDate = (d: Date) =>
+  d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+---
+
+<Base title="Learn | MCP Hangar" description="Evergreen concepts and architecture for the MCP Hangar enforcement plane." path="/learn">
+  <main class="max-w-5xl mx-auto px-6 py-16">
+    <div class="mb-12">
+      <h1 class="text-4xl font-bold text-zinc-50 mb-2">Learn</h1>
+      <p class="text-zinc-500">Evergreen concepts and architecture behind the enforcement plane.</p>
+    </div>
+
+    <!-- Featured (most recently updated) entry -->
+    {featured && (
+      <a href={`/learn/${featured.id}`} class="group block mb-12">
+        <article class="relative p-8 rounded-2xl bg-zinc-900/40 border border-zinc-800/50 hover:border-emerald-500/20 transition-all duration-300 hover:shadow-lg hover:shadow-emerald-500/5 overflow-hidden">
+          <div class="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+          <div class="relative">
+            <span class="inline-block px-2.5 py-0.5 text-xs font-medium rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 mb-4 capitalize">
+              {featured.data.section}
+            </span>
+            <h2 class="text-2xl md:text-3xl font-bold text-zinc-100 mb-3 group-hover:text-emerald-300 transition-colors">
+              {featured.data.title}
+            </h2>
+            <p class="text-sm text-zinc-500">Updated {fmtDate(featured.data.updated)}</p>
+            <p class="text-zinc-400 mt-4 text-lg leading-relaxed max-w-3xl">
+              {featured.data.description}
+            </p>
+            {featured.data.tags && (
+              <div class="flex flex-wrap gap-2 mt-4">
+                {featured.data.tags.map(tag => (
+                  <span class="px-2 py-0.5 text-xs rounded-md bg-zinc-800/70 text-zinc-500 border border-zinc-700/50">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
+            <span class="inline-flex items-center gap-1 mt-6 text-sm text-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity">
+              Read <span class="group-hover:translate-x-0.5 transition-transform">&rarr;</span>
+            </span>
+          </div>
+        </article>
+      </a>
+    )}
+
+    <!-- Remaining entries -->
+    {rest.length > 0 && (
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        {rest.map(entry => (
+          <a href={`/learn/${entry.id}`} class="group block">
+            <article class="h-full p-6 rounded-xl bg-zinc-900/30 border border-zinc-800/50 hover:border-emerald-500/15 hover:bg-zinc-900/50 transition-all duration-300">
+              <span class="inline-block px-2 py-0.5 text-[11px] font-medium rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 capitalize">
+                {entry.data.section}
+              </span>
+              <h2 class="text-lg font-semibold text-zinc-100 mt-3 mb-2 group-hover:text-emerald-300 transition-colors leading-snug">
+                {entry.data.title}
+              </h2>
+              <p class="text-sm text-zinc-500 leading-relaxed line-clamp-2">
+                {entry.data.description}
+              </p>
+              {entry.data.tags && (
+                <div class="flex flex-wrap gap-1.5 mt-3">
+                  {entry.data.tags.map(tag => (
+                    <span class="px-1.5 py-0.5 text-[11px] rounded bg-zinc-800/70 text-zinc-600">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </article>
+          </a>
+        ))}
+      </div>
+    )}
+  </main>
+</Base>
