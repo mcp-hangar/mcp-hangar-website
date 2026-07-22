@@ -63,6 +63,11 @@ spec:
         <div class="mt-3">
           <CodeBlock client:load language="bash">{`kubectl apply -f gh-only.yaml`}</CodeBlock>
         </div>
+        <p class="text-zinc-500 text-xs mt-3">
+          The tool allow/deny rules enforce on any cluster. Pinning egress to an
+          <span class="text-zinc-400">FQDN</span> upstream like <code class="text-zinc-400">api.github.com</code>
+          at the network layer needs the Cilium backstop flavor — on a vanilla cluster, use a CIDR upstream instead.
+        </p>
       </Step>
 
       <Step
