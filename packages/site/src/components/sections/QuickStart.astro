@@ -2,7 +2,6 @@
 import StepList from "../StepList.astro";
 import Step from "../Step.astro";
 import { CodeBlock } from "../CodeBlock.tsx";
-import { VERSION } from "../../config";
 ---
 
 <section class="max-w-6xl mx-auto px-6 pb-32">
@@ -11,7 +10,7 @@ import { VERSION } from "../../config";
       Quick Start
     </h2>
     <p class="text-zinc-400 text-lg">
-      From install to first parallel call in 2 minutes.
+      From operator install to your first allowed-vs-denied tool call.
     </p>
   </div>
 
@@ -19,58 +18,67 @@ import { VERSION } from "../../config";
     <StepList>
       <Step
         number={1}
-        title="Install the agent"
-        description="Install from PyPI with pip or uv. Works on macOS, Linux, and Windows."
+        title="Install the operator"
+        description="Install the MCP-Hangar Operator with Helm. It brings the CRDs — including MCPEgressPolicy — and reconciles policy into the cluster."
       >
-        <CodeBlock client:load language="bash">{`pip install mcp-hangar`}</CodeBlock>
+        <CodeBlock client:load language="bash">{`helm install mcp-hangar-operator \\
+  oci://ghcr.io/mcp-hangar/charts/mcp-hangar-operator \\
+  --namespace mcp-hangar --create-namespace \\
+  --set hangar.url=http://mcp-hangar-core:8080
+
+kubectl get pods -n mcp-hangar`}</CodeBlock>
       </Step>
 
       <Step
         number={2}
-        title="Configure MCP servers"
-        description="The wizard detects your runtimes, lets you pick MCP servers, and configures Claude Desktop automatically."
+        title="Opt a namespace into enforcement"
+        description="Label the target namespace so the default-deny egress backstop is in place — the backstop is what makes the policy enforcement rather than a suggestion."
       >
-        <CodeBlock client:load language="yaml">{`# ~/.config/mcp-hangar/config.yaml
-mcp_servers:
-  filesystem:
-    mode: subprocess
-    command: [npx, -y, "@modelcontextprotocol/server-filesystem"]
-    args: [/Users/you/Documents]
-    idle_ttl_s: 300
-
-  fetch:
-    mode: subprocess
-    command: [npx, -y, "@modelcontextprotocol/server-fetch"]
-    idle_ttl_s: 300
-
-  memory:
-    mode: subprocess
-    command: [npx, -y, "@modelcontextprotocol/server-memory"]
-    idle_ttl_s: 300`}</CodeBlock>
+        <CodeBlock client:load language="bash">{`kubectl label namespace prod mcp-hangar.io/enforce-egress=true`}</CodeBlock>
       </Step>
 
       <Step
         number={3}
-        title="Start the server"
-        description="Launch the agent. MCP servers come online and are ready to serve tool calls."
+        title="Apply an egress policy"
+        description="Deny by default; allow only read-only GitHub tools and pin egress to a single upstream. Enforce mode blocks everything else."
       >
-        <CodeBlock client:load language="bash">{`$ mcp-hangar serve
-Starting MCP Hangar v${VERSION}...
-  ● filesystem  ready  (245ms)
-  ● fetch       ready  (189ms)
-  ● memory      ready  (156ms)
-→ 3 servers ready | 12 tools | parallel execution enabled`}</CodeBlock>
+        <CodeBlock client:load language="yaml">{`# gh-only.yaml
+apiVersion: mcp-hangar.io/v1alpha2
+kind: MCPEgressPolicy
+metadata:
+  name: gh-only
+  namespace: prod
+spec:
+  mode: Enforce            # Audit observes; Enforce blocks
+  targetRef:
+    kind: MCPServer
+    name: srv
+  defaultAction: Deny      # tool names no rule matches are denied
+  upstreams:
+    - name: github
+      match:
+        host: api.github.com
+      tools:
+        allow: ["get_*", "list_*"]`}</CodeBlock>
+        <div class="mt-3">
+          <CodeBlock client:load language="bash">{`kubectl apply -f gh-only.yaml`}</CodeBlock>
+        </div>
       </Step>
 
       <Step
         number={4}
-        title="You're ready"
-        description="Restart Claude Desktop. Your tools are available with parallel execution, health monitoring, and circuit breakers — all out of the box."
+        title="See allowed vs denied"
+        description="Confirm the policy compiled and the network backstop is live. Read-only calls now pass; everything else fails closed before it reaches the upstream."
         isLast
       >
-        <div class="flex items-center gap-3 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+        <CodeBlock client:load language="bash">{`$ kubectl -n prod get mcpegresspolicy gh-only \\
+    -o jsonpath='{range .status.conditions[*]}{.type}={.status}{"\\n"}{end}'
+Compiled=True
+BackstopApplied=True
+Degraded=False`}</CodeBlock>
+        <div class="mt-4 flex items-center gap-3 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
           <span class="text-emerald-400 text-lg">[ok]</span>
-          <span class="text-emerald-300 font-medium">3 servers ready · 12 tools · parallel execution enabled</span>
+          <span class="text-emerald-300 font-medium">get_* / list_* allowed · everything else denied · egress pinned to api.github.com</span>
         </div>
       </Step>
     </StepList>
