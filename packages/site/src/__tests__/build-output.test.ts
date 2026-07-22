@@ -149,6 +149,22 @@ describe('Build Output', () => {
       expect(md).not.toContain('<footer');
     });
 
+    it('should include a Learn section in llms.txt with .md links', () => {
+      const content = readDistFile('llms.txt');
+      expect(content).toContain('## Learn');
+      // Learn entries link to raw .md endpoints under /learn/
+      expect(content).toMatch(/\]\(https:\/\/mcp-hangar\.io\/learn\/[^)]+\.md\)/);
+    });
+
+    it('should generate .md endpoints for learn entries', () => {
+      const files = fs.readdirSync(path.join(process.cwd(), 'dist', 'learn'))
+        .filter(f => f.endsWith('.md'));
+      expect(files.length).toBeGreaterThan(0);
+      const md = readDistFile(`learn/${files[0]}`);
+      expect(md).toContain('Source: https://mcp-hangar.io/learn/');
+      expect(md).not.toContain('<nav');
+    });
+
     it('should generate .md endpoints for blog posts', () => {
       const files = fs.readdirSync(path.join(process.cwd(), 'dist', 'blog'))
         .filter(f => f.endsWith('.md'));

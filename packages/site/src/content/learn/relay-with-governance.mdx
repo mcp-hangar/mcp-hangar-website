@@ -4,6 +4,11 @@ description: "An MCP task hands the caller a promise the work will finish later.
 updated: 2026-07-20
 section: concepts
 tags: [concepts, tasks, governance, architecture, async, mcp, adr-014]
+type: Concept
+level: Deep
+time: "10 min"
+theme: async
+status: preview
 ---
 
 import Callout from '../../components/Callout.astro';
@@ -254,7 +259,6 @@ carrying `tenant_id` and `correlation_id`:
 
 ```
 TaskCreated          # emitted at relay time, before the handle reaches the client
-TaskInputRequired    # paused, awaiting consent
 TaskConsentDecided   # accept / decline, with principal attribution
 TaskCompleted        # working -> completed, deduped to fire exactly once
 TaskFailed           # incl. digest drift, evicted binding, consent denied
@@ -262,8 +266,15 @@ TaskCancelled        # only on confirmed upstream cancel
 DigestMismatchInTask # the async supply-chain event
 ```
 
-The full lifecycle of any relayed task is reconstructable from that stream. This
-is the same forensic non-repudiation the synchronous call path already gives you
+Six events, and the code path emits exactly these six. ADR-014's Decision 3 also
+names a `TaskInputRequired` transition in the lifecycle set, but on the v2 preview
+that event is defined and metered, not emitted -- an `input_required` status is
+handled inline by the consent gate above, and the decision it produces is what
+lands on the chain as `TaskConsentDecided`. Every *emitted* transition of a
+relayed task is on that stream, so its governed lifecycle -- who invoked it, under
+which pinned contract, and how each decision resolved -- is reconstructable from
+the chain. This is the same forensic non-repudiation the synchronous call path
+already gives you
 -- who invoked what, under which pinned contract, with what verdict -- now
 extended to the one call-shape that used to be a blind spot. Async tasks were the
 last governed call-shape that was dark. Relay-with-governance is what turns them
@@ -295,8 +306,8 @@ proportion to how thin it is.
 
 ## What's coming, and what isn't yet
 
-The 2026-07-28 protocol handshake and the [SEP-2663](https://modelcontextprotocol.io/)
-Tasks reshape change *how* mid-flight input is resolved: the modern surface drives
+The 2026-07-28 protocol handshake and the SEP-2663 Tasks reshape change *how*
+mid-flight input is resolved: the modern surface drives
 an inbound `tasks/update` instead of a synchronous elicit, and `tasks/list` folds
 away. The relay seam already carries a governed `tasks/update` handler, registered
 only when the SDK defines its type, so the served surface tracks the negotiated

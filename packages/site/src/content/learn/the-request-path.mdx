@@ -1,0 +1,159 @@
+---
+title: "The request path"
+description: "A visual walk from the client, through the enforcement seam, to the upstream — and where each control fires."
+type: Visual
+level: Intro
+time: "3 min"
+theme: foundations
+status: ship
+updated: 2026-07-22
+tags: [foundations, architecture, enforcement, egress-policy, proxy]
+---
+
+# The request path
+
+Hangar is a proxy. A client's `tools/call` goes in one side, the upstream MCP
+server's result comes back the other, and every control Hangar enforces gets its
+turn on the *same* path the call already travels. There is no side channel and no
+background pass. Governance is whatever fires between the client and the upstream,
+in order, synchronously, on the way through.
+
+This page is that path, drawn once. Follow the request down the spine, watch each
+control fire at the seam, and follow the result back up.
+
+<figure>
+<svg viewBox="0 0 760 740" role="img" aria-labelledby="rp-title rp-desc" font-family="ui-sans-serif, system-ui, -apple-system, sans-serif" style="width:100%;height:auto;max-width:760px;color:inherit">
+  <title id="rp-title">The Hangar request path</title>
+  <desc id="rp-desc">A client's tool call travels down through the Hangar enforcement seam — identity, contract, and egress policy — is relayed to the upstream behind an L3/L4 network backstop, and the governed result returns up the right-hand side through redaction and audit.</desc>
+
+  <defs>
+    <marker id="rp-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="currentColor"/>
+    </marker>
+  </defs>
+
+  
+  <rect x="270" y="24" width="220" height="56" rx="10" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <text x="380" y="49" text-anchor="middle" font-size="15" font-weight="600" fill="currentColor">Client / agent</text>
+  <text x="380" y="68" text-anchor="middle" font-size="12" fill="currentColor" opacity="0.7">sends tools/call</text>
+
+  
+  <line x1="380" y1="80" x2="380" y2="118" stroke="currentColor" stroke-width="1.5" marker-end="url(#rp-arrow)"/>
+
+  
+  <rect x="150" y="122" width="460" height="428" rx="14" fill="currentColor" fill-opacity="0.04" stroke="currentColor" stroke-width="1.5"/>
+  <text x="170" y="150" font-size="14" font-weight="700" fill="currentColor">Enforcement seam · the Hangar proxy</text>
+
+  
+  <rect x="180" y="166" width="400" height="66" rx="10" fill="none" stroke="currentColor" stroke-width="1.25"/>
+  <text x="196" y="192" font-size="14" font-weight="600" fill="currentColor">1 · Identity</text>
+  <text x="196" y="212" font-size="12" fill="currentColor" opacity="0.75">Front-door auth resolves tenant + principal.</text>
+  <text x="196" y="227" font-size="12" fill="currentColor" opacity="0.75">Unauthenticated → rejected here.</text>
+
+  <line x1="380" y1="232" x2="380" y2="252" stroke="currentColor" stroke-width="1.25" marker-end="url(#rp-arrow)"/>
+
+  
+  <rect x="180" y="252" width="400" height="66" rx="10" fill="none" stroke="currentColor" stroke-width="1.25"/>
+  <text x="196" y="278" font-size="14" font-weight="600" fill="currentColor">2 · Contract</text>
+  <text x="196" y="298" font-size="12" fill="currentColor" opacity="0.75">Tool-schema digest is pinned and verified.</text>
+  <text x="196" y="313" font-size="12" fill="currentColor" opacity="0.75">Drift from the pinned contract fails closed.</text>
+
+  <line x1="380" y1="318" x2="380" y2="338" stroke="currentColor" stroke-width="1.25" marker-end="url(#rp-arrow)"/>
+
+  
+  <rect x="180" y="338" width="400" height="98" rx="10" fill="none" stroke="currentColor" stroke-width="1.25"/>
+  <text x="196" y="364" font-size="14" font-weight="600" fill="currentColor">3 · Egress policy (L7)</text>
+  <text x="196" y="384" font-size="12" fill="currentColor" opacity="0.75">Tool-name globs: deny &gt; requireApproval &gt; allow &gt; default.</text>
+  <text x="196" y="401" font-size="12" fill="currentColor" opacity="0.75">Argument scan: secret patterns + max payload size.</text>
+  <text x="196" y="424" font-size="12" fill="currentColor" opacity="0.9" font-weight="600">Under mode: Enforce, deny/requireApproval block (fails closed).</text>
+
+  
+  <line x1="180" y1="452" x2="580" y2="452" stroke="currentColor" stroke-width="1" stroke-dasharray="3 3" opacity="0.5"/>
+  <text x="380" y="474" text-anchor="middle" font-size="12" fill="currentColor" opacity="0.8">Every verdict is deterministic — no scores, no heuristics —</text>
+  <text x="380" y="491" text-anchor="middle" font-size="12" fill="currentColor" opacity="0.8">and written to the append-only provenance chain.</text>
+  <text x="380" y="527" text-anchor="middle" font-size="13" fill="currentColor" font-weight="600">Allowed calls are relayed, untouched, to the owner.</text>
+
+  
+  <line x1="380" y1="550" x2="380" y2="592" stroke="currentColor" stroke-width="1.5" marker-end="url(#rp-arrow)"/>
+  <text x="392" y="577" font-size="12" fill="currentColor" opacity="0.8">relay</text>
+
+  
+  <line x1="120" y1="608" x2="640" y2="608" stroke="currentColor" stroke-width="2" stroke-dasharray="8 5"/>
+  <text x="120" y="626" font-size="12" fill="currentColor" opacity="0.85">L3/L4 network backstop · NetworkPolicy / Cilium — the seam cannot be bypassed</text>
+
+  <line x1="380" y1="608" x2="380" y2="648" stroke="currentColor" stroke-width="1.5" marker-end="url(#rp-arrow)"/>
+
+  
+  <rect x="270" y="650" width="220" height="60" rx="10" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <text x="380" y="677" text-anchor="middle" font-size="15" font-weight="600" fill="currentColor">Upstream MCP server</text>
+  <text x="380" y="697" text-anchor="middle" font-size="12" fill="currentColor" opacity="0.7">owns and runs the work</text>
+
+  
+  <path d="M490 680 H680 V52 H492" fill="none" stroke="currentColor" stroke-width="1.5" stroke-opacity="0.6" marker-end="url(#rp-arrow)"/>
+  <text x="688" y="372" font-size="12" fill="currentColor" opacity="0.85" transform="rotate(-90 688 372)" text-anchor="middle">result → redact secrets → audit → client</text>
+</svg>
+<figcaption>The request travels down the spine; the governed result returns up the right. Every control fires on the same synchronous path.</figcaption>
+</figure>
+
+## The stages, one caption each
+
+**Client / agent.** A tool call enters carrying a token. Nothing about it is
+trusted yet.
+
+**1 · Identity.** The front door authenticates the caller and resolves it to a
+tenant and principal. This binding is what every later control keys off. An
+unauthenticated caller never reaches stage 2 — it is rejected at the door.
+
+**2 · Contract.** The call is checked against the per-tenant tool-schema pin — the
+digest of the exact contract the caller was authorized for, referenced by the
+policy's `toolSchemaDigestRef`. If the upstream tool has drifted from that pinned
+digest, the path fails closed rather than invoke a contract nobody signed off on.
+
+**3 · Egress policy (L7).** This is the semantic gate. Tool names are matched by
+glob in a fixed precedence — **deny beats requireApproval beats allow beats the
+policy's default action** — and arguments are scanned for configured secret
+patterns and an oversized payload. A secret or an outsized payload **denies the
+call even when the tool name is allowed**: deny always wins. `requireApproval` is
+a hard gate — the call is **blocked pending out-of-band approval**. It is
+enforcement, not an interactive queue; the request stops, it does not hang waiting
+for a click.
+
+Whether stage 3 blocks at all is opt-in. A policy's `spec.mode` defaults to
+**`Audit`** — every verdict above is computed and recorded, but nothing is
+refused; the seam observes. Only under **`mode: Enforce`** do deny and
+`requireApproval` actually stop the call. The blocking picture on this page is the
+Enforce-mode picture; Audit is the adoption path you start on.
+
+**L3/L4 network backstop.** Underneath the L7 seam, the operator compiles the same
+policy into a `NetworkPolicy` (or a `CiliumNetworkPolicy` for FQDN upstreams) that
+default-denies the server's egress to everything but the allow-listed hosts. This
+is the layer that makes the whole path *enforcement* rather than a suggestion: a
+policy without the backstop is bypassable, and Hangar fails it closed rather than
+open when the backstop can't be applied.
+
+**Upstream MCP server.** Only an allowed, in-contract call arrives here, relayed
+untouched. Hangar does not run the work — it **relays and governs**. The upstream
+owns execution.
+
+**The return trip.** The result comes back up the same seam: output is scanned and
+secret values are redacted with the same deterministic patterns the policy refused
+on the way in, and the verdict is written to the append-only provenance chain. What
+the redactor masks on the way out is exactly what a policy refuses on the way in —
+one set of rules, both directions.
+
+## Why it's drawn as one line
+
+Every control lives on the call path and nowhere else. There is no anomaly score
+being computed in the background, no separate policy engine the request detours
+through, no asynchronous approval the call waits on. The verdicts are deterministic
+functions of the request, the pinned contract, and the policy — which is what makes
+the path auditable: the same inputs always produce the same verdict, and every
+verdict leaves a line in the chain. Governance is credible here precisely because it
+is thin. It binds where the call already flows, and the call flows through exactly
+one seam.
+
+---
+
+*Grounded in [ADR-013](/adr/ADR-013-egress-policy-enforcement-model) (the egress
+enforcement model) and the `MCPEgressPolicy` guide. Everything is MIT and
+self-hosted — no SaaS tier.*

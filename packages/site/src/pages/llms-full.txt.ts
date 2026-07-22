@@ -23,6 +23,7 @@ function renderSection(title: string, entries: DocEntry[]): string {
 
 export const GET: APIRoute = async () => {
   const docs = await getCollection('oss') as unknown as DocEntry[];
+  const learn = await getCollection('learn') as unknown as DocEntry[];
   const posts = (await getCollection('blog')).sort(
     (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
   );
@@ -52,6 +53,7 @@ export const GET: APIRoute = async () => {
     renderSection('Other', docs.filter(
       d => d.id !== 'index' && !categorizedPrefixes.some(p => d.id.startsWith(p))
     )),
+    renderSection('Learn', learn),
   ].filter(Boolean);
 
   // Blog: include latest 5 posts inline

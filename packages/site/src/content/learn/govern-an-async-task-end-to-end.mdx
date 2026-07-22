@@ -1,0 +1,269 @@
+---
+title: "Govern an async task end-to-end"
+description: "Follow a relayed task from mint through follow-ups, an input_required consent prompt, to a recorded decision."
+type: Tutorial
+level: Core
+time: "15 min"
+theme: async
+status: preview
+updated: 2026-07-22
+tags: [tutorial, tasks, async, consent, governance]
+---
+
+import Callout from '../../components/Callout.astro';
+
+<Callout variant="preview">
+  **Landing in 2.0.** This walkthrough runs on the **v2 preview** (`2.0.0a1`,
+  built on `mcp==2.0.0b2`). Governed task relay is **not** in the released
+  `1.6.0` line -- on `1.6.0` an upstream task handle is still cleanly rejected
+  with `TaskRelayNotSupported`. Everything below is real on the preview and
+  **not** a GA promise. Where a step says a handler serves or the gate fires,
+  read it as "on the v2 preview."
+</Callout>
+
+# Govern an async task end-to-end
+
+A synchronous `tools/call` is easy to govern: the request goes in, the result
+comes back, and every layer -- identity, digest pin, egress policy, audit --
+takes its turn on the way through. An MCP **task** breaks that. `tools/call`
+answers a long-running tool by handing you back a *promise* -- a `task_id` --
+and the real work finishes minutes later, on a `tasks/result` you make out of
+band.
+
+This is a hands-on tour of what Hangar does with that promise. Hangar
+**relays** the task an upstream owns and **governs its lifecycle** at the same
+proxy seam that already governs synchronous calls -- it never runs the task,
+never schedules it, never stores its result. You will mint a task, follow it up,
+walk into a mid-flight consent prompt, fetch a digest-checked result, and read
+the decision back off the provenance chain.
+
+Every method below is a real v2-native wire call (`tasks/get`, `tasks/result`,
+`tasks/cancel`, `tasks/list`), and every YAML block matches the schema in the
+shipped guides. The `client -> Hangar` and `Hangar -> client` blocks are the
+JSON-RPC frames on the wire -- you do not type them by hand. You drive them
+through whatever MCP client you have connected: its tool-call API emits the
+`tools/call` in step 3, and its task API emits the `tasks/get` / `tasks/result`
+/ `tasks/list` follow-ups. Read each frame as "this is what your client sends,
+and this is what Hangar sends back."
+
+## Before you start
+
+You need the v2 preview build, a downstream client that has negotiated the
+**elicitation** capability (that is the back-channel the consent gate rides --
+without it, step 5 fails closed), and one upstream that answers a tool call with
+a task. The relay seam is gated by the `relay_tasks_enabled` kill-switch, whose
+default flipped to `True` on activation (2026-07-22); it is retained for a fast
+per-deployment rollback, so a preview build can turn the whole surface off in
+one flag.
+
+Behavior is unchanged until an upstream actually emits a task. A deployment
+whose upstreams never task observes no difference, and the `tasks` capability is
+advertised at `INITIALIZE` only once the seam is live -- Hangar does not
+advertise what does not run.
+
+## Step 1 -- Point Hangar at a tasking upstream
+
+Register the upstream the way you register any MCP server. Nothing here is
+task-specific; the relay engages on its own the first time this upstream answers
+a call with a `task_id`.
+
+```yaml
+# ~/.config/mcp-hangar/config.yaml
+mcp_servers:
+  reporter:
+    mode: subprocess
+    command: [npx, -y, "@example/mcp-server-reporter"]
+    idle_ttl_s: 300
+```
+
+## Step 2 -- Govern the call path with an egress policy
+
+The task inherits the governance of the synchronous call that spawns it, so put
+the policy on that call. Here we require approval for the report-generating tool
+and hold the upstream to a single FQDN.
+
+```yaml
+apiVersion: mcp-hangar.io/v1alpha2
+kind: MCPEgressPolicy
+metadata:
+  name: reporter-policy
+  namespace: prod
+spec:
+  mode: Enforce                   # Audit (default) observes; Enforce blocks
+  targetRef:
+    kind: MCPServer               # or MCPServerGroup
+    name: reporter
+  upstreams:
+    - name: reporter-api          # rule name, required + unique in the policy
+      match:
+        host: api.reporter.example    # FQDN -> needs the Cilium flavor
+      tools:
+        requireApproval: ["generate_*"]
+```
+
+**FQDN enforcement requires Cilium.** A vanilla Kubernetes `NetworkPolicy`
+cannot match on DNS names, so a hostname upstream is only enforceable under the
+Cilium backstop flavor -- the operator compiles this into a
+`CiliumNetworkPolicy` with `toFQDNs`. Under any other CNI, list the upstream as
+a literal IP/CIDR instead, or the hostname is **failed closed** (denied, never
+opened to "any destination") and surfaced as
+`Degraded/FQDNUpstreamsUnenforceable`.
+
+Note what `requireApproval` does *not* do on the synchronous L7 path: it
+**fails closed**. A gated `tools/call` is *blocked* pending an out-of-band
+approval -- it is a hard deny, not an interactive queue that prompts a human and
+waits. Keep that straight, because the genuinely interactive prompt shows up in
+step 5, and it is a different mechanism entirely.
+
+## Step 3 -- Mint the task
+
+Call the long-running tool. The upstream answers not with a result but with a
+`CreateTaskResult` carrying a `task_id`.
+
+```json
+// client -> Hangar
+{ "method": "tools/call",
+  "params": { "name": "generate_report", "arguments": { "range": "90d" } } }
+```
+
+The instant Hangar relays that `CreateTaskResult`, and **before** the handle
+reaches you, it does two things in one lock-held critical section: it writes a
+governance-ledger entry keyed on the composite `(target_server_id, task_id)`,
+and it emits a `TaskCreated` provenance head. If the event publish fails, the
+whole registration rolls back -- zero governed state survives. There is no
+window in which a live handle is untracked.
+
+```json
+// Hangar -> client  (task_id is now a governed object)
+{ "result": { "task": { "taskId": "tk_9f2a…", "status": "working" } } }
+```
+
+That composite key matters: `task_id` is unique only per upstream, so the ledger
+binds it to *this* upstream and *your* identity. You will hand back only the
+bare `task_id` from here on; Hangar resolves the rest.
+
+## Step 4 -- Follow it up
+
+Poll the task. `tasks/get` authorizes you as the owner, relays to the upstream,
+and syncs the local snapshot from **verbatim** upstream truth -- Hangar copies
+the status, it never synthesizes one. An upstream error leaves the snapshot
+untouched rather than fabricating a state.
+
+```json
+// client -> Hangar
+{ "method": "tasks/get", "params": { "taskId": "tk_9f2a…" } }
+```
+
+Two ownership properties are load-bearing here. A `task_id` you do **not** own is
+indistinguishable from one that does not exist -- both return the same
+`INVALID_PARAMS` "Task not found", so the ledger is never a side channel for
+enumerating another tenant's tasks. And `tasks/list` is owner-scoped: it returns
+your snapshots as a single page and **never** forwards the upstream cursor,
+which could identify someone else's task.
+
+```json
+// client -> Hangar
+{ "method": "tasks/list", "params": {} }
+// -> your tasks only; nextCursor is always absent
+```
+
+## Step 5 -- Walk into the consent prompt
+
+Some tasks pause mid-flight and ask for something -- a confirmation before they
+touch production. In MCP that surfaces as an `input_required` status, and this
+is the **one genuinely interactive gate in Hangar**.
+
+When your next `tasks/get` observes `input_required`, the handler resolves it
+in-line on the live session. It elicits your client for consent over the
+negotiated elicitation channel with a fixed prompt:
+
+```text
+Task tk_9f2a… on an upstream server is requesting additional input to
+continue. Do you consent to providing it?
+```
+
+The rule is strict: **consent is obtained before the gate opens, and the gate
+opens on nothing else.** Only an explicit `accept` opens it and relays the
+answer upstream. Every other branch is terminal and fails in the safe
+direction:
+
+- **No elicitation capability negotiated** -> no back-channel to ask -> denied
+  before any prompt.
+- **You decline or cancel** -> a real *no* -> the task is failed.
+- **The elicitation raises for any reason** -> caught and treated as a denial.
+  Ambiguity resolves closed.
+- **The consent slot was evicted** (its bounded, TTL'd entry expired) -> fails
+  closed; an expired consent is never read as an implicit yes.
+
+"Fail closed" means one concrete thing: the task is moved to `failed`, a
+best-effort `tasks/cancel` is relayed upstream, and the now-`failed` snapshot is
+returned. A paused task is **never** left dangling in `input_required` waiting on
+a maybe. (The single exception fails safe too: a *transient* upstream refusal
+while relaying an already-accepted answer discards the gate **without** burning
+the single-use consent, so a retry re-elicits and completes.)
+
+Accept the prompt, and the answer relays upstream. The task moves on.
+
+## Step 6 -- Fetch the digest-checked result
+
+Now pull the payload. Between mint and result the upstream tool could have been
+redeployed and its schema drifted, so `tasks/result` **re-verifies the pinned
+tool digest fail-closed** *before* it relays anything.
+
+```json
+// client -> Hangar
+{ "method": "tasks/result", "params": { "taskId": "tk_9f2a…" } }
+```
+
+If the tool's current digest no longer matches the one pinned at mint -- or the
+current schema simply cannot be verified (unverifiable is treated as drifted) --
+the task is **failed**, a `DigestMismatchInTask` event is emitted, and an error
+propagates. The result is never handed over. This closes the *zombie*: a task
+that completes against a contract you never authorized. Digest drift fails the
+task rather than leaving a permanently-untrustworthy result hanging.
+
+On a clean check, the upstream `result` is validated into a `CallToolResult` and
+returned. Hangar held none of it -- the payload lived upstream the whole time.
+
+## Step 7 -- Read the decision back
+
+Every transition you just drove is an append-only, `task_id`-keyed event on the
+provenance chain, each carrying `tenant_id` and `correlation_id`:
+
+```text
+TaskCreated          # step 3 -- at relay time, before the handle reached you
+TaskConsentDecided   # step 5 -- accept, with the prompted principal_id
+TaskCompleted        # working -> completed, deduped to fire exactly once
+TaskFailed           # the fail-closed paths (consent denied, digest drift, eviction)
+TaskCancelled        # only on a confirmed upstream cancel
+DigestMismatchInTask # step 6 -- the async supply-chain event
+```
+
+The consent decision in particular is recorded as `TaskConsentDecided` --
+granted or denied -- keyed by `task_id` and attributing the `principal_id` that
+was actually prompted. The full lifecycle of the task is now reconstructable
+from that stream: who invoked what, under which pinned contract, with what
+verdict. This is the same forensic non-repudiation the synchronous call path
+already gives you, extended to the one call-shape that used to be dark.
+
+## What you just did
+
+You took an async task through its entire governed lifecycle without Hangar ever
+running it. You minted a task and watched it become a first-class governed
+object the instant it was relayed; you followed it up through owner-scoped,
+upstream-truthful handlers; you hit the one genuinely interactive gate in the
+stack and recorded a real human decision; you fetched a result that was
+re-checked against its pinned contract; and you read the whole story back off an
+append-only provenance chain.
+
+And Hangar took on no executor liabilities to do it: no scheduler, no result
+store, no GC correctness, no cancellation-race ownership, no worker-to-main-loop
+bridge. It relayed and it governed. The proxy stayed a proxy.
+
+---
+
+*Grounded in [ADR-014](/adr/ADR-014-tasks-relay-with-governance)
+(relay-with-governance), building on [ADR-002](/adr/ADR-002-event-sourcing)
+(the provenance chain) and [ADR-004](/adr/ADR-004-digest-pinning) (digest
+pinning). v2 preview (`2.0.0a1`, `mcp==2.0.0b2`); everything is MIT and
+self-hosted -- no SaaS.*

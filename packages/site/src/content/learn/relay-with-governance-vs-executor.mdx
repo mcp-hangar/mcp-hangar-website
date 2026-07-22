@@ -1,0 +1,117 @@
+---
+title: "Relay-with-governance vs building an executor"
+description: "How Hangar governs the async call path without ever owning execution, scheduling, or a result store."
+type: Why
+level: Deep
+time: "6 min"
+theme: async
+status: preview
+updated: 2026-07-22
+tags: [async, tasks, architecture, governance, adr-014]
+---
+
+import Callout from '../../components/Callout.astro';
+
+<Callout variant="preview">
+  **Landing in 2.0.** This page argues about the governed task relay on the
+  **v2 preview** (`2.0.0a1`, built on `mcp==2.0.0b2`). It is **not** in the
+  released `1.6.0` line, and it is not GA. Where the text says Hangar relays or
+  a handler serves, read it as "on the v2 preview" -- today, released Hangar
+  still cleanly rejects upstream task handles with `TaskRelayNotSupported`.
+</Callout>
+
+# Relay-with-governance vs building an executor
+
+Here is the question, and it sneaks up on you. Synchronous `tools/call` is easy
+to govern: the request goes in, the result comes back, and identity, digest
+pins, egress policy, and audit all get their turn on the way through. The call
+path *is* the governance path. Then an MCP task shows up and hands you a
+`task_id` instead of a result -- a promise that the real work finishes later,
+out of band, on a `tasks/result` you make minutes or hours after the call that
+started it. Now the layer that used to govern everything on one round trip has a
+gap in the middle. What does the gateway do with that gap?
+
+## The reflexive answer, and why it's wrong
+
+The instinct almost everyone reaches for first: *make the gateway own the task.*
+Give it a scheduler. Give it a result store so a client can poll. Add a TTL
+garbage collector so stale results don't pile up. Bridge the worker thread back
+onto the event loop. Arbitrate the cancellation races. And -- the seductive part
+-- *now you can govern everything*, because the gateway now knows every fact
+about the task's life.
+
+That reasoning is a trap, and the trap is a change of **species**. A proxy that
+runs your jobs is not a proxy; it is a job runner wearing a proxy's name. It
+inherits every job runner's failure modes -- lost results, GC bugs, split-brain
+schedulers, cancellation races -- and *none* of those failure modes are
+governance. Worse, they poison the governance you were trying to add. The whole
+value of a governance layer is that it is **thin**: it binds at the call path
+and nowhere else, so you can trust it precisely because it does so little. The
+moment the gateway grows an execution engine, every governance claim becomes
+contingent on that engine being bug-free. "Our audit trail is trustworthy as
+long as our job runner has no bugs" is not a claim worth making.
+
+There is a cheaper wrong answer too: pass the upstream handle straight through,
+untracked. That one breaks quietly -- the gateway has no record the task exists,
+so it can't authorize the follow-up, can't re-check the contract, can't tell one
+tenant's `task_id` from another's. The honest version of pass-through is a clean
+refusal, which is exactly what `1.6.0` does today.
+
+## How Hangar answers it
+
+[ADR-014](/adr/ADR-014-tasks-relay-with-governance) names the third path in its
+title: **relay-with-governance, not executor.** Hangar relays the task the
+upstream owns and interposes governance on its lifecycle at the *same*
+proxy/store seam that already governs synchronous `tools/call`. It creates no
+tasks, runs no scheduler, holds no results, crosses no worker → main-loop
+bridge.
+
+The move that makes this more than a slogan: the instant Hangar relays an
+upstream `CreateTaskResult`, and *before* the handle reaches the client, it
+writes a ledger entry keyed on `(target_server_id, task_id)` and emits the
+`TaskCreated` provenance head -- in one lock-held critical section. If the event
+publish fails, the whole registration rolls back and zero governed state
+survives. So a relayed `task_id` is **always** locally known. The dead-handle
+failure -- client holds a handle, follow-up finds nothing, gets a misleading
+"not found" -- *cannot recur*, because we removed the state in which it could
+exist rather than testing our way around it.
+
+What the ledger holds is deliberately small: the owning identity, the pinned
+tool **digest** from the invoke path, and an upstream-truth status *snapshot*
+copied verbatim. No result payload. No execution state. That boundary is the
+whole point -- a ledger authoritative about *who*, *which contract*, and *last
+known status* has taken on no execution liability at all.
+
+And it buys real properties. `tasks/result` re-verifies the pinned digest
+fail-closed before relaying, so an async result can never come back shaped by a
+contract the caller never authorized. Every `tasks/*` path authorizes owner
+first, and a `task_id` you don't own is indistinguishable from one that doesn't
+exist -- no enumeration side channel.
+
+Almost none of this is a prompt. Every property above binds or fails closed with
+no human in the loop -- that is what makes "governs, not executes" more than a
+slogan. The single genuinely interactive control is the mid-flight
+[consent gate](/learn/mid-flight-consent): when a relayed task turns
+`input_required`, Hangar elicits a live human decision and routes it back
+upstream. Its synchronous cousin, the egress policy's `requireApproval`, is *not*
+interactive -- it fails closed, blocking the call pending an out-of-band
+approval. In both cases the upstream is the thing that runs; Hangar only decides
+whether the call path stays open.
+
+## The test that keeps it honest
+
+Everything above is one design refusing, line by line, to own execution. That
+gives you a single rule sharp enough to audit against: **reverse any one of those
+refusals -- let the gateway keep a result, run one scheduler tick, arbitrate one
+cancellation race -- and you have started building an executor.** There is no
+partial version and no safe exception; each reversal drags the whole species
+change in behind it. The governance stays credible in exact proportion to how
+thin the relay stays, which is why the discipline is the feature.
+
+---
+
+*This is the argument; for the mechanism behind it -- ledger, digest re-verify,
+consent gate -- walk
+[Govern an async task end-to-end](/learn/govern-an-async-task-end-to-end).
+Grounded in [ADR-014](/adr/ADR-014-tasks-relay-with-governance)
+(relay-with-governance). Everything is MIT and self-hosted -- no SaaS.*

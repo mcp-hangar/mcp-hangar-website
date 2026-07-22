@@ -1,0 +1,119 @@
+---
+title: "What is a policy enforcement plane?"
+description: "One deterministic allow/deny path for every MCP tool call — and why that beats a passive gateway."
+type: Concept
+level: Intro
+time: "6 min"
+theme: foundations
+status: ship
+updated: 2026-07-22
+tags: [concepts, enforcement, egress-policy, governance, adr-013]
+---
+
+# What is a policy enforcement plane?
+
+Put a proxy in front of your MCP servers and you have a *gateway*. It can see
+traffic, count it, log it, maybe rate-limit it. That is useful, and it is also
+where most tools stop. A gateway observes. When a tool call it does not like goes
+past, the honest description of what happens next is: nothing. The call reaches
+the upstream anyway, and the gateway writes it down.
+
+An **enforcement plane** is the gateway that can also say no — and make the no
+stick. Every MCP tool call that passes through Hangar runs one deterministic
+allow/deny path before it touches the wire. Same inputs, same verdict, every
+time. That single sentence is the whole category, and the rest of this page is
+what it takes to mean it.
+
+## The decision has to live on the call path
+
+A passive gateway's weakness is structural, not a missing feature. If policy is
+evaluated *beside* the request — a webhook, an async scan, a dashboard that
+flags violations after the fact — then there is always a window in which a
+denied call has already happened. You can alert on it. You cannot prevent it.
+
+Hangar puts the decision *on* the call path. Clients connect to Hangar; Hangar
+originates the upstream connection. So a policy governs exactly the connections
+Hangar already makes, at the tool-invocation chokepoint, synchronously. A denied
+call raises *before* it reaches the upstream. There is no after-the-fact to catch
+up on, because there is no "after" in which the call went through.
+
+This is also why Hangar governs but does not *execute*. It relays the call the
+upstream owns and interposes the verdict at the proxy seam — it never becomes the
+thing running your tools. The enforcement is credible precisely because it is
+thin: it binds at the call path and nowhere else.
+
+## Two layers, applied together
+
+Saying no at L7 only counts if the call can't route around you. So enforcement is
+two layers, and they ship as a pair:
+
+| Layer | Enforced by | Governs |
+| --- | --- | --- |
+| **L3/L4** (network backstop) | operator → `NetworkPolicy` / `CiliumNetworkPolicy` | which upstream hosts / CIDRs a server's pods can reach at all |
+| **L7** (MCP semantics) | core, on the connections Hangar proxies | which tool calls, with which arguments, are allowed |
+
+The backstop is the load-bearing half. Its rule, stated verbatim in the API and
+the docs: **a policy without the network backstop is a suggestion.** If a pod can
+bypass DNS and NetworkPolicy, it can bypass Hangar — so policy compilation
+*generates* the backstop rather than leaving it as operator homework. That is
+what turns the L7 policy from a recommendation into enforcement. A workload that
+tries to reach an upstream Hangar doesn't proxy doesn't get an ungoverned path;
+it gets a connection timeout.
+
+## Deny-by-default, deterministic by design
+
+Two properties make the verdict trustworthy.
+
+**Deny-by-default.** `upstreams[]` is an allow-list. A tool name no rule matches
+falls through to `defaultAction: Deny`. The floor is the empty policy — nothing
+declared, nothing reachable:
+
+```yaml
+spec:
+  defaultAction: Deny
+  upstreams: []   # no allow-list entries: every call falls through to Deny
+```
+
+Every reachable upstream is something you added on purpose. Precedence is fixed
+and total —
+**deny > requireApproval > allow > defaultAction** — so every call resolves to
+exactly one outcome. Argument scanning rides on top: a call carrying a configured
+secret pattern (an AWS key, a JWT, a PEM block) or exceeding `maxPayloadBytes` is
+denied *even when the tool itself is allowed*, because deny always wins. Anything
+that can't be serialized for inspection fails closed too.
+
+**Deterministic.** The L7 half runs no ML and no heuristics to tune. Full DLP and
+any probabilistic classification are explicit non-goals. A verdict is a function
+of the policy and the call — never a score you have to threshold, never a model
+that drifts. You can read a policy and know what it will do, and you can
+reproduce any decision it ever made.
+
+## "Fail closed" is the default answer to ambiguity
+
+The precedence table has a rung between allow and deny: `requireApproval`. It is
+worth being exact about what it does, because the name invites a wrong guess. A
+gated call is **blocked** — it fails closed, pending an out-of-band approval. It
+is a hard gate, not an interactive queue that pauses the call while someone is
+paged to click yes. The call does not hang; it stops.
+
+That is the posture everywhere the answer isn't a clean yes. A Cilium flavor
+requested on a cluster without the CRD falls back to the restrictive floor and
+reports `Degraded`, never opens to "any destination." An FQDN upstream that a
+vanilla `NetworkPolicy` can't express is denied, not waved through. Ambiguity
+resolves closed, by construction — a plane that fails open under pressure is not
+an enforcement plane, whatever it says on the box.
+
+## Why this beats a passive gateway
+
+A passive gateway gives you visibility, and visibility is worth having. But it
+answers only one question — *what happened?* — and it answers it late. An
+enforcement plane answers the question the gateway can't: *may this call happen,
+right now, on this path?* One deterministic allow/deny path, on the call path,
+backed by a network floor that can't be bypassed, failing closed when it isn't
+sure. That is the difference between watching your MCP traffic and governing it.
+
+---
+
+*Grounded in [ADR-013](/adr/ADR-013-egress-policy-enforcement-model) (the egress
+enforcement model) and the [Egress Policy guide](/docs/guides/egress-policy).
+Shipped in `1.6.0` — everything is MIT and self-hosted, no SaaS.*

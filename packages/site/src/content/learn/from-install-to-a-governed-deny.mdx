@@ -1,0 +1,266 @@
+---
+title: "From install to a governed deny in 10 minutes"
+description: "Install the operator, apply a policy, and watch the same call go from allowed to denied."
+section: tutorials
+updated: 2026-07-22
+tags: [tutorial, enforcement, egress-policy, operator, adr-013]
+type: Tutorial
+level: Intro
+time: "10 min"
+theme: foundations
+status: ship
+---
+
+import Callout from '../../components/Callout.astro';
+
+# From install to a governed deny in 10 minutes
+
+The fastest way to understand an enforcement plane is to watch it change its mind
+about a call you already made. So that is what this does. You will stand up the
+`MCPEgressPolicy` plane that ships in **1.6.0** (core `1.6.0`, operator
+`v0.14.0`), point one policy at one server, and make the *exact same* tool call
+succeed and then get denied -- with nothing changing but the policy.
+
+No new call. No trick. The call is constant; the verdict moves. That gap is the
+whole product.
+
+Everything here is deterministic: a tool name resolves against globs in a fixed
+precedence, and an argument scan matches value-regexes. There is no score, no
+model, no threshold to tune. The answer to "would this call be allowed?" is a
+function of the policy and the call, and nothing else.
+
+## What you need
+
+- A Kubernetes cluster you can `kubectl apply` to.
+- The Hangar **core** (`1.6.0`) running and reachable in the cluster -- this is
+  the data plane the L7 rules are enforced on, and whose front door you will call.
+- A namespace to govern. This walkthrough uses `prod` as the example namespace;
+  substitute your own everywhere `prod` appears below.
+- An `MCPServer` already registered in that namespace. This walkthrough targets one
+  named `srv`; substitute your own.
+
+<Callout variant="note">
+  **FQDN upstreams need Cilium.** A vanilla `NetworkPolicy` cannot match on DNS
+  names, so a hostname upstream like `api.github.com` is only enforceable under
+  the Cilium backstop flavor. On a non-Cilium cluster, hostname upstreams
+  **fail closed** (denied, surfaced as `Degraded/FQDNUpstreamsUnenforceable`) --
+  list upstreams as literal IPs/CIDRs instead. The L7 tool-call and argument
+  rules in this tutorial work under any CNI.
+</Callout>
+
+## 1. Install the operator
+
+The operator publishes a rendered install manifest on every tag. Apply the latest:
+
+```bash
+kubectl apply -f https://github.com/mcp-hangar/mcp-hangar-operator/releases/latest/download/install.yaml
+```
+
+Prefer Helm? The chart installs the `MCPEgressPolicy` CRD and grants the operator
+the RBAC to reconcile it, so the plane works from a plain install:
+
+```bash
+helm install mcp-hangar-operator \
+  oci://ghcr.io/mcp-hangar/charts/mcp-hangar-operator --version <version>
+```
+
+The operator needs one flag to enforce **L7** (tool-call and argument) rules: it
+has to know where the core is, so it can push the compiled policy to the data
+plane. Run it with `--hangar-url` pointed at your core. Without that flag the
+operator still applies the L3/L4 network backstop -- but the tool-call rules are
+never delivered, and the interesting half of this tutorial won't fire.
+
+## 2. Opt the namespace into enforcement
+
+Enforcement is opt-in per namespace. Labeling the namespace puts the default-deny
+floor in place, which is what the backstop builds on:
+
+```bash
+kubectl label namespace prod mcp-hangar.io/enforce-egress=true
+```
+
+## 3. Apply a policy in Audit mode -- and watch it allow
+
+Start in `Audit`, the default. Audit **observes** violations without blocking, so
+you can see what a policy *would* do before it does it. This one allows the
+read-family tools on a GitHub upstream:
+
+```yaml
+apiVersion: mcp-hangar.io/v1alpha2
+kind: MCPEgressPolicy
+metadata:
+  name: gh-only
+  namespace: prod
+spec:
+  mode: Audit                   # observe, don't block -- yet
+  targetRef:
+    kind: MCPServer
+    name: srv
+  defaultAction: Deny           # any tool no rule matches is denied
+  upstreams:
+    - name: github
+      match:
+        host: api.github.com    # FQDN -> needs the Cilium flavor
+      tools:
+        allow: ["get_*", "list_*"]
+```
+
+Apply it and confirm the operator compiled it and put the backstop in place:
+
+```bash
+kubectl apply -f gh-only.yaml
+
+kubectl -n prod get mcpegresspolicy gh-only \
+  -o jsonpath='{range .status.conditions[*]}{.type}={.status} ({.reason}){"\n"}{end}'
+```
+
+```text
+Compiled=True (Compiled)
+BackstopApplied=True (BackstopApplied)
+Degraded=False (NotDegraded)
+```
+
+That `Degraded=False` line assumes a **Cilium** cluster, where the operator can
+compile the `api.github.com` FQDN into a `toFQDNs` rule. On a vanilla CNI you would
+instead see `Degraded=True (FQDNUpstreamsUnenforceable)` and the hostname upstream
+would fail closed -- swap in a literal IP/CIDR upstream if you are following along
+without Cilium. The tool-call and argument rules below behave identically either way.
+
+Now make a `get_repo` call *through* Hangar's front door -- the same JSON-RPC
+`tools/call` an MCP client would send. Port-forward the core so its front door is on
+`localhost:8000`, then invoke:
+
+```bash
+kubectl -n prod port-forward svc/mcp-hangar 8000:8000 &   # your core's Service
+
+curl -s http://localhost:8000/mcp \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","method":"tools/call",
+       "params":{"name":"get_repo",
+                 "arguments":{"owner":"octocat","repo":"hello-world"}},
+       "id":1}' \
+  | jq '.result // .error'
+```
+
+`get_repo` matches the `get_*` allow-glob, so it is **allowed** -- the call reaches
+`api.github.com` and the repo payload comes back. Note the request body: you will
+replay it byte-for-byte in the next step. (In Audit mode even a call that *didn't*
+match would go through; the point of this step is the green baseline.)
+
+## 4. Flip to Enforce -- and watch the same call deny
+
+Change two things: turn the mode to `Enforce`, and move `get_repo` from the
+allow-list into `deny`. Nothing about the call changes.
+
+```yaml
+apiVersion: mcp-hangar.io/v1alpha2
+kind: MCPEgressPolicy
+metadata:
+  name: gh-only
+  namespace: prod
+spec:
+  mode: Enforce                 # now it blocks
+  targetRef:
+    kind: MCPServer
+    name: srv
+  defaultAction: Deny
+  upstreams:
+    - name: github
+      match:
+        host: api.github.com
+      tools:
+        allow: ["list_*"]
+        deny: ["get_repo"]      # deny wins over everything
+```
+
+```bash
+kubectl apply -f gh-only.yaml
+```
+
+Replay the **exact same** request -- byte-for-byte the curl from step 3:
+
+```bash
+curl -s http://localhost:8000/mcp \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","method":"tools/call",
+       "params":{"name":"get_repo",
+                 "arguments":{"owner":"octocat","repo":"hello-world"}},
+       "id":1}' \
+  | jq '.result'
+```
+
+This time the core resolves the tool name against the policy at the invocation
+chokepoint, hits the `deny` rule, and refuses the call before it ever touches the
+wire. Instead of the repo payload you get a tool error:
+
+```json
+{
+  "content": [{ "type": "text", "text": "Tool call denied by egress policy" }],
+  "isError": true
+}
+```
+
+The upstream was never contacted. Allowed a moment ago; denied now; nothing changed
+but the policy. The caller-facing message stays deliberately generic -- the specific
+reason (`get_repo` hit a `deny` rule) is carried in the audit trail, not leaked back
+to the caller.
+
+Tool-name matching runs in a fixed precedence, and `deny` sits at the top of it:
+
+```text
+deny  >  requireApproval  >  allow  >  defaultAction
+```
+
+So `deny: ["get_repo"]` beats any `allow` glob it also matches. `requireApproval`
+sits in the middle and **fails closed** -- a gated call is *blocked* pending an
+out-of-band decision. It is a hard gate, not an interactive approval queue: the
+call does not hang waiting for a human to click yes, it stops.
+
+## 5. Deny on the arguments, not just the name
+
+The name isn't the only thing a policy reads. Add an argument scan and a call to
+an *allowed* tool still gets denied if its payload carries a secret -- because a
+secret pattern denies the call even when the tool is permitted. Deny always wins:
+
+```yaml
+      tools:
+        allow: ["get_*", "list_*"]
+      arguments:
+        deny:
+          secretPatterns: [aws-keys, jwt, github-tokens]
+          maxPayloadBytes: 262144
+```
+
+The secret-pattern groups are the same deterministic value-regexes Hangar's
+output redactor uses -- so what gets masked on the way out is refused on the way
+in. An oversized or unserializable payload fails closed too.
+
+## What you just did
+
+You stood up a real enforcement plane and drove a call across the line in both
+directions:
+
+- **Installed the plane** -- operator (`v0.14.0`) plus core (`1.6.0`), wired
+  together with `--hangar-url` so L7 rules reach the data plane.
+- **Opted a namespace in** and let the network backstop -- a `NetworkPolicy`, or
+  a `CiliumNetworkPolicy` with `toFQDNs` for hostname upstreams -- put the
+  default-deny floor down. That backstop is what makes the L7 policy *enforcement*
+  and not a suggestion: if a pod could bypass DNS and NetworkPolicy, it could
+  bypass Hangar.
+- **Watched one call flip verdicts.** Audit observed it; Enforce with a `deny`
+  rule blocked it -- the same call, decided differently, by policy alone.
+- **Denied on arguments**, proving the verdict reads the payload, not just the
+  tool name.
+
+Every one of those decisions was deterministic and fail-closed: an FQDN with no
+Cilium, an unserializable argument, a `requireApproval` gate -- each resolves to a
+*deny*, never to an accidental *allow*. That is the shape of the whole plane.
+Start in `Audit` on your real servers, read the violations it would have blocked,
+then flip to `Enforce` when the allow-list is honest.
+
+---
+
+*Grounded in the [Egress Policy guide](/docs/guides/egress-policy) and
+[ADR-013](/adr/ADR-013-egress-policy-enforcement-model) (the enforcement model,
+and the alternatives it rejected -- no TLS interception, no eBPF protocol parsing).
+Everything is MIT and self-hosted -- no SaaS.*

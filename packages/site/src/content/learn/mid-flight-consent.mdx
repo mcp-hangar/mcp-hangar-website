@@ -1,0 +1,116 @@
+---
+title: "Mid-flight consent for async tools"
+description: "A real, blocking human decision on an input_required task -- recorded and fail-closed."
+type: Concept
+level: Core
+time: "7 min"
+theme: async
+status: preview
+updated: 2026-07-22
+tags: [concepts, consent, tasks, async, governance]
+---
+
+import Callout from '../../components/Callout.astro';
+
+<Callout variant="preview">
+  **Landing in 2.0.** The mid-flight consent gate described here ships on the
+  **v2 preview** (`2.0.0a1`, built on `mcp==2.0.0b2`) and is **not** in the
+  released `1.6.0` line. Where the text says the gate elicits or the task pauses,
+  read it as "on the v2 preview" -- released Hangar still cleanly rejects any
+  upstream task handle with `TaskRelayNotSupported`, so there is nothing to gate
+  yet. This is preview plumbing, not GA.
+</Callout>
+
+# Mid-flight consent for async tools
+
+Most governance in Hangar is a verdict, not a conversation. Identity is checked,
+a digest is matched, an egress rule fires -- and the call either proceeds or it
+does not. Nothing waits for a person. That is deliberate: a proxy that pauses to
+find a human on every hard call is a proxy that stops being fast, and stops being
+predictable.
+
+There is exactly one place where that changes. An async task can pause
+*mid-flight* and ask for something -- a confirmation, a missing parameter, a
+yes-or-no before it touches production -- and surface that pause to the client as
+an `input_required` status. This is the one spot in the whole stack where
+governance stops enforcing and starts *asking*. The mid-flight consent gate is how
+it asks without ever guessing.
+
+## Why this one gate can be interactive
+
+It is worth stating precisely why mid-flight consent is possible here and nowhere
+else, because the contrast is the whole point.
+
+**Synchronous L7 `requireApproval` fails closed.** When the enforcement plane
+decides a synchronous `tools/call` needs approval, the call is *blocked*. There is
+no guaranteed back-channel at the invocation instant to go find a human, so the
+verdict is a hard, fail-closed deny -- not a hold. It is a gate, not an approval
+queue: nothing prompts a person and waits for them to click yes. The call stops.
+
+**The async consent gate is different, because the task is already paused.** A
+task in `input_required` is, by definition, suspended and waiting -- and the
+client polling it is right there on a live session that negotiated an elicitation
+capability. That is a real back-channel. So when `tasks/get` observes
+`input_required` on a `2025-11-25` session, it resolves the input *in handler*: it
+elicits the downstream client for consent over `ctx.session`, and only on an
+explicit `accept` does it open the gate and relay the answer upstream. This is the
+**only** genuinely interactive consent flow in Hangar. It routes to a real human
+decision because, uniquely, the context to do so exists. Do not conflate it with
+the synchronous L7 gate -- one asks a person, the other just blocks.
+
+## The gate opens on nothing but an explicit yes
+
+The primitive underneath is a presence gate with a strict rule: it is opened
+*only* after a confirmed downstream `accept`. Consent is obtained **before** the
+gate opens, so there is no pre-decision race in which the answer relays ahead of
+the human's yes. The decision is taken first; the gate is the record that it was.
+
+Every other outcome is terminal and fail-closed. Walk the branches:
+
+- **No elicitation capability negotiated.** There is no back-channel to ask, so
+  the decision is a fail-closed denial before any prompt is shown.
+- **The client declines or cancels.** A real *no* -- the task is failed.
+- **The elicitation raises for any reason.** Any error at all is caught and
+  treated as a denial. Ambiguity resolves closed, never open.
+- **The consent slot was evicted** under TTL pressure. The binding fails closed --
+  an expired or missing consent is never read as an implicit yes.
+
+"Fail closed" here means one concrete thing: the task is moved to `failed`, a
+best-effort `tasks/cancel` is relayed upstream, and the now-`failed` snapshot is
+returned to the caller. A paused task is **never** left dangling in
+`input_required` waiting on a maybe. There is exactly one exception, and it fails
+in the safe direction: a *transient* upstream refusal while relaying an
+already-accepted answer discards the gate **without** consuming the single-use
+consent, so a retry re-elicits and completes rather than burning the task on a
+blip.
+
+## Concurrency, without a double prompt
+
+A task under real load is polled more than once. If two `tasks/get` calls hit the
+same `input_required` state, only one human should be asked. The gate derives a
+deterministic `input_key` from the upstream's pending input request(s) -- stable
+across concurrent polls -- so a second in-flight `tasks/get` maps to the same gate
+key and returns the current snapshot instead of prompting again. One pause, one
+question, one answer.
+
+## Every decision is a recorded line in the chain
+
+Whichever way it goes, the outcome is written down. Each accept or deny becomes a
+`TaskConsentDecided` event on the task's provenance chain, keyed by `task_id`,
+carrying the `input_key` and attributing the `principal_id` that was prompted. The
+gate itself stays deliberately minimal -- it decides *presence*; the ledger owns
+the event bus and writes the record. Because consent is an *additive* layer (the
+relay is correct without it), it could be built and left dormant, then wired in the
+moment the relay seam went live.
+
+That is the shape of the whole gate: a decision is taken first, the gate opens
+only on an explicit yes, and every path that isn't an explicit yes terminates the
+task in the safe direction and leaves an append-only line in the provenance chain. It is
+the one place in Hangar where governance stops and *asks* -- and even there, it
+refuses to guess.
+
+---
+
+*Grounded in [ADR-014](/adr/ADR-014-tasks-relay-with-governance) (relay-with-governance)
+and the mid-flight consent gate. Hangar relays and governs the task an
+upstream owns -- it never runs it. Everything is MIT and self-hosted -- no SaaS.*

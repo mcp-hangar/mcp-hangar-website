@@ -15,6 +15,24 @@ const { Content } = await render(entry);
 
 const fmtDate = (d: Date) =>
   d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+// Facet presentation — mirrors the /learn hub so a reader landing here sees the
+// same signals: type badge in its color, level, time, and the status pill.
+const TC: Record<string, string> = {
+  Concept: '#2dd4bf',
+  Tutorial: '#38bdf8',
+  Why: '#a78bfa',
+  Visual: '#fbbf24',
+};
+const TLABEL: Record<string, string> = {
+  Concept: 'Concept',
+  Tutorial: 'Tutorial',
+  Why: 'Deep dive',
+  Visual: 'Visual',
+};
+const { type, level, time, status } = entry.data;
+const typeColor = TC[type];
+const statusLabel = status === 'ship' ? 'Shipped 1.6.0' : 'v2 preview';
 ---
 
 <Base
@@ -31,16 +49,39 @@ const fmtDate = (d: Date) =>
 
     <article class="prose prose-invert prose-emerald max-w-none docs-article">
       <header class="not-prose mb-10">
-        <div class="flex flex-wrap items-center gap-2 mb-4">
-          <span class="px-2 py-0.5 text-xs rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 capitalize">
-            {entry.data.section}
+        <!-- Compact facet meta row — same signals as the /learn hub cards. -->
+        <div class="flex flex-wrap items-center gap-x-3 gap-y-2 mb-4 text-xs">
+          <span
+            class="inline-flex items-center gap-1.5 font-semibold"
+            style={`color:${typeColor}`}
+          >
+            <span class="w-2 h-2 rounded-sm" style={`background:${typeColor}`} />
+            {TLABEL[type]}
           </span>
-          {entry.data.tags && entry.data.tags.map(tag => (
-            <span class="px-2 py-0.5 text-xs rounded-md bg-zinc-800/70 text-zinc-500 border border-zinc-700/50">
-              {tag}
-            </span>
-          ))}
+          <span class="w-1 h-1 rounded-full bg-zinc-600" aria-hidden="true" />
+          <span class="text-zinc-400">{level}</span>
+          <span class="w-1 h-1 rounded-full bg-zinc-600" aria-hidden="true" />
+          <span class="text-zinc-400 font-mono">{time}</span>
+          <span
+            class:list={[
+              'ml-auto px-2 py-0.5 rounded font-semibold',
+              status === 'ship'
+                ? 'bg-emerald-500/10 text-emerald-400'
+                : 'bg-amber-500/10 text-amber-400',
+            ]}
+          >
+            {statusLabel}
+          </span>
         </div>
+        {entry.data.tags && (
+          <div class="flex flex-wrap items-center gap-2 mb-4">
+            {entry.data.tags.map(tag => (
+              <span class="px-2 py-0.5 text-xs rounded-md bg-zinc-800/70 text-zinc-500 border border-zinc-700/50">
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
         <h1 class="text-3xl md:text-4xl font-bold text-zinc-50 mb-4 leading-tight">{entry.data.title}</h1>
         <p class="text-sm text-zinc-500">Updated {fmtDate(entry.data.updated)}</p>
       </header>

@@ -11,13 +11,17 @@ import remarkRehype from 'remark-rehype';
 import rehypeRaw from 'rehype-raw';
 import rehypeShiki from '@shikijs/rehype';
 import rehypeStringify from 'rehype-stringify';
+import rehypeDocLinks from '../../lib/rehype-doc-links';
 
-async function createMarkdownProcessor() {
+async function createMarkdownProcessor(validIds: Set<string>) {
   return unified()
     .use(remarkParse)
     .use(remarkGfm)
     .use(remarkRehype, { allowDangerousHtml: true })
     .use(rehypeRaw)
+    // Rewrite relative `.md` links between docs into `/docs/...` site routes.
+    // The current doc's id is passed per-file via the VFile's `data.docId`.
+    .use(rehypeDocLinks, { validIds })
     .use(rehypeShiki, {
       theme: 'github-dark',
     })
@@ -29,7 +33,6 @@ export function ossDocsLoader(): Loader {
     name: 'oss-docs-loader',
     load: async (context) => {
       const { store, logger, parseData } = context;
-      const markdownProcessor = await createMarkdownProcessor();
 
       let docsDir: string;
       const require = createRequire(import.meta.url);
@@ -56,6 +59,11 @@ export function ossDocsLoader(): Loader {
       });
       
       logger.info(`Found ${files.length} files`);
+
+      // Set of all valid doc ids (route slugs) so the link-rewriter only
+      // rewrites relative `.md` links that resolve to a real doc.
+      const validIds = new Set(files.map(f => f.replace(/\.md$/, '')));
+      const markdownProcessor = await createMarkdownProcessor(validIds);
 
       for (const file of files) {
         const filePath = path.join(docsDir, file);
@@ -92,7 +100,12 @@ export function ossDocsLoader(): Loader {
         }
 
         const cleanBody = resolvedBody.replace(/^#\s+.+$/m, '').trim();
-        const rendered = await markdownProcessor.process(cleanBody);
+        // Pass the current doc id via the VFile so rehypeDocLinks can resolve
+        // relative `.md` links against this document's location.
+        const rendered = await markdownProcessor.process({
+          value: cleanBody,
+          data: { docId: id },
+        });
         const html = String(rendered);
 
         store.set({

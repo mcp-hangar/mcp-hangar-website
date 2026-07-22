@@ -1,0 +1,113 @@
+---
+title: "Digest pinning: tool schemas can't drift under you"
+description: "Pin a tool schema fingerprint at authorize time; any drift fails the call closed."
+type: Concept
+level: Core
+time: "5 min"
+theme: enforcement
+status: ship
+updated: 2026-07-22
+tags: [concepts, enforcement, digest-pinning, supply-chain, sep-1766]
+---
+
+# Digest pinning: tool schemas can't drift under you
+
+When you approve an MCP tool, you approve a specific thing: a name, a description,
+an input schema, an output schema. That is the contract the model reads to decide
+*how* to call the tool and *what* the arguments mean. Approve it once and you have
+made a judgment about a fixed shape.
+
+Then the shape moves. A server redeploys and renames a parameter. A description
+picks up a new instruction the model will now dutifully follow. An input schema
+gains a field. None of this trips an alarm, because nothing in stock MCP ties the
+tool you approved to the tool you are calling. The client re-reads `tools/list`,
+trusts whatever comes back, and invokes. The contract you signed off on is not the
+contract in force.
+
+Digest pinning closes that gap. It is the reason a tool schema **cannot drift under
+you** without the call failing closed.
+
+## A fingerprint over the contract, computed at the seam
+
+Hangar computes a SHA-256 fingerprint over the part of a tool that governs behavior:
+its `name`, `description`, `inputSchema`, and `outputSchema`, canonicalized so the
+hash is stable across JSON serializers. That fingerprint is the tool's **digest**.
+Same contract, same digest, every time. Change any governing field and the digest
+changes.
+
+The computation happens at the proxy seam, from the `tools/list` response Hangar
+already sees. That placement matters. It needs **no cooperation from the upstream
+server** — Hangar can pin and verify tools from any MCP server, including ones that
+have never heard of digests. The proxy sees the schema on the way through; the
+schema is exactly the surface a proxy can be authoritative about. This is a
+deliberate, proxy-side reading of SEP-1766. Where the SEP has each server publish
+a SHA-256 digest for every tool it exposes, Hangar computes the equivalent digest
+itself — over the same governing fields — so drift detection works today against
+servers that publish nothing at all. When a server does start emitting SEP-1766
+digests, the pinned value gains a second source to cross-check against; until then,
+the proxy is the source of truth.
+
+## Pin at authorize time, verify before the call lands
+
+The pin is not a one-time scan. It is bound into the authorization decision.
+
+When a tool is approved, its digest is recorded as the expected value — the pin.
+On every subsequent invoke, before the call is relayed to the upstream, Hangar
+recomputes the current digest and compares it to the pin. Match, and the call
+proceeds against the contract you authorized. Drift, and the call is **blocked
+before it reaches the upstream**, with a `DigestMismatchEvent` written to the
+provenance chain naming the tool and the divergence.
+
+Because the check sits on the invocation path itself, there is no window between
+"looks approved" and "actually runs." The authorized contract and the enforced
+contract are the same object. You are not trusting that the tool stayed put; you
+are proving it did, on every call.
+
+## Fail closed, including the ambiguous cases
+
+The enforcement posture is deny-on-drift, and the edges resolve in the safe
+direction:
+
+- **Digest mismatch** — the tool no longer matches its pin. Blocked. A validation
+  error goes back to the caller; the upstream is never touched.
+- **A tool with no pin** — under a locked-down policy, an untracked tool is denied
+  rather than waved through. What was never approved does not run.
+- **A schema that cannot be canonicalized or verified at all** — treated as drift.
+  Unverifiable is not a reason to allow; it is a reason to stop.
+
+There is a graded adoption path — a policy can start in **audit**, logging drift
+without blocking, so you can watch a fleet and capture the real digests before you
+turn on enforcement. But audit is the on-ramp, not the destination. The point of
+the feature is the **block** posture, where a mutated contract fails the call.
+
+Every one of these decisions is **deterministic**. There is no drift score, no
+model guessing whether a change looks malicious. Two hashes are equal or they are
+not. That is what makes the verdict something you can put in an audit trail and
+stand behind: it is reproducible, not probabilistic.
+
+## Why this is worth the strictness
+
+The threat is not hypothetical. [CVE-2025-54136 ("MCPoison")](https://nvd.nist.gov/vuln/detail/CVE-2025-54136)
+was exactly this shape: a client that trusted a previously approved MCP
+configuration indefinitely, so an attacker could swap a benign definition for a
+malicious one and never trigger re-approval. The root cause is a client that cannot
+tell when an approved definition has changed. Digest pinning is the mechanism that
+gives it that sense — and makes the change *fail the call* rather than silently
+take effect.
+
+It also composes with the rest of the enforcement plane. An [egress policy](/docs/guides/EGRESS_POLICY)
+can reference a per-tenant tool-schema pin (`match.toolSchemaDigestRef`), so
+"which upstreams, which tool calls" and "which exact tool contract" are enforced
+together at the same chokepoint. The pin is not a bolt-on; it is one of the
+fingerprints the deny-by-default seam checks before a call is allowed out.
+
+The tool you approved is a fixed shape. Digest pinning is what keeps it fixed —
+and turns any attempt to move it into a blocked call and a signed line in the
+record.
+
+---
+
+*Grounded in [ADR-004](/adr/ADR-004-sep-1766-digest-pinning) (SEP-1766 digest
+pinning) and [ADR-013](/adr/ADR-013-egress-policy-enforcement-model) (the
+enforcement model). Present in the current 1.6.0 line, MIT and self-hosted — no
+SaaS.*

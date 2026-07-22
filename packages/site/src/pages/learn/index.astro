@@ -4,80 +4,654 @@ import { getCollection } from 'astro:content';
 
 const entries = await getCollection('learn');
 const sorted = entries.sort((a, b) => b.data.updated.valueOf() - a.data.updated.valueOf());
-const [featured, ...rest] = sorted;
 
-const fmtDate = (d: Date) =>
-  d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+// type -> presentation (color rail + icon glyph + display label)
+const TC: Record<string, string> = {
+  Concept: 'var(--concept)',
+  Tutorial: 'var(--tutorial)',
+  Why: 'var(--why)',
+  Visual: 'var(--visual)',
+};
+const ICON: Record<string, string> = {
+  Concept: '◆', // ◆
+  Tutorial: '▶', // ▶
+  Why: '✦', // ✦
+  Visual: '◈', // ◈
+};
+const TLABEL: Record<string, string> = {
+  Concept: 'Concept',
+  Tutorial: 'Tutorial',
+  Why: 'Deep dive',
+  Visual: 'Visual',
+};
+const statusText = (s: string) => (s === 'ship' ? '1.6.0' : 'v2 preview');
 ---
 
-<Base title="Learn | MCP Hangar" description="Evergreen concepts and architecture for the MCP Hangar enforcement plane." path="/learn">
-  <main class="max-w-5xl mx-auto px-6 py-16">
-    <div class="mb-12">
-      <h1 class="text-4xl font-bold text-zinc-50 mb-2">Learn</h1>
-      <p class="text-zinc-500">Evergreen concepts and architecture behind the enforcement plane.</p>
-    </div>
+<Base
+  title="Learn | MCP Hangar"
+  description="Understand how Hangar governs every MCP call — concepts, walkthroughs, and the design reasoning behind the enforcement plane. Explore by the request path, or filter the library."
+  path="/learn"
+>
+  <div class="learn-hub">
+    <div class="wrap">
+      <header class="hero">
+        <div class="eyebrow">Learn</div>
+        <h1>Understand how Hangar governs every MCP call.</h1>
+        <p>
+          Concepts, hands-on walkthroughs, and the design reasoning behind the
+          enforcement plane — explore by the part of the request path you care
+          about, or filter the library below.
+        </p>
+      </header>
 
-    <!-- Featured (most recently updated) entry -->
-    {featured && (
-      <a href={`/learn/${featured.id}`} class="group block mb-12">
-        <article class="relative p-8 rounded-2xl bg-zinc-900/40 border border-zinc-800/50 hover:border-emerald-500/20 transition-all duration-300 hover:shadow-lg hover:shadow-emerald-500/5 overflow-hidden">
-          <div class="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-          <div class="relative">
-            <span class="inline-block px-2.5 py-0.5 text-xs font-medium rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 mb-4 capitalize">
-              {featured.data.section}
-            </span>
-            <h2 class="text-2xl md:text-3xl font-bold text-zinc-100 mb-3 group-hover:text-emerald-300 transition-colors">
-              {featured.data.title}
-            </h2>
-            <p class="text-sm text-zinc-500">Updated {fmtDate(featured.data.updated)}</p>
-            <p class="text-zinc-400 mt-4 text-lg leading-relaxed max-w-3xl">
-              {featured.data.description}
-            </p>
-            {featured.data.tags && (
-              <div class="flex flex-wrap gap-2 mt-4">
-                {featured.data.tags.map(tag => (
-                  <span class="px-2 py-0.5 text-xs rounded-md bg-zinc-800/70 text-zinc-500 border border-zinc-700/50">
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            )}
-            <span class="inline-flex items-center gap-1 mt-6 text-sm text-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity">
-              Read <span class="group-hover:translate-x-0.5 transition-transform">&rarr;</span>
-            </span>
+      <!-- ARCHITECTURE MAP (primary explore device) -->
+      <section class="arch" aria-label="How Hangar governs an MCP call across two planes">
+        <div class="archhead">
+          <div class="archtitle">How a call is governed</div>
+          <div class="archhint">
+            Click any control to explore its concepts.
+            <a class="clearmap" id="clearmap" role="button" tabindex="0">Show everything</a>
           </div>
-        </article>
-      </a>
-    )}
+        </div>
 
-    <!-- Remaining entries -->
-    {rest.length > 0 && (
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-        {rest.map(entry => (
-          <a href={`/learn/${entry.id}`} class="group block">
-            <article class="h-full p-6 rounded-xl bg-zinc-900/30 border border-zinc-800/50 hover:border-emerald-500/15 hover:bg-zinc-900/50 transition-all duration-300">
-              <span class="inline-block px-2 py-0.5 text-[11px] font-medium rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 capitalize">
-                {entry.data.section}
-              </span>
-              <h2 class="text-lg font-semibold text-zinc-100 mt-3 mb-2 group-hover:text-emerald-300 transition-colors leading-snug">
-                {entry.data.title}
-              </h2>
-              <p class="text-sm text-zinc-500 leading-relaxed line-clamp-2">
-                {entry.data.description}
-              </p>
-              {entry.data.tags && (
-                <div class="flex flex-wrap gap-1.5 mt-3">
-                  {entry.data.tags.map(tag => (
-                    <span class="px-1.5 py-0.5 text-[11px] rounded bg-zinc-800/70 text-zinc-600">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </article>
+        <!-- PLANE A — cluster / deploy-time (the operator). Runs once at pod/CR
+             admission, NOT per request: a different plane and a different moment. -->
+        <div class="plane">
+          <div class="planehead">
+            <span class="planetag">Cluster plane</span>
+            <span class="planewhen">operator admission · runs at deploy, once per workload — not per request</span>
+          </div>
+          <div class="planerow">
+            <button type="button" class="ctl pbox" data-theme="enforcement" data-filter="what-is-a-policy-enforcement-plane" data-active="false">
+              <span class="acc"></span>
+              <span class="ph">Pod-registration + CR validation</span>
+              <span class="pd">admission webhook · operator v0.13.0</span>
+            </button>
+            <button type="button" class="ctl pbox" data-theme="enforcement" data-filter="digest-pinning" data-active="false">
+              <span class="acc"></span>
+              <span class="ph">Image-digest pinning</span>
+              <span class="pd">admission webhook · operator v0.13.0</span>
+            </button>
+            <button type="button" class="ctl pbox" data-theme="enforcement" data-filter="the-l7-mcpegresspolicy-language write-your-first-mcpegresspolicy" data-active="false">
+              <span class="acc"></span>
+              <span class="ph">Default-deny egress + L3/L4 backstop</span>
+              <span class="pd">network policy · operator v0.13.0</span>
+            </button>
+          </div>
+          <div class="planenote">
+            Applies only in namespaces labelled <code>mcp-hangar.io/enforce-egress=true</code>.
+          </div>
+        </div>
+
+        <div class="planegap" aria-hidden="true">
+          <span class="gapline"></span>
+          <span class="gaptext">a different plane &amp; moment · below is the per-request path (core)</span>
+          <span class="gapline"></span>
+        </div>
+
+        <!-- PLANE B — the per-request path (core), left → right. -->
+        <div class="flow">
+          <!-- 1 · client -->
+          <button type="button" class="ctl node" data-theme="foundations" data-filter="what-is-a-policy-enforcement-plane the-request-path" data-active="false">
+            <span class="acc"></span>
+            <span class="nt">Entry</span>
+            <span class="nh">Client / Agent</span>
+            <span class="nd">the caller making tool requests</span>
+          </button>
+
+          <span class="conn" aria-hidden="true"></span>
+
+          <!-- 2 · identity + auth middleware -->
+          <button type="button" class="ctl node" data-theme="foundations" data-filter="the-request-path what-is-a-policy-enforcement-plane" data-active="false">
+            <span class="acc"></span>
+            <span class="nt">Auth</span>
+            <span class="nh">Identity + auth middleware</span>
+            <span class="nd">binds the authenticated caller + tenant · ASGI middleware · v1.6.0</span>
+            <span class="naside">Mcp-Method / Mcp-Name header routing is a non-security aside — it does not bind identity.</span>
+          </button>
+
+          <span class="conn" aria-hidden="true"></span>
+
+          <!-- 3 · the enforcement pipeline (ordered, vertical) — the seam -->
+          <div class="seam">
+            <div class="seamlabel">The enforcement pipeline</div>
+            <div class="seamsub">ordered — top → bottom is real execution order</div>
+            <div class="pipelegend">
+              <span><i class="k k-gate"></i> governance gate</span>
+              <span><i class="k k-rel"></i> reliability</span>
+              <span><i class="k k-off"></i> opt-in · off</span>
+            </div>
+            <ol class="pipe">
+              <li>
+                <button type="button" class="ctl step is-gate" data-theme="enforcement" data-filter="what-is-a-policy-enforcement-plane enforcement-plane-vs-api-gateway" data-active="false">
+                  <span class="acc"></span>
+                  <span class="sord">a</span>
+                  <span class="sbody"><span class="sh">Tool-access authz</span><span class="sd">tenant / member scope</span></span>
+                </button>
+              </li>
+              <li>
+                <button type="button" class="ctl step is-gate" data-theme="enforcement" data-filter="what-is-a-policy-enforcement-plane" data-active="false">
+                  <span class="acc"></span>
+                  <span class="sord">b</span>
+                  <span class="sbody"><span class="sh">Tool-withdrawal check</span><span class="sd">per-tenant withdrawal</span></span>
+                </button>
+              </li>
+              <li>
+                <button type="button" class="ctl step is-gate" data-theme="enforcement" data-filter="digest-pinning" data-active="false">
+                  <span class="acc"></span>
+                  <span class="sord">c</span>
+                  <span class="sbody"><span class="sh">Tool-schema digest-pin verify <span class="tag opt">opt-in</span></span><span class="sd">schema drift fails closed</span></span>
+                </button>
+              </li>
+              <li>
+                <button type="button" class="ctl step is-rel" data-theme="enforcement" data-filter="the-request-path" data-active="false">
+                  <span class="acc"></span>
+                  <span class="sord">d</span>
+                  <span class="sbody"><span class="sh">Circuit-breaker / health</span><span class="sd">reliability</span></span>
+                </button>
+              </li>
+              <li>
+                <button type="button" class="ctl step is-off" data-theme="enforcement" data-filter="the-request-path" data-active="false">
+                  <span class="acc"></span>
+                  <span class="sord">e</span>
+                  <span class="sbody"><span class="sh">Interceptor validators <span class="tag off">off</span></span><span class="sd">opt-in · off by default</span></span>
+                </button>
+              </li>
+              <li>
+                <button type="button" class="ctl step is-gate" data-theme="enforcement" data-filter="the-l7-mcpegresspolicy-language" data-active="false">
+                  <span class="acc"></span>
+                  <span class="sord">f</span>
+                  <span class="sbody"><span class="sh">Approval gate</span><span class="sd">human-in-the-loop</span></span>
+                </button>
+              </li>
+              <li>
+                <button type="button" class="ctl step is-rel" data-theme="enforcement" data-filter="the-request-path" data-active="false">
+                  <span class="acc"></span>
+                  <span class="sord">g</span>
+                  <span class="sbody"><span class="sh">Concurrency / backpressure</span><span class="sd">reliability</span></span>
+                </button>
+              </li>
+              <li>
+                <button type="button" class="ctl step is-off" data-theme="enforcement" data-filter="the-request-path" data-active="false">
+                  <span class="acc"></span>
+                  <span class="sord">h</span>
+                  <span class="sbody"><span class="sh">Interceptor mutators — request <span class="tag off">off</span></span><span class="sd">opt-in · off by default</span></span>
+                </button>
+              </li>
+              <li>
+                <button type="button" class="ctl step is-gate is-l7" data-theme="enforcement" data-filter="the-l7-mcpegresspolicy-language write-your-first-mcpegresspolicy from-install-to-a-governed-deny" data-active="false">
+                  <span class="acc"></span>
+                  <span class="sord">i</span>
+                  <span class="sbody">
+                    <span class="sh">Egress L7 policy <span class="slast">last gate before the wire</span></span>
+                    <span class="sd">tool + arguments — fires inside invoke_tool, right before upstream I/O</span>
+                    <span class="sstat">core v1.6.0 · end-to-end pending operator v0.14.0</span>
+                  </span>
+                </button>
+              </li>
+            </ol>
+          </div>
+
+          <span class="conn wire" aria-hidden="true"><span class="wirenote">to the wire</span></span>
+
+          <!-- 4 · upstream -->
+          <button type="button" class="ctl node" data-theme="enforcement" data-filter="what-is-a-policy-enforcement-plane" data-active="false">
+            <span class="acc"></span>
+            <span class="nt">Upstream</span>
+            <span class="nh">MCP servers</span>
+            <span class="nd">the tools being governed · Hangar-originated TLS</span>
+          </button>
+
+          <!-- 5 · response side (compact) -->
+          <div class="respside">
+            <span class="respback" aria-hidden="true">↩ response</span>
+            <button type="button" class="ctl rbox is-off" data-theme="enforcement" data-filter="the-request-path" data-active="false">
+              <span class="acc"></span>
+              <span class="rh">Interceptor mutators — response <span class="tag off">off</span></span>
+              <span class="rd">opt-in · off by default</span>
+            </button>
+            <button type="button" class="ctl rbox" data-theme="enforcement" data-filter="the-request-path" data-active="false">
+              <span class="acc"></span>
+              <span class="rh">Response truncation</span>
+              <span class="rd">size cap · v1.6.0</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- ASYNC BRANCH — hangs off step 4's RESPONSE, only when an upstream
+             tools/call RETURNS a task handle. Not a client-selected lane. -->
+        <div class="asyncwrap">
+          <div class="asynclead">if an upstream returns a task handle →</div>
+          <div class="asyncrow">
+            <button type="button" class="ctl abox" data-theme="async" data-filter="relay-with-governance relay-with-governance-vs-executor the-governed-task-relay-flow govern-an-async-task-end-to-end tasks-on-the-v2-sdk" data-active="false">
+              <span class="acc"></span>
+              <span class="ah">Task relay <span class="tag v2">v2 preview</span></span>
+              <span class="ad">GovernedTaskStore: ownership + digest re-verify</span>
+            </button>
+            <span class="conn" aria-hidden="true"></span>
+            <button type="button" class="ctl abox" data-theme="async" data-filter="mid-flight-consent govern-an-async-task-end-to-end" data-active="false">
+              <span class="acc"></span>
+              <span class="ah">Consent gate <span class="tag v2">v2 preview</span></span>
+              <span class="ad">mid-flight input_required · fail-closed</span>
+            </button>
+          </div>
+          <div class="asyncnote">
+            ADR-014 · not in v1.6.0 · relay off → clean <code>TaskRelayNotSupported</code>.
+          </div>
+        </div>
+
+        <!-- cross-cutting audit band, spanning under the per-request path -->
+        <button type="button" class="ctl auditband" data-theme="observability" data-filter="governance-observability" data-active="false">
+          <span class="ab-l">Audit &amp; observability</span>
+          <span class="ab-r">cross-cutting under the per-request path — domain events + OTel spans at every governed step · v1.6.0 (relay task events v2-preview)</span>
+        </button>
+      </section>
+
+      <!-- FACETS -->
+      <div class="facets">
+        <div class="fgroup">
+          <span class="lbl">Type</span>
+          <button class="chip" data-f="type" data-v="Concept"><span class="sw" style="background:var(--concept)"></span>Concept</button>
+          <button class="chip" data-f="type" data-v="Tutorial"><span class="sw" style="background:var(--tutorial)"></span>Tutorial</button>
+          <button class="chip" data-f="type" data-v="Why"><span class="sw" style="background:var(--why)"></span>Deep dive</button>
+          <button class="chip" data-f="type" data-v="Visual"><span class="sw" style="background:var(--visual)"></span>Visual</button>
+        </div>
+        <div class="fgroup">
+          <span class="lbl">Level</span>
+          <button class="chip" data-f="level" data-v="Intro">Intro</button>
+          <button class="chip" data-f="level" data-v="Core">Core</button>
+          <button class="chip" data-f="level" data-v="Deep">Deep</button>
+        </div>
+        <div class="fgroup">
+          <span class="lbl">Status</span>
+          <button class="chip" data-f="status" data-v="ship">Shipped 1.6.0</button>
+          <button class="chip" data-f="status" data-v="preview">v2 preview</button>
+        </div>
+        <span class="count" id="count"></span>
+      </div>
+
+      <!-- GRID -->
+      <div class="grid" id="grid">
+        {sorted.map(entry => (
+          <a
+            href={`/learn/${entry.id}`}
+            class="card"
+            style={`--tc:${TC[entry.data.type]}`}
+            data-slug={entry.id}
+            data-type={entry.data.type}
+            data-level={entry.data.level}
+            data-status={entry.data.status}
+            data-theme={entry.data.theme}
+          >
+            <div class="rail" />
+            <div class="inner">
+              <div class="ic">{ICON[entry.data.type]}</div>
+              <h4>{entry.data.title}</h4>
+              <p class="learn">{entry.data.description}</p>
+              <div class="meta">
+                <span class="type">{TLABEL[entry.data.type]}</span>
+                <span class="sep" />
+                <span>{entry.data.level}</span>
+                <span class="sep" />
+                <span class="mono">{entry.data.time}</span>
+                <span class={`pill ${entry.data.status}`}>{statusText(entry.data.status)}</span>
+              </div>
+            </div>
           </a>
         ))}
+        {sorted.length === 0 && (
+          <div class="empty">No entries yet — check back soon.</div>
+        )}
       </div>
-    )}
-  </main>
+
+      <div class="foot">
+        A discovery-first library: an architecture map and facets — not a chronological list.
+      </div>
+    </div>
+  </div>
 </Base>
+
+<style>
+  .learn-hub {
+    /* Reconciled to the site's zinc-dark / emerald palette (Tailwind theme). */
+    --panel: #18181b;        /* zinc-900 */
+    --panel-2: #1b1b1f;
+    --raise: #27272a;        /* zinc-800 */
+    --ink: #fafafa;          /* zinc-50 */
+    --ink-2: #d4d4d8;        /* zinc-300 */
+    --muted: #a1a1aa;        /* zinc-400 */
+    --faint: #71717a;        /* zinc-500 */
+    --line: #27272a;         /* zinc-800 */
+    --line-2: #3f3f46;       /* zinc-700 */
+    --brand: #34d399;        /* emerald-400 */
+    --brand-dim: #0f2f26;
+    --concept: #2dd4bf;      /* teal */
+    --tutorial: #38bdf8;     /* sky */
+    --why: #a78bfa;          /* violet */
+    --visual: #fbbf24;       /* amber */
+    --ship: #34d399;
+    --ship-bg: #0f2a20;
+    --preview: #fbbf24;
+    --preview-bg: #2a230f;
+    --shadow: 0 1px 0 rgba(255, 255, 255, .02) inset, 0 8px 30px rgba(0, 0, 0, .45);
+    --r: 14px;
+  }
+  .learn-hub .mono { font-family: var(--font-mono, ui-monospace, monospace); }
+  .learn-hub .wrap { max-width: 1140px; margin: 0 auto; padding: 0 22px; }
+
+  /* hero */
+  .learn-hub .hero { padding: 44px 0 26px; position: relative; overflow: hidden; }
+  .learn-hub .hero::before {
+    content: ""; position: absolute; inset: -40% -10% auto auto; width: 520px; height: 420px;
+    background: radial-gradient(closest-side, color-mix(in srgb, var(--brand) 20%, transparent), transparent 70%);
+    filter: blur(10px); opacity: .5; pointer-events: none;
+  }
+  .learn-hub .eyebrow { font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--brand); font-weight: 700; }
+  .learn-hub .hero h1 { font-size: clamp(30px, 5vw, 46px); font-weight: 800; letter-spacing: -.03em; margin: 12px 0 10px; max-width: 16ch; text-wrap: balance; color: var(--ink); }
+  .learn-hub .hero p { color: var(--ink-2); font-size: 17px; max-width: 60ch; margin: 0; }
+
+  /* ---- architecture map ---- */
+  /* per-theme accent, reused from the type palette (matches the card rails) */
+  /* Map controls carry NO type-hue. The meaning ("v2 preview", "experimental")
+     is already in the text badges, and the type palette belongs to the cards +
+     legend — so the diagram stays neutral and never competes with it. One neutral
+     accent; the brand marks only the active (clicked) control. */
+  .learn-hub .ctl { --acc: var(--faint); }
+
+  .learn-hub .arch {
+    margin: 22px 0 6px;
+    background: radial-gradient(120% 120% at 50% 0, var(--panel-2), var(--panel));
+    border: 1px solid var(--line); border-radius: var(--r); padding: 20px 20px 22px;
+  }
+  .learn-hub .archhead { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+  .learn-hub .archtitle { font-size: 12.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+  .learn-hub .archhint { font-size: 12.5px; color: var(--faint); }
+  .learn-hub .clearmap { color: var(--brand); cursor: pointer; font-weight: 600; margin-left: 4px; }
+  .learn-hub .clearmap:hover { text-decoration: underline; }
+
+  /* generic control reset (nodes, seam layers, lanes, audit band are all buttons) */
+  .learn-hub .ctl {
+    appearance: none; font: inherit; text-align: left; cursor: pointer; color: inherit;
+    background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+    position: relative; overflow: hidden; transition: transform .15s, border-color .15s, box-shadow .15s;
+  }
+  .learn-hub .ctl:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--muted) 45%, var(--line)); }
+  .learn-hub .ctl:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+  .learn-hub .ctl[data-active="true"] { border-color: var(--brand); box-shadow: 0 0 0 2px color-mix(in srgb, var(--brand) 70%, transparent) inset; }
+  .learn-hub .ctl .acc { position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--brand); opacity: 0; transition: opacity .15s; }
+  .learn-hub .ctl[data-active="true"] .acc { opacity: 1; }
+
+  /* ---- PLANE A: cluster / deploy-time (operator). A clearly separated strip
+     ABOVE the request path — a different plane and a different moment. It is
+     neutral like the rest of the map; only the active mark uses brand. ---- */
+  .learn-hub .plane {
+    border: 1px dashed var(--line-2); border-radius: 12px; background: var(--panel-2);
+    padding: 11px 12px 12px; margin-bottom: 4px;
+  }
+  .learn-hub .planehead { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+  .learn-hub .planetag {
+    font-size: 10.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .09em; color: var(--muted);
+    border: 1px solid var(--line-2); border-radius: 999px; padding: 2px 9px;
+  }
+  .learn-hub .planewhen { font-size: 11.5px; color: var(--faint); }
+  .learn-hub .planerow { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .learn-hub .pbox { padding: 10px 12px; display: flex; flex-direction: column; }
+  .learn-hub .pbox .ph { font-weight: 700; font-size: 12.5px; color: var(--ink); }
+  .learn-hub .pbox .pd { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .learn-hub .planenote { font-size: 11px; color: var(--faint); margin-top: 9px; }
+  .learn-hub .planenote code, .learn-hub .asyncnote code, .learn-hub .naside code {
+    font-family: var(--font-mono, ui-monospace, monospace); font-size: .92em; color: var(--ink-2);
+  }
+
+  /* the seam between the two planes — signals a change of plane + moment */
+  .learn-hub .planegap { display: flex; align-items: center; gap: 12px; margin: 10px 2px 12px; }
+  .learn-hub .planegap .gapline { flex: 1; height: 1px; background: var(--line); }
+  .learn-hub .planegap .gaptext { font-size: 10.5px; text-transform: uppercase; letter-spacing: .08em; color: var(--faint); font-weight: 700; }
+
+  /* Sides stay their natural (compact) height; the dense seam stays tall — the
+     asymmetry IS the point (look how much happens at the chokepoint vs the
+     passthrough), so centre the stages rather than stretching the thin ones. */
+  .learn-hub .flow { display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap; }
+
+  /* flow stages (compact side nodes) */
+  .learn-hub .node {
+    flex: 1 1 130px; min-width: 130px; padding: 15px 13px 13px; display: flex; flex-direction: column;
+    border-style: dashed; border-color: var(--line-2);
+  }
+  .learn-hub .node .nt { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--faint); font-weight: 700; }
+  .learn-hub .node .nh { font-weight: 700; font-size: 14.5px; margin: 5px 0 3px; color: var(--ink); }
+  .learn-hub .node .nd { font-size: 12px; color: var(--muted); }
+  .learn-hub .node .naside { font-size: 10.5px; color: var(--faint); margin-top: 6px; padding-top: 6px; border-top: 1px dotted var(--line-2); }
+
+  /* the enforcement seam — the tall, dense, ORDERED pipeline (the chokepoint) */
+  .learn-hub .seam {
+    flex: 1.7 1 264px; min-width: 264px; border: 1px solid color-mix(in srgb, var(--brand) 40%, var(--line));
+    background: linear-gradient(180deg, var(--brand-dim), var(--panel)); border-radius: 12px; padding: 12px 11px;
+  }
+  .learn-hub .seam .seamlabel { text-align: center; font-size: 11px; text-transform: uppercase; letter-spacing: .1em; color: var(--brand); font-weight: 800; }
+  .learn-hub .seam .seamsub { text-align: center; font-size: 11px; color: var(--faint); margin: 2px 0 8px; }
+  .learn-hub .pipelegend { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; font-size: 10px; color: var(--faint); }
+  .learn-hub .pipelegend span { display: inline-flex; align-items: center; gap: 5px; }
+  .learn-hub .pipelegend .k { width: 9px; height: 9px; border-radius: 2px; }
+  .learn-hub .pipelegend .k-gate { background: var(--ink-2); }
+  .learn-hub .pipelegend .k-rel { background: var(--faint); opacity: .7; }
+  .learn-hub .pipelegend .k-off { background: transparent; border: 1px dashed var(--line-2); }
+
+  /* the ordered pipeline: top -> bottom is execution order (a spine + ordinals) */
+  .learn-hub .pipe { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; position: relative; }
+  .learn-hub .step { width: 100%; padding: 8px 10px; display: flex; align-items: flex-start; gap: 9px; }
+  .learn-hub .step .sord {
+    flex: 0 0 auto; width: 17px; height: 17px; border-radius: 50%; display: grid; place-items: center; margin-top: 1px;
+    font-family: var(--font-mono, ui-monospace, monospace); font-size: 10px; font-weight: 700;
+    color: var(--muted); background: var(--raise); border: 1px solid var(--line-2);
+  }
+  .learn-hub .step .sbody { display: flex; flex-direction: column; min-width: 0; }
+  .learn-hub .step .sh { font-weight: 700; font-size: 12.5px; color: var(--ink); display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+  .learn-hub .step .sd { font-size: 11px; color: var(--muted); margin-top: 1px; }
+  .learn-hub .step .sstat { font-size: 10px; color: var(--faint); margin-top: 4px; }
+
+  /* PRIMARY governance gates: solid, full-contrast, prominent */
+  .learn-hub .step.is-gate { border-color: var(--line-2); }
+  .learn-hub .step.is-gate .sord { color: var(--ink); background: var(--panel); }
+  /* SECONDARY reliability steps: solid but dimmed back */
+  .learn-hub .step.is-rel { background: var(--panel-2); opacity: .82; }
+  .learn-hub .step.is-rel .sh { color: var(--ink-2); font-weight: 600; }
+  /* OFF-by-default interceptors: dashed + muted, clearly not live */
+  .learn-hub .step.is-off { border-style: dashed; background: transparent; opacity: .62; }
+  .learn-hub .step.is-off .sh { color: var(--muted); font-weight: 600; }
+  /* the L7 gate — the climax of the seam: last gate before the wire (seam emphasis) */
+  .learn-hub .step.is-l7 { border-color: color-mix(in srgb, var(--brand) 45%, var(--line)); background: color-mix(in srgb, var(--brand-dim) 70%, var(--panel)); }
+  .learn-hub .step.is-l7 .slast {
+    font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em;
+    color: var(--brand); border: 1px solid color-mix(in srgb, var(--brand) 45%, transparent); border-radius: 5px; padding: 1px 5px;
+  }
+
+  /* response side (compact) — after upstream */
+  .learn-hub .respside { flex: 1 1 150px; min-width: 150px; display: flex; flex-direction: column; gap: 6px; }
+  .learn-hub .respback { font-size: 10.5px; text-transform: uppercase; letter-spacing: .07em; color: var(--faint); font-weight: 700; }
+  .learn-hub .rbox { padding: 9px 11px; display: flex; flex-direction: column; }
+  .learn-hub .rbox .rh { font-weight: 700; font-size: 12px; color: var(--ink); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .learn-hub .rbox .rd { font-size: 11px; color: var(--muted); margin-top: 1px; }
+  .learn-hub .rbox.is-off { border-style: dashed; opacity: .62; }
+  .learn-hub .rbox.is-off .rh { color: var(--muted); font-weight: 600; }
+
+  /* async branch — hangs off the upstream RESPONSE (not a client-chosen lane) */
+  .learn-hub .asyncwrap {
+    margin-top: 12px; border: 1px dashed var(--line-2); border-radius: 12px; background: var(--panel-2);
+    padding: 11px 12px 12px;
+  }
+  .learn-hub .asynclead { font-size: 12px; color: var(--ink-2); font-weight: 600; margin-bottom: 10px; }
+  .learn-hub .asyncrow { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .learn-hub .abox { flex: 1 1 220px; min-width: 200px; padding: 11px 12px; display: flex; flex-direction: column; }
+  .learn-hub .abox .ah { font-weight: 700; font-size: 13px; color: var(--ink); display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+  .learn-hub .abox .ad { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+  .learn-hub .asyncnote { font-size: 11px; color: var(--faint); margin-top: 9px; }
+
+  /* inline tags — neutral, except the meaningful amber v2 status badge */
+  .learn-hub .tag { font-size: 9.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; padding: 2px 6px; border-radius: 5px; white-space: nowrap; }
+  .learn-hub .tag.opt { background: var(--raise); color: var(--muted); }
+  .learn-hub .tag.off { background: transparent; color: var(--faint); border: 1px dashed var(--line-2); }
+  .learn-hub .tag.v2 { background: var(--preview-bg); color: var(--preview); }
+
+  /* connectors — convey the left->right flow */
+  .learn-hub .conn { align-self: center; flex: 0 0 18px; height: 2px; background: var(--line-2); position: relative; }
+  .learn-hub .conn::after { content: ""; position: absolute; right: -1px; top: -3px; border: 4px solid transparent; border-left-color: var(--line-2); }
+  .learn-hub .conn.wire { flex: 0 0 30px; }
+  .learn-hub .conn.wire .wirenote { position: absolute; left: 50%; top: -16px; transform: translateX(-50%); white-space: nowrap; font-size: 9px; text-transform: uppercase; letter-spacing: .06em; color: var(--faint); font-weight: 700; }
+
+  /* cross-cutting audit band spanning under the per-request path */
+  .learn-hub .auditband {
+    margin-top: 12px; width: 100%; display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    padding: 12px 14px; border-style: dashed; border-color: var(--line-2);
+    background: var(--panel-2);
+  }
+  .learn-hub .auditband .ab-l { font-weight: 800; font-size: 12.5px; letter-spacing: .04em; color: var(--muted); text-transform: uppercase; }
+  .learn-hub .auditband .ab-r { font-size: 12.5px; color: var(--muted); }
+
+  @media (max-width: 860px) {
+    .learn-hub .planerow { grid-template-columns: 1fr; }
+    .learn-hub .flow { flex-direction: column; align-items: stretch; }
+    .learn-hub .node, .learn-hub .seam, .learn-hub .respside { flex: 1 1 auto; min-width: 0; }
+    .learn-hub .conn { flex: 0 0 16px; width: 2px; height: 16px; align-self: center; }
+    .learn-hub .conn::after { right: -3px; top: auto; bottom: -1px; border: 4px solid transparent; border-left-color: transparent; border-top-color: var(--line-2); }
+    .learn-hub .conn.wire { flex: 0 0 26px; height: 26px; }
+    .learn-hub .conn.wire .wirenote { left: auto; top: 50%; right: 8px; transform: translateY(-50%); }
+  }
+
+  /* facets */
+  .learn-hub .facets {
+    display: flex; flex-wrap: wrap; gap: 18px; align-items: center; margin: 18px 0 4px; padding: 14px 16px;
+    background: var(--panel); border: 1px solid var(--line); border-radius: 12px; position: sticky; top: 12px; z-index: 10;
+  }
+  .learn-hub .fgroup { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .learn-hub .fgroup .lbl { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--faint); font-weight: 700; margin-right: 2px; }
+  .learn-hub .chip {
+    appearance: none; border: 1px solid var(--line); background: var(--panel-2); color: var(--ink-2); font: inherit; font-size: 12.5px; font-weight: 600;
+    padding: 5px 11px; border-radius: 999px; cursor: pointer; transition: all .12s; display: inline-flex; align-items: center; gap: 6px;
+  }
+  .learn-hub .chip:hover { border-color: var(--muted); }
+  .learn-hub .chip[aria-pressed="true"] { background: var(--brand-dim); border-color: color-mix(in srgb, var(--brand) 55%, transparent); color: var(--brand); }
+  .learn-hub .chip .sw { width: 8px; height: 8px; border-radius: 3px; }
+  .learn-hub .count { margin-left: auto; font-size: 12.5px; color: var(--faint); }
+  .learn-hub .count b { color: var(--ink); }
+
+  /* card grid */
+  .learn-hub .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 16px 0 60px; }
+  @media (max-width: 920px) { .learn-hub .grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 600px) { .learn-hub .grid { grid-template-columns: 1fr; } }
+  .learn-hub .card {
+    background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); padding: 0; overflow: hidden;
+    display: flex; flex-direction: column; transition: transform .15s, border-color .15s, box-shadow .15s; cursor: pointer; position: relative;
+    color: inherit; text-decoration: none;
+  }
+  .learn-hub .card:hover { transform: translateY(-4px); box-shadow: var(--shadow); border-color: color-mix(in srgb, var(--tc) 45%, var(--line)); }
+  .learn-hub .card .rail { height: 3px; background: var(--tc); }
+  .learn-hub .card .inner { padding: 16px 16px 15px; display: flex; flex-direction: column; height: 100%; }
+  .learn-hub .card .ic {
+    width: 34px; height: 34px; border-radius: 9px; display: grid; place-items: center; margin-bottom: 12px;
+    background: color-mix(in srgb, var(--tc) 16%, transparent); color: var(--tc); font-size: 18px;
+  }
+  .learn-hub .card h4 { font-size: 15.5px; font-weight: 700; letter-spacing: -.01em; margin: 0 0 6px; line-height: 1.28; color: var(--ink); }
+  .learn-hub .card .learn {
+    font-size: 13px; color: var(--ink-2); margin: 0 0 14px; flex: 1;
+    display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .learn-hub .card .meta { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; font-size: 11.5px; color: var(--muted); }
+  .learn-hub .card .type { color: var(--tc); font-weight: 700; }
+  .learn-hub .card .meta .sep { width: 3px; height: 3px; border-radius: 50%; background: var(--faint); }
+  .learn-hub .pill { font-size: 10.5px; font-weight: 700; padding: 2px 7px; border-radius: 5px; letter-spacing: .02em; margin-left: auto; }
+  .learn-hub .pill.ship { background: var(--ship-bg); color: var(--ship); }
+  .learn-hub .pill.preview { background: var(--preview-bg); color: var(--preview); }
+  .learn-hub .card.hidden { display: none; }
+  .learn-hub .empty { grid-column: 1 / -1; text-align: center; color: var(--faint); padding: 40px; font-size: 14px; }
+
+  .learn-hub .foot { border-top: 1px solid var(--line); color: var(--faint); font-size: 12.5px; padding: 22px 0 50px; text-align: center; }
+</style>
+
+<script>
+  const hub = document.querySelector('.learn-hub') as HTMLElement | null;
+  const grid = document.getElementById('grid');
+  if (hub && grid) {
+    const cards = [...grid.querySelectorAll('.card')] as HTMLElement[];
+    const total = cards.length;
+    const controls = [...document.querySelectorAll('.ctl')] as HTMLElement[];
+    const active: {
+      type: Set<string>; level: Set<string>; status: Set<string>;
+      mapSlugs: Set<string> | null; control: HTMLElement | null;
+    } = { type: new Set(), level: new Set(), status: new Set(), mapSlugs: null, control: null };
+
+    function apply() {
+      let n = 0;
+      cards.forEach(c => {
+        const ok =
+          (!active.type.size || active.type.has(c.dataset.type!)) &&
+          (!active.level.size || active.level.has(c.dataset.level!)) &&
+          (!active.status.size || active.status.has(c.dataset.status!)) &&
+          (!active.mapSlugs || active.mapSlugs.has(c.dataset.slug!));
+        c.classList.toggle('hidden', !ok);
+        if (ok) n++;
+      });
+      const old = grid!.querySelector('.empty');
+      if (old) old.remove();
+      if (n === 0 && total > 0) {
+        const e = document.createElement('div');
+        e.className = 'empty';
+        e.textContent = 'No entries match — clear a filter.';
+        grid!.appendChild(e);
+      }
+      const cnt = document.getElementById('count');
+      if (cnt) cnt.innerHTML = `<b>${n}</b> of ${total} entries`;
+    }
+
+    // facet chips
+    document.querySelectorAll('.chip').forEach(ch =>
+      ch.addEventListener('click', () => {
+        const f = (ch as HTMLElement).dataset.f as 'type' | 'level' | 'status';
+        const v = (ch as HTMLElement).dataset.v!;
+        const on = ch.getAttribute('aria-pressed') === 'true';
+        ch.setAttribute('aria-pressed', (!on).toString());
+        on ? active[f].delete(v) : active[f].add(v);
+        apply();
+      })
+    );
+
+    // mark ONLY the single clicked control as active — no theme-based highlight
+    function markControls() {
+      controls.forEach(x =>
+        x.setAttribute('data-active', (x === active.control).toString())
+      );
+    }
+
+    // architecture map: click a control -> filter the grid by its own slug set
+    controls.forEach(c =>
+      c.addEventListener('click', () => {
+        if (active.control === c) {
+          active.control = null;
+          active.mapSlugs = null;
+        } else {
+          active.control = c;
+          active.mapSlugs = new Set((c.dataset.filter || '').split(/\s+/).filter(Boolean));
+        }
+        markControls();
+        apply();
+      })
+    );
+
+    function resetMap() {
+      active.control = null;
+      active.mapSlugs = null;
+      markControls();
+      apply();
+    }
+    const clear = document.getElementById('clearmap');
+    clear?.addEventListener('click', resetMap);
+    clear?.addEventListener('keydown', e => {
+      if ((e as KeyboardEvent).key === 'Enter' || (e as KeyboardEvent).key === ' ') {
+        e.preventDefault();
+        resetMap();
+      }
+    });
+
+    apply();
+  }
+</script>
