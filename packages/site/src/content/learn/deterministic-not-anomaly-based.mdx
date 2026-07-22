@@ -61,10 +61,11 @@ A tool name resolves through fixed precedence -- **deny > requireApproval >
 allow > defaultAction** -- and the globs are case-sensitive on purpose, because
 `get_*` matching `GET_user` would be one more thing you couldn't predict.
 Argument scanning rejects a call whose payload carries a configured secret
-pattern or exceeds its `maxPayloadBytes`, and the secret-pattern regexes are the *same
-ones* the output redactor masks with -- what Hangar refuses on the way in is
-what it hides on the way out. A secret denies the call even when the tool itself
-is allowed: deny always wins.
+pattern or exceeds its `maxPayloadBytes`, and the secret-pattern regexes reuse the
+output redactor's value-patterns (with one inbound-only addition -- PEM private-key
+blocks, which the redactor does not carry) -- so most of what Hangar refuses on the
+way in is what it hides on the way out. A secret denies the call even when the tool
+itself is allowed: deny always wins.
 
 Every uncertain edge resolves **closed**. A `requireApproval` verdict is a hard
 gate that blocks pending out-of-band approval -- not an interactive queue that

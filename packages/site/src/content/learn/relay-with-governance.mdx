@@ -28,11 +28,12 @@ comes back, and every layer that governed the call -- identity, digest pin,
 egress policy, audit -- got its turn on the way through. The call path *is* the
 governance path.
 
-An MCP task breaks that. `tasks/create` returns almost immediately, but it
-returns a *promise*: a `task_id` and the assurance that the real work -- a long
-report, a multi-minute crawl, a job that needs a human to say yes halfway
-through -- will finish later. The result arrives on a `tasks/result` you make
-minutes or hours after the call that started it.
+An MCP task breaks that. A `tools/call` returns almost immediately, but instead of
+a result the upstream answers it with a *promise*: a `CreateTaskResult` carrying a
+`task_id` and the assurance that the real work -- a long report, a multi-minute
+crawl, a job that needs a human to say yes halfway through -- will finish later. The
+result arrives on a `tasks/result` you make minutes or hours after the call that
+started it.
 
 That gap is where a gateway has to make a decision. It is, in our view, the most
 consequential design decision in the whole tasks feature -- and the one it is
@@ -171,7 +172,7 @@ its keep.
 
 Pin a tool's digest on a synchronous call and the guarantee is clean: the result
 you get was produced by the exact tool contract you authorized. Now stretch that
-call across minutes. Between `tasks/create` and `tasks/result`, the upstream tool
+call across minutes. Between the `tools/call` that mints the task and its `tasks/result`, the upstream tool
 can be redeployed, its schema can drift, and the async result can come back shaped
 by a contract the caller never saw.
 

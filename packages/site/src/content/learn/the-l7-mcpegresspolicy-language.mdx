@@ -87,12 +87,13 @@ it does. When a call matches an approval glob, the L7 layer **fails closed**: th
 call is blocked pending out-of-band approval. This is a hard gate, not an
 interactive approval queue. The tool invocation does not hang on a live session
 waiting for a human to click yes -- there is no guaranteed back-channel at the
-invocation instant to go find one -- so the verdict is a deny, and the call stops.
-It is enforcement, not a hold. Read `requireApproval` as *"this class of call is
-refused unless it has been approved out of band,"* not as *"pause here and ask."*
-Routing a gated call into an interactive approval workflow is itself a planned
-follow-up, not shipped behaviour -- which is exactly why the shipped verdict is a
-clean deny.
+invocation instant to go find one -- so it resolves to a distinct require-approval
+verdict that fails closed (blocks) today, and the call stops. It is enforcement,
+not a hold. Read `requireApproval` as *"this class of call is refused unless it has
+been approved out of band,"* not as *"pause here and ask."* Routing a gated call
+into an interactive approval workflow is itself a planned follow-up, not shipped
+behaviour -- which is exactly why the shipped require-approval verdict simply
+blocks (it is its own outcome, `REQUIRE_APPROVAL`, not a deny).
 
 ## Argument scanning: deny always wins
 
@@ -120,8 +121,8 @@ into a heuristic classifier is the point, not a limitation.
 The operator compiles a policy's per-upstream `tools` and `arguments` rules into a
 single per-server document -- the union of the allow/deny/approval globs and
 secret-pattern groups, and the *smallest* (most restrictive) `maxPayloadBytes` --
-and pushes it to the core over the same config-pull channel that already feeds
-routing config. That delivery is gated on running the operator with `--hangar-url`:
+and pushes the compiled policy to core over the REST API (`POST`/`DELETE`
+`/api/mcp_servers/{id}/l7_policy`). That delivery is gated on running the operator with `--hangar-url`:
 without it, the compiled L7 document never reaches the data plane and only the
 L3/L4 backstop applies. This is the seam to watch when a policy looks applied but
 tool rules are not biting.

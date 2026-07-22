@@ -70,8 +70,10 @@ direction:
 
 - **Digest mismatch** — the tool no longer matches its pin. Blocked. A validation
   error goes back to the caller; the upstream is never touched.
-- **A tool with no pin** — under a locked-down policy, an untracked tool is denied
-  rather than waved through. What was never approved does not run.
+- **A tool with no pin** — on the shipped invoke path, an unpinned tool skips digest
+  validation and runs as before; pinning protects *pinned* tools, and it is drift on
+  a pin that fails closed. (A `DigestUnknownPolicy.BLOCK` option to reject unknown
+  digests exists in the validator, but it is not reached on this invoke path today.)
 - **A schema that cannot be canonicalized or verified at all** — treated as drift.
   Unverifiable is not a reason to allow; it is a reason to stop.
 
@@ -95,11 +97,13 @@ tell when an approved definition has changed. Digest pinning is the mechanism th
 gives it that sense — and makes the change *fail the call* rather than silently
 take effect.
 
-It also composes with the rest of the enforcement plane. An [egress policy](/docs/guides/EGRESS_POLICY)
-can reference a per-tenant tool-schema pin (`match.toolSchemaDigestRef`), so
-"which upstreams, which tool calls" and "which exact tool contract" are enforced
-together at the same chokepoint. The pin is not a bolt-on; it is one of the
-fingerprints the deny-by-default seam checks before a call is allowed out.
+It is also designed to compose with the rest of the enforcement plane. An [egress policy](/docs/guides/EGRESS_POLICY)
+can carry a per-tenant tool-schema pin reference (`match.toolSchemaDigestRef`), the
+intent being that "which upstreams, which tool calls" and "which exact tool contract"
+line up at the same chokepoint. Today that field is defined on the CRD, but the L7
+evaluator does not yet consume it -- the pin enforced at invoke is resolved from the
+tool-projection registry, not the egress policy. The pin is not a bolt-on; it is one
+of the fingerprints the deny-by-default seam checks before a call is allowed out.
 
 The tool you approved is a fixed shape. Digest pinning is what keeps it fixed —
 and turns any attempt to move it into a blocked call and a signed line in the

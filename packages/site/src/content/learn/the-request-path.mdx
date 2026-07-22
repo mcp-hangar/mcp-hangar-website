@@ -136,10 +136,13 @@ untouched. Hangar does not run the work — it **relays and governs**. The upstr
 owns execution.
 
 **The return trip.** The result comes back up the same seam: output is scanned and
-secret values are redacted with the same deterministic patterns the policy refused
-on the way in, and the verdict is written to the append-only provenance chain. What
-the redactor masks on the way out is exactly what a policy refuses on the way in —
-one set of rules, both directions.
+secret values are redacted, reusing the redactor's deterministic value-patterns —
+the same ones argument scanning refuses on the way in, plus one inbound-only PEM
+addition the redactor does not carry — and the governed result is written to the
+append-only provenance chain. So most of what the redactor masks on the way out is
+what a policy refuses on the way in — largely one set of rules, both directions. (A
+call the policy *denies* raises `EgressPolicyDeniedError` before it reaches the wire,
+short-circuiting this return trip.)
 
 ## Why it's drawn as one line
 
