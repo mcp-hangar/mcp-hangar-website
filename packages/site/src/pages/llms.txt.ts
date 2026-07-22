@@ -5,6 +5,7 @@ const SITE = 'https://mcp-hangar.io';
 
 export const GET: APIRoute = async () => {
   const docs = await getCollection('oss');
+  const learn = await getCollection('learn');
   const posts = (await getCollection('blog')).sort(
     (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
   );
@@ -34,6 +35,10 @@ export const GET: APIRoute = async () => {
   const development = categorize('development/');
   const integrations = categorize('integrations/');
   const testing = categorize('testing/');
+
+  const learnEntries = learn
+    .map(l => `- [${l.data.title}](${SITE}/learn/${l.id}.md) — ${l.data.description}`)
+    .join('\n');
 
   const blogEntries = posts
     .map(p => `- [${p.data.title}](${SITE}/blog/${p.id}.md) (${p.data.date.toISOString().split('T')[0]})`)
@@ -111,6 +116,10 @@ ${testing}
 ## Other
 
 ${standalone}
+
+## Learn
+
+${learnEntries}
 
 ## Blog
 
