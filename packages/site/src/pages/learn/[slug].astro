@@ -1,0 +1,53 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('learn');
+  return entries.map(entry => ({
+    params: { slug: entry.id },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+
+const fmtDate = (d: Date) =>
+  d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+---
+
+<Base
+  title={`${entry.data.title} | Learn | MCP Hangar`}
+  description={entry.data.description}
+  path={`/learn/${entry.id}`}
+>
+  <main class="max-w-3xl mx-auto px-6 py-16">
+    <!-- Back link -->
+    <a href="/learn" class="inline-flex items-center gap-1.5 text-sm text-zinc-500 hover:text-emerald-400 transition-colors mb-8 group">
+      <span class="group-hover:-translate-x-0.5 transition-transform">&larr;</span>
+      All concepts
+    </a>
+
+    <article class="prose prose-invert prose-emerald max-w-none docs-article">
+      <header class="not-prose mb-10">
+        <div class="flex flex-wrap items-center gap-2 mb-4">
+          <span class="px-2 py-0.5 text-xs rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 capitalize">
+            {entry.data.section}
+          </span>
+          {entry.data.tags && entry.data.tags.map(tag => (
+            <span class="px-2 py-0.5 text-xs rounded-md bg-zinc-800/70 text-zinc-500 border border-zinc-700/50">
+              {tag}
+            </span>
+          ))}
+        </div>
+        <h1 class="text-3xl md:text-4xl font-bold text-zinc-50 mb-4 leading-tight">{entry.data.title}</h1>
+        <p class="text-sm text-zinc-500">Updated {fmtDate(entry.data.updated)}</p>
+      </header>
+
+      <div class="mt-8 blog-content">
+        <Content />
+      </div>
+    </article>
+  </main>
+</Base>

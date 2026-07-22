@@ -1,0 +1,189 @@
+---
+import LifecycleIcon from "../icons/LifecycleIcon.astro";
+import IdentityIcon from "../icons/IdentityIcon.astro";
+import LockIcon from "../icons/LockIcon.astro";
+import AuditIcon from "../icons/AuditIcon.astro";
+---
+
+<!--
+  v2-PREVIEW SECTION. Everything described here lands on the v2 preview
+  (prerelease 2.0.0a1 / mcp==2.0.0b2), NOT in released 1.6.0. Every visible
+  claim is gated behind the "Landing in 2.0" badge below. Do not remove the
+  badge or re-theme this section to emerald (shipped) without moving the copy
+  to match what actually ships in stable. Grounding: ADR-014, task_relay_handlers.py.
+-->
+<section id="async-governance" class="max-w-6xl mx-auto px-6 pb-32">
+    <div class="text-center mb-12">
+        <div
+            class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-semibold uppercase tracking-wider cursor-default mb-5"
+            role="status"
+        >
+            <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse" aria-hidden="true"/>
+            Landing in 2.0 &middot; v2 preview
+        </div>
+        <h2 class="text-sm font-semibold text-zinc-500 uppercase tracking-wider mb-3">
+            Governed async tasks
+        </h2>
+        <p class="text-2xl md:text-3xl font-bold text-zinc-100">
+            The forensic chain now covers the call that doesn&rsquo;t finish yet
+        </p>
+        <p class="text-lg text-zinc-400 max-w-2xl mx-auto mt-4">
+            Synchronous <code class="text-zinc-300">tools/call</code> is governed today.
+            Async tasks were the one call-shape left dormant. On the v2 preview Hangar
+            <em>relays</em> upstream-created tasks and interposes governance on their
+            lifecycle &mdash; it does not become an executor. No scheduler, no job runner,
+            no result store. The proxy stays a proxy.
+        </p>
+    </div>
+
+    <!-- Preview banner: this is the honest boundary between shipped and coming. -->
+    <div class="mb-6 p-4 rounded-2xl bg-amber-500/[0.06] border border-amber-500/20 text-center">
+        <p class="text-sm text-amber-200/90">
+            Not in stable <span class="font-mono">v1.6.0</span>. This is the v2 preview
+            (<span class="font-mono">2.0.0a1</span> / <span class="font-mono">mcp==2.0.0b2</span>),
+            per <a href="/docs/adr/adr-014-tasks-relay-with-governance" class="underline decoration-amber-400/40 hover:decoration-amber-400">ADR-014</a>.
+            The seam is activated on the v2 preview; the relay still engages per-upstream
+            only on an upstream&rsquo;s first real task.
+        </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Relay-with-governance -->
+        <div class="group p-6 rounded-2xl bg-zinc-900/30 border border-zinc-800/50 hover:border-amber-500/20 transition-all duration-300">
+            <div class="flex items-center gap-3 mb-5">
+                <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+                    <LifecycleIcon />
+                </div>
+                <h3 class="text-lg font-semibold text-zinc-100">Relayed, not run</h3>
+            </div>
+            <p class="text-zinc-400 text-sm mb-4">
+                On relaying an upstream <code class="text-zinc-300">CreateTaskResult</code>,
+                Hangar writes a <code class="text-zinc-300">GovernedTaskStore</code> entry and
+                emits <code class="text-zinc-300">TaskCreated</code> <em>before</em> the handle
+                reaches the client.
+            </p>
+            <ul class="space-y-3">
+                <li class="flex items-start gap-2">
+                    <span class="text-amber-400 mt-1 text-xs">&#9654;</span>
+                    <div>
+                        <span class="text-zinc-200 text-sm font-medium">Every relayed <code class="font-mono">task_id</code> is locally known</span>
+                        <p class="text-zinc-500 text-xs mt-0.5">A follow-up <code class="font-mono">tasks/get</code> always finds it. The dead-handle failure mode is structurally excluded &mdash; we track instead of pass through.</p>
+                    </div>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="text-amber-400 mt-1 text-xs">&#9654;</span>
+                    <div>
+                        <span class="text-zinc-200 text-sm font-medium">Governance binds at the proxy/store seam</span>
+                        <p class="text-zinc-500 text-xs mt-0.5">The same seam that governs synchronous <code class="font-mono">tools/call</code>. No background worker thread, so &ldquo;governance silently didn&rsquo;t bind&rdquo; cannot happen.</p>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Four serving handlers -->
+        <div class="group p-6 rounded-2xl bg-zinc-900/30 border border-zinc-800/50 hover:border-amber-500/20 transition-all duration-300">
+            <div class="flex items-center gap-3 mb-5">
+                <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+                    <LockIcon />
+                </div>
+                <h3 class="text-lg font-semibold text-zinc-100">Four fail-closed handlers</h3>
+            </div>
+            <p class="text-zinc-400 text-sm mb-4">
+                The v2-native <code class="text-zinc-300">tasks/*</code> serving surface. A caller
+                sends a bare <code class="text-zinc-300">task_id</code>; the ledger is keyed on
+                <code class="text-zinc-300">(target_server_id, task_id)</code> and resolved
+                ownership-fail-closed &mdash; a task you don&rsquo;t own is indistinguishable from
+                one that doesn&rsquo;t exist.
+            </p>
+            <ul class="space-y-3">
+                <li class="flex items-start gap-2">
+                    <span class="text-amber-400 mt-1 text-xs">&#9654;</span>
+                    <div>
+                        <span class="text-zinc-200 text-sm font-medium"><code class="font-mono">tasks/get</code> &middot; <code class="font-mono">tasks/cancel</code></span>
+                        <p class="text-zinc-500 text-xs mt-0.5">Upstream-truthful: status is never fabricated. Cancel retires the entry <em>only</em> when the upstream confirms; otherwise the true current status is returned.</p>
+                    </div>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="text-amber-400 mt-1 text-xs">&#9654;</span>
+                    <div>
+                        <span class="text-zinc-200 text-sm font-medium"><code class="font-mono">tasks/result</code> re-verifies the pin</span>
+                        <p class="text-zinc-500 text-xs mt-0.5">Fetching a payload re-checks the pinned tool digest fail-closed. Drift fails the task &mdash; a zombie result is never returned.</p>
+                    </div>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="text-amber-400 mt-1 text-xs">&#9654;</span>
+                    <div>
+                        <span class="text-zinc-200 text-sm font-medium"><code class="font-mono">tasks/list</code> is owner-only</span>
+                        <p class="text-zinc-500 text-xs mt-0.5">Returns just the caller&rsquo;s owned snapshots. The inner upstream cursor is never forwarded &mdash; it could identify another tenant&rsquo;s task.</p>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Mid-flight consent gate -->
+        <div class="group p-6 rounded-2xl bg-zinc-900/30 border border-zinc-800/50 hover:border-amber-500/20 transition-all duration-300 md:col-span-2">
+            <div class="flex items-center gap-3 mb-5">
+                <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+                    <IdentityIcon />
+                </div>
+                <h3 class="text-lg font-semibold text-zinc-100">The mid-flight consent gate</h3>
+                <span class="ml-auto text-xs font-mono text-amber-300/80 border border-amber-500/20 rounded-full px-2 py-0.5">#322</span>
+            </div>
+            <p class="text-zinc-400 text-sm mb-5">
+                When a relayed task enters <code class="text-zinc-300">input_required</code>,
+                Hangar doesn&rsquo;t guess. It routes the pause through a
+                <em>genuinely interactive</em> human-in-the-loop elicitation on the downstream
+                client, relays the answer upstream only after a confirmed accept, and records the
+                outcome as <code class="text-zinc-300">TaskConsentDecided</code> against the
+                <code class="text-zinc-300">task_id</code>.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="p-4 rounded-xl bg-zinc-950/40 border border-zinc-800/50">
+                    <p class="text-zinc-200 text-sm font-medium mb-1">Consent is obtained before the gate opens</p>
+                    <p class="text-zinc-500 text-xs">Open-only-on-accept &mdash; no pre-decision race. A single-use consent is consumed only after a confirmed upstream relay; a transient failure stays recoverable and re-elicits on retry.</p>
+                </div>
+                <div class="p-4 rounded-xl bg-zinc-950/40 border border-zinc-800/50">
+                    <p class="text-zinc-200 text-sm font-medium mb-1">Every non-accept fails the task closed</p>
+                    <p class="text-zinc-500 text-xs">Decline, cancel, no back-channel, elicitation error, or a client that never negotiated the capability &mdash; all terminally fail the task. A paused task is never left hanging.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- The load-bearing distinction: this is the ONLY real interactive consent flow. -->
+    <div class="mt-6 p-6 rounded-2xl bg-zinc-900/30 border border-zinc-800/50">
+        <div class="flex items-start gap-3">
+            <div class="w-9 h-9 shrink-0 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+                <AuditIcon />
+            </div>
+            <div>
+                <h3 class="text-base font-semibold text-zinc-100 mb-2">This is the only interactive consent flow in Hangar</h3>
+                <p class="text-zinc-400 text-sm mb-2">
+                    The async consent gate is a
+                    real, blocking human decision on a live task. The synchronous L7
+                    <code class="text-zinc-300">requireApproval</code> control is <em>not</em> an
+                    approval queue &mdash; it <strong>fails closed</strong>. There is no inbox, no
+                    pending-request list, no &ldquo;click to allow&rdquo; on the sync path.
+                </p>
+                <p class="text-zinc-400 text-sm">
+                    And the forensic chain follows: <code class="text-zinc-300">TaskCreated</code>,
+                    <code class="text-zinc-300">TaskInputRequired</code>,
+                    <code class="text-zinc-300">TaskConsentDecided</code>,
+                    <code class="text-zinc-300">TaskCompleted</code> /
+                    <code class="text-zinc-300">TaskFailed</code> /
+                    <code class="text-zinc-300">TaskCancelled</code> &mdash; append-only, keyed by
+                    <code class="text-zinc-300">task_id</code>, carrying <code class="text-zinc-300">tenant_id</code>
+                    and <code class="text-zinc-300">correlation_id</code>. The full lifecycle of any
+                    relayed task is reconstructable from the event stream.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <p class="mt-8 text-center text-xs text-zinc-600 max-w-2xl mx-auto">
+        Coming, not shipped: the 2026-07-28 protocol handshake and the SEP-2663 Tasks
+        reshape (inbound <code class="font-mono">tasks/update</code>) are forward-compatible
+        and already seamed, but not yet the live path. The serving surface tracks the
+        negotiated protocol without a version bump &mdash; advertise and serve exactly what runs.
+    </p>
+</section>

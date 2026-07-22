@@ -1,0 +1,159 @@
+---
+title: "Governing the async call path: task relay-with-governance and mid-flight consent"
+date: 2026-07-22
+author: MCP Hangar Team
+description: "The async call path was the one governed call-shape left dormant. On the v2 preview, the SDK's first-class Tasks extension unblocks it: every relayed task is governed the instant it's relayed, and a task that pauses for input routes through the first interactive, mid-flight consent gate on the governed call path."
+tags: [mcp, mcp-hangar, governance, tasks, async, consent, human-in-the-loop, open-source]
+---
+
+# Governing the async call path: task relay-with-governance and mid-flight consent
+
+Every synchronous `tools/call` through Hangar is governed. Identity is bound, the tool digest is re-verified, the L7 egress policy fires, the whole thing lands in the event stream keyed by `correlation_id`. That has been true since v1.5 opened the front door.
+
+The async call path was not. A tool that returns a task handle instead of a result -- the call that finishes later -- was the one governed call-shape left *dormant*. Not ungoverned by accident. Dormant by decision.
+
+This post is about waking it up. It's **landing in 2.0**, running today on the v2 preview (`2.0.0a1`, `mcp==2.0.0b2`) -- not in released 1.6.0, not GA. Here's what the seam does, why it was closed until now, and the one thing it unblocks: the first interactive, mid-flight consent gate on the governed call path.
+
+## The one call-shape that was dormant
+
+[ADR-008](https://github.com/mcp-hangar/mcp-hangar) (2026-07-02) decided task governance was **relay-only, permanently**. Hangar would never create tasks -- that's an executor, a different species -- and even the *relay* was deferred behind two triggers: a real upstream emitting tasks in production, **and** the MCP task API graduating out of `mcp.server.experimental`. Until both held, the only implemented behavior was an explicit rejection.
+
+That rejection mattered. Before it, an upstream task handle passed straight through Hangar to the client. The client would later poll `tasks/get` with that `task_id`, Hangar knew nothing about it, and the client got a misleading `Task not found` -- a dead handle. PR `#368` replaced the dead handle with a clean, honest `TaskRelayNotSupported`. Correct, but closed.
+
+So the full per-task governance stack got built, unit-tested, and left idle: `GovernedTaskStore` (ownership + digest re-verification), the `TaskOwnershipRegistry` (`#319`), the `TaskDigestGuard` (`#320`), the five `Task*` lifecycle audit events (`#321`), and the `TaskConsentGate` primitive (`#322`) -- wired to nothing. A p1-high consent feature, built, tested, stranded.
+
+## What changed: trigger (b) is met
+
+The SDK v2 beta (`mcp==2.0.0b2`, verified in the `#547` cutover) **promotes Tasks out of `experimental` into a first-class, negotiated protocol extension**: `CreateTask` / `GetTask` / `GetTaskPayload` / `ListTasks` / `CancelTask`, `TaskStatusNotification`, full capability negotiation. The API ADR-008 called too churny to build against is now stable and discoverable.
+
+[ADR-014](https://github.com/mcp-hangar/mcp-hangar) is the decision to act on that. It lifts ADR-008's *"permanently no relay"* absolutism -- and only that. It does **not** reopen the executor question.
+
+**Hangar relays and governs. It is not an executor.** No scheduler. No job runner. No result store. No GC, no TTL correctness, no worker-thread-to-main-loop execution bridge. An upstream MCP server owns task execution; Hangar sits in front and keeps a synchronous, in-memory *governance ledger*. The proxy stays a proxy. Governance binds at the proxy/store seam on the request path -- the same seam that governs synchronous `tools/call` -- so the "one bug and governance silently doesn't bind in the worker" failure mode ADR-008 warned about isn't tested against, it's *structurally excluded*. There is no worker.
+
+## The dead handle can't recur
+
+Here's the load-bearing change. On the v2 preview, the instant an upstream `CreateTaskResult` is relayed, Hangar creates a `GovernedTaskStore` entry and emits a `TaskCreated` event -- **before** the handle reaches the client. Registration and the provenance head are one lock-held critical section:
+
+```python
+def relay_and_govern(self, *, target_server_id, task, expected_owner,
+                     correlation_id, mcp_server_id=None, tool_name="",
+                     original_result_type="CallToolResult") -> None:
+    key = (target_server_id, task.task_id)
+    with self._tasks_lock:
+        owner = self.register_relayed_task(...)   # owner cross-check + pin + entry
+        entry = self._tasks[key]
+        entry.correlation_id = correlation_id
+        # Publish TaskCreated UNDER THE LOCK. If it raises, roll the whole
+        # registration back -- zero governed state survives. No orphan binding,
+        # no headless provenance head.
+        if self._event_publisher is not None:
+            try:
+                self._event_publisher(TaskCreated(task_id=task.task_id, ...))
+            except BaseException:
+                self._registry.discard(key); self._digest_guard.discard(key)
+                self._tasks.pop(key, None)
+                raise
+```
+
+A relayed `task_id` is therefore *always* locally known. The dead-handle failure mode ADR-008/`#368` fixed by rejection **cannot recur** -- not because rejection got smarter, but because rejection is gone. It's replaced by a tracked record. A follow-up `tasks/get` always finds it.
+
+And because the ledger is keyed on the composite `(target_server_id, task_id)` -- task ids are unique only *per upstream* -- two upstreams minting the same `task_id` never collide.
+
+## The four serving handlers
+
+With the seam live, four v2-native `tasks/*` request handlers let a client follow up on an already-relayed governed task. Every one is fail-closed and upstream-truthful -- state is never fabricated.
+
+| Method | What it does | Governance |
+|---|---|---|
+| `tasks/get` | Relay to the owning upstream, sync the snapshot | Owner-scoped; copies upstream status verbatim; an upstream error leaves the local snapshot unchanged |
+| `tasks/result` | Fetch the payload | **Re-verifies the pinned tool digest fail-closed** before relaying; drift fails the task |
+| `tasks/cancel` | Best-effort relay of the cancel | Retires the entry **only** on a confirmed upstream cancel; otherwise keeps it and returns the true status |
+| `tasks/list` | Return the caller's own snapshots | Owner-only; the upstream cursor is never forwarded (it could identify another tenant's task) |
+
+Ownership is fail-closed at a single chokepoint. A client sends a bare `task_id`; the ledger resolves it through `find_owned_key`, which is ownership-fail-closed -- a `task_id` the caller doesn't own is *indistinguishable* from one that doesn't exist. Both raise the same `INVALID_PARAMS` "Task not found". No existence leak.
+
+`tasks/result` is where the supply-chain pin crosses the async boundary. A task relayed under a pinned tool digest is re-verified before its payload is handed back:
+
+```python
+# tasks/result: fail-closed supply-chain re-verification; its McpError propagates.
+await asyncio.to_thread(store._verify_pinned_digest, key)
+```
+
+If the tool's schema drifted since the task was created, the task is *failed*, a `DigestMismatchInTask` event is emitted, and the result never returns. This is ADR-008's zombie killed for real: a task can never complete against a tool contract the caller didn't authorize -- even when "complete" happens minutes later, on the async path.
+
+## The consent gate: the first thing that was actually waiting
+
+`#322` -- mid-flight consent -- was product-blocked on this ADR. Its own status named "a ratified product/API decision to produce or relay MCP tasks" as the unblocker. ADR-014 is that decision. So it lands right behind the SDK v2 migration.
+
+Here's the scenario it governs. A relayed task is running upstream. It pauses -- transitions to `input_required` -- because it needs something more from the caller to continue. On the current session protocol there is no inbound `tasks/update` message to carry that answer, so the pause has to be resolved *synchronously, in-handler*: when `tasks/get` observes `input_required`, Hangar elicits the downstream client for consent and relays the answer upstream.
+
+```python
+async def _get(self, ctx, params):
+    ...
+    await self._sync_snapshot_from_result(key, result)
+    if result.get("status") == "input_required":
+        return await self._consent_for_input_required(ctx, key, task_id, result)
+```
+
+The gate opens **only on a confirmed accept** -- consent is obtained *before* the gate opens, so there's no pre-decision race. And every non-accept outcome is terminal and fail-closed:
+
+- **No elicitation capability negotiated?** There's no back-channel to ask. Fail closed.
+- **Client declines or cancels?** Fail closed.
+- **Elicitation raises for any reason?** Caught, fail closed.
+
+Fail-closed here means the task is *failed* -- not left hanging. On any denial the task is moved to `failed`, a best-effort `tasks/cancel` is relayed upstream, the decision is recorded, and the now-`failed` snapshot is returned. A paused task is never left dangling in `input_required`. This is Decision 6's never-hang guarantee, in code:
+
+```python
+async def _deny_consent(self, key, task_id, input_key, principal_id):
+    await asyncio.to_thread(store.fail_task, key, "consent_denied")
+    try:  # best-effort upstream cancel; never blocks the terminal resolution
+        await asyncio.to_thread(upstream_router, key[0], "tasks/cancel", ...)
+    except Exception:
+        logger.debug("consent_denied_upstream_cancel_failed", ...)
+    consent_gate.discard(key)
+    await asyncio.to_thread(store.record_consent_decision, key, input_key, False, principal_id)
+    return await self._flat_snapshot(key, task_id)
+```
+
+Every decision -- accept or deny -- is recorded as a `TaskConsentDecided` event carrying the task's `correlation_id`, the owner's `tenant_id`, the `input_key`, and the `principal_id` of who was prompted. The decision joins the task's provenance chain. When someone asks "who consented to that mid-flight input, and when," you have a name and a timestamp.
+
+## Why this one is different from L7 approval
+
+Hangar already says "no" on the synchronous path. The L7 `requireApproval` verb in the egress policy is a policy *decision point*: a tool call that matches it is denied. It **fails closed** -- it is not an approval queue, and there is no human sitting behind it waiting to click. It's a gate that answers deterministically at request time.
+
+The task consent gate is a different animal. It is the *only* place in Hangar where a governed call pauses and routes to a **genuinely interactive human-in-the-loop elicitation** -- a real prompt to the downstream client, a real accept/decline coming back, and the gate opening on the strength of that answer. Not a static rule. An actual mid-flight ask.
+
+That distinction is worth keeping sharp:
+
+| | Sync L7 `requireApproval` | Async task consent (`#322`) |
+|---|---|---|
+| When | At `tools/call` request time | Mid-flight, on `input_required` |
+| Behavior | Deterministic deny -- **fails closed** | Interactive elicitation of the client |
+| Human in the loop | No -- it's a policy verb | **Yes -- a real accept/decline** |
+| Absent decision | Denied | Failed closed, never hung |
+
+Both fail closed. Only one of them actually stops to ask.
+
+## What's coming, and isn't here yet
+
+The 2026-07-28 protocol handshake and the SEP-2663 Tasks reshape change how mid-flight input is resolved -- an inbound `tasks/update` handler instead of a synchronous elicit, and `tasks/list` retired. The seam is already written to be forward-compatible with both: `tasks/list` and the inbound `tasks/update` handler are each registered *only* while the SDK defines their type, so the served surface tracks the negotiated protocol without a version bump. But that path is **not live**. On the v2 preview today, the synchronous 2025-11-25 `tasks/get` elicitation is the consent flow that runs; the modern `tasks/update` branch is version-guarded and unreachable until the 2026-07-28+ protocol lands. Forward-compatible is a promise about shape, not a claim about what runs. And whichever branch is live, the proxy stays a proxy.
+
+## Where this lands
+
+The forensic moat now covers async. Task governance was the one governed call-shape that was dormant; relay-with-governance makes the `task_id`-keyed event chain -- `TaskCreated`, `TaskInputRequired`, `TaskConsentDecided`, `TaskCompleted`/`TaskFailed`/`TaskCancelled`, `DigestMismatchInTask` -- a real, queryable provenance record. Same "govern the call path" thesis, extended to the calls that finish later.
+
+Behavior is unchanged until an upstream actually emits a task: the seam ships, but the relay only engages per-upstream on that upstream's first real task. A deployment whose upstreams never task see no difference. "Do not advertise what does not run" still holds -- the `tasks` capability is advertised only once the seam is live.
+
+To be exact about the truth of it: this is **on the v2 preview** (`2.0.0a1`, `mcp==2.0.0b2`), **landing in 2.0**. It is not in released 1.6.0 and it is not GA. Released Hangar today is still 1.6.0.
+
+Everything is MIT and self-hosted -- no SaaS.
+
+## References
+
+- ADR-014 -- Tasks are Relayed With Governance (the decision this post implements)
+- ADR-008 -- Tasks Relay-Only (superseded in part)
+- ADR-002 (event sourcing) and ADR-004 (digest pinning) -- the provenance and supply-chain foundations
+- `mcp-hangar#319` (ownership), `#320` (digest guard), `#321` (lifecycle events), `#322` (consent gate), `#547` (SDK v2 cutover)
+- [SEP-2663 -- MCP Tasks](https://github.com/modelcontextprotocol/modelcontextprotocol)
+
+*Source: [github.com/mcp-hangar/mcp-hangar](https://github.com/mcp-hangar/mcp-hangar).*
