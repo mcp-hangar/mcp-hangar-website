@@ -55,7 +55,8 @@ describe('Build Output', () => {
 
   it('should render step numbers, titles, and descriptions', () => {
     const html = readDistFile('index.html');
-    expect(html).toContain('Install the agent');
+    expect(html).toContain('Install the operator');
+    expect(html).toContain('Apply an egress policy');
     expect(html).toContain('1');
   });
 
