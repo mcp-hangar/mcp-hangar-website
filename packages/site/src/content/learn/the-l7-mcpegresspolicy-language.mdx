@@ -143,5 +143,7 @@ nothing -- deliberately, and it is surfaced in status.
 
 *Grounded in [ADR-013](/adr/ADR-013-egress-policy-enforcement-model)
 (explicit-proxy enforcement + generated network backstop) and the
-[Egress Policy guide](/docs/guides/egress-policy). Shipped in `1.6.0` (operator
-`v0.14.0`). Everything is MIT and self-hosted -- no SaaS.*
+[Egress Policy guide](/docs/guides/egress-policy). The core evaluator ships in
+`1.6.0`; end-to-end delivery lands with the operator's `MCPEgressPolicy`
+controller in `v0.14.0` (the release after `v0.13.0`). Everything is MIT and
+self-hosted -- no SaaS.*

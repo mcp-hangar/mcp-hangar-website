@@ -17,9 +17,11 @@ import Callout from '../../components/Callout.astro';
 
 The fastest way to understand an enforcement plane is to watch it change its mind
 about a call you already made. So that is what this does. You will stand up the
-`MCPEgressPolicy` plane that ships in **1.6.0** (core `1.6.0`, operator
-`v0.14.0`), point one policy at one server, and make the *exact same* tool call
-succeed and then get denied -- with nothing changing but the policy.
+`MCPEgressPolicy` plane -- the core L7 engine shipped in **`1.6.0`**, plus the
+operator-side controller that delivers it end-to-end, landing in **`v0.14.0`**
+(the release after `v0.13.0`) -- point one policy at one server, and make the
+*exact same* tool call succeed and then get denied -- with nothing changing but
+the policy.
 
 No new call. No trick. The call is constant; the verdict moves. That gap is the
 whole product.

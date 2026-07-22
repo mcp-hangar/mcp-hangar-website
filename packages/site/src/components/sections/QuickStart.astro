@@ -15,6 +15,15 @@ import { CodeBlock } from "../CodeBlock.tsx";
   </div>
 
   <div class="max-w-3xl mx-auto">
+    <div class="mb-6 p-4 rounded-2xl bg-amber-500/[0.06] border border-amber-500/20 text-center">
+      <p class="text-sm text-amber-200/90">
+        The <span class="font-mono">MCPEgressPolicy</span> CRD and its controller land in
+        operator <span class="font-mono">v0.14.0</span> (unreleased). On the released
+        operator (<span class="font-mono">v0.13.0</span>), the admission webhooks and the
+        default-deny L3/L4 egress backstop are live; end-to-end L7 tool-rule delivery via
+        <span class="font-mono">MCPEgressPolicy</span> follows in <span class="font-mono">v0.14.0</span>.
+      </p>
+    </div>
     <StepList>
       <Step
         number={1}
