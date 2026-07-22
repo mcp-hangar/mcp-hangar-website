@@ -127,11 +127,13 @@ L3/L4 backstop applies. This is the seam to watch when a policy looks applied bu
 tool rules are not biting.
 
 The evaluator itself -- the deterministic engine described on this page -- ships in
-`1.6.0` and defines the contract: given a compiled document and a tool call, it
+core `1.6.0` and defines the contract: given a compiled document and a tool call, it
 returns exactly one verdict, and a denied call raises before it reaches the
-upstream at the tool-invocation chokepoint. Wiring that engine into the live
-invocation path is the last mile, and is the piece to confirm against your
-release. Delete the policy and it clears from the core.
+upstream at the tool-invocation chokepoint. The operator's `MCPEgressPolicy`
+controller -- the half that compiles the CR and pushes L7 to the core -- ships in
+operator `v0.14.0`. End-to-end L7 therefore has a plain version requirement:
+core `1.6.0+` and operator `v0.14.0+`, both released today. Delete the policy and
+it clears from the core.
 
 Because rules are merged per server, host-specific tool rules that must stay apart
 belong in separate policies. And `mode` defaults to `Audit`: a policy observes and
@@ -144,6 +146,6 @@ nothing -- deliberately, and it is surfaced in status.
 *Grounded in [ADR-013](/adr/ADR-013-egress-policy-enforcement-model)
 (explicit-proxy enforcement + generated network backstop) and the
 [Egress Policy guide](/docs/guides/egress-policy). The core evaluator ships in
-`1.6.0`; end-to-end delivery lands with the operator's `MCPEgressPolicy`
-controller in `v0.14.0` (the release after `v0.13.0`). Everything is MIT and
-self-hosted -- no SaaS.*
+`1.6.0`; end-to-end delivery needs the operator's `MCPEgressPolicy` controller,
+shipped in operator `v0.14.0`. Run core `1.6.0+` and operator `v0.14.0+` for
+end-to-end L7. Everything is MIT and self-hosted -- no SaaS.*
