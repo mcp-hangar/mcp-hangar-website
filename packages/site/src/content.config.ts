@@ -20,9 +20,15 @@ const learn = defineCollection({
   schema: z.object({
     title: z.string(),
     description: z.string(),
-    section: z.string(),
+    section: z.string().optional(),
     updated: z.coerce.date(),
     tags: z.array(z.string()).optional(),
+    // Discovery-first hub facets (see /learn hub).
+    type: z.enum(['Concept', 'Tutorial', 'Why', 'Visual']),
+    level: z.enum(['Intro', 'Core', 'Deep']),
+    time: z.string(),
+    theme: z.enum(['foundations', 'enforcement', 'async', 'observability']),
+    status: z.enum(['ship', 'preview']),
   }),
 });
 

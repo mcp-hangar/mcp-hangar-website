@@ -1,0 +1,231 @@
+---
+title: "Write your first MCPEgressPolicy"
+description: "Hands-on: deny by default, allow only read-only tools, and pin egress to a single upstream."
+section: tutorials
+updated: 2026-07-22
+tags: [tutorial, egress, enforcement, mcpegresspolicy, adr-013]
+type: Tutorial
+level: Intro
+time: "15 min"
+theme: enforcement
+status: ship
+---
+
+import Callout from '../../components/Callout.astro';
+
+# Write your first MCPEgressPolicy
+
+Registration answers one question -- *may this server receive traffic at all?* An
+`MCPEgressPolicy` answers the next one: *which upstreams, which tool calls, with
+which arguments -- and what happens when the answer is no.* In this walkthrough
+you'll build one policy up in three moves: lock a server down to nothing, open a
+single upstream, and let only read-only tools through it. Every command and every
+line of YAML here is the real thing from the shipped `1.6.0` line.
+
+The policy has two enforcement layers, and they apply together: an **L3/L4
+network backstop** (the operator compiles it into a `NetworkPolicy` or
+`CiliumNetworkPolicy`) that controls which hosts the pods can reach, and **L7
+semantics** (the core, on the connections Hangar already proxies) that control
+which tool calls and arguments are allowed. Keep the trust boundary in view the
+whole time: *a policy without the network backstop is a suggestion.* If a pod can
+bypass DNS and the NetworkPolicy, it can bypass Hangar. The backstop is what makes
+the L7 rules enforcement rather than a recommendation.
+
+## Before you start
+
+You need four things in place:
+
+- The **operator** with the `MCPEgressPolicy` CRD installed (it ships in the
+  release after `v0.13.0`, which laid down the enforcement roadmap).
+- The target namespace **opted into egress enforcement**, so the namespace
+  default-deny exists and the backstop has something to build on.
+- **For L7 rules** (tool-call / argument enforcement): the operator run with
+  `--hangar-url` pointing at the core, so it can push the compiled policy to the
+  data plane. Without it, only the L3/L4 backstop is applied.
+- **For FQDN upstreams:** a cluster running **Cilium**.
+
+<Callout variant="note">
+  A vanilla `NetworkPolicy` cannot match on DNS names. Under a non-Cilium CNI,
+  hostname upstreams are **failed closed** -- denied, never opened to "any
+  destination" -- and surfaced as `Degraded/FQDNUpstreamsUnenforceable`. To pin
+  egress to a hostname like `api.github.com`, run **Cilium**; otherwise list your
+  upstreams as literal IPs/CIDRs.
+</Callout>
+
+## Step 1 -- Opt the namespace in
+
+Enforcement is opt-in per namespace. Label the target namespace so the
+default-deny floor is in place:
+
+```bash
+kubectl label namespace prod mcp-hangar.io/enforce-egress=true
+```
+
+Now every server in `prod` starts from deny-by-default at the network layer. Your
+policy builds the allow-list on top of that floor.
+
+## Step 2 -- Deny everything, on purpose
+
+Start from the most restrictive thing that still runs, then open only what you
+need. With `defaultAction: Deny` (the default) and no `upstreams`, the policy
+denies all egress except the always-permitted DNS/backstop paths -- a locked-down
+server that can resolve names but reach no upstream:
+
+```yaml
+apiVersion: mcp-hangar.io/v1alpha2
+kind: MCPEgressPolicy
+metadata:
+  name: lockdown
+  namespace: prod
+spec:
+  mode: Enforce
+  targetRef: {kind: MCPServer, name: srv}
+  # defaultAction: Deny        # the default -- deny-by-default posture
+  # no upstreams -> nothing is allowed out
+```
+
+```bash
+kubectl apply -f lockdown.yaml
+```
+
+`mode: Enforce` blocks; the default `mode: Audit` only observes. Starting in
+`Audit` first is the Gatekeeper-style adoption path -- watch violations before
+they bite -- but for this walkthrough we go straight to `Enforce` so you can see
+the deny actually happen.
+
+## Step 3 -- Open a single upstream, read-only
+
+Now open exactly one hole. This policy pins egress to `api.github.com` and, at
+L7, allows only read-only tools -- everything whose name matches `get_*` or
+`list_*`:
+
+```yaml
+apiVersion: mcp-hangar.io/v1alpha2
+kind: MCPEgressPolicy
+metadata:
+  name: gh-readonly
+  namespace: prod
+spec:
+  mode: Enforce                 # Audit (default) observes; Enforce blocks
+  targetRef:
+    kind: MCPServer             # or MCPServerGroup
+    name: srv
+  defaultAction: Deny           # applied to tool names no rule matches
+  upstreams:
+    - name: github
+      match:
+        host: api.github.com    # FQDN -> needs the Cilium flavor
+      tools:
+        allow: ["get_*", "list_*"]
+      arguments:
+        deny:
+          secretPatterns: [github-tokens, jwt]
+          maxPayloadBytes: 262144
+```
+
+```bash
+kubectl apply -f gh-readonly.yaml
+```
+
+Two layers just got wired at once. The operator compiles the `host` into a
+`CiliumNetworkPolicy` that allows DNS and egress **only** to `api.github.com`,
+and it pushes the `tools`/`arguments` rules to the core. Read the L7 rules the way
+the core does -- by precedence, **deny > requireApproval > allow > defaultAction**:
+
+- `get_repo`, `list_issues` -> match `allow` -> permitted.
+- `create_issue`, `delete_repo` -> match no rule -> fall through to
+  `defaultAction: Deny` -> blocked before the call ever reaches GitHub.
+- Any call carrying a GitHub token or JWT in its arguments, or larger than 256 KiB
+  -> **denied even if the tool name is allowed**. Deny always wins, and arguments
+  that can't be serialized for inspection also fail closed.
+
+Globs are case-sensitive for determinism: `get_*` does not match `GET_user`. And
+the whole L7 half is deterministic by design -- no ML, no heuristics, no anomaly
+scores to tune.
+
+## Step 4 -- Confirm it compiled and applied
+
+Ask the object what it did. The operator reports its work as status conditions:
+
+```bash
+kubectl -n prod get mcpegresspolicy gh-readonly \
+    -o jsonpath='{range .status.conditions[*]}{.type}={.status} ({.reason}){"\n"}{end}'
+```
+
+On a Cilium cluster with the operator wired to the core you want to see:
+
+```
+Compiled=True (Compiled)
+BackstopApplied=True (BackstopApplied)
+Degraded=False (NotDegraded)
+```
+
+`Compiled` means the policy was structurally accepted. `BackstopApplied` means the
+L3/L4 backstop is really in place -- this is the line that separates enforcement
+from a suggestion. If `Degraded` is `True`, read the reason: `CiliumUnavailable`
+means you asked for FQDN enforcement without the Cilium CRD (the operator falls
+back to the Vanilla floor and fails closed), and `FQDNUpstreamsUnenforceable`
+means a hostname upstream landed under the Vanilla flavor and was denied rather
+than opened.
+
+## Step 5 -- Watch the backstop bite
+
+From a pod behind the policy, the network layer now tells the same story the YAML
+does: `api.github.com` answers, and nothing else does, while DNS still resolves.
+
+```bash
+kubectl -n prod exec deploy/srv -- curl -sS -o /dev/null -w '%{http_code}\n' https://api.github.com
+# 200
+
+kubectl -n prod exec deploy/srv -- curl -sS --max-time 5 https://example.com
+# connection times out -- the backstop denies every host but the allow-listed one
+```
+
+The L7 rules bite one layer up: a denied tool call raises at Hangar's
+tool-invocation chokepoint *before* it reaches the upstream -- it never leaves the
+data plane.
+
+## Optional -- gate writes instead of denying them
+
+If you want writes to be *possible but held*, add a `requireApproval` glob. It sits
+above `allow` in precedence:
+
+```yaml
+      tools:
+        allow: ["get_*", "list_*"]
+        requireApproval: ["create_*"]
+```
+
+Be precise about what this does: in `1.6.0`, `requireApproval` **fails closed**.
+A matched call is blocked pending out-of-band approval -- it is a hard gate, not an
+interactive approval queue, and the call does not hang waiting for someone to click
+yes. It stops. Use it when "blocked, and someone has to deliberately act" is the
+outcome you want; use `deny` when you want the call gone entirely.
+
+## What you just did
+
+You took a server from *reachable* to *governed* in three moves, and you can name
+every guarantee you added:
+
+- **Deny by default.** The namespace label put a default-deny floor down; the
+  policy's `defaultAction: Deny` means any tool name you didn't explicitly allow
+  is refused.
+- **One upstream, enforced at the network.** `host: api.github.com` compiled into
+  a `CiliumNetworkPolicy` that lets the pod reach GitHub and nothing else -- the
+  backstop that makes the rest of the policy real.
+- **Read-only at L7.** `allow: ["get_*", "list_*"]` lets reads through the core's
+  deterministic chokepoint and drops writes before they leave, with secret-pattern
+  and payload-size scanning denying even an allowed tool if its arguments look
+  wrong.
+
+Every one of those is fail-closed by construction: a policy that can't compile its
+backstop shows up `Degraded` and unsafe rather than silently permissive. From here,
+scope host-specific rules with separate policies (the core merges L7 rules per
+server), or point `targetRef` at an `MCPServerGroup` to apply one policy across a
+whole group.
+
+---
+
+*Grounded in the [Egress Policy guide](/docs/guides/egress-policy) and
+[ADR-013](/adr/ADR-013-egress-policy-enforcement-model) (the enforcement model and
+the alternatives it rejected). Everything is MIT and self-hosted -- no SaaS.*

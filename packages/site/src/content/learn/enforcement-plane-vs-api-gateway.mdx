@@ -1,0 +1,109 @@
+---
+title: "Enforcement plane vs API gateway for MCP"
+description: "Why a governing chokepoint on the call path beats a passive proxy in front of your MCP servers."
+type: Why
+level: Intro
+time: "5 min"
+theme: foundations
+status: ship
+updated: 2026-07-22
+tags: [foundations, enforcement, egress, architecture, mcp]
+---
+
+# Enforcement plane vs API gateway for MCP
+
+You have a handful of MCP servers and a growing unease about what they can reach.
+The reflexive fix is the one your infrastructure already knows how to do: put an
+API gateway in front of them. Terminate TLS, add auth, maybe a rate limit, ship
+the access logs to the SIEM. It is a familiar shape, and for a REST backend it is
+often the right one.
+
+For MCP it answers the wrong question -- and the gap between the question it
+answers and the one you actually have is where the risk lives.
+
+## What a gateway actually governs
+
+A classic API gateway sits *in front of* a service and governs the edge: who is
+allowed to open a connection, and how often. Once traffic is admitted, the
+gateway is a passive relay. It moves bytes. It does not know that the connection
+carries a `tools/call` for `create_issue`, that the arguments include a live AWS
+key, or that the tool it is calling was silently redeployed since the client last
+saw its schema. Those are semantics inside the payload, and the payload is exactly
+what a proxy is designed *not* to look at.
+
+An MCP server does not have one attack surface -- the front door. It has an
+attack surface per tool call and per upstream it reaches *outbound*. A prompt-
+injected agent doesn't knock on the front door; it convinces a legitimately-
+admitted server to call a legitimately-registered tool with arguments you never
+intended, against an upstream you never meant to allow. The gateway waves all of
+that through, because at the edge it looks like traffic that already passed auth.
+
+Guarding the front door of a system whose danger is on the call path is guarding
+the wrong door.
+
+## Why "just add a WAF rule" doesn't close it
+
+The instinct after that is to make the proxy smarter -- regex the payloads, score
+them, tune a model. Now the proxy is guessing, and a guess that can be tuned can
+be tuned wrong. You inherit false positives, an alert queue, and a control whose
+verdict nobody can explain after the fact. A governance claim you cannot reproduce
+deterministically is not a claim worth making.
+
+## How Hangar answers it
+
+Hangar is not a proxy you put in *front* of MCP servers. It is an **enforcement
+plane**: the servers register with it, and it becomes the chokepoint every call
+passes *through*. The call path is the governance path -- identity, the pinned
+tool contract, the egress verdict, and the audit line all get their turn on the
+same synchronous pass the request already makes. Four properties make that more
+than a slogan.
+
+**It is deny-by-default -- once you turn it on.** An
+[`MCPEgressPolicy`](/guides/egress-policy) declares which upstreams a server may
+reach and which tool calls it may make; a tool name that matches no rule falls to
+`defaultAction: Deny`, so the allow-list is exhaustive. Two deliberate defaults
+shape how you get there. `defaultAction` is `Deny` from the start. But `mode`
+defaults to `Audit` -- a fresh policy *records* violations without blocking any of
+them, so you see exactly what a rule would do before it does it. Blocking is
+`mode: Enforce`, and you opt into it. The fail-closed behavior this page describes
+is the Enforce mode; nothing about the plane is silently on.
+
+**The verdict is enforced, not advertised -- across two independent layers.** The
+L7 decision (which tool, which arguments) is made deterministically in the core
+data plane, at the tool-invocation chokepoint every proxied call already passes
+through. Separately, the operator compiles each policy into an L3/L4 network
+backstop -- a `NetworkPolicy`, or a `CiliumNetworkPolicy` when the allow-list is
+by hostname. The backstop does not make the tool-call decision; it guarantees a
+pod cannot route *around* Hangar to reach the upstream in the first place. The
+core decides; the backstop denies the bypass. A policy without the backstop is a
+suggestion -- if a workload can escape DNS and `NetworkPolicy`, it can escape
+Hangar. With it, the L7 rule is enforcement rather than a recommendation.
+
+**It is deterministic.** Tool names match by glob in a fixed precedence -- deny
+beats requireApproval beats allow beats the default. Argument scanning refuses a
+call whose payload carries a known secret pattern (an AWS key, a JWT, a GitHub
+token) or exceeds a byte ceiling, and it does so *even when the tool itself is
+allowed* -- deny always wins. No ML, no scores, no threshold to tune. The same
+inputs always produce the same verdict, and you can read the rule that produced
+it. When `requireApproval` matches, the call **fails closed** -- it is blocked, a
+hard gate, not a hold that hangs waiting for someone to click yes.
+
+**It closes the outbound door the gateway never saw.** Because the verdict binds
+on the call path, Hangar governs what the server *reaches out to do*, not just who
+reached in. That is the direction a compromised agent actually moves. And because
+enforcement happens at one chokepoint, every call leaves a forensic line: who
+invoked which tool, under which pinned contract, with what verdict.
+
+## The one-line difference
+
+A gateway asks *"may this connection in?"* and then stops looking. An enforcement
+plane asks *"may this exact call, with these arguments, to this upstream,
+proceed?"* -- on every call, deterministically, fail-closed. For a REST backend
+the first question is often enough. For an MCP server, whose every tool call is a
+fresh decision with real-world reach, only the second one is governance.
+
+---
+
+*Grounded in the [MCPEgressPolicy guide](/guides/egress-policy) and
+[ADR-013](/adr/ADR-013-egress-policy-enforcement-model) (the enforcement model).
+Everything is MIT and self-hosted -- no SaaS tier.*

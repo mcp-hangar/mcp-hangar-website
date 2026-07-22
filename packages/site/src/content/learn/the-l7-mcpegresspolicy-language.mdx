@@ -1,0 +1,147 @@
+---
+title: "The L7 MCPEgressPolicy language"
+description: "Glob allow/deny/requireApproval plus secret-pattern and payload-size argument scanning -- deterministic, no ML."
+type: Concept
+level: Core
+time: "8 min"
+theme: enforcement
+status: ship
+updated: 2026-07-22
+tags: [concepts, enforcement, egress, policy, adr-013]
+---
+
+# The L7 MCPEgressPolicy language
+
+Registration answers one question -- *may this server receive traffic at all?* A
+namespace opted into enforcement gets a default-deny egress, unregistered pods
+fail admission, and a registered server stays dark until its image is
+digest-pinned. That is a switch, not a policy. `MCPEgressPolicy` is the
+declarative language that sits above the switch and answers the next question:
+*which upstreams, which tool calls, with which arguments -- and what happens when
+the answer is no?*
+
+This page is about the L7 half of that language: the tool-call and argument rules
+Hangar enforces in the data plane it already operates. It is deliberately small,
+and every corner of it is deterministic -- glob matching and named regex groups,
+no scores, no heuristics, no model to tune.
+
+## Two layers, applied together
+
+A single policy compiles into two enforcement layers. The **L3/L4 backstop** is a
+generated `NetworkPolicy` or `CiliumNetworkPolicy` that governs which upstream
+hosts a server's pods can reach at the network level. The **L7 layer** runs in the
+core, on the connections Hangar already proxies, and governs which tool calls --
+by name -- are allowed and which arguments may ride along.
+
+One deployment fact rides on that split: matching an upstream by *hostname* -- as
+`api.github.com` in the example below -- requires the **Cilium** backstop flavor. A
+vanilla `NetworkPolicy` cannot match FQDNs, so under it a hostname upstream fails
+closed and surfaces as `Degraded/FQDNUpstreamsUnenforceable`. Off Cilium, list
+upstreams as literal IP/CIDR instead.
+
+The relationship between them is the whole trust model, stated verbatim in the
+API: *a policy without the network backstop is a suggestion.* If a pod can bypass
+DNS and NetworkPolicy, it can bypass Hangar. The backstop is what turns the L7
+rules from a recommendation into enforcement. The L7 language is expressive
+precisely because the backstop guarantees the traffic cannot route around it.
+
+## The shape of a rule
+
+A policy is deny-by-default. `defaultAction: Deny` means a tool name that no rule
+matches is refused, and an empty `upstreams` list denies everything except the
+DNS and backstop paths -- a locked-down server that can resolve names but reach no
+upstream. You open holes deliberately, per upstream:
+
+```yaml
+upstreams:
+  - name: github
+    match:
+      host: api.github.com
+    tools:
+      allow: ["get_*", "list_*"]
+      requireApproval: ["create_*"]
+    arguments:
+      deny:
+        secretPatterns: [aws-keys, github-tokens]
+        maxPayloadBytes: 262144
+```
+
+The `match` block references trust primitives that already exist rather than
+duplicating them -- a per-tenant tool-schema digest pin, the image pin, the set of
+token issuers that may be brokered to this upstream. The policy does not reinvent
+identity; it composes with it.
+
+## Tool-call matching: a fixed precedence
+
+Tool names resolve by glob, and the precedence is fixed and total:
+
+**deny > requireApproval > allow > defaultAction.**
+
+`deny` rejects. `allow` permits. `defaultAction` catches everything unmatched.
+Globs are **case-sensitive** -- `get_*` does not match `GET_user` -- because
+determinism means no locale-dependent or ambiguous matching. There is exactly one
+correct outcome for any tool name under any policy, and you can compute it by hand.
+
+`requireApproval` is the interesting one, and it is worth being precise about what
+it does. When a call matches an approval glob, the L7 layer **fails closed**: the
+call is blocked pending out-of-band approval. This is a hard gate, not an
+interactive approval queue. The tool invocation does not hang on a live session
+waiting for a human to click yes -- there is no guaranteed back-channel at the
+invocation instant to go find one -- so the verdict is a deny, and the call stops.
+It is enforcement, not a hold. Read `requireApproval` as *"this class of call is
+refused unless it has been approved out of band,"* not as *"pause here and ask."*
+Routing a gated call into an interactive approval workflow is itself a planned
+follow-up, not shipped behaviour -- which is exactly why the shipped verdict is a
+clean deny.
+
+## Argument scanning: deny always wins
+
+Above the tool name, the L7 layer inspects arguments. Two deterministic checks:
+
+**Secret patterns.** `secretPatterns` names groups -- `aws-keys`, `jwt`,
+`github-tokens`, `stripe-keys`, `slack-tokens`, `pem-blocks`, and more -- each
+mapping to a value-regex. Crucially these are the *same* regexes Hangar's output
+redactor uses, so what the redactor masks on the way out is exactly what a policy
+refuses on the way in. A credential in a tool-call argument is caught before it
+crosses the wire.
+
+**Payload size.** `maxPayloadBytes` rejects tool-call arguments larger than the
+limit -- a blunt but deterministic guard against exfiltration-shaped payloads.
+
+The rule that ties it together: a secret pattern or an oversized payload **denies
+the call even when the tool name is allowed.** Deny always wins. And arguments
+that cannot even be serialized for inspection fail closed too -- ambiguity resolves
+to denial, never to "probably fine." Full DLP and any ML-based classification are
+explicit non-goals. The scanner does one narrow, legible job, and refusing to grow
+into a heuristic classifier is the point, not a limitation.
+
+## What deploying it looks like
+
+The operator compiles a policy's per-upstream `tools` and `arguments` rules into a
+single per-server document -- the union of the allow/deny/approval globs and
+secret-pattern groups, and the *smallest* (most restrictive) `maxPayloadBytes` --
+and pushes it to the core over the same config-pull channel that already feeds
+routing config. That delivery is gated on running the operator with `--hangar-url`:
+without it, the compiled L7 document never reaches the data plane and only the
+L3/L4 backstop applies. This is the seam to watch when a policy looks applied but
+tool rules are not biting.
+
+The evaluator itself -- the deterministic engine described on this page -- ships in
+`1.6.0` and defines the contract: given a compiled document and a tool call, it
+returns exactly one verdict, and a denied call raises before it reaches the
+upstream at the tool-invocation chokepoint. Wiring that engine into the live
+invocation path is the last mile, and is the piece to confirm against your
+release. Delete the policy and it clears from the core.
+
+Because rules are merged per server, host-specific tool rules that must stay apart
+belong in separate policies. And `mode` defaults to `Audit`: a policy observes and
+records violations before it blocks, giving a Gatekeeper-style adoption path. Flip
+it to `Enforce` when you have watched enough. A policy left in `Audit` enforces
+nothing -- deliberately, and it is surfaced in status.
+
+---
+
+*Grounded in [ADR-013](/adr/ADR-013-egress-policy-enforcement-model)
+(explicit-proxy enforcement + generated network backstop) and the
+[Egress Policy guide](/docs/guides/egress-policy). Shipped in `1.6.0` (operator
+`v0.14.0`). Everything is MIT and self-hosted -- no SaaS.*

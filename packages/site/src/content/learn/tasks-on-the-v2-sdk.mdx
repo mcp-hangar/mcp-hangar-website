@@ -1,0 +1,121 @@
+---
+title: "MCP on the v2 SDK: Tasks as a negotiated capability"
+description: "SEP-2663 promotes Tasks out of experimental into a negotiated extension -- the unblocker for governed relay."
+section: concepts
+updated: 2026-07-22
+tags: [concepts, tasks, mcp, sdk-v2, async]
+type: Concept
+level: Deep
+time: "8 min"
+theme: async
+status: preview
+---
+
+import Callout from '../../components/Callout.astro';
+
+<Callout variant="preview">
+  **Landing in 2.0.** Everything on this page describes the **v2 preview**
+  (`2.0.0a1`, built on `mcp==2.0.0b2`). It is **not** in the released `1.6.0`
+  line, and none of it is GA. Where the text says Hangar negotiates or serves a
+  task capability, read it as "on the v2 preview" -- today, released Hangar still
+  cleanly rejects upstream task handles with `TaskRelayNotSupported`.
+</Callout>
+
+# MCP on the v2 SDK: Tasks as a negotiated capability
+
+For most of MCP's life, tasks were a thing the protocol *could* do but would not
+promise. The API lived under `mcp.server.experimental`: present, usable, and
+explicitly disclaimed -- shape subject to change, not something a careful gateway
+should build a governance surface against. That disclaimer was not incidental. It
+was the single fact that kept Hangar's task governance built, tested, and
+**dormant** for a full quarter.
+
+The v2 SDK changes that fact. In `mcp==2.0.0b2` -- the reshape SEP-2663
+carries -- Tasks are promoted out of `experimental` into a **first-class,
+negotiated protocol extension**. That single word, *negotiated*, is what turns a
+stranded governance stack into a shippable one. This page is about why.
+
+## What "negotiated" buys that "experimental" did not
+
+An experimental API is a surface you may call. A *negotiated* capability is a
+surface both peers agree exists before either uses it. The distinction is the
+whole story.
+
+Under v2, a server declares a `ServerTasksCapability` at `INITIALIZE`, and the
+client's capabilities come back the same way -- `TasksCall`, `TasksList`,
+`TasksCancel`, plus the sampling and elicitation sub-capabilities a task might
+need mid-flight. Nothing is assumed. If a peer does not advertise a capability,
+you do not reach for it. The protocol gained an actual handshake for the async
+call-shape, and a discoverable registry of task request types (`CreateTask`,
+`GetTask`, `GetTaskPayload`, `ListTasks`, `CancelTask`) to hang handlers off of.
+
+For a governance layer this is not a convenience -- it is the precondition. A
+gateway that interposes on a call-shape has to know, per session, exactly which
+methods are in play. Negotiation hands it that knowledge as a contract instead of
+a guess. [ADR-014](/adr/ADR-014-tasks-relay-with-governance) names the promotion
+as its unblocking fact directly: the API ADR-008 called "too churny to build
+against" is now stable and discoverable, so the relay seam can finally land.
+
+## Advertise exactly what you serve
+
+The negotiated model comes with a discipline Hangar already held on principle:
+**do not advertise what does not run.** In v2 that principle becomes literal
+protocol. Hangar advertises the `tasks` capability at `INITIALIZE` **only once
+the relay seam is live** -- never on the strength of a decision alone, never as a
+claim that a task is currently in flight. The advertisement is an honest signal
+that governed relay is *available*, and it flips on with activation, not before.
+
+The same discipline runs one level deeper, into which handlers exist at all. The
+serving surface registers each `tasks/*` handler **only while the running SDK
+defines its type** -- and that is a build-level fact, not a wire-level one. The
+distinction is easy to blur, so state it exactly: `mcp==2.0.0b2` already targets
+and negotiates the `2026-07-28` revision, yet its *type* surface is still
+mid-flight. It ships `ListTasksResult`, so `tasks/list` registers; it does **not**
+yet define `UpdateTaskRequest`, so the inbound `tasks/update` path is **not
+registered on `b2`** -- it lights up only on a later beta that adds the type.
+Registration tracks the SDK build, never the negotiated protocol string.
+
+The payoff is that the methods Hangar serves follow the type deltas within the v2
+line *without a version bump in Hangar itself*. Nothing needs to route a call to a
+handler that is not there. The modern `tasks/update` input path is **coming, not
+reachable today**; Hangar will serve it the moment the SDK defines the type, and
+not one release before.
+
+## Negotiation makes governed relay buildable -- not automatic
+
+Here is the honest boundary. Negotiation is what makes governed relay *possible*.
+It does not make the governance *appear*. A negotiated `task_id` handed straight
+through to a client is still a governance-blind promise -- the protocol handshake
+does nothing to record who owns the task, which tool digest it was born under, or
+whether a later `tasks/result` is even yours to fetch.
+
+What v2 supplies is the stable, discoverable surface on which Hangar attaches the
+governance it already built: register the task in a `GovernedTaskStore` before
+the handle reaches the client, pin the digest, key the entry on
+`(target_server_id, task_id)`, and emit a `TaskCreated` event onto the provenance
+chain. The negotiated capability is the socket; relay-with-governance is what
+plugs into it. The mechanics of that -- the ledger, the four handlers, the
+fail-closed authorization -- are the subject of the
+[governed task relay](/learn/relay-with-governance) page.
+
+And the promotion changes *nothing* about the species question. A negotiated
+capability is still a call-shape Hangar **relays**, not one it executes. Hangar
+creates no tasks, runs no scheduler, holds no results, crosses no worker ->
+main-loop bridge. What v2 lifted was ADR-008's "*permanently* no relay"
+absolutism -- the executor prohibition is carried forward untouched. The proxy
+stays a proxy; it just finally has a stable contract to govern across.
+
+## Why the timing was the point
+
+ADR-008 gated the relay build on **two** triggers: a real upstream emitting
+tasks, *and* the task API graduating out of experimental. The second trigger was
+outside anyone's control -- it was the SDK's to grant. `mcp==2.0.0b2` granting it
+is why the relay seam ships on the v2 preview now and not a quarter ago. The
+governance was never the bottleneck. The *negotiability* of the thing it governs
+was.
+
+---
+
+*Grounded in [ADR-014](/adr/ADR-014-tasks-relay-with-governance) (relay-with-governance)
+and the SDK v2 migration (`mcp==2.0.0b2`, SEP-2663 Tasks). Everything is MIT and
+self-hosted -- no SaaS. Preview only; not in released `1.6.0`.*

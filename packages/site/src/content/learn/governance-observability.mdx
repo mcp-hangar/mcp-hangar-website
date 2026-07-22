@@ -1,0 +1,122 @@
+---
+title: "Governance observability"
+description: "OTel GenAI/MCP semconv spans and an identity-attributed, append-only audit chain over every governed call."
+type: Concept
+level: Core
+time: "6 min"
+theme: observability
+status: ship
+updated: 2026-07-22
+tags: [observability, opentelemetry, audit, tracing, governance]
+---
+
+# Governance observability
+
+A gateway that decides whether a tool call is allowed has to answer a second
+question the moment after: *how do you know it decided that?* An enforcement
+plane you cannot see through is not an enforcement plane -- it is a claim. So
+Hangar treats observability as part of the governance surface, not a bolt-on.
+Every governed call leaves two traces: a live OpenTelemetry span you watch in
+real time, and an append-only audit event that is attributed to the identity
+that made the call and survives long after the trace has aged out.
+
+The two surfaces answer different questions. The span answers *what is
+happening right now* -- latency, errors, which upstream, which verdict. The
+audit chain answers *what happened, who did it, and under which contract* --
+the forensic record. They share one spine: the same identity that authorizes
+the call names the span and signs the audit line.
+
+## Telemetry any OTel backend already understands
+
+Before 1.6.0, Hangar emitted its own `mcp.tool.*` attributes -- correct, but
+Hangar-specific, so a GenAI-aware backend needed custom mapping to read them.
+1.6.0 puts tool-invocation telemetry on the OpenTelemetry GenAI/MCP semantic
+conventions. The span is `execute_tool {tool}`, the tool name is
+`gen_ai.tool.name`, token usage is `gen_ai.usage.input_tokens` /
+`output_tokens`, and the operation carries `gen_ai.operation.name` and
+`mcp.method.name`. Point Jaeger, Tempo, Grafana, or an OTel Collector at
+Hangar and the traces are legible without a translation layer.
+
+What semconv has no word for, Hangar keeps in its own namespaces, unchanged and
+deliberate: `mcp.enforcement.*`, `mcp.risk.*`, `mcp.audit.*`, and
+`mcp.session.id`. Governance attributes are set in one pass by
+`set_governance_attributes()`, and `None` values are omitted rather than
+written as empty strings -- so an unattributed call does not pollute the backend
+with blank identity fields. The verdict itself rides the span: `policy_result`
+and `enforcement_action` make every allow, deny, or approval-gated block a
+first-class, queryable attribute.
+
+## The upstream call boundary is a real span
+
+The outgoing call to an upstream MCP server is a proper `SpanKind.CLIENT`
+span, and W3C trace context propagates across the boundary on both transports
+-- HTTP headers as always, and now the stdio transport via the MCP `_meta`
+field. A distributed trace therefore stays connected from the agent, through
+Hangar, into a stdio subprocess server, instead of breaking at the proxy seam.
+`OTEL_TRACES_SAMPLER` is honored, and a failed tool call marks its span
+`ERROR` -- so failures surface in your tracing backend instead of masquerading
+as successful traces.
+
+Around the traces sit metrics and health. Per-server transport metrics
+(`mcp_hangar_messages_sent_total`, `messages_received_total`, and a
+`mcp_hangar_message_size_bytes` histogram) sit alongside the tool-call,
+latency, and health-check series, and two telemetry-health alerts --
+`MCPHangarTelemetryExportFailing` and `MCPHangarDiscoveryValidationFailing` --
+page you when the observability pipeline itself breaks. The instrument that
+watches everything else is also watched.
+
+## An audit chain, not a log stream
+
+Spans expire. The audit surface does not. Security-relevant domain events --
+`ToolInvocationCompleted`, `ToolInvocationFailed`, `McpServerStateChanged` --
+are emitted onto an append-only, event-sourced chain (the same event-sourcing
+spine the rest of the platform is built on) and exported as OTLP log records
+whenever `OTEL_EXPORTER_OTLP_ENDPOINT` is set, with no extra configuration.
+
+Every record is *attributed*. Caller identity -- `mcp.caller.type`,
+`mcp.caller.id`, `mcp.caller.roles` -- is propagated from the call's identity
+context, and cost attribution (`mcp.cost.cents`, `mcp.cost.model`, token
+usage) rides along when it is configured. The result is not "a tool ran" but
+"*this principal* invoked *this tool* on *this server* with *this verdict* at
+*this cost*." That is the difference between a log and an audit trail: the
+audit trail can never shrug and say it does not know who did it.
+
+## It lands where your SIEM already lives
+
+Append-only and identity-attributed only matters if the record reaches the
+system your security team already runs. Beyond OTLP, Hangar ships audit
+exporters that all implement one `IAuditExporter` protocol and write to file,
+callback, or stderr for container log collection:
+
+| Format | Use case |
+| --- | --- |
+| CEF | ArcSight, QRadar, Splunk via CEF |
+| JSON-lines | Splunk HEC, Elasticsearch, custom pipelines |
+| LEEF | IBM QRadar native format |
+| Syslog (RFC 5424) | Any syslog-compatible SIEM |
+
+The [Observability guide](/docs/guides/OBSERVABILITY) has the full
+environment-variable reference and the exporter wiring for each format.
+
+## Deterministic by design
+
+One thing you will not find on a Hangar span or in its audit chain is an
+anomaly score. Enforcement is deterministic -- glob-matched tool rules,
+named secret-pattern groups, size limits, digest pins -- so an
+`enforcement_action` in a trace maps to a rule you can read, and a denied call
+in the audit chain says *which* rule denied it. Egress policy is
+audit-by-default, so you watch violations accumulate on the governance
+dashboard before you flip a policy to `Enforce` and it begins to block. And
+because every deterministic verdict fails closed, the record of a block is not
+an alert you have to interpret -- it is a fact you can hand to an auditor.
+
+That is the whole shape of it. The span shows you the call as it happens; the
+audit chain remembers who made it and under what rule; both speak conventions
+your existing backends already parse. Governance you can prove is the only kind
+worth having.
+
+---
+
+*Grounded in the 1.6.0 observability release and
+[ADR-013](/adr/ADR-013-egress-policy-enforcement-model) (the egress-policy
+enforcement model). Everything is MIT and self-hosted -- no SaaS.*

@@ -1,0 +1,164 @@
+---
+title: "The governed task-relay flow"
+description: "Mint → relay + ledger + TaskCreated → follow-ups → consent gate → recorded decision, one diagram at a time."
+type: Visual
+level: Core
+time: "4 min"
+theme: async
+status: preview
+updated: 2026-07-22
+tags: [tasks, async, governance, consent, adr-014]
+---
+
+import Callout from '../../components/Callout.astro';
+
+<Callout variant="preview">
+  **Landing in 2.0.** This whole flow describes the governed task relay on the
+  **v2 preview** (`2.0.0a1`, built on `mcp==2.0.0b2`). It is **not** in the
+  released `1.6.0` line. Where the diagram shows a stage firing, read it as "on
+  the v2 preview" -- today, released Hangar still cleanly rejects an upstream
+  task handle with `TaskRelayNotSupported`.
+</Callout>
+
+# The governed task-relay flow
+
+A synchronous `tools/call` governs itself: the call path *is* the governance
+path. A task breaks that. The upstream answers with a *promise* -- a `task_id`
+and the assurance that the real work finishes later -- and the result arrives on
+a follow-up you make minutes or hours after the call that started it. Everything
+interesting happens in that gap.
+
+Here is what Hangar does in the gap, one stage at a time. The through-line is
+that Hangar **relays and governs** the task the upstream owns. It never runs it.
+
+## The flow, one stage at a time
+
+<div style="overflow-x:auto">
+
+<svg viewBox="0 0 720 760" width="100%" role="img" aria-label="Vertical flow diagram: Mint, then Relay plus ledger plus TaskCreated in one critical section, then Follow-ups, then the Consent gate, which branches to a recorded accept or a fail-closed denial." style="color:currentColor">
+  <title>The governed task-relay flow</title>
+  <defs>
+    <marker id="tr-arw" markerWidth="12" markerHeight="12" refX="8" refY="3" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0,0 L8,3 L0,6 Z" fill="currentColor" fill-opacity="0.55" />
+    </marker>
+  </defs>
+
+  {/* connectors -- neutral, inherit page ink so the diagram reads in either theme */}
+  <line x1="360" y1="100" x2="360" y2="146" stroke="currentColor" stroke-opacity="0.55" stroke-width="2" marker-end="url(#tr-arw)" />
+  <line x1="360" y1="238" x2="360" y2="282" stroke="currentColor" stroke-opacity="0.55" stroke-width="2" marker-end="url(#tr-arw)" />
+  <line x1="360" y1="386" x2="360" y2="430" stroke="currentColor" stroke-opacity="0.55" stroke-width="2" marker-end="url(#tr-arw)" />
+  <line x1="330" y1="522" x2="190" y2="590" stroke="currentColor" stroke-opacity="0.55" stroke-width="2" marker-end="url(#tr-arw)" />
+  <line x1="390" y1="522" x2="530" y2="590" stroke="currentColor" stroke-opacity="0.55" stroke-width="2" marker-end="url(#tr-arw)" />
+
+  {/* 1 -- Mint */}
+  <rect x="130" y="24" width="460" height="76" rx="14" fill="currentColor" fill-opacity="0.03" stroke="currentColor" stroke-opacity="0.28" stroke-width="1.5" />
+  <text x="360" y="54" text-anchor="middle" font-size="16" font-weight="700" fill="currentColor">1 · Mint</text>
+  <text x="360" y="78" text-anchor="middle" font-size="12" fill="currentColor" opacity="0.7">Upstream answers the call with a promise: CreateTaskResult(task_id).</text>
+
+  {/* 2 -- Relay + ledger + TaskCreated (amber = governed critical section) */}
+  <rect x="130" y="148" width="460" height="90" rx="14" fill="#d97706" fill-opacity="0.09" stroke="#d97706" stroke-width="1.5" />
+  <text x="360" y="178" text-anchor="middle" font-size="16" font-weight="700" fill="#d97706">2 · Relay + ledger + TaskCreated</text>
+  <text x="360" y="200" text-anchor="middle" font-size="12" fill="currentColor" opacity="0.78">bind owner · pin digest · store upstream snapshot · emit TaskCreated</text>
+  <text x="360" y="220" text-anchor="middle" font-size="12" fill="currentColor" opacity="0.78">one lock-held section, before the handle reaches the client</text>
+
+  {/* 3 -- Follow-ups */}
+  <rect x="130" y="284" width="460" height="102" rx="14" fill="currentColor" fill-opacity="0.03" stroke="currentColor" stroke-opacity="0.28" stroke-width="1.5" />
+  <text x="360" y="314" text-anchor="middle" font-size="16" font-weight="700" fill="currentColor">3 · Follow-ups</text>
+  <text x="360" y="336" text-anchor="middle" font-size="12" fill="currentColor" opacity="0.7">tasks/get · tasks/result (re-verify pinned digest) · tasks/cancel · tasks/list</text>
+  <text x="360" y="356" text-anchor="middle" font-size="12" fill="currentColor" opacity="0.7">each fail-closed, owner-scoped, upstream-truthful --</text>
+  <text x="360" y="374" text-anchor="middle" font-size="12" fill="currentColor" opacity="0.7">a bare task_id you do not own is indistinguishable from one that does not exist</text>
+
+  {/* 4 -- Consent gate (amber = governed decision point) */}
+  <rect x="130" y="432" width="460" height="90" rx="14" fill="#d97706" fill-opacity="0.09" stroke="#d97706" stroke-width="1.5" />
+  <text x="360" y="462" text-anchor="middle" font-size="16" font-weight="700" fill="#d97706">4 · Consent gate</text>
+  <text x="360" y="484" text-anchor="middle" font-size="12" fill="currentColor" opacity="0.78">status input_required → elicit the downstream client for consent</text>
+  <text x="360" y="504" text-anchor="middle" font-size="12" fill="currentColor" opacity="0.78">the gate opens only on a confirmed accept -- decide first, then open</text>
+
+  {/* 5a -- accept */}
+  <rect x="40" y="590" width="300" height="130" rx="14" fill="#059669" fill-opacity="0.07" stroke="#059669" stroke-width="1.5" />
+  <text x="190" y="620" text-anchor="middle" font-size="15" font-weight="700" fill="currentColor">5a · Recorded decision</text>
+  <text x="190" y="642" text-anchor="middle" font-size="12" fill="#059669" font-weight="600">accept</text>
+  <text x="190" y="666" text-anchor="middle" font-size="12" fill="currentColor" opacity="0.7">relay the answer upstream ·</text>
+  <text x="190" y="684" text-anchor="middle" font-size="12" fill="currentColor" opacity="0.7">TaskConsentDecided(granted=True)</text>
+  <text x="190" y="704" text-anchor="middle" font-size="12" fill="currentColor" opacity="0.7">the task resumes, upstream-owned</text>
+
+  {/* 5b -- fail closed */}
+  <rect x="380" y="590" width="300" height="130" rx="14" fill="#dc2626" fill-opacity="0.06" stroke="#dc2626" stroke-width="1.5" />
+  <text x="530" y="620" text-anchor="middle" font-size="15" font-weight="700" fill="currentColor">5b · Failed closed</text>
+  <text x="530" y="642" text-anchor="middle" font-size="12" fill="#dc2626" font-weight="600">any non-accept</text>
+  <text x="530" y="666" text-anchor="middle" font-size="12" fill="currentColor" opacity="0.7">decline · no back-channel · error →</text>
+  <text x="530" y="684" text-anchor="middle" font-size="12" fill="currentColor" opacity="0.7">best-effort tasks/cancel ·</text>
+  <text x="530" y="704" text-anchor="middle" font-size="12" fill="currentColor" opacity="0.7">TaskConsentDecided(granted=False)</text>
+</svg>
+
+</div>
+
+Read the stages top to bottom:
+
+1. **Mint.** A long-running `tools/call` comes back not with a result but with a
+   promise -- `CreateTaskResult(task_id)`. The upstream owns the work.
+2. **Relay + ledger + TaskCreated.** *Before* the handle reaches the client,
+   `relay_and_govern()` does four things under **one lock-held critical
+   section**, keyed on `(target_server_id, task_id)`: it **binds the owner**
+   (tenant + principal from the request identity, cross-checked against the
+   authorized owner), **pins the tool digest** carried on the synchronous invoke
+   path, **stores the upstream-truth `Task` snapshot**, and emits the
+   `TaskCreated` provenance head. If the event publish fails, the whole
+   registration rolls back -- no orphan binding, no headless provenance head,
+   zero governed state survives. A relayed `task_id` is therefore *always*
+   locally known: the dead-handle failure cannot recur.
+3. **Follow-ups.** The client polls and collects through four native `tasks/*`
+   handlers. Every one is fail-closed and owner-scoped -- a bare `task_id` you do
+   not own resolves the same as one that never existed, so denial never confirms
+   existence. `tasks/result` re-verifies the **pinned digest** first; drift fails
+   the task rather than handing back a result shaped by a contract nobody
+   authorized.
+4. **Consent gate.** When the upstream status turns `input_required`, the task is
+   paused mid-flight. `tasks/get` resolves it in-handler: it elicits the
+   downstream client for consent, and the gate opens **only** on a confirmed
+   accept. Consent is obtained *before* the gate opens -- there is no
+   open-then-decide race.
+5. **Recorded decision.** Either branch is terminal and leaves a signed line on
+   the provenance chain. On **accept** (5a) the answer relays upstream and
+   `TaskConsentDecided(granted=True)` is recorded. On **any** other outcome (5b)
+   -- decline, no negotiated back-channel, or an elicitation error -- the task is
+   failed closed, a best-effort `tasks/cancel` is relayed, and
+   `TaskConsentDecided(granted=False)` is recorded. A paused task is never left
+   dangling on a maybe.
+
+One activation detail keeps the diagram honest: even on the v2 preview the relay
+seam is gated by the `relay_tasks_enabled` kill-switch and, per ADR-014's
+build-now-activate-per-upstream decision, engages **per-upstream the first time
+an upstream actually emits a task**. Until that first real task -- or with the
+switch flipped off for a fast per-deployment rollback -- the upstream still gets
+the clean `TaskRelayNotSupported` rejection. That per-upstream activation is why
+a v2 deployment can still observe `TaskRelayNotSupported`, and why an upstream
+that never emits tasks sees no behavioral change at all.
+
+## Two things the diagram is quietly asserting
+
+**Hangar relays; it does not execute.** No scheduler, no result store, no
+GC/TTL correctness, no cancellation-race ownership, no worker → main-loop bridge.
+The ledger holds only *who owns it*, *which pinned contract*, and *the last known
+upstream status* -- never a result payload, never execution state. Governance
+binds at the same proxy seam that governs synchronous calls, so the "one bug and
+governance silently fails to bind" failure mode a background thread would
+introduce does not exist to break.
+
+**Stage 4 is the *only* genuinely interactive consent in Hangar.** Do not confuse
+it with the synchronous L7 `requireApproval` gate, which **fails closed** -- a
+gated `tools/call` is *blocked*, not parked in an interactive approval queue.
+Nothing prompts a human and waits on the synchronous path. The async gate is
+different only because the task is already paused and the polling client is right
+there on a live session with a negotiated elicitation capability: a real
+back-channel exists, so a real human decision can be routed back. Everywhere else,
+governance is deterministic enforcement -- no scores, no queue.
+
+---
+
+*Grounded in [ADR-014](/adr/ADR-014-tasks-relay-with-governance)
+(relay-with-governance, not executor). For the full argument -- the ledger
+boundary, digest re-verification, and every fail-closed branch of the consent
+gate -- read [Governed async tasks: relay-with-governance, not an
+executor](/learn/relay-with-governance). Everything is MIT and self-hosted -- no
+SaaS.*

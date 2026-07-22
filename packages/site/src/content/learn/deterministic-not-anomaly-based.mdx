@@ -1,0 +1,94 @@
+---
+title: "Deterministic, not anomaly-based"
+description: "No scores to tune, no baseline to train -- enforcement you can read, test, and reason about."
+type: Why
+level: Intro
+time: "4 min"
+theme: foundations
+status: ship
+updated: 2026-07-22
+tags: [enforcement, egress-policy, determinism, foundations, adr-013]
+---
+
+# Deterministic, not anomaly-based
+
+Ask most people how a gateway should stop a bad tool call and you get the same
+reflex: *learn what normal looks like, then flag the outliers.* Train a baseline,
+score each call, alert -- or block -- when the score crosses a line. It sounds
+like the sophisticated answer. It is the wrong one, and Hangar deliberately does
+not do it.
+
+## The reflex, and why it fails
+
+Anomaly detection is seductive because it promises to catch the attack you didn't
+think to write a rule for. In practice it buys that promise with four costs you
+pay forever.
+
+**It needs a baseline you don't have.** A score is only meaningful relative to
+"normal," and normal has to be learned from traffic. On day one you have none. In
+a system where tools are added, redeployed, and rescoped weekly, the baseline is
+always stale -- and a stale baseline is just a slower way to be wrong.
+
+**The threshold is a knob, and the knob is a guess.** Every anomaly system ships
+a number you must tune: how many standard deviations is too many. Set it tight
+and you drown in false positives until someone quietly raises it. Set it loose
+and the thing you bought it to catch sails under the bar. There is no correct
+setting, only a setting you'll be blamed for after the incident.
+
+**You can't test it, so you can't trust it.** "Would this call be blocked?" has
+no answer you can assert in CI, because the answer depends on the last ten
+thousand calls the model happened to see. A control you cannot write a unit test
+for is a control you cannot reason about -- and a control an auditor cannot
+reason about is not a control, it's a vibe.
+
+**It fails in the wrong direction.** When a scorer is uncertain -- novel input,
+cold model, a gap in the training data -- it tends to *let the call through* and
+log a low-confidence note. The moment you most want enforcement, the mechanism
+shrugs. And an adversary who can probe the boundary can walk the baseline until
+their attack reads as normal. You have built a lock that teaches the burglar its
+combination.
+
+## What Hangar does instead
+
+Hangar's egress enforcement is **deterministic**. An `MCPEgressPolicy` is a
+deny-by-default allow-list you write down: which upstreams a server may reach,
+which tool calls it may make, which argument shapes it may carry. There is no
+model, no score, no baseline to train -- and per
+[ADR-013](/adr/ADR-013-egress-policy-enforcement-model), full DLP and any
+ML-based detection are explicit *non-goals*, not a roadmap item.
+
+A tool name resolves through fixed precedence -- **deny > requireApproval >
+allow > defaultAction** -- and the globs are case-sensitive on purpose, because
+`get_*` matching `GET_user` would be one more thing you couldn't predict.
+Argument scanning rejects a call whose payload carries a configured secret
+pattern or exceeds its `maxPayloadBytes`, and the secret-pattern regexes are the *same
+ones* the output redactor masks with -- what Hangar refuses on the way in is
+what it hides on the way out. A secret denies the call even when the tool itself
+is allowed: deny always wins.
+
+Every uncertain edge resolves **closed**. A `requireApproval` verdict is a hard
+gate that blocks pending out-of-band approval -- not an interactive queue that
+hangs, a deny you can rely on. An argument payload that can't even be serialized
+for inspection fails closed. An FQDN upstream that the network backstop can't
+enforce is denied and surfaced as `Degraded`, never quietly opened to "any
+destination." The trust boundary is stated in the API itself: *a policy without
+the network backstop is a suggestion.*
+
+## Why this is the better trade
+
+The whole point is that you can hold the entire enforcement decision in your
+head. You can read the policy and know what it does. You can write a test that
+asserts a call is blocked and have it stay true next week. You can hand the YAML
+to an auditor and answer *"why was this denied?"* with a line number instead of a
+probability.
+
+Anomaly detection trades all of that away for the hope of catching the unknown
+unknown. Hangar takes the other side of the trade -- and it's not a compromise.
+A control you can read, test, and reason about is not a weaker version of
+security. It is the only kind you can actually depend on.
+
+---
+
+*Grounded in [ADR-013](/adr/ADR-013-egress-policy-enforcement-model) (the egress
+enforcement model) and the [Egress Policy guide](/docs/guides/egress-policy),
+shipped in core `1.6.0`. Everything is MIT and self-hosted -- no SaaS.*
