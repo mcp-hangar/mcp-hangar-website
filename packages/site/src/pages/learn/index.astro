@@ -89,7 +89,9 @@ const statusText = (s: string) => (s === 'ship' ? '1.6.0' : 'v2 preview');
           <span class="gapline"></span>
         </div>
 
-        <!-- PLANE B — the per-request path (core), left → right. -->
+        <!-- PLANE B — the per-request path (core): ONE vertical spine,
+             top → bottom = request order. Every element on the same central
+             axis, joined by downward connectors only (no side arrows). -->
         <div class="flow">
           <!-- 1 · client -->
           <button type="button" class="ctl node" data-theme="foundations" data-filter="what-is-a-policy-enforcement-plane the-request-path" data-active="false">
@@ -99,7 +101,7 @@ const statusText = (s: string) => (s === 'ship' ? '1.6.0' : 'v2 preview');
             <span class="nd">the caller making tool requests</span>
           </button>
 
-          <span class="conn" aria-hidden="true"></span>
+          <span class="dconn" aria-hidden="true"></span>
 
           <!-- 2 · identity + auth middleware -->
           <button type="button" class="ctl node" data-theme="foundations" data-filter="the-request-path what-is-a-policy-enforcement-plane" data-active="false">
@@ -110,9 +112,10 @@ const statusText = (s: string) => (s === 'ship' ? '1.6.0' : 'v2 preview');
             <span class="naside">Mcp-Method / Mcp-Name header routing is a non-security aside — it does not bind identity.</span>
           </button>
 
-          <span class="conn" aria-hidden="true"></span>
+          <span class="dconn" aria-hidden="true"></span>
 
-          <!-- 3 · the enforcement pipeline (ordered, vertical) — the seam -->
+          <!-- 3 · the enforcement pipeline (ordered, vertical) — the seam, the
+               dense visual centerpiece of the spine -->
           <div class="seam">
             <div class="seamlabel">The enforcement pipeline</div>
             <div class="seamsub">ordered — top → bottom is real execution order</div>
@@ -192,7 +195,7 @@ const statusText = (s: string) => (s === 'ship' ? '1.6.0' : 'v2 preview');
             </ol>
           </div>
 
-          <span class="conn wire" aria-hidden="true"><span class="wirenote">to the wire</span></span>
+          <span class="dconn wire" aria-hidden="true"><span class="wirenote">↓ to the wire</span></span>
 
           <!-- 4 · upstream -->
           <button type="button" class="ctl node" data-theme="enforcement" data-filter="what-is-a-policy-enforcement-plane" data-active="false">
@@ -202,9 +205,11 @@ const statusText = (s: string) => (s === 'ship' ? '1.6.0' : 'v2 preview');
             <span class="nd">the tools being governed · Hangar-originated TLS</span>
           </button>
 
-          <!-- 5 · response side (compact) -->
+          <span class="dconn back" aria-hidden="true"><span class="wirenote">↑ response</span></span>
+
+          <!-- 5 · response side (compact) — last block in the spine -->
           <div class="respside">
-            <span class="respback" aria-hidden="true">↩ response</span>
+            <div class="resphead"><span class="nt">Response</span><span class="respmeta">mutators → truncation</span></div>
             <button type="button" class="ctl rbox is-off" data-theme="enforcement" data-filter="the-request-path" data-active="false">
               <span class="acc"></span>
               <span class="rh">Interceptor mutators — response <span class="tag off">off</span></span>
@@ -339,16 +344,16 @@ const statusText = (s: string) => (s === 'ship' ? '1.6.0' : 'v2 preview');
   .learn-hub .mono { font-family: var(--font-mono, ui-monospace, monospace); }
   .learn-hub .wrap { max-width: 1140px; margin: 0 auto; padding: 0 22px; }
 
-  /* hero */
-  .learn-hub .hero { padding: 44px 0 26px; position: relative; overflow: hidden; }
+  /* hero — a compact lead-in to the map, not a detached block */
+  .learn-hub .hero { padding: 26px 0 4px; position: relative; overflow: hidden; }
   .learn-hub .hero::before {
-    content: ""; position: absolute; inset: -40% -10% auto auto; width: 520px; height: 420px;
-    background: radial-gradient(closest-side, color-mix(in srgb, var(--brand) 20%, transparent), transparent 70%);
-    filter: blur(10px); opacity: .5; pointer-events: none;
+    content: ""; position: absolute; inset: -30% -10% auto auto; width: 420px; height: 260px;
+    background: radial-gradient(closest-side, color-mix(in srgb, var(--brand) 18%, transparent), transparent 70%);
+    filter: blur(10px); opacity: .4; pointer-events: none;
   }
   .learn-hub .eyebrow { font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--brand); font-weight: 700; }
-  .learn-hub .hero h1 { font-size: clamp(30px, 5vw, 46px); font-weight: 800; letter-spacing: -.03em; margin: 12px 0 10px; max-width: 16ch; text-wrap: balance; color: var(--ink); }
-  .learn-hub .hero p { color: var(--ink-2); font-size: 17px; max-width: 60ch; margin: 0; }
+  .learn-hub .hero h1 { font-size: clamp(28px, 4.4vw, 40px); font-weight: 800; letter-spacing: -.03em; margin: 8px 0 7px; max-width: 18ch; text-wrap: balance; color: var(--ink); }
+  .learn-hub .hero p { color: var(--ink-2); font-size: 16px; max-width: 62ch; margin: 0; }
 
   /* ---- architecture map ---- */
   /* per-theme accent, reused from the type palette (matches the card rails) */
@@ -359,7 +364,7 @@ const statusText = (s: string) => (s === 'ship' ? '1.6.0' : 'v2 preview');
   .learn-hub .ctl { --acc: var(--faint); }
 
   .learn-hub .arch {
-    margin: 22px 0 6px;
+    margin: 14px 0 6px;
     background: radial-gradient(120% 120% at 50% 0, var(--panel-2), var(--panel));
     border: 1px solid var(--line); border-radius: var(--r); padding: 20px 20px 22px;
   }
@@ -408,24 +413,27 @@ const statusText = (s: string) => (s === 'ship' ? '1.6.0' : 'v2 preview');
   .learn-hub .planegap .gapline { flex: 1; height: 1px; background: var(--line); }
   .learn-hub .planegap .gaptext { font-size: 10.5px; text-transform: uppercase; letter-spacing: .08em; color: var(--faint); font-weight: 700; }
 
-  /* Sides stay their natural (compact) height; the dense seam stays tall — the
-     asymmetry IS the point (look how much happens at the chokepoint vs the
-     passthrough), so centre the stages rather than stretching the thin ones. */
-  .learn-hub .flow { display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap; }
+  /* ONE vertical spine — every stage centred on the same axis, top → bottom is
+     request order. Endpoints (client / auth / upstream / response) are full-width
+     seam-width blocks IN the spine, joined by downward connectors only. */
+  .learn-hub .flow { display: flex; flex-direction: column; align-items: center; gap: 0; }
+  .learn-hub .node,
+  .learn-hub .seam,
+  .learn-hub .respside { width: 100%; max-width: 480px; }
 
-  /* flow stages (compact side nodes) */
+  /* spine endpoints (client / auth / upstream) */
   .learn-hub .node {
-    flex: 1 1 130px; min-width: 130px; padding: 15px 13px 13px; display: flex; flex-direction: column;
+    padding: 12px 14px; display: flex; flex-direction: column;
     border-style: dashed; border-color: var(--line-2);
   }
   .learn-hub .node .nt { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--faint); font-weight: 700; }
-  .learn-hub .node .nh { font-weight: 700; font-size: 14.5px; margin: 5px 0 3px; color: var(--ink); }
+  .learn-hub .node .nh { font-weight: 700; font-size: 14.5px; margin: 4px 0 3px; color: var(--ink); }
   .learn-hub .node .nd { font-size: 12px; color: var(--muted); }
   .learn-hub .node .naside { font-size: 10.5px; color: var(--faint); margin-top: 6px; padding-top: 6px; border-top: 1px dotted var(--line-2); }
 
-  /* the enforcement seam — the tall, dense, ORDERED pipeline (the chokepoint) */
+  /* the enforcement seam — the dense, ORDERED pipeline: the tall centrepiece */
   .learn-hub .seam {
-    flex: 1.7 1 264px; min-width: 264px; border: 1px solid color-mix(in srgb, var(--brand) 40%, var(--line));
+    border: 1px solid color-mix(in srgb, var(--brand) 40%, var(--line));
     background: linear-gradient(180deg, var(--brand-dim), var(--panel)); border-radius: 12px; padding: 12px 11px;
   }
   .learn-hub .seam .seamlabel { text-align: center; font-size: 11px; text-transform: uppercase; letter-spacing: .1em; color: var(--brand); font-weight: 800; }
@@ -466,9 +474,14 @@ const statusText = (s: string) => (s === 'ship' ? '1.6.0' : 'v2 preview');
     color: var(--brand); border: 1px solid color-mix(in srgb, var(--brand) 45%, transparent); border-radius: 5px; padding: 1px 5px;
   }
 
-  /* response side (compact) — after upstream */
-  .learn-hub .respside { flex: 1 1 150px; min-width: 150px; display: flex; flex-direction: column; gap: 6px; }
-  .learn-hub .respback { font-size: 10.5px; text-transform: uppercase; letter-spacing: .07em; color: var(--faint); font-weight: 700; }
+  /* response block — the last stage in the spine, after upstream */
+  .learn-hub .respside {
+    display: flex; flex-direction: column; gap: 6px;
+    border: 1px dashed var(--line-2); border-radius: 12px; background: var(--panel-2); padding: 10px 12px 12px;
+  }
+  .learn-hub .respside .resphead { display: flex; align-items: baseline; gap: 8px; margin-bottom: 2px; }
+  .learn-hub .respside .resphead .nt { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--faint); font-weight: 700; }
+  .learn-hub .respside .respmeta { font-size: 11px; color: var(--muted); }
   .learn-hub .rbox { padding: 9px 11px; display: flex; flex-direction: column; }
   .learn-hub .rbox .rh { font-weight: 700; font-size: 12px; color: var(--ink); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
   .learn-hub .rbox .rd { font-size: 11px; color: var(--muted); margin-top: 1px; }
@@ -493,11 +506,22 @@ const statusText = (s: string) => (s === 'ship' ? '1.6.0' : 'v2 preview');
   .learn-hub .tag.off { background: transparent; color: var(--faint); border: 1px dashed var(--line-2); }
   .learn-hub .tag.v2 { background: var(--preview-bg); color: var(--preview); }
 
-  /* connectors — convey the left->right flow */
+  /* horizontal connector — used only inside the async row (left → right) */
   .learn-hub .conn { align-self: center; flex: 0 0 18px; height: 2px; background: var(--line-2); position: relative; }
   .learn-hub .conn::after { content: ""; position: absolute; right: -1px; top: -3px; border: 4px solid transparent; border-left-color: var(--line-2); }
-  .learn-hub .conn.wire { flex: 0 0 30px; }
-  .learn-hub .conn.wire .wirenote { position: absolute; left: 50%; top: -16px; transform: translateX(-50%); white-space: nowrap; font-size: 9px; text-transform: uppercase; letter-spacing: .06em; color: var(--faint); font-weight: 700; }
+
+  /* downward connectors — the ONLY connectors in the vertical spine */
+  .learn-hub .dconn { align-self: center; width: 2px; height: 18px; background: var(--line-2); position: relative; }
+  .learn-hub .dconn::after { content: ""; position: absolute; bottom: -1px; left: -3px; border: 4px solid transparent; border-top-color: var(--line-2); }
+  .learn-hub .dconn .wirenote {
+    position: absolute; left: 12px; top: 50%; transform: translateY(-50%); white-space: nowrap;
+    font-size: 9.5px; text-transform: uppercase; letter-spacing: .06em; font-weight: 700; color: var(--faint);
+  }
+  /* L7 → upstream: the emphasised hop across the wire (brand-tinted, roomy label) */
+  .learn-hub .dconn.wire { height: 40px; width: 2px; background: color-mix(in srgb, var(--brand) 55%, var(--line-2)); }
+  .learn-hub .dconn.wire::after { border-top-color: color-mix(in srgb, var(--brand) 55%, var(--line-2)); }
+  .learn-hub .dconn.wire .wirenote { color: var(--brand); }
+  .learn-hub .dconn.back { height: 30px; }
 
   /* cross-cutting audit band spanning under the per-request path */
   .learn-hub .auditband {
@@ -510,12 +534,10 @@ const statusText = (s: string) => (s === 'ship' ? '1.6.0' : 'v2 preview');
 
   @media (max-width: 860px) {
     .learn-hub .planerow { grid-template-columns: 1fr; }
-    .learn-hub .flow { flex-direction: column; align-items: stretch; }
-    .learn-hub .node, .learn-hub .seam, .learn-hub .respside { flex: 1 1 auto; min-width: 0; }
-    .learn-hub .conn { flex: 0 0 16px; width: 2px; height: 16px; align-self: center; }
-    .learn-hub .conn::after { right: -3px; top: auto; bottom: -1px; border: 4px solid transparent; border-left-color: transparent; border-top-color: var(--line-2); }
-    .learn-hub .conn.wire { flex: 0 0 26px; height: 26px; }
-    .learn-hub .conn.wire .wirenote { left: auto; top: 50%; right: 8px; transform: translateY(-50%); }
+    /* async row stacks; its horizontal connector becomes a short downward one */
+    .learn-hub .asyncrow { flex-direction: column; align-items: stretch; }
+    .learn-hub .asyncrow .conn { flex: 0 0 14px; width: 2px; height: 14px; align-self: center; }
+    .learn-hub .asyncrow .conn::after { right: -3px; top: auto; bottom: -1px; border: 4px solid transparent; border-left-color: transparent; border-top-color: var(--line-2); }
   }
 
   /* facets */
