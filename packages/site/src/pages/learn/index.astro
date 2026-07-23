@@ -3,7 +3,39 @@ import Base from '../../layouts/Base.astro';
 import { getCollection } from 'astro:content';
 
 const entries = await getCollection('learn');
-const sorted = entries.sort((a, b) => b.data.updated.valueOf() - a.data.updated.valueOf());
+
+// The default reading order — a guided spine from install to the deep dives,
+// running Intro -> Core -> Deep and foundations -> enforcement -> async. Curated
+// here (not in frontmatter) so the whole sequence lives in one place; any page
+// not listed falls to the end, most-recent first. Filtering preserves this order
+// within the results.
+const READING_ORDER = [
+  'from-install-to-a-governed-deny',   // start here
+  'what-is-a-policy-enforcement-plane',
+  'the-request-path',
+  'enforcement-plane-vs-api-gateway',
+  'deterministic-not-anomaly-based',
+  'costs-and-boundaries',
+  'write-your-first-mcpegresspolicy',
+  'the-l7-mcpegresspolicy-language',
+  'digest-pinning',
+  'governance-observability',
+  'the-governed-task-relay-flow',
+  'mid-flight-consent',
+  'govern-an-async-task-end-to-end',
+  'relay-with-governance',
+  'tasks-on-the-v2-sdk',
+];
+const START_HERE = 'from-install-to-a-governed-deny';
+const rank = (slug: string) => {
+  const i = READING_ORDER.indexOf(slug);
+  return i === -1 ? Number.POSITIVE_INFINITY : i;
+};
+const sorted = entries.sort((a, b) => {
+  const ra = rank(a.id), rb = rank(b.id);
+  if (ra !== rb) return ra - rb;
+  return b.data.updated.valueOf() - a.data.updated.valueOf();
+});
 
 // type -> presentation (color rail + icon glyph + display label)
 const TC: Record<string, string> = {
@@ -289,6 +321,7 @@ const statusText = (s: string) => (s === 'ship' ? '1.6.0' : 'v2 preview');
             data-theme={entry.data.theme}
           >
             <div class="rail" />
+            {entry.id === START_HERE && <span class="starthere">Start here</span>}
             <div class="inner">
               <div class="ic">{ICON[entry.data.type]}</div>
               <h4>{entry.data.title}</h4>
@@ -310,7 +343,7 @@ const statusText = (s: string) => (s === 'ship' ? '1.6.0' : 'v2 preview');
       </div>
 
       <div class="foot">
-        A discovery-first library: an architecture map and facets — not a chronological list.
+        Read top to bottom for the guided path — start with the install walkthrough — or use the map and facets to jump straight to what you need.
       </div>
     </div>
   </div>
@@ -568,6 +601,13 @@ const statusText = (s: string) => (s === 'ship' ? '1.6.0' : 'v2 preview');
   }
   .learn-hub .card:hover { transform: translateY(-4px); box-shadow: var(--shadow); border-color: color-mix(in srgb, var(--tc) 45%, var(--line)); }
   .learn-hub .card .rail { height: 3px; background: var(--tc); }
+  .learn-hub .card .starthere {
+    position: absolute; top: 11px; right: 11px; z-index: 2;
+    font-size: 10.5px; font-weight: 700; letter-spacing: .03em; text-transform: uppercase;
+    padding: 3px 8px; border-radius: 999px; line-height: 1;
+    color: var(--brand); background: color-mix(in srgb, var(--brand) 14%, transparent);
+    border: 1px solid color-mix(in srgb, var(--brand) 40%, transparent);
+  }
   .learn-hub .card .inner { padding: 16px 16px 15px; display: flex; flex-direction: column; height: 100%; }
   .learn-hub .card .ic {
     width: 34px; height: 34px; border-radius: 9px; display: grid; place-items: center; margin-bottom: 12px;
