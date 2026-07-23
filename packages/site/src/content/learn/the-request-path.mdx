@@ -104,10 +104,10 @@ trusted yet.
 tenant and principal. This binding is what every later control keys off. An
 unauthenticated caller never reaches stage 2 — it is rejected at the door.
 
-**2 · Contract.** The call is checked against the per-tenant tool-schema pin — the
-digest of the exact contract the caller was authorized for, referenced by the
-policy's `toolSchemaDigestRef`. If the upstream tool has drifted from that pinned
-digest, the path fails closed rather than invoke a contract nobody signed off on.
+**2 · Contract.** The call is checked against the tool-schema digest pinned for the
+exact contract the caller was authorized for — resolved at invoke time from the
+tool-projection registry. If the upstream tool has drifted from that pinned digest,
+the path fails closed rather than invoke a contract nobody signed off on.
 
 **3 · Egress policy (L7).** This is the semantic gate. Tool names are matched by
 glob in a fixed precedence — **deny beats requireApproval beats allow beats the
