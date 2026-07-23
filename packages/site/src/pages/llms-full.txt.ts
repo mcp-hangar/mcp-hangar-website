@@ -23,6 +23,18 @@ function renderSection(title: string, entries: DocEntry[]): string {
   return `## ${title}\n\n${pages}`;
 }
 
+// Link-only index for large, recipe-shaped sections: title + description + the
+// raw .md URL, no inlined body. Keeps them discoverable without paying their
+// full token cost in the dump — fetch any link for the complete text.
+function renderIndex(title: string, entries: DocEntry[], note: string): string {
+  if (entries.length === 0) return '';
+  const lines = entries.map(d => {
+    const desc = d.data.description ? ` — ${d.data.description}` : '';
+    return `- [${d.data.title}](${SITE}/docs/${d.id}.md)${desc}`;
+  }).join('\n');
+  return `## ${title}\n\n_${note}_\n\n${lines}`;
+}
+
 export const GET: APIRoute = async () => {
   const docs = await getCollection('oss') as unknown as DocEntry[];
   const learn = await getCollection('learn') as unknown as DocEntry[];
@@ -45,8 +57,8 @@ export const GET: APIRoute = async () => {
   const sections = [
     renderSection('Getting Started', byPrefix('getting-started/')),
     renderSection('Guides', byPrefix('guides/')),
-    renderSection('Cookbook', byPrefix('cookbook/')),
-    renderSection('Reference', byPrefix('reference/')),
+    renderIndex('Cookbook', byPrefix('cookbook/'), 'Recipe index — fetch any link for the full walkthrough.'),
+    renderIndex('Reference', byPrefix('reference/'), 'Reference index — fetch any link for the full entry.'),
     renderSection('Architecture', byPrefix('architecture/')),
     renderSection('Operations & Observability', [
       ...docs.filter(d => d.id.startsWith('operations/')),
