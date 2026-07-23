@@ -34,7 +34,7 @@ function of the policy and the call, and nothing else.
 ## What you need
 
 - A Kubernetes cluster you can `kubectl apply` to.
-- The Hangar **core** (`1.6.0`) running and reachable in the cluster -- this is
+- The Hangar **core** (`1.6.1`) running and reachable in the cluster -- this is
   the data plane the L7 rules are enforced on, and whose front door you will call.
 - A namespace to govern. This walkthrough uses `prod` as the example namespace;
   substitute your own everywhere `prod` appears below.
@@ -242,7 +242,7 @@ in. An oversized or unserializable payload fails closed too.
 You stood up a real enforcement plane and drove a call across the line in both
 directions:
 
-- **Installed the plane** -- operator (`v0.14.0`) plus core (`1.6.0`), wired
+- **Installed the plane** -- operator (`v0.14.0`) plus core (`1.6.1`), wired
   together with `--hangar-url` so L7 rules reach the data plane.
 - **Opted a namespace in** and let the network backstop -- a `NetworkPolicy`, or
   a `CiliumNetworkPolicy` with `toFQDNs` for hostname upstreams -- put the
