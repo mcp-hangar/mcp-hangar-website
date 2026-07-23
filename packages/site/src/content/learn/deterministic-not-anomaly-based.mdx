@@ -54,7 +54,7 @@ Hangar's egress enforcement is **deterministic**. An `MCPEgressPolicy` is a
 deny-by-default allow-list you write down: which upstreams a server may reach,
 which tool calls it may make, which argument shapes it may carry. There is no
 model, no score, no baseline to train -- and per
-[ADR-013](/adr/ADR-013-egress-policy-enforcement-model), full DLP and any
+[ADR-013](/docs/adr/ADR-013-egress-policy-enforcement-model), full DLP and any
 ML-based detection are explicit *non-goals*, not a roadmap item.
 
 A tool name resolves through fixed precedence -- **deny > requireApproval >
@@ -90,6 +90,6 @@ security. It is the only kind you can actually depend on.
 
 ---
 
-*Grounded in [ADR-013](/adr/ADR-013-egress-policy-enforcement-model) (the egress
-enforcement model) and the [Egress Policy guide](/docs/guides/egress-policy),
+*Grounded in [ADR-013](/docs/adr/ADR-013-egress-policy-enforcement-model) (the egress
+enforcement model) and the [Egress Policy guide](/docs/guides/EGRESS_POLICY),
 shipped in core `1.6.0`. Everything is MIT and self-hosted -- no SaaS.*

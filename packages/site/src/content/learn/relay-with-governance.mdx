@@ -1,7 +1,7 @@
 ---
 title: "Governed async tasks: relay-with-governance, not an executor"
 description: "An MCP task hands the caller a promise the work will finish later. Most gateways either drop that promise on the floor or grow a job runner to keep it. Hangar does neither -- it relays the task and governs its lifecycle at the proxy seam, so every async task_id is a first-class governed object without Hangar ever running a job."
-updated: 2026-07-20
+updated: 2026-07-23
 section: concepts
 tags: [concepts, tasks, governance, architecture, async, mcp, adr-014]
 type: Concept
@@ -59,9 +59,10 @@ a scheduler, stores results, runs a TTL garbage collector, arbitrates
 cancellation races, and bridges a worker thread back onto the main event loop.
 Now the gateway *can* govern everything -- because it is now a job runner, with
 every job runner's failure modes, and none of them are governance. This is a
-change of *species*. A proxy that runs your jobs is not a proxy.
+change of *species*. A proxy that runs your jobs is not a proxy; it is a job
+runner wearing a proxy's name.
 
-Hangar takes the third answer, and [ADR-014](/adr/ADR-014-tasks-relay-with-governance)
+Hangar takes the third answer, and [ADR-014](/docs/adr/ADR-014-tasks-relay-with-governance)
 names it in the title: **relay-with-governance, not executor.** Hangar relays the
 task the upstream owns, and interposes governance on its lifecycle at the same
 proxy/store seam that already governs synchronous `tools/call`. It does not
@@ -325,7 +326,7 @@ run the task. The proxy stays a proxy.
 
 ---
 
-*Grounded in [ADR-014](/adr/ADR-014-tasks-relay-with-governance) (relay-with-governance),
-building on [ADR-002](/adr/ADR-002-event-sourcing) (the provenance chain) and
-[ADR-004](/adr/ADR-004-digest-pinning) (digest pinning). Everything is MIT and
+*Grounded in [ADR-014](/docs/adr/ADR-014-tasks-relay-with-governance) (relay-with-governance),
+building on [ADR-002](/docs/adr/ADR-002-event-sourcing) (the provenance chain) and
+[ADR-004](/docs/adr/ADR-004-sep-1766-digest-pinning) (digest pinning). Everything is MIT and
 self-hosted -- no SaaS.*

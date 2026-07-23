@@ -23,12 +23,9 @@ import Callout from '../../components/Callout.astro';
 
 # Govern an async task end-to-end
 
-A synchronous `tools/call` is easy to govern: the request goes in, the result
-comes back, and every layer -- identity, digest pin, egress policy, audit --
-takes its turn on the way through. An MCP **task** breaks that. `tools/call`
-answers a long-running tool by handing you back a *promise* -- a `task_id` --
-and the real work finishes minutes later, on a `tasks/result` you make out of
-band.
+An MCP **task** answers a long-running `tools/call` by handing you back a
+*promise* -- a `task_id` -- with the real work finishing minutes later, on a
+`tasks/result` you make out of band.
 
 This is a hands-on tour of what Hangar does with that promise. Hangar
 **relays** the task an upstream owns and **governs its lifecycle** at the same
@@ -110,10 +107,10 @@ opened to "any destination") and surfaced as
 `Degraded/FQDNUpstreamsUnenforceable`.
 
 Note what `requireApproval` does *not* do on the synchronous L7 path: it
-**fails closed**. A gated `tools/call` is *blocked* pending an out-of-band
-approval -- it is a hard deny, not an interactive queue that prompts a human and
-waits. Keep that straight, because the genuinely interactive prompt shows up in
-step 5, and it is a different mechanism entirely.
+[fails closed](/learn/what-is-a-policy-enforcement-plane) -- a gated `tools/call`
+is *blocked* pending an out-of-band approval, not queued for a live click. Keep
+that straight, because the genuinely interactive prompt shows up in step 5, and it
+is a different mechanism entirely.
 
 ## Step 3 -- Mint the task
 
@@ -262,8 +259,8 @@ bridge. It relayed and it governed. The proxy stayed a proxy.
 
 ---
 
-*Grounded in [ADR-014](/adr/ADR-014-tasks-relay-with-governance)
-(relay-with-governance), building on [ADR-002](/adr/ADR-002-event-sourcing)
-(the provenance chain) and [ADR-004](/adr/ADR-004-digest-pinning) (digest
+*Grounded in [ADR-014](/docs/adr/ADR-014-tasks-relay-with-governance)
+(relay-with-governance), building on [ADR-002](/docs/adr/ADR-002-event-sourcing)
+(the provenance chain) and [ADR-004](/docs/adr/ADR-004-sep-1766-digest-pinning) (digest
 pinning). v2 preview (`2.0.0a1`, `mcp==2.0.0b2`); everything is MIT and
 self-hosted -- no SaaS.*
