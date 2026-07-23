@@ -82,18 +82,14 @@ Globs are **case-sensitive** -- `get_*` does not match `GET_user` -- because
 determinism means no locale-dependent or ambiguous matching. There is exactly one
 correct outcome for any tool name under any policy, and you can compute it by hand.
 
-`requireApproval` is the interesting one, and it is worth being precise about what
-it does. When a call matches an approval glob, the L7 layer **fails closed**: the
-call is blocked pending out-of-band approval. This is a hard gate, not an
-interactive approval queue. The tool invocation does not hang on a live session
-waiting for a human to click yes -- there is no guaranteed back-channel at the
-invocation instant to go find one -- so it resolves to a distinct require-approval
-verdict that fails closed (blocks) today, and the call stops. It is enforcement,
-not a hold. Read `requireApproval` as *"this class of call is refused unless it has
-been approved out of band,"* not as *"pause here and ask."* Routing a gated call
-into an interactive approval workflow is itself a planned follow-up, not shipped
-behaviour -- which is exactly why the shipped require-approval verdict simply
-blocks (it is its own outcome, `REQUIRE_APPROVAL`, not a deny).
+`requireApproval` is the interesting one. In the compiled document it is its own
+outcome -- `REQUIRE_APPROVAL`, distinct from `deny` -- and in `1.6.0` it
+[fails closed](/learn/what-is-a-policy-enforcement-plane): a matched call is blocked
+pending an out-of-band approval, not paused on a live session waiting for a click.
+Read it as *"this class of call is refused unless it has been approved out of
+band,"* not *"pause here and ask."* Routing a gated call into an interactive
+approval workflow is a planned follow-up, which is why the shipped verdict simply
+blocks.
 
 ## Argument scanning: deny always wins
 
