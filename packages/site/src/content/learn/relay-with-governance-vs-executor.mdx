@@ -59,7 +59,7 @@ refusal, which is exactly what `1.6.0` does today.
 
 ## How Hangar answers it
 
-[ADR-014](/adr/ADR-014-tasks-relay-with-governance) names the third path in its
+[ADR-014](/docs/adr/ADR-014-tasks-relay-with-governance) names the third path in its
 title: **relay-with-governance, not executor.** Hangar relays the task the
 upstream owns and interposes governance on its lifecycle at the *same*
 proxy/store seam that already governs synchronous `tools/call`. It creates no
@@ -113,5 +113,5 @@ thin the relay stays, which is why the discipline is the feature.
 *This is the argument; for the mechanism behind it -- ledger, digest re-verify,
 consent gate -- walk
 [Govern an async task end-to-end](/learn/govern-an-async-task-end-to-end).
-Grounded in [ADR-014](/adr/ADR-014-tasks-relay-with-governance)
+Grounded in [ADR-014](/docs/adr/ADR-014-tasks-relay-with-governance)
 (relay-with-governance). Everything is MIT and self-hosted -- no SaaS.*
