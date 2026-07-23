@@ -1,0 +1,113 @@
+---
+title: "What Hangar costs — and where it stops"
+description: "Every other page here argues what Hangar does. This one is the bill and the fence: the real cost of putting it on the call path, and the things it deliberately refuses to do."
+type: Why
+level: Intro
+time: "7 min"
+theme: foundations
+status: ship
+updated: 2026-07-23
+tags: [foundations, cost, boundaries, non-goals, adr-009, adr-013]
+---
+
+Every other page in Learn argues what Hangar *does*. This one is for the person
+deciding whether to put it in the path at all — so it is the two things those
+pages tend to skip: what it costs, and where it stops. Both answers are on
+purpose, and both are the reason the enforcement stays credible.
+
+## The cost is a synchronous hop on every call
+
+Hangar governs by sitting *on* the call path, not beside it — that is the whole
+premise of an [enforcement plane](/learn/what-is-a-policy-enforcement-plane). The
+price of that premise is unavoidable and worth stating plainly: **every tool call
+pays for one proxy hop plus the enforcement pipeline**, synchronously, before it
+reaches the wire. Identity resolution, tool-access authorization, the digest-pin
+check, the egress verdict — they all happen in-path, on the request, every time.
+There is no free version of "decides before the call goes through."
+
+What that costs in milliseconds, Hangar does not publish as a single number,
+because an honest one would be a lie about your setup. The overhead depends on
+your transport, your upstream's own latency, and which controls you switch on. So
+instead of a marketing figure there is a benchmark harness — its baseline
+scenario isolates exactly the per-call proxy overhead by comparing direct calls
+against Hangar-proxied ones — and the honest answer is *measure it in your
+environment*.
+
+Two things you **can** rely on without measuring. The cost is **bounded and
+local**: a verdict is computed from the policy and the call, with no network
+round-trip to a policy service and no model to evaluate. And it is
+**deterministic** — the same call costs the same work every time, because there is
+no heuristic to tune and no baseline to warm up.
+
+## The operational costs you take on
+
+Beyond latency, adopting Hangar means running and tending real machinery. None of
+this is hidden, and none of it is free:
+
+- **You run it.** Hangar is a proxy you deploy, plus a Kubernetes operator
+  (admission webhooks) and its CRDs. It is self-hosted — the compute, the
+  upgrades, and the on-call are yours.
+- **The network backstop is Kubernetes-shaped.** The L3/L4 half that makes an L7
+  policy more than [a suggestion](/learn/what-is-a-policy-enforcement-plane) is
+  compiled to `NetworkPolicy` / `CiliumNetworkPolicy`. Off Kubernetes, you keep
+  L7 but lose the floor that stops a workload routing around you — a real gap to
+  plan for, not a footnote.
+- **Digest pinning turns legitimate upstream updates into work.** When an upstream
+  tool you approved changes shape, the pinned digest stops matching and the call
+  [fails closed](/learn/digest-pinning). That is the feature doing its job — and
+  it is also re-pinning toil you are signing up for.
+- **`requireApproval` fails closed, so you owe it a back-channel.** A gated
+  synchronous call is *blocked* pending an out-of-band approval; it is not an
+  interactive queue that pages a human mid-call. If you enable it, the path for
+  resolving those blocked calls is something you build.
+
+These are the price of *fail-closed*. A plane that spared you all of them would be
+one that quietly failed open somewhere.
+
+## Where it deliberately stops
+
+The sharpest way to understand Hangar is to name what it refuses to be. Each of
+these is a decision, not a gap waiting to be filled:
+
+| It is **not** | Because |
+| --- | --- |
+| an **executor** | It relays the calls and tasks the upstream owns and never runs them — no scheduler, no result store. Governance stays trustworthy because it stays [thin](/learn/relay-with-governance). |
+| an **anomaly detector** | The verdict is deterministic — no ML, no learned baseline, no score to threshold. Behavioural anomaly detection is the one thing still held back from the roadmap, on purpose. |
+| a **DLP engine** | Argument scanning is configured secret patterns plus a payload-size ceiling — not probabilistic content classification. Full DLP is an explicit non-goal. |
+| an **interactive approval queue** (synchronously) | Sync `requireApproval` fails closed. The one genuinely interactive gate is the async [mid-flight consent](/learn/mid-flight-consent) flow, and only because a paused task gives it a real back-channel. |
+| a **SaaS** | MIT, self-hosted, no managed tier — ever. There is no hosted Hangar to buy and no account to create. |
+
+Two honest edges belong here too. The interceptor validators and mutators are
+**experimental and off by default** — real machinery, not yet a control you should
+lean on. And the egress policy carries a `toolSchemaDigestRef` field that the L7
+evaluator **does not yet consume**: the pin enforced at invoke is resolved from
+the tool-projection registry today, and the field is intent, not behaviour.
+
+## Released, versus landing
+
+The fence has a time axis, and conflating the two halves is the easiest way to
+build a false assumption into a rollout:
+
+- **Released today** — core `1.6.0` and operator `v0.14.0`: the enforcement plane,
+  end to end. The L7 egress verdict and the L3/L4 backstop that makes it stick.
+- **Landing in 2.0 (preview)** — the [governed task relay](/learn/relay-with-governance),
+  on the `2.0.0a1` line built on the v2 SDK. It is real and running on the preview,
+  but it is **not** in `1.6.0`. Plan a rollout on what shipped, not on what is
+  coming.
+
+## The fence is the feature
+
+It would be easy to read this page as a list of things Hangar isn't good enough to
+do yet. That is the wrong reading. A layer you trust to say *no* on every call has
+to be small enough to audit and honest about its edges — the moment it grows a job
+runner, a model, or a hosted control plane you can't see, every one of its
+verdicts becomes contingent on that larger thing being correct. The cost is a real
+synchronous hop, the boundaries are real refusals, and both are exactly why the
+allow/deny you get is worth believing.
+
+---
+
+*Grounded in [ADR-013](/docs/adr/ADR-013-egress-policy-enforcement-model) (the
+enforcement model) and [ADR-009](/docs/adr/ADR-009-independent-release-topology)
+(release topology — do not advertise what does not run). Shipped in `1.6.0` +
+operator `v0.14.0` — everything is MIT and self-hosted, no SaaS.*
