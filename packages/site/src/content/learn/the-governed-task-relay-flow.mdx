@@ -22,14 +22,15 @@ import Callout from '../../components/Callout.astro';
 
 # The governed task-relay flow
 
-A synchronous `tools/call` governs itself: the call path *is* the governance
-path. A task breaks that. The upstream answers with a *promise* -- a `task_id`
-and the assurance that the real work finishes later -- and the result arrives on
-a follow-up you make minutes or hours after the call that started it. Everything
-interesting happens in that gap.
+When an upstream answers a `tools/call` with a `task_id` instead of a result, the
+real work finishes later -- on a follow-up you make minutes or hours on -- and
+Hangar can no longer govern the call in one round trip. Its answer is to **relay
+and govern** the task the upstream owns, and never to run it.
 
-Here is what Hangar does in the gap, one stage at a time. The through-line is
-that Hangar **relays and governs** the task the upstream owns. It never runs it.
+This page walks that governed relay one stage at a time. For *why* a proxy
+governs the gap rather than growing into an executor, see
+[relay-with-governance](/learn/relay-with-governance); here the concern is the
+mechanism.
 
 ## The flow, one stage at a time
 

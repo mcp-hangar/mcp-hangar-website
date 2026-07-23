@@ -23,12 +23,9 @@ import Callout from '../../components/Callout.astro';
 
 # Govern an async task end-to-end
 
-A synchronous `tools/call` is easy to govern: the request goes in, the result
-comes back, and every layer -- identity, digest pin, egress policy, audit --
-takes its turn on the way through. An MCP **task** breaks that. `tools/call`
-answers a long-running tool by handing you back a *promise* -- a `task_id` --
-and the real work finishes minutes later, on a `tasks/result` you make out of
-band.
+An MCP **task** answers a long-running `tools/call` by handing you back a
+*promise* -- a `task_id` -- with the real work finishing minutes later, on a
+`tasks/result` you make out of band.
 
 This is a hands-on tour of what Hangar does with that promise. Hangar
 **relays** the task an upstream owns and **governs its lifecycle** at the same
