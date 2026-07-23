@@ -196,11 +196,11 @@ above `allow` in precedence:
         requireApproval: ["create_*"]
 ```
 
-Be precise about what this does: in `1.6.0`, `requireApproval` **fails closed**.
-A matched call is blocked pending out-of-band approval -- it is a hard gate, not an
-interactive approval queue, and the call does not hang waiting for someone to click
-yes. It stops. Use it when "blocked, and someone has to deliberately act" is the
-outcome you want; use `deny` when you want the call gone entirely.
+Be precise about what this does: `requireApproval`
+[fails closed](/learn/what-is-a-policy-enforcement-plane) -- a matched call is
+blocked pending out-of-band approval, not queued for a live click. Use it when
+"blocked, and someone has to deliberately act" is the outcome you want; use `deny`
+when you want the call gone entirely.
 
 ## What you just did
 
@@ -226,6 +226,6 @@ whole group.
 
 ---
 
-*Grounded in the [Egress Policy guide](/docs/guides/egress-policy) and
-[ADR-013](/adr/ADR-013-egress-policy-enforcement-model) (the enforcement model and
+*Grounded in the [Egress Policy guide](/docs/guides/EGRESS_POLICY) and
+[ADR-013](/docs/adr/ADR-013-egress-policy-enforcement-model) (the enforcement model and
 the alternatives it rejected). Everything is MIT and self-hosted -- no SaaS.*

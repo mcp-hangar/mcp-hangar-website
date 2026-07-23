@@ -52,7 +52,7 @@ call-shape, and a discoverable registry of task request types (`CreateTask`,
 For a governance layer this is not a convenience -- it is the precondition. A
 gateway that interposes on a call-shape has to know, per session, exactly which
 methods are in play. Negotiation hands it that knowledge as a contract instead of
-a guess. [ADR-014](/adr/ADR-014-tasks-relay-with-governance) names the promotion
+a guess. [ADR-014](/docs/adr/ADR-014-tasks-relay-with-governance) names the promotion
 as its unblocking fact directly: the API ADR-008 called "too churny to build
 against" is now stable and discoverable, so the relay seam can finally land.
 
@@ -116,6 +116,6 @@ was.
 
 ---
 
-*Grounded in [ADR-014](/adr/ADR-014-tasks-relay-with-governance) (relay-with-governance)
+*Grounded in [ADR-014](/docs/adr/ADR-014-tasks-relay-with-governance) (relay-with-governance)
 and the SDK v2 migration (`mcp==2.0.0b2`, SEP-2663 Tasks). Everything is MIT and
 self-hosted -- no SaaS. Preview only; not in released `1.6.0`.*

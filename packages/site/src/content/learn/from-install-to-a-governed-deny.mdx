@@ -214,9 +214,9 @@ deny  >  requireApproval  >  allow  >  defaultAction
 ```
 
 So `deny: ["get_repo"]` beats any `allow` glob it also matches. `requireApproval`
-sits in the middle and **fails closed** -- a gated call is *blocked* pending an
-out-of-band decision. It is a hard gate, not an interactive approval queue: the
-call does not hang waiting for a human to click yes, it stops.
+sits in the middle and [fails closed](/learn/what-is-a-policy-enforcement-plane) --
+a gated call is *blocked* pending an out-of-band decision, not queued for a live
+click.
 
 ## 5. Deny on the arguments, not just the name
 
@@ -262,7 +262,7 @@ then flip to `Enforce` when the allow-list is honest.
 
 ---
 
-*Grounded in the [Egress Policy guide](/docs/guides/egress-policy) and
-[ADR-013](/adr/ADR-013-egress-policy-enforcement-model) (the enforcement model,
+*Grounded in the [Egress Policy guide](/docs/guides/EGRESS_POLICY) and
+[ADR-013](/docs/adr/ADR-013-egress-policy-enforcement-model) (the enforcement model,
 and the alternatives it rejected -- no TLS interception, no eBPF protocol parsing).
 Everything is MIT and self-hosted -- no SaaS.*

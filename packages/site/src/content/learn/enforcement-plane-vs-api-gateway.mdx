@@ -59,7 +59,7 @@ same synchronous pass the request already makes. Four properties make that more
 than a slogan.
 
 **It is deny-by-default -- once you turn it on.** An
-[`MCPEgressPolicy`](/guides/egress-policy) declares which upstreams a server may
+[`MCPEgressPolicy`](/docs/guides/EGRESS_POLICY) declares which upstreams a server may
 reach and which tool calls it may make; a tool name that matches no rule falls to
 `defaultAction: Deny`, so the allow-list is exhaustive. Two deliberate defaults
 shape how you get there. `defaultAction` is `Deny` from the start. But `mode`
@@ -104,6 +104,6 @@ fresh decision with real-world reach, only the second one is governance.
 
 ---
 
-*Grounded in the [MCPEgressPolicy guide](/guides/egress-policy) and
-[ADR-013](/adr/ADR-013-egress-policy-enforcement-model) (the enforcement model).
+*Grounded in the [MCPEgressPolicy guide](/docs/guides/EGRESS_POLICY) and
+[ADR-013](/docs/adr/ADR-013-egress-policy-enforcement-model) (the enforcement model).
 Everything is MIT and self-hosted -- no SaaS tier.*
