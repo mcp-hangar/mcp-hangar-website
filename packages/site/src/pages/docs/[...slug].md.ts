@@ -1,5 +1,6 @@
 import type { APIRoute, GetStaticPaths } from 'astro';
 import { getCollection } from 'astro:content';
+import { stripSvg } from '../../lib/strip-svg';
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const docs = await getCollection('oss');
@@ -12,8 +13,8 @@ export const getStaticPaths: GetStaticPaths = async () => {
 export const GET: APIRoute = ({ props }) => {
   const { doc } = props as { doc: { id: string; data: { title: string; description?: string }; body?: string } };
 
-  // Strip leading h1 from body (already captured in data.title)
-  const rawBody = (doc.body || '').replace(/^#\s+.+\n*/, '').trim();
+  // Strip leading h1 (already captured in data.title) and any inline SVG.
+  const rawBody = stripSvg((doc.body || '').replace(/^#\s+.+\n*/, '').trim());
 
   const lines: string[] = [
     `# ${doc.data.title}`,

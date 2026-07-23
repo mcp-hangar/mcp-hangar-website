@@ -2,6 +2,7 @@ import type { APIRoute, GetStaticPaths } from 'astro';
 import { getCollection } from 'astro:content';
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { stripSvg } from '../../lib/strip-svg';
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const entries = await getCollection('learn');
@@ -46,6 +47,8 @@ export const GET: APIRoute = async ({ props }) => {
   } catch {
     body = entry.body || '';
   }
+  // Machines get prose, not diagrams — strip inline SVG from Visual learn pages.
+  body = stripSvg(body);
 
   const tags = entry.data.tags?.length ? `\nTags: ${entry.data.tags.join(', ')}` : '';
   const updated = entry.data.updated.toISOString().split('T')[0];

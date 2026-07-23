@@ -57,15 +57,16 @@ export const GET: APIRoute = async () => {
 
   const body = `# MCP Hangar
 
-> MCP Hangar is the open-source control plane for Model Context Protocol (MCP) servers. It sits between AI agents and MCP servers to provide authentication, access control policies, observability, and compliance-grade audit logging. MIT-licensed, self-hosted, sub-millisecond overhead.
+> MCP Hangar is the Kubernetes-native policy enforcement plane for Model Context Protocol (MCP). Every MCP tool call runs one deterministic allow/deny path — deploy-time admission, per-server egress control, tool-schema digest pinning, and the L7 MCPEgressPolicy language. MIT-licensed, self-hosted, no SaaS tier. Enforcement is deterministic: explicit policy, no anomaly scores or learned baselines.
 
 ## Key facts
 
 - Language: Python (pip install mcp-hangar)
-- License: MIT
-- Proxy architecture: agents connect to Hangar via MCP, Hangar enforces policies and forwards to upstream MCP servers
-- Supports: subprocess, Docker, and remote HTTP MCP server backends
-- Zero cloud dependency: runs locally, on bare metal, or in Kubernetes
+- License: MIT — self-hosted, no SaaS/managed tier
+- Enforcement plane: each tool call passes a single deterministic allow/deny path (admission, tool-access authz, tool-schema digest pinning, L7 MCPEgressPolicy)
+- Kubernetes-native: an operator applies deploy-time admission webhooks and default-deny egress in labelled namespaces
+- Deterministic by design: explicit policy decisions, no anomaly detection
+- Task relay-with-governance (ADR-014) lands in the 2.0 preview line, not stable
 - GitHub: https://github.com/mcp-hangar/mcp-hangar
 - Website: ${SITE}
 

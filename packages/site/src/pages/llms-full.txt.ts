@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { getCollection } from 'astro:content';
+import { stripSvg } from '../lib/strip-svg';
 
 const SITE = 'https://mcp-hangar.io';
 
@@ -10,7 +11,8 @@ interface DocEntry {
 }
 
 function cleanBody(doc: DocEntry): string {
-  return (doc.body || '').replace(/^#\s+.+\n*/, '').trim();
+  // Strip the leading h1 and any inline SVG — machine output is prose, no diagrams.
+  return stripSvg((doc.body || '').replace(/^#\s+.+\n*/, '').trim());
 }
 
 function renderSection(title: string, entries: DocEntry[]): string {
@@ -28,6 +30,9 @@ export const GET: APIRoute = async () => {
     (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
   );
 
+  // Internal-only contributor docs — excluded from the full machine dump.
+  // (development/, testing/, and adr/ are not product understanding for an
+  // external LLM; they also never fall into the "Other" catch-all below.)
   const categorizedPrefixes = [
     'getting-started/', 'guides/', 'cookbook/', 'reference/',
     'architecture/', 'operations/', 'observability/', 'runbooks/',
@@ -56,32 +61,28 @@ export const GET: APIRoute = async () => {
     renderSection('Learn', learn),
   ].filter(Boolean);
 
-  // Blog: include latest 5 posts inline
-  const blogInline = posts.slice(0, 5).map(p => {
+  // Blog: compact index only (title + description + date + link) — no bodies.
+  const blogEntries = posts.map(p => {
     const date = p.data.date.toISOString().split('T')[0];
-    const body = (p.body || '').replace(/^#\s+.+\n*/, '').trim();
-    return `### ${p.data.title}\n\n*${date} — ${p.data.author}*\n\n${body}`;
-  }).join('\n\n---\n\n');
+    return `- [${p.data.title}](${SITE}/blog/${p.id}.md) (${date}) — ${p.data.description}`;
+  }).join('\n');
 
   const blogSection = posts.length > 0
-    ? `## Blog (latest ${Math.min(5, posts.length)})\n\n${blogInline}`
-    : '';
-
-  const olderNote = posts.length > 5
-    ? `\n\n> ${posts.length - 5} older posts available at ${SITE}/blog/ or via individual .md endpoints in llms.txt.\n`
+    ? `## Blog\n\n${blogEntries}`
     : '';
 
   const body = `# MCP Hangar
 
-> MCP Hangar is the open-source control plane for Model Context Protocol (MCP) servers. It sits between AI agents and MCP servers to provide authentication, access control policies, observability, and compliance-grade audit logging. MIT-licensed, self-hosted, sub-millisecond overhead.
+> MCP Hangar is the Kubernetes-native policy enforcement plane for Model Context Protocol (MCP). Every MCP tool call runs one deterministic allow/deny path — deploy-time admission, per-server egress control, tool-schema digest pinning, and the L7 MCPEgressPolicy language. MIT-licensed, self-hosted, no SaaS tier. Enforcement is deterministic: explicit policy, no anomaly scores or learned baselines.
 
 ## Key facts
 
 - Language: Python (pip install mcp-hangar)
-- License: MIT
-- Proxy architecture: agents connect to Hangar via MCP, Hangar enforces policies and forwards to upstream MCP servers
-- Supports: subprocess, Docker, and remote HTTP MCP server backends
-- Zero cloud dependency: runs locally, on bare metal, or in Kubernetes
+- License: MIT — self-hosted, no SaaS/managed tier
+- Enforcement plane: each tool call passes a single deterministic allow/deny path (admission, tool-access authz, tool-schema digest pinning, L7 MCPEgressPolicy)
+- Kubernetes-native: an operator applies deploy-time admission webhooks and default-deny egress in labelled namespaces
+- Deterministic by design: explicit policy decisions, no anomaly detection
+- Task relay-with-governance (ADR-014) lands in the 2.0 preview line, not stable
 - GitHub: https://github.com/mcp-hangar/mcp-hangar
 - Website: ${SITE}
 - Index: ${SITE}/llms.txt
@@ -92,7 +93,7 @@ ${sections.join('\n\n---\n\n')}
 
 ---
 
-${blogSection}${olderNote}
+${blogSection}
 `;
 
   return new Response(body, {

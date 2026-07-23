@@ -2,6 +2,7 @@ import type { APIRoute, GetStaticPaths } from 'astro';
 import { getCollection } from 'astro:content';
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { stripSvg } from '../../lib/strip-svg';
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const posts = await getCollection('blog');
@@ -30,6 +31,8 @@ export const GET: APIRoute = async ({ props }) => {
   } catch {
     body = post.body || '';
   }
+  // Machines get prose, not diagrams — strip any inline SVG.
+  body = stripSvg(body);
 
   const tags = post.data.tags?.length ? `\nTags: ${post.data.tags.join(', ')}` : '';
   const date = post.data.date.toISOString().split('T')[0];
