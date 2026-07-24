@@ -13,9 +13,9 @@ tags: [tutorial, tasks, async, consent, governance]
 import Callout from '../../components/Callout.astro';
 
 <Callout variant="preview">
-  **Landing in 2.0.** This walkthrough runs on the **v2 preview** (`2.0.0a1`,
+  **Landing in 2.0.** This walkthrough runs on the **v2 preview** (`2.0.0a2`,
   built on `mcp==2.0.0b2`). Governed task relay is **not** in the released
-  `1.6.0` line -- on `1.6.0` an upstream task handle is still cleanly rejected
+  `1.6.1` line -- on `1.6.1` an upstream task handle is still cleanly rejected
   with `TaskRelayNotSupported`. Everything below is real on the preview and
   **not** a GA promise. Where a step says a handler serves or the gate fires,
   read it as "on the v2 preview."
@@ -262,5 +262,5 @@ bridge. It relayed and it governed. The proxy stayed a proxy.
 *Grounded in [ADR-014](/docs/adr/ADR-014-tasks-relay-with-governance)
 (relay-with-governance), building on [ADR-002](/docs/adr/ADR-002-event-sourcing)
 (the provenance chain) and [ADR-004](/docs/adr/ADR-004-sep-1766-digest-pinning) (digest
-pinning). v2 preview (`2.0.0a1`, `mcp==2.0.0b2`); everything is MIT and
+pinning). v2 preview (`2.0.0a2`, `mcp==2.0.0b2`); everything is MIT and
 self-hosted -- no SaaS.*
