@@ -12,7 +12,7 @@ Every synchronous `tools/call` through Hangar is governed. Identity is bound, th
 
 The async call path was not. A tool that returns a task handle instead of a result -- the call that finishes later -- was the one governed call-shape left *dormant*. Not ungoverned by accident. Dormant by decision.
 
-This post is about waking it up. It's **landing in 2.0**, running today on the v2 preview (`2.0.0a1`, `mcp==2.0.0b2`) -- not in released 1.6.0, not GA. Here's what the seam does, why it was closed until now, and the one thing it unblocks: the first interactive, mid-flight consent gate on the governed call path.
+This post is about waking it up. It's **landing in 2.0**, running today on the v2 preview (`2.0.0a2`, `mcp==2.0.0b2`) -- not in released 1.6.1, not GA. Here's what the seam does, why it was closed until now, and the one thing it unblocks: the first interactive, mid-flight consent gate on the governed call path.
 
 ## The one call-shape that was dormant
 
@@ -144,7 +144,7 @@ The forensic moat now covers async. Task governance was the one governed call-sh
 
 Behavior is unchanged until an upstream actually emits a task: the seam ships, but the relay only engages per-upstream on that upstream's first real task. A deployment whose upstreams never task see no difference. "Do not advertise what does not run" still holds -- the `tasks` capability is advertised only once the seam is live.
 
-To be exact about the truth of it: this is **on the v2 preview** (`2.0.0a1`, `mcp==2.0.0b2`), **landing in 2.0**. It is not in released 1.6.0 and it is not GA. Released Hangar today is still 1.6.0.
+To be exact about the truth of it: this is **on the v2 preview** (`2.0.0a2`, `mcp==2.0.0b2`), **landing in 2.0**. It is not in released 1.6.1 and it is not GA. Released Hangar today is still 1.6.1.
 
 Everything is MIT and self-hosted -- no SaaS.
 
