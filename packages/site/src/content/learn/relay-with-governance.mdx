@@ -32,7 +32,7 @@ An MCP task breaks that. A `tools/call` returns almost immediately, but instead 
 a result the upstream answers it with a *promise*: a `CreateTaskResult` carrying a
 `task_id` and the assurance that the real work -- a long report, a multi-minute
 crawl, a job that needs a human to say yes halfway through -- will finish later. The
-result arrives on a `tasks/result` you make minutes or hours after the call that
+result arrives on a `tasks/get` you poll minutes or hours after the call that
 started it.
 
 That gap is where a gateway has to make a decision. It is, in our view, the most
@@ -176,13 +176,16 @@ its keep.
 
 Pin a tool's digest on a synchronous call and the guarantee is clean: the result
 you get was produced by the exact tool contract you authorized. Now stretch that
-call across minutes. Between the `tools/call` that mints the task and its `tasks/result`, the upstream tool
-can be redeployed, its schema can drift, and the async result can come back shaped
-by a contract the caller never saw.
+call across minutes. Between the `tools/call` that mints the task and the poll that
+returns its outcome, the upstream tool can be redeployed, its schema can drift, and
+the async result can come back shaped by a contract the caller never saw.
 
-So `tasks/result` re-verifies. Before the payload is relayed, `_verify_pinned_digest`
-recomputes the tool's *current* digest and compares it to the one pinned when the
-task was born. On drift -- **or** when the current schema simply cannot be verified
+So `tasks/get` re-verifies. Before any payload is handed over -- inlined by a modern
+upstream, or fetched from an older one -- `_verify_pinned_digest` recomputes the
+tool's *current* digest and compares it to the one pinned when the task was born.
+The check guarded `tasks/result` until SEP-2663 removed that method; it moved with
+the payload rather than retiring alongside it, because `tasks/get` is now the only
+path by which a result reaches a caller. On drift -- **or** when the current schema simply cannot be verified
 (the safe default is to treat unverifiable as drifted) -- the task is failed, a
 `DigestMismatchInTask` provenance event is emitted, and an `McpError` propagates.
 The result is never handed over.

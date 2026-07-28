@@ -97,7 +97,7 @@ governance it already built: register the task in a `GovernedTaskStore` before
 the handle reaches the client, pin the digest, key the entry on
 `(target_server_id, task_id)`, and emit a `TaskCreated` event onto the provenance
 chain. The negotiated capability is the socket; relay-with-governance is what
-plugs into it. The mechanics of that -- the ledger, the four handlers, the
+plugs into it. The mechanics of that -- the ledger, the three handlers, the
 fail-closed authorization -- are the subject of the
 [governed task relay](/learn/relay-with-governance) page.
 
