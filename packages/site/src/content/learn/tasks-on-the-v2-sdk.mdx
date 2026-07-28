@@ -15,7 +15,7 @@ import Callout from '../../components/Callout.astro';
 
 <Callout variant="preview">
   **Landing in 2.0.** Everything on this page describes the **v2 preview**
-  (`2.0.0rc1`, built on `mcp==2.0.0b2`). It is **not** in the released `1.6.2`
+  (`2.0.0rc2`, built on `mcp==2.0.0b2`). It is **not** in the released `1.6.2`
   line, and none of it is GA. Where the text says Hangar negotiates or serves a
   task capability, read it as "on the v2 preview" -- today, released Hangar still
   cleanly rejects upstream task handles with `TaskRelayNotSupported`.
@@ -67,19 +67,22 @@ that governed relay is *available*, and it flips on with activation, not before.
 
 The same discipline runs one level deeper, into which handlers exist at all. The
 serving surface registers each `tasks/*` handler **only while the running SDK
-defines its type** -- and that is a build-level fact, not a wire-level one. The
-distinction is easy to blur, so state it exactly: `mcp==2.0.0b2` already targets
-and negotiates the `2026-07-28` revision, yet its *type* surface is still
-mid-flight. It ships `ListTasksResult`, so `tasks/list` registers; it does **not**
-yet define `UpdateTaskRequest`, so the inbound `tasks/update` path is **not
-registered on `b2`** -- it lights up only on a later beta that adds the type.
-Registration tracks the SDK build, never the negotiated protocol string.
+defines its type** -- and that turned out to be the wrong mechanism entirely.
 
-The payoff is that the methods Hangar serves follow the type deltas within the v2
-line *without a version bump in Hangar itself*. Nothing needs to route a call to a
-handler that is not there. The modern `tasks/update` input path is **coming, not
-reachable today**; Hangar will serve it the moment the SDK defines the type, and
-not one release before.
+The probes watch `mcp_types`, which carries the **SEP-1686** generation that
+2026-07-28 removed from the core spec. Measured across `mcp==2.0.0b2` and
+`2.0.0rc1`, thirteen days apart: all 29 `Task*` classes are field-for-field
+identical, while the module around them was edited. A deliberately frozen region
+of a live file, not an API still settling -- so the probes could never trip.
+`ListTasksResult` exists forever, so `tasks/list` was always served;
+`UpdateTaskRequest` never arrives, so `tasks/update` never was.
+
+SEP-2663 lands as a separate extension defining its **own** models
+(python-sdk#3005), precisely because they are wire-incompatible with what stayed
+behind. Hangar therefore **vendors** the wire rather than probing for it, and the
+rule that came out of it generalises: advertise and serve the wire you actually
+implement, and treat a capability probe as a hedge only when the probed module
+can still change.
 
 ## Negotiation makes governed relay buildable -- not automatic
 
