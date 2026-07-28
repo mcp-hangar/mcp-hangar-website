@@ -15,7 +15,7 @@ import Callout from '../../components/Callout.astro';
 
 <Callout variant="preview">
   **Landing in 2.0.** Everything on this page describes the **v2 preview**
-  (`2.0.0rc1`, built on `mcp==2.0.0b2`). It is **not** in the released `1.6.2`
+  (`2.0.0rc3`, built on the stable `mcp==2.0.0`). It is **not** in the released `1.6.2`
   line, and none of it is GA. Where the text says Hangar negotiates or serves a
   task capability, read it as "on the v2 preview" -- today, released Hangar still
   cleanly rejects upstream task handles with `TaskRelayNotSupported`.
@@ -30,10 +30,15 @@ should build a governance surface against. That disclaimer was not incidental. I
 was the single fact that kept Hangar's task governance built, tested, and
 **dormant** for a full quarter.
 
-The v2 SDK changes that fact. In `mcp==2.0.0b2` -- the reshape SEP-2663
-carries -- Tasks are promoted out of `experimental` into a **first-class,
-negotiated protocol extension**. That single word, *negotiated*, is what turns a
-stranded governance stack into a shippable one. This page is about why.
+The v2 SDK changes that fact. In the v2 line, Tasks are promoted out of
+`experimental` into a **first-class, negotiated protocol extension**. That single
+word, *negotiated*, is what turns a stranded governance stack into a shippable
+one. This page is about why.
+
+What v2 promoted is the **SEP-1686** generation of Tasks -- the negotiation, not
+the reshape. SEP-2663's shapes are not in the SDK at all, in the betas or in the
+stable `mcp==2.0.0`; Hangar vendors them. Keep the two apart: the negotiation is
+what made the relay buildable, and the wire is what Hangar had to supply itself.
 
 ## What "negotiated" buys that "experimental" did not
 
@@ -67,19 +72,23 @@ that governed relay is *available*, and it flips on with activation, not before.
 
 The same discipline runs one level deeper, into which handlers exist at all. The
 serving surface registers each `tasks/*` handler **only while the running SDK
-defines its type** -- and that is a build-level fact, not a wire-level one. The
-distinction is easy to blur, so state it exactly: `mcp==2.0.0b2` already targets
-and negotiates the `2026-07-28` revision, yet its *type* surface is still
-mid-flight. It ships `ListTasksResult`, so `tasks/list` registers; it does **not**
-yet define `UpdateTaskRequest`, so the inbound `tasks/update` path is **not
-registered on `b2`** -- it lights up only on a later beta that adds the type.
-Registration tracks the SDK build, never the negotiated protocol string.
+defines its type** -- and that turned out to be the wrong mechanism entirely.
 
-The payoff is that the methods Hangar serves follow the type deltas within the v2
-line *without a version bump in Hangar itself*. Nothing needs to route a call to a
-handler that is not there. The modern `tasks/update` input path is **coming, not
-reachable today**; Hangar will serve it the moment the SDK defines the type, and
-not one release before.
+The probes watch `mcp_types`, which carries the **SEP-1686** generation that
+2026-07-28 removed from the core spec. Measured across `mcp==2.0.0b2`,
+`2.0.0rc1` and the stable `2.0.0`: all 29 `Task*` classes are field-for-field
+identical, while the module around them was edited throughout. A frozen region
+inside a moving beta could have been a snapshot mid-migration; one that ships
+unchanged in a **major** is a decision -- so the probes could never trip.
+`ListTasksResult` is still there, so `tasks/list` was always served;
+`UpdateTaskRequest` never arrived, so `tasks/update` never was.
+
+SEP-2663 lands as a separate extension defining its **own** models
+(python-sdk#3005), precisely because they are wire-incompatible with what stayed
+behind. Hangar therefore **vendors** the wire rather than probing for it, and the
+rule that came out of it generalises: advertise and serve the wire you actually
+implement, and treat a capability probe as a hedge only when the probed module
+can still change.
 
 ## Negotiation makes governed relay buildable -- not automatic
 
@@ -94,7 +103,7 @@ governance it already built: register the task in a `GovernedTaskStore` before
 the handle reaches the client, pin the digest, key the entry on
 `(target_server_id, task_id)`, and emit a `TaskCreated` event onto the provenance
 chain. The negotiated capability is the socket; relay-with-governance is what
-plugs into it. The mechanics of that -- the ledger, the four handlers, the
+plugs into it. The mechanics of that -- the ledger, the three handlers, the
 fail-closed authorization -- are the subject of the
 [governed task relay](/learn/relay-with-governance) page.
 
@@ -109,7 +118,7 @@ stays a proxy; it just finally has a stable contract to govern across.
 
 ADR-008 gated the relay build on **two** triggers: a real upstream emitting
 tasks, *and* the task API graduating out of experimental. The second trigger was
-outside anyone's control -- it was the SDK's to grant. `mcp==2.0.0b2` granting it
+outside anyone's control -- it was the SDK's to grant. `mcp==2.0.0` granting it
 is why the relay seam ships on the v2 preview now and not a quarter ago. The
 governance was never the bottleneck. The *negotiability* of the thing it governs
 was.
@@ -117,5 +126,6 @@ was.
 ---
 
 *Grounded in [ADR-014](/docs/adr/ADR-014-tasks-relay-with-governance) (relay-with-governance)
-and the SDK v2 migration (`mcp==2.0.0b2`, SEP-2663 Tasks). Everything is MIT and
+and the SDK v2 migration (`mcp==2.0.0`), with the SEP-2663 wire vendored per
+[ADR-015](/docs/adr/ADR-015-vendored-task-wire). Everything is MIT and
 self-hosted -- no SaaS. Preview only; not in released `1.6.2`.*
