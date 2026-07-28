@@ -1,6 +1,6 @@
 ---
 import HangarLogoMark from "./icons/HangarLogoMark.astro";
-import { LINKS, VERSION_TAG } from "../config";
+import { LINKS } from "../config";
 ---
 
 <footer class="border-t border-zinc-800/50">
@@ -15,13 +15,13 @@ import { LINKS, VERSION_TAG } from "../config";
                     <span class="font-semibold text-zinc-100">mcp-hangar</span>
                 </div>
                 <p class="text-sm text-zinc-500 leading-relaxed mb-4">
-                    Open-source control plane for MCP servers.
+                    Open-source MCP policy enforcement plane.
                 </p>
                 <a
                     href={LINKS.ossQuickstart}
                     class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-semibold rounded-lg transition-all duration-300 hover:-translate-y-0.5 text-sm"
                 >
-                    Install {VERSION_TAG}
+                    Install
                 </a>
             </div>
 
@@ -57,7 +57,7 @@ import { LINKS, VERSION_TAG } from "../config";
         </div>
 
         <div class="pt-8 border-t border-zinc-800/50 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-zinc-600">
-            <span>&copy; 2026 MCP Hangar. Agent released under MIT License.</span>
+            <span>&copy; 2026 MCP Hangar. Released under the MIT License.</span>
             <div class="flex items-center gap-4">
                 <a href="/privacy" class="hover:text-zinc-400 transition-colors">Privacy Policy</a>
                 <a href="/terms" class="hover:text-zinc-400 transition-colors">Terms</a>
