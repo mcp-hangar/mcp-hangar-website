@@ -57,9 +57,11 @@ constraint, not a formality:
   enforces presence, not just agreement. A missing or contradictory header is
   `-32020`.
 
-`relay_tasks_enabled` defaults to **false** and must be set explicitly. It was
-activated in July 2026 and turned back off once the surface was found
-advertising a wire it did not serve; it is an opt-in, not a rollback switch.
+`relay_tasks_enabled` is live by default on the preview; set it to `false` for a
+per-deployment rollback. It was briefly off after the surface was found
+advertising a wire it did not serve, and went back on once that wire was served
+and verified end to end -- which is the thing worth checking before ever moving
+it again. The flag is one line; the mismatch is what actually bites.
 
 Behavior is unchanged until an upstream actually emits a task. A deployment
 whose upstreams never task observes no difference, and the extension is
