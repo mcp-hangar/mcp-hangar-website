@@ -7,7 +7,7 @@ import AuditIcon from "../icons/AuditIcon.astro";
 
 <!--
   v2-PREVIEW SECTION. Everything described here lands on the v2 preview
-  (prerelease 2.0.0rc1 / mcp==2.0.0b2), NOT in released 1.6.2. Every visible
+  (prerelease 2.0.0rc2 / mcp==2.0.0b2), NOT in released 1.6.2. Every visible
   claim is gated behind the "Landing in 2.0" badge below. Do not remove the
   badge or re-theme this section to emerald (shipped) without moving the copy
   to match what actually ships in stable. Grounding: ADR-014, task_relay_handlers.py.
@@ -40,7 +40,7 @@ import AuditIcon from "../icons/AuditIcon.astro";
     <div class="mb-6 p-4 rounded-2xl bg-amber-500/[0.06] border border-amber-500/20 text-center">
         <p class="text-sm text-amber-200/90">
             Not in stable <span class="font-mono">v1.6.2</span>. This is the v2 preview
-            (<span class="font-mono">2.0.0rc1</span> / <span class="font-mono">mcp==2.0.0b2</span>),
+            (<span class="font-mono">2.0.0rc2</span> / <span class="font-mono">mcp==2.0.0b2</span>),
             per <a href="/docs/adr/adr-014-tasks-relay-with-governance" class="underline decoration-amber-400/40 hover:decoration-amber-400">ADR-014</a>.
             The seam is activated on the v2 preview; the relay still engages per-upstream
             only on an upstream&rsquo;s first real task.
@@ -131,10 +131,12 @@ import AuditIcon from "../icons/AuditIcon.astro";
             </div>
             <p class="text-zinc-400 text-sm mb-5">
                 When a relayed task enters <code class="text-zinc-300">input_required</code>,
-                Hangar doesn&rsquo;t guess. It routes the pause through a
-                <em>genuinely interactive</em> human-in-the-loop elicitation on the downstream
-                client, relays the answer upstream only after a confirmed accept, and records the
-                outcome as <code class="text-zinc-300">TaskConsentDecided</code> against the
+                Hangar doesn&rsquo;t guess. The pause surfaces its
+                <code class="text-zinc-300">inputRequests</code> to the client, which answers
+                through the governed <code class="text-zinc-300">tasks/update</code>. The gate
+                opens <em>before</em> that answer reaches the upstream and the single-use consent
+                is consumed only on a confirmed relay, recorded as
+                <code class="text-zinc-300">TaskConsentDecided</code> against the
                 <code class="text-zinc-300">task_id</code>.
             </p>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
