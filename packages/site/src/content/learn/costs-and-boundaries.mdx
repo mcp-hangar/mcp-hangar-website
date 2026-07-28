@@ -74,7 +74,7 @@ these is a decision, not a gap waiting to be filled:
 | an **executor** | It relays the calls and tasks the upstream owns and never runs them — no scheduler, no result store. Governance stays trustworthy because it stays [thin](/learn/relay-with-governance). |
 | an **anomaly detector** | The verdict is deterministic — no ML, no learned baseline, no score to threshold. Behavioural anomaly detection is the one thing still held back from the roadmap, on purpose. |
 | a **DLP engine** | Argument scanning is configured secret patterns plus a payload-size ceiling — not probabilistic content classification. Full DLP is an explicit non-goal. |
-| an **interactive approval queue** (synchronously) | Sync `requireApproval` fails closed. The one genuinely interactive gate is the async [mid-flight consent](/learn/mid-flight-consent) flow, and only because a paused task gives it a real back-channel. |
+| an **interactive approval queue** | Sync `requireApproval` fails closed -- the call is blocked. The async [mid-flight consent](/learn/mid-flight-consent) gate is fail-closed too, on a decision the client volunteers via `tasks/update`. Nothing in Hangar prompts a person and waits. |
 | a **SaaS** | MIT, self-hosted, no managed tier — ever. There is no hosted Hangar to buy and no account to create. |
 
 Two honest edges belong here too. The interceptor validators and mutators are
@@ -91,7 +91,7 @@ build a false assumption into a rollout:
 - **Released today** — core `1.6.2` and operator `v0.14.0`: the enforcement plane,
   end to end. The L7 egress verdict and the L3/L4 backstop that makes it stick.
 - **Landing in 2.0 (preview)** — the [governed task relay](/learn/relay-with-governance),
-  on the `2.0.0rc1` line built on the v2 SDK. It is real and running on the preview,
+  on the `2.0.0rc3` line built on the v2 SDK. It is real and running on the preview,
   but it is **not** in `1.6.2`. Plan a rollout on what shipped, not on what is
   coming.
 

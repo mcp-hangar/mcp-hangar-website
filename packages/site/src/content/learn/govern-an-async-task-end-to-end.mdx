@@ -13,8 +13,8 @@ tags: [tutorial, tasks, async, consent, governance]
 import Callout from '../../components/Callout.astro';
 
 <Callout variant="preview">
-  **Landing in 2.0.** This walkthrough runs on the **v2 preview** (`2.0.0rc1`,
-  built on `mcp==2.0.0b2`). Governed task relay is **not** in the released
+  **Landing in 2.0.** This walkthrough runs on the **v2 preview** (`2.0.0rc3`,
+  built on the stable `mcp==2.0.0`). Governed task relay is **not** in the released
   `1.6.2` line -- on `1.6.2` an upstream task handle is still cleanly rejected
   with `TaskRelayNotSupported`. Everything below is real on the preview and
   **not** a GA promise. Where a step says a handler serves or the gate fires,
@@ -25,37 +25,47 @@ import Callout from '../../components/Callout.astro';
 
 An MCP **task** answers a long-running `tools/call` by handing you back a
 *promise* -- a `task_id` -- with the real work finishing minutes later, on a
-`tasks/result` you make out of band.
+`tasks/get` you poll out of band.
 
 This is a hands-on tour of what Hangar does with that promise. Hangar
 **relays** the task an upstream owns and **governs its lifecycle** at the same
 proxy seam that already governs synchronous calls -- it never runs the task,
 never schedules it, never stores its result. You will mint a task, follow it up,
-walk into a mid-flight consent prompt, fetch a digest-checked result, and read
-the decision back off the provenance chain.
+answer a mid-flight input request, read a digest-checked result off the poll,
+and read the decision back off the provenance chain.
 
-Every method below is a real v2-native wire call (`tasks/get`, `tasks/result`,
-`tasks/cancel`, `tasks/list`), and every YAML block matches the schema in the
-shipped guides. The `client -> Hangar` and `Hangar -> client` blocks are the
-JSON-RPC frames on the wire -- you do not type them by hand. You drive them
-through whatever MCP client you have connected: its tool-call API emits the
-`tools/call` in step 3, and its task API emits the `tasks/get` / `tasks/result`
-/ `tasks/list` follow-ups. Read each frame as "this is what your client sends,
-and this is what Hangar sends back."
+Every method below is a real wire call from the SEP-2663 set -- `tasks/get`,
+`tasks/update`, `tasks/cancel`. There are only three: the SEP removes
+`tasks/result` and `tasks/list`, and Hangar answers both with `-32601`. The
+`client -> Hangar` and `Hangar -> client` blocks are the JSON-RPC frames on the
+wire -- you do not type them by hand. You drive them through whatever MCP client
+you have connected.
 
 ## Before you start
 
-You need the v2 preview build, a downstream client that has negotiated the
-**elicitation** capability (that is the back-channel the consent gate rides --
-without it, step 5 fails closed), and one upstream that answers a tool call with
-a task. The relay seam is gated by the `relay_tasks_enabled` kill-switch, whose
-default flipped to `True` on activation (2026-07-22); it is retained for a fast
-per-deployment rollback, so a preview build can turn the whole surface off in
-one flag.
+You need the v2 preview build, one upstream that answers a tool call with a
+task, and a client that can actually reach this surface. That last one is a real
+constraint, not a formality:
+
+- It must speak **2026-07-28**. The `initialize` handshake cannot negotiate that
+  generation -- it tops out at `2025-11-25` -- so the client reaches `tasks/*`
+  only on the per-request-envelope path.
+- It must **declare** `io.modelcontextprotocol/tasks`. Without it Hangar answers
+  `-32021` and tells it exactly what to add.
+- It must send **`Mcp-Name: <taskId>`** on every `tasks/*`. SEP-2663 mandates it
+  so an intermediary can route a poll without reading the body, and Hangar
+  enforces presence, not just agreement. A missing or contradictory header is
+  `-32020`.
+
+`relay_tasks_enabled` is live by default on the preview; set it to `false` for a
+per-deployment rollback. It was briefly off after the surface was found
+advertising a wire it did not serve, and went back on once that wire was served
+and verified end to end -- which is the thing worth checking before ever moving
+it again. The flag is one line; the mismatch is what actually bites.
 
 Behavior is unchanged until an upstream actually emits a task. A deployment
-whose upstreams never task observes no difference, and the `tasks` capability is
-advertised at `INITIALIZE` only once the seam is live -- Hangar does not
+whose upstreams never task observes no difference, and the extension is
+advertised on `server/discover` only once the seam is live -- Hangar does not
 advertise what does not run.
 
 ## Step 1 -- Point Hangar at a tasking upstream
@@ -108,9 +118,10 @@ opened to "any destination") and surfaced as
 
 Note what `requireApproval` does *not* do on the synchronous L7 path: it
 [fails closed](/learn/what-is-a-policy-enforcement-plane) -- a gated `tools/call`
-is *blocked* pending an out-of-band approval, not queued for a live click. Keep
-that straight, because the genuinely interactive prompt shows up in step 5, and it
-is a different mechanism entirely.
+is *blocked* pending an out-of-band approval, not queued for a live click. The
+async gate in step 5 is a different mechanism, but it is not a live click either:
+it governs an answer the client volunteers. Nothing in Hangar prompts a person
+and waits.
 
 ## Step 3 -- Mint the task
 
@@ -153,74 +164,97 @@ untouched rather than fabricating a state.
 
 Two ownership properties are load-bearing here. A `task_id` you do **not** own is
 indistinguishable from one that does not exist -- both return the same
-`INVALID_PARAMS` "Task not found", so the ledger is never a side channel for
-enumerating another tenant's tasks. And `tasks/list` is owner-scoped: it returns
-your snapshots as a single page and **never** forwards the upstream cursor,
-which could identify someone else's task.
+`-32602` "Task not found", so the ledger is never a side channel for
+enumerating another tenant's tasks.
+
+There is no listing call to abuse either: SEP-2663 removes `tasks/list`, and
+Hangar does not register it. It answers `-32601`, like `tasks/result`.
 
 ```json
 // client -> Hangar
 { "method": "tasks/list", "params": {} }
-// -> your tasks only; nextCursor is always absent
+// -> {"error": {"code": -32601, "message": "Method not found"}}
 ```
 
-## Step 5 -- Walk into the consent prompt
+## Step 5 -- Answer the mid-flight input request
 
 Some tasks pause mid-flight and ask for something -- a confirmation before they
-touch production. In MCP that surfaces as an `input_required` status, and this
-is the **one genuinely interactive gate in Hangar**.
+touch production. In MCP that surfaces as an `input_required` status, and on the
+SEP-2663 wire the task tells you *what* it wants: the snapshot carries an
+`inputRequests` map, keyed so you can answer it.
 
-When your next `tasks/get` observes `input_required`, the handler resolves it
-in-line on the live session. It elicits your client for consent over the
-negotiated elicitation channel with a fixed prompt:
-
-```text
-Task tk_9f2a… on an upstream server is requesting additional input to
-continue. Do you consent to providing it?
+```json
+// Hangar -> client   (a tasks/get poll)
+{
+  "taskId": "tk_9f2a…",
+  "status": "input_required",
+  "resultType": "complete",
+  "inputRequests": { "consent": { "message": "Proceed against production?" } }
+}
 ```
 
-The rule is strict: **consent is obtained before the gate opens, and the gate
-opens on nothing else.** Only an explicit `accept` opens it and relays the
-answer upstream. Every other branch is terminal and fails in the safe
-direction:
-
-- **No elicitation capability negotiated** -> no back-channel to ask -> denied
-  before any prompt.
-- **You decline or cancel** -> a real *no* -> the task is failed.
-- **The elicitation raises for any reason** -> caught and treated as a denial.
-  Ambiguity resolves closed.
-- **The consent slot was evicted** (its bounded, TTL'd entry expired) -> fails
-  closed; an expired consent is never read as an implicit yes.
-
-"Fail closed" means one concrete thing: the task is moved to `failed`, a
-best-effort `tasks/cancel` is relayed upstream, and the now-`failed` snapshot is
-returned. A paused task is **never** left dangling in `input_required` waiting on
-a maybe. (The single exception fails safe too: a *transient* upstream refusal
-while relaying an already-accepted answer discards the gate **without** burning
-the single-use consent, so a retry re-elicits and completes.)
-
-Accept the prompt, and the answer relays upstream. The task moves on.
-
-## Step 6 -- Fetch the digest-checked result
-
-Now pull the payload. Between mint and result the upstream tool could have been
-redeployed and its schema drifted, so `tasks/result` **re-verifies the pinned
-tool digest fail-closed** *before* it relays anything.
+You answer by driving an inbound `tasks/update` keyed on those same names. **That
+update is the consent** -- there is no prompt, and Hangar never asks you
+anything on its own initiative:
 
 ```json
 // client -> Hangar
-{ "method": "tasks/result", "params": { "taskId": "tk_9f2a…" } }
+{
+  "method": "tasks/update",
+  "params": {
+    "taskId": "tk_9f2a…",
+    "inputResponses": { "consent": { "content": { "approved": true } } }
+  }
+}
+// -> {"resultType": "complete"}    an empty acknowledgement
+```
+
+The governance is in the ordering, and it is strict. The gate opens **before**
+your answer reaches the upstream, and the single-use consent is **consumed only
+after a confirmed relay**. A foreign tenant is refused above the gate, before
+anything opens or relays. `TaskConsentDecided` records the decision with the
+principal that made it.
+
+A transient upstream refusal is the one recoverable branch: it discards the gate
+**without** burning the consent and does **not** fail the task, so a retry
+re-drives the update and completes.
+
+The acknowledgement is empty on purpose -- poll `tasks/get` for the state that
+resulted.
+
+> **This used to be an interactive prompt.** Until the SEP-2663 realignment,
+> Hangar resolved a pause by eliciting your client over the live session and
+> failing closed on decline, cancel, a missing elicitation capability or any
+> error. That belonged to the 2025-11-25 wire, which Hangar no longer serves.
+> Consent is still governed and still fail-closed; it is now gated on an update
+> you volunteer rather than on a question Hangar asks.
+
+## Step 6 -- Read the digest-checked result off the poll
+
+There is no second call for the payload. SEP-2663 folds the old `tasks/result`
+round trip into the poll: a completed task carries its outcome **inline**.
+
+Between mint and completion the upstream tool could have been redeployed and its
+schema drifted, so `tasks/get` **re-verifies the pinned tool digest fail-closed**
+*before* it hands any payload over.
+
+```json
+// client -> Hangar
+{ "method": "tasks/get", "params": { "taskId": "tk_9f2a…" } }
+// -> { "taskId": "tk_9f2a…", "status": "completed", "resultType": "complete",
+//      "result": { "content": [ … ], "isError": false } }
 ```
 
 If the tool's current digest no longer matches the one pinned at mint -- or the
 current schema simply cannot be verified (unverifiable is treated as drifted) --
 the task is **failed**, a `DigestMismatchInTask` event is emitted, and an error
-propagates. The result is never handed over. This closes the *zombie*: a task
-that completes against a contract you never authorized. Digest drift fails the
-task rather than leaving a permanently-untrustworthy result hanging.
+propagates. The result is never handed over, and the upstream is never even
+asked for it. This closes the *zombie*: a task that completes against a contract
+you never authorized.
 
-On a clean check, the upstream `result` is validated into a `CallToolResult` and
-returned. Hangar held none of it -- the payload lived upstream the whole time.
+Hangar held none of the payload -- it lived upstream the whole time. If your
+upstream is on the older design and still keeps it behind `tasks/result`, Hangar
+fetches it on your behalf so the inline field is populated either way.
 
 ## Step 7 -- Read the decision back
 
@@ -248,10 +282,10 @@ already gives you, extended to the one call-shape that used to be dark.
 You took an async task through its entire governed lifecycle without Hangar ever
 running it. You minted a task and watched it become a first-class governed
 object the instant it was relayed; you followed it up through owner-scoped,
-upstream-truthful handlers; you hit the one genuinely interactive gate in the
-stack and recorded a real human decision; you fetched a result that was
-re-checked against its pinned contract; and you read the whole story back off an
-append-only provenance chain.
+upstream-truthful handlers; you answered a mid-flight input request through the
+governed `tasks/update` and had that decision recorded; you read a result off the
+poll that was re-checked against its pinned contract before it was handed over;
+and you read the whole story back off an append-only provenance chain.
 
 And Hangar took on no executor liabilities to do it: no scheduler, no result
 store, no GC correctness, no cancellation-race ownership, no worker-to-main-loop
@@ -262,5 +296,5 @@ bridge. It relayed and it governed. The proxy stayed a proxy.
 *Grounded in [ADR-014](/docs/adr/ADR-014-tasks-relay-with-governance)
 (relay-with-governance), building on [ADR-002](/docs/adr/ADR-002-event-sourcing)
 (the provenance chain) and [ADR-004](/docs/adr/ADR-004-sep-1766-digest-pinning) (digest
-pinning). v2 preview (`2.0.0rc1`, `mcp==2.0.0b2`); everything is MIT and
+pinning). v2 preview (`2.0.0rc3`, `mcp==2.0.0`); everything is MIT and
 self-hosted -- no SaaS.*

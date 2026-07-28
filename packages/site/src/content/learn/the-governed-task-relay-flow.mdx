@@ -14,7 +14,7 @@ import Callout from '../../components/Callout.astro';
 
 <Callout variant="preview">
   **Landing in 2.0.** This whole flow describes the governed task relay on the
-  **v2 preview** (`2.0.0rc1`, built on `mcp==2.0.0b2`). It is **not** in the
+  **v2 preview** (`2.0.0rc3`, built on the stable `mcp==2.0.0`). It is **not** in the
   released `1.6.2` line. Where the diagram shows a stage firing, read it as "on
   the v2 preview" -- today, released Hangar still cleanly rejects an upstream
   task handle with `TaskRelayNotSupported`.
@@ -65,14 +65,14 @@ mechanism.
   {/* 3 -- Follow-ups */}
   <rect x="130" y="284" width="460" height="102" rx="14" fill="currentColor" fill-opacity="0.03" stroke="currentColor" stroke-opacity="0.28" stroke-width="1.5" />
   <text x="360" y="314" text-anchor="middle" font-size="16" font-weight="700" fill="currentColor">3 · Follow-ups</text>
-  <text x="360" y="336" text-anchor="middle" font-size="12" fill="currentColor" opacity="0.7">tasks/get · tasks/result (re-verify pinned digest) · tasks/cancel · tasks/list</text>
+  <text x="360" y="336" text-anchor="middle" font-size="12" fill="currentColor" opacity="0.7">tasks/get (re-verify pinned digest, outcome inlined) · tasks/update · tasks/cancel</text>
   <text x="360" y="356" text-anchor="middle" font-size="12" fill="currentColor" opacity="0.7">each fail-closed, owner-scoped, upstream-truthful --</text>
   <text x="360" y="374" text-anchor="middle" font-size="12" fill="currentColor" opacity="0.7">a bare task_id you do not own is indistinguishable from one that does not exist</text>
 
   {/* 4 -- Consent gate (amber = governed decision point) */}
   <rect x="130" y="432" width="460" height="90" rx="14" fill="#d97706" fill-opacity="0.09" stroke="#d97706" stroke-width="1.5" />
   <text x="360" y="462" text-anchor="middle" font-size="16" font-weight="700" fill="#d97706">4 · Consent gate</text>
-  <text x="360" y="484" text-anchor="middle" font-size="12" fill="currentColor" opacity="0.78">status input_required → elicit the downstream client for consent</text>
+  <text x="360" y="484" text-anchor="middle" font-size="12" fill="currentColor" opacity="0.78">status input_required → client answers via governed tasks/update</text>
   <text x="360" y="504" text-anchor="middle" font-size="12" fill="currentColor" opacity="0.78">the gate opens only on a confirmed accept -- decide first, then open</text>
 
   {/* 5a -- accept */}
@@ -111,21 +111,21 @@ Read the stages top to bottom:
 3. **Follow-ups.** The client polls and collects through four native `tasks/*`
    handlers. Every one is fail-closed and owner-scoped -- a bare `task_id` you do
    not own resolves the same as one that never existed, so denial never confirms
-   existence. `tasks/result` re-verifies the **pinned digest** first; drift fails
-   the task rather than handing back a result shaped by a contract nobody
-   authorized.
+   existence. `tasks/get` re-verifies the **pinned digest** before handing any
+   payload over; drift fails the task rather than returning a result shaped by a
+   contract nobody authorized. SEP-2663 inlines that payload on the poll -- there
+   is no `tasks/result` to call.
 4. **Consent gate.** When the upstream status turns `input_required`, the task is
-   paused mid-flight. `tasks/get` resolves it in-handler: it elicits the
-   downstream client for consent, and the gate opens **only** on a confirmed
-   accept. Consent is obtained *before* the gate opens -- there is no
-   open-then-decide race.
-5. **Recorded decision.** Either branch is terminal and leaves a signed line on
-   the provenance chain. On **accept** (5a) the answer relays upstream and
-   `TaskConsentDecided(granted=True)` is recorded. On **any** other outcome (5b)
-   -- decline, no negotiated back-channel, or an elicitation error -- the task is
-   failed closed, a best-effort `tasks/cancel` is relayed, and
-   `TaskConsentDecided(granted=False)` is recorded. A paused task is never left
-   dangling on a maybe.
+   paused mid-flight and its snapshot carries an `inputRequests` map naming what
+   it needs. The client answers by driving an inbound `tasks/update`, and that
+   update **is** the consent. The gate opens *before* the answer reaches the
+   upstream -- there is no relay-then-record race.
+5. **Recorded decision.** `TaskConsentDecided` records the decision with the
+   principal that made it. A confirmed relay consumes the single-use consent; a
+   *transient* upstream refusal discards the gate **without** consuming it and
+   does not fail the task, so a retry re-drives the update and completes. An
+   evicted consent slot fails the task closed -- an expired consent is never read
+   as an implicit yes.
 
 One activation detail keeps the diagram honest: even on the v2 preview the relay
 seam is gated by the `relay_tasks_enabled` kill-switch and, per ADR-014's
@@ -146,14 +146,12 @@ binds at the same proxy seam that governs synchronous calls, so the "one bug and
 governance silently fails to bind" failure mode a background thread would
 introduce does not exist to break.
 
-**Stage 4 is the *only* genuinely interactive consent in Hangar.** Do not confuse
-it with the synchronous L7 `requireApproval` gate, which **fails closed** -- a
-gated `tools/call` is *blocked*, not parked in an interactive approval queue.
-Nothing prompts a human and waits on the synchronous path. The async gate is
-different only because the task is already paused and the polling client is right
-there on a live session with a negotiated elicitation capability: a real
-back-channel exists, so a real human decision can be routed back. Everywhere else,
-governance is deterministic enforcement -- no scores, no queue.
+**Neither gate prompts a human.** The synchronous L7 `requireApproval` gate
+**fails closed** -- a gated `tools/call` is *blocked*, not parked in an
+interactive approval queue. Stage 4 is fail-closed too, on a decision the client
+volunteers by driving `tasks/update`. Hangar used to be the interactive one, on
+the 2025-11-25 wire it no longer serves; what remains is governance over an
+answer, not a question.
 
 ---
 

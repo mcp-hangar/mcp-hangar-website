@@ -1,24 +1,27 @@
 ---
 title: "Mid-flight consent for async tools"
-description: "A real, blocking human decision on an input_required task -- recorded and fail-closed."
+description: "Governing an input_required task on the SEP-2663 wire -- gated on the client's own tasks/update, recorded and fail-closed."
 type: Concept
 level: Core
 time: "7 min"
 theme: async
 status: preview
-updated: 2026-07-22
+updated: 2026-07-28
 tags: [concepts, consent, tasks, async, governance]
 ---
 
 import Callout from '../../components/Callout.astro';
 
 <Callout variant="preview">
-  **Landing in 2.0.** The mid-flight consent gate described here ships on the
-  **v2 preview** (`2.0.0rc1`, built on `mcp==2.0.0b2`) and is **not** in the
-  released `1.6.2` line. Where the text says the gate elicits or the task pauses,
-  read it as "on the v2 preview" -- released Hangar still cleanly rejects any
-  upstream task handle with `TaskRelayNotSupported`, so there is nothing to gate
-  yet. This is preview plumbing, not GA.
+  **Landing in 2.0.** The gate described here ships on the **v2 preview**
+  (`2.0.0rc3`, built on the stable `mcp==2.0.0`) and is **not** in the released `1.6.2`
+  line, which still rejects any upstream task handle with
+  `TaskRelayNotSupported`. On the preview it is live by default;
+  `relay_tasks_enabled: false` is the per-deployment rollback.
+
+  **This page changed on 2026-07-28.** The gate used to be an interactive
+  elicitation -- Hangar asked your client a question mid-poll. On the SEP-2663
+  wire it no longer does. See "What changed" below.
 </Callout>
 
 # Mid-flight consent for async tools
@@ -47,51 +50,67 @@ no guaranteed back-channel at the invocation instant to go find a human, so the
 verdict is a hard, fail-closed deny -- not a hold. It is a gate, not an approval
 queue: nothing prompts a person and waits for them to click yes. The call stops.
 
-**The async consent gate is different, because the task is already paused.** A
-task in `input_required` is, by definition, suspended and waiting -- and the
-client polling it is right there on a live session that negotiated an elicitation
-capability. That is a real back-channel. So when `tasks/get` observes
-`input_required` on a `2025-11-25` session, it resolves the input *in handler*: it
-elicits the downstream client for consent over `ctx.session`, and only on an
-explicit `accept` does it open the gate and relay the answer upstream. This is the
-**only** genuinely interactive consent flow in Hangar. It routes to a real human
-decision because, uniquely, the context to do so exists. Do not conflate it with
-the synchronous L7 gate -- one asks a person, the other just blocks.
+**The async gate is different, because the task tells you what it wants.** A task
+in `input_required` is suspended and waiting -- and on the SEP-2663 wire its
+snapshot carries an `inputRequests` map naming exactly what is needed. The client
+answers by driving an inbound `tasks/update` keyed on those names. **That update
+is the consent.** Hangar does not ask; it governs an answer you volunteer.
 
-## The gate opens on nothing but an explicit yes
+So neither gate prompts a person. The synchronous one blocks; this one binds
+governance to a decision the client brought. What makes it a gate rather than a
+pass-through is the ordering.
 
-The primitive underneath is a presence gate with a strict rule: it is opened
-*only* after a confirmed downstream `accept`. Consent is obtained **before** the
-gate opens, so there is no pre-decision race in which the answer relays ahead of
-the human's yes. The decision is taken first; the gate is the record that it was.
+## What changed on 2026-07-28
 
-Every other outcome is terminal and fail-closed. Walk the branches:
+Until the SEP-2663 realignment this page described something else, and it is
+worth being precise about it rather than quietly editing it away.
 
-- **No elicitation capability negotiated.** There is no back-channel to ask, so
-  the decision is a fail-closed denial before any prompt is shown.
-- **The client declines or cancels.** A real *no* -- the task is failed.
-- **The elicitation raises for any reason.** Any error at all is caught and
-  treated as a denial. Ambiguity resolves closed, never open.
-- **The consent slot was evicted** under TTL pressure. The binding fails closed --
-  an expired or missing consent is never read as an implicit yes.
+Hangar used to resolve a pause **interactively**: when `tasks/get` observed
+`input_required` on a `2025-11-25` session, it elicited the downstream client for
+consent over `ctx.session` and opened the gate only on an explicit `accept`.
+Every other branch -- decline, cancel, no elicitation capability, any elicitation
+error -- was a terminal fail-closed denial. That was, genuinely, the only
+interactive consent flow in the stack.
 
-"Fail closed" here means one concrete thing: the task is moved to `failed`, a
-best-effort `tasks/cancel` is relayed upstream, and the now-`failed` snapshot is
-returned to the caller. A paused task is **never** left dangling in
-`input_required` waiting on a maybe. There is exactly one exception, and it fails
-in the safe direction: a *transient* upstream refusal while relaying an
-already-accepted answer discards the gate **without** consuming the single-use
-consent, so a retry re-elicits and completes rather than burning the task on a
-blip.
+It belonged to the 2025-11-25 wire, and Hangar no longer serves `tasks/*` on that
+generation: SEP-2663 removed Tasks from the core spec and made them an extension,
+and the shapes the old flow used live on only in the SDK's frozen SEP-1686 types.
+Serving them would be the same defect aimed the other way. So the elicitation
+path went with the wire it belonged to.
 
-## Concurrency, without a double prompt
+Nothing about the *governance* weakened. What was lost is the prompt.
 
-A task under real load is polled more than once. If two `tasks/get` calls hit the
-same `input_required` state, only one human should be asked. The gate derives a
-deterministic `input_key` from the upstream's pending input request(s) -- stable
-across concurrent polls -- so a second in-flight `tasks/get` maps to the same gate
-key and returns the current snapshot instead of prompting again. One pause, one
-question, one answer.
+## The gate opens before the answer, and closes on nothing implicit
+
+The primitive underneath is a presence gate, and the rule is an ordering:
+
+1. The tenant is authorized **first**, structurally above the gate. A foreign
+   tenant is refused before anything opens or relays -- and refused
+   indistinguishably from a task that does not exist.
+2. The gate opens **before** your answer reaches the upstream.
+3. The single-use consent is **consumed only after a confirmed relay**.
+4. `TaskConsentDecided` records the decision with the principal that made it.
+
+Step 3 is what makes a failure recoverable rather than destructive. A *transient*
+upstream refusal discards the gate **without** burning the consent and does not
+fail the task, so a retry re-drives the update and completes rather than losing
+the task to a blip.
+
+An evicted consent slot still fails closed: under TTL pressure the binding is
+failed (`TaskFailed('consent_unavailable')`), because an expired or missing
+consent must never read as an implicit yes.
+
+The acknowledgement to `tasks/update` is **empty** -- `{"resultType":
+"complete"}`. It changes nothing observable by itself; you poll `tasks/get` for
+the state that resulted. Answers naming an input request that was never issued
+are ignored rather than rejected, per the SEP.
+
+## Concurrency, without a double answer
+
+A task under real load is polled more than once. The gate derives a deterministic
+`input_key` from the upstream's pending input request(s) -- stable across
+concurrent polls -- so two clients answering the same pause map to the same gate
+key and the consent is consumed once. One pause, one recorded decision.
 
 ## Every decision is a recorded line in the chain
 
