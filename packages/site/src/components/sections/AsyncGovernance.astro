@@ -6,12 +6,17 @@ import AuditIcon from "../icons/AuditIcon.astro";
 ---
 
 <!--
-  Shipped in 2.0.0 (mcp==2.0.0). This section was gated behind an amber
-  "Landing in 2.0" badge while the relay was a preview; the condition that
-  guard set -- copy matching what actually ships in stable -- is now met, so
-  the badge states the release instead of promising one. It is still NOT in
-  the 1.6.x line, which is what the badge has to keep saying.
-  Grounding: ADR-014, task_relay_handlers.py.
+  Governed async tasks. Available from core 2.0.0.
+
+  Written for someone deciding whether they need this, not for someone
+  reviewing the implementation. Earlier revisions led with internals (the
+  store type, the ledger key, JSON-RPC error codes) and with the history of
+  how the wire got here -- answers to a question nobody arrives with.
+
+  Keep: the gap being closed, the shape of the lifecycle, one concrete
+  scenario, and what you can answer afterwards that you could not before.
+  Deliberately absent: ADR links, issue numbers, SDK-vendoring history, and
+  "not in 1.x" framing -- 1.x is closed, so its absence is not news.
 -->
 <section id="async-governance" class="max-w-6xl mx-auto px-6 pb-32">
     <div class="text-center mb-12">
@@ -20,178 +25,165 @@ import AuditIcon from "../icons/AuditIcon.astro";
             role="status"
         >
             <span class="w-2 h-2 rounded-full bg-emerald-400" aria-hidden="true"/>
-            Shipped in 2.0.0 &middot; not in 1.6.x
+            Available from 2.0.0
         </div>
         <h2 class="text-sm font-semibold text-zinc-500 uppercase tracking-wider mb-3">
             Governed async tasks
         </h2>
         <p class="text-2xl md:text-3xl font-bold text-zinc-100">
-            The forensic chain now covers the call that doesn&rsquo;t finish yet
+            Your longest-running operations were the least governed ones
         </p>
-        <p class="text-lg text-zinc-400 max-w-2xl mx-auto mt-4">
-            Synchronous <code class="text-zinc-300">tools/call</code> is governed today.
-            Async tasks were the one call-shape left dormant. From 2.0.0 Hangar
-            <em>relays</em> upstream-created tasks and interposes governance on their
-            lifecycle &mdash; it does not become an executor. No scheduler, no job runner,
-            no result store. The proxy stays a proxy.
-        </p>
-    </div>
-
-    <!-- Version boundary: shipped in 2.0.0, absent from 1.6.x. -->
-    <div class="mb-6 p-4 rounded-2xl bg-zinc-500/[0.06] border border-zinc-500/20 text-center">
-        <p class="text-sm text-zinc-300/90">
-            Shipped in <span class="font-mono">2.0.0</span>
-            (<span class="font-mono">mcp==2.0.0</span>), per
-            <a href="/docs/adr/adr-014-tasks-relay-with-governance" class="underline decoration-zinc-400/40 hover:decoration-zinc-300">ADR-014</a>.
-            Not in the <span class="font-mono">1.6.x</span> line. The seam is
-            activated by default; the relay still engages per-upstream only on an
-            upstream&rsquo;s first real task.
+        <p class="text-lg text-zinc-400 max-w-3xl mx-auto mt-4">
+            A synchronous tool call is decided while it happens. An async one hands back a
+            handle in milliseconds and does the real work later &mdash; the export, the
+            migration, the bulk write. Everything expensive and hard to undo lives there,
+            and it is exactly the shape that slips past a policy engine watching the request.
         </p>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Relay-with-governance -->
-        <div class="group p-6 rounded-2xl bg-zinc-900/30 border border-zinc-800/50 hover:border-amber-500/20 transition-all duration-300">
-            <div class="flex items-center gap-3 mb-5">
-                <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
-                    <LifecycleIcon />
+    <!-- The schematic: who asks, where Hangar interposes, what it does there. -->
+    <div class="mb-6 p-6 md:p-8 rounded-2xl bg-zinc-900/30 border border-zinc-800/50">
+        <p class="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-6 text-center">
+            Where Hangar sits in a task&rsquo;s life
+        </p>
+
+        <div class="overflow-x-auto">
+            <div class="min-w-[640px] grid grid-cols-[1fr_auto_1fr_auto_1fr] items-center gap-x-3 gap-y-4">
+                <div class="text-center text-xs font-semibold uppercase tracking-wider text-zinc-500">Your client</div>
+                <div aria-hidden="true"></div>
+                <div class="text-center text-xs font-semibold uppercase tracking-wider text-emerald-400/80">Hangar</div>
+                <div aria-hidden="true"></div>
+                <div class="text-center text-xs font-semibold uppercase tracking-wider text-zinc-500">MCP server</div>
+
+                <div class="p-3 rounded-xl bg-zinc-950/40 border border-zinc-800/50 text-center">
+                    <p class="text-zinc-200 text-sm font-medium">Calls a slow tool</p>
                 </div>
-                <h3 class="text-lg font-semibold text-zinc-100">Relayed, not run</h3>
+                <div class="text-zinc-600 text-lg text-center" aria-hidden="true">&rarr;</div>
+                <div class="p-3 rounded-xl bg-emerald-500/[0.07] border border-emerald-500/25 text-center">
+                    <p class="text-emerald-200 text-sm font-medium">Records the task</p>
+                    <p class="text-zinc-500 text-xs mt-1">before the handle is handed back</p>
+                </div>
+                <div class="text-zinc-600 text-lg text-center" aria-hidden="true">&rarr;</div>
+                <div class="p-3 rounded-xl bg-zinc-950/40 border border-zinc-800/50 text-center">
+                    <p class="text-zinc-200 text-sm font-medium">Starts the work</p>
+                </div>
+
+                <div class="p-3 rounded-xl bg-zinc-950/40 border border-zinc-800/50 text-center">
+                    <p class="text-zinc-200 text-sm font-medium">Answers a question</p>
+                </div>
+                <div class="text-zinc-600 text-lg text-center" aria-hidden="true">&rarr;</div>
+                <div class="p-3 rounded-xl bg-emerald-500/[0.07] border border-emerald-500/25 text-center">
+                    <p class="text-emerald-200 text-sm font-medium">Consent gate</p>
+                    <p class="text-zinc-500 text-xs mt-1">the answer passes policy first</p>
+                </div>
+                <div class="text-zinc-600 text-lg text-center" aria-hidden="true">&rarr;</div>
+                <div class="p-3 rounded-xl bg-zinc-950/40 border border-zinc-800/50 text-center">
+                    <p class="text-zinc-200 text-sm font-medium">Pauses, then resumes</p>
+                </div>
+
+                <div class="p-3 rounded-xl bg-zinc-950/40 border border-zinc-800/50 text-center">
+                    <p class="text-zinc-200 text-sm font-medium">Collects the result</p>
+                </div>
+                <div class="text-zinc-600 text-lg text-center" aria-hidden="true">&larr;</div>
+                <div class="p-3 rounded-xl bg-emerald-500/[0.07] border border-emerald-500/25 text-center">
+                    <p class="text-emerald-200 text-sm font-medium">Re-checks the tool</p>
+                    <p class="text-zinc-500 text-xs mt-1">drift fails the task, not silently</p>
+                </div>
+                <div class="text-zinc-600 text-lg text-center" aria-hidden="true">&larr;</div>
+                <div class="p-3 rounded-xl bg-zinc-950/40 border border-zinc-800/50 text-center">
+                    <p class="text-zinc-200 text-sm font-medium">Finishes</p>
+                </div>
             </div>
-            <p class="text-zinc-400 text-sm mb-4">
-                On relaying an upstream <code class="text-zinc-300">CreateTaskResult</code>,
-                Hangar writes a <code class="text-zinc-300">GovernedTaskStore</code> entry and
-                emits <code class="text-zinc-300">TaskCreated</code> <em>before</em> the handle
-                reaches the client.
-            </p>
-            <ul class="space-y-3">
-                <li class="flex items-start gap-2">
-                    <span class="text-amber-400 mt-1 text-xs">&#9654;</span>
-                    <div>
-                        <span class="text-zinc-200 text-sm font-medium">Every relayed <code class="font-mono">task_id</code> is locally known</span>
-                        <p class="text-zinc-500 text-xs mt-0.5">A follow-up <code class="font-mono">tasks/get</code> always finds it. The dead-handle failure mode is structurally excluded &mdash; we track instead of pass through.</p>
-                    </div>
-                </li>
-                <li class="flex items-start gap-2">
-                    <span class="text-amber-400 mt-1 text-xs">&#9654;</span>
-                    <div>
-                        <span class="text-zinc-200 text-sm font-medium">Governance binds at the proxy/store seam</span>
-                        <p class="text-zinc-500 text-xs mt-0.5">The same seam that governs synchronous <code class="font-mono">tools/call</code>. No background worker thread, so &ldquo;governance silently didn&rsquo;t bind&rdquo; cannot happen.</p>
-                    </div>
-                </li>
-            </ul>
         </div>
 
-        <!-- The SEP-2663 serving handlers -->
-        <div class="group p-6 rounded-2xl bg-zinc-900/30 border border-zinc-800/50 hover:border-amber-500/20 transition-all duration-300">
-            <div class="flex items-center gap-3 mb-5">
-                <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
-                    <LockIcon />
-                </div>
-                <h3 class="text-lg font-semibold text-zinc-100">Three fail-closed handlers</h3>
+        <p class="text-zinc-500 text-xs text-center mt-6 max-w-2xl mx-auto">
+            Hangar relays; it never becomes the executor. No scheduler, no job runner, no
+            result store of its own &mdash; the work stays where it was, and only the
+            decisions move.
+        </p>
+    </div>
+
+    <!-- One concrete scenario, told as a before/after. -->
+    <div class="mb-6 p-6 md:p-8 rounded-2xl bg-zinc-900/30 border border-zinc-800/50">
+        <div class="flex items-center gap-3 mb-5">
+            <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+                <LifecycleIcon />
             </div>
-            <p class="text-zinc-400 text-sm mb-4">
-                The v2-native <code class="text-zinc-300">tasks/*</code> serving surface. A caller
-                sends a bare <code class="text-zinc-300">task_id</code>; the ledger is keyed on
-                <code class="text-zinc-300">(target_server_id, task_id)</code> and resolved
-                ownership-fail-closed &mdash; a task you don&rsquo;t own is indistinguishable from
-                one that doesn&rsquo;t exist.
-            </p>
-            <ul class="space-y-3">
-                <li class="flex items-start gap-2">
-                    <span class="text-amber-400 mt-1 text-xs">&#9654;</span>
-                    <div>
-                        <span class="text-zinc-200 text-sm font-medium"><code class="font-mono">tasks/get</code> &middot; <code class="font-mono">tasks/cancel</code></span>
-                        <p class="text-zinc-500 text-xs mt-0.5">Upstream-truthful: status is never fabricated. Cancel retires the entry <em>only</em> when the upstream confirms; otherwise the true current status is returned.</p>
-                    </div>
-                </li>
-                <li class="flex items-start gap-2">
-                    <span class="text-amber-400 mt-1 text-xs">&#9654;</span>
-                    <div>
-                        <span class="text-zinc-200 text-sm font-medium"><code class="font-mono">tasks/get</code> re-verifies the pin</span>
-                        <p class="text-zinc-500 text-xs mt-0.5">SEP-2663 inlines the outcome on the poll. Before any payload is handed over the pinned tool digest is re-checked fail-closed; drift fails the task &mdash; a zombie result is never returned.</p>
-                    </div>
-                </li>
-                <li class="flex items-start gap-2">
-                    <span class="text-amber-400 mt-1 text-xs">&#9654;</span>
-                    <div>
-                        <span class="text-zinc-200 text-sm font-medium"><code class="font-mono">tasks/update</code> carries the consent</span>
-                        <p class="text-zinc-500 text-xs mt-0.5">The governed input path. <code class="font-mono">tasks/result</code> and <code class="font-mono">tasks/list</code> are removed by SEP-2663 and answer <code class="font-mono">-32601</code>.</p>
-                    </div>
-                </li>
-            </ul>
+            <h3 class="text-lg font-semibold text-zinc-100">What this looks like in practice</h3>
         </div>
 
-        <!-- Mid-flight consent gate -->
-        <div class="group p-6 rounded-2xl bg-zinc-900/30 border border-zinc-800/50 hover:border-amber-500/20 transition-all duration-300 md:col-span-2">
-            <div class="flex items-center gap-3 mb-5">
-                <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
-                    <IdentityIcon />
-                </div>
-                <h3 class="text-lg font-semibold text-zinc-100">The mid-flight consent gate</h3>
-                <span class="ml-auto text-xs font-mono text-amber-300/80 border border-amber-500/20 rounded-full px-2 py-0.5">#322</span>
+        <p class="text-zinc-400 text-sm mb-5 max-w-3xl">
+            An agent asks your warehouse server to export a customer dataset. The export takes
+            twenty minutes, so the server returns a handle immediately. Half a minute in, it
+            needs a decision: <em>include the columns holding personal data?</em>
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="p-5 rounded-xl bg-zinc-950/40 border border-zinc-800/50">
+                <p class="text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-3">Ungoverned</p>
+                <ul class="space-y-2 text-sm text-zinc-400">
+                    <li>The agent answers the question itself. Nothing evaluates that answer.</li>
+                    <li>The export runs with whatever it decided.</li>
+                    <li>Your audit trail holds one line: a call was made, and a handle came back.</li>
+                    <li>Asked later who authorised personal data leaving, you cannot say.</li>
+                </ul>
             </div>
-            <p class="text-zinc-400 text-sm mb-5">
-                When a relayed task enters <code class="text-zinc-300">input_required</code>,
-                Hangar doesn&rsquo;t guess. The pause surfaces its
-                <code class="text-zinc-300">inputRequests</code> to the client, which answers
-                through the governed <code class="text-zinc-300">tasks/update</code>. The gate
-                opens <em>before</em> that answer reaches the upstream and the single-use consent
-                is consumed only on a confirmed relay, recorded as
-                <code class="text-zinc-300">TaskConsentDecided</code> against the
-                <code class="text-zinc-300">task_id</code>.
-            </p>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="p-4 rounded-xl bg-zinc-950/40 border border-zinc-800/50">
-                    <p class="text-zinc-200 text-sm font-medium mb-1">Consent is obtained before the gate opens</p>
-                    <p class="text-zinc-500 text-xs">The gate opens before the answer reaches the upstream, and the single-use consent is consumed only after a confirmed relay. A transient failure discards the gate without burning the consent, so a retry re-drives the update.</p>
-                </div>
-                <div class="p-4 rounded-xl bg-zinc-950/40 border border-zinc-800/50">
-                    <p class="text-zinc-200 text-sm font-medium mb-1">Tenant authorization sits above the gate</p>
-                    <p class="text-zinc-500 text-xs">A foreign tenant is refused before anything opens or relays, indistinguishably from a task that does not exist. An evicted consent slot fails the task closed &mdash; an expired consent is never read as an implicit yes.</p>
-                </div>
+            <div class="p-5 rounded-xl bg-emerald-500/[0.04] border border-emerald-500/20">
+                <p class="text-xs font-semibold uppercase tracking-wider text-emerald-400/80 mb-3">With Hangar</p>
+                <ul class="space-y-2 text-sm text-zinc-300">
+                    <li>The handle is recorded before the agent ever sees it.</li>
+                    <li>The answer crosses the consent gate before it reaches the server.</li>
+                    <li>If the tool&rsquo;s schema changed mid-flight, the result is refused rather than delivered.</li>
+                    <li>The whole sequence &mdash; who, what, when, which tenant &mdash; replays from the event stream.</li>
+                </ul>
             </div>
         </div>
     </div>
 
-    <!-- The load-bearing distinction: NEITHER gate prompts a human. -->
-    <div class="mt-6 p-6 rounded-2xl bg-zinc-900/30 border border-zinc-800/50">
-        <div class="flex items-start gap-3">
-            <div class="w-9 h-9 shrink-0 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+    <!-- What you can answer afterwards that you could not before. -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="p-6 rounded-2xl bg-zinc-900/30 border border-zinc-800/50">
+            <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 mb-4">
+                <LockIcon />
+            </div>
+            <h3 class="text-base font-semibold text-zinc-100 mb-2">No orphaned handles</h3>
+            <p class="text-zinc-400 text-sm">
+                Every task Hangar relays is one it knows about, so a follow-up always resolves.
+                A task belonging to another tenant is refused exactly the way one that never
+                existed is &mdash; you cannot probe for what you do not own.
+            </p>
+        </div>
+
+        <div class="p-6 rounded-2xl bg-zinc-900/30 border border-zinc-800/50">
+            <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 mb-4">
+                <IdentityIcon />
+            </div>
+            <h3 class="text-base font-semibold text-zinc-100 mb-2">The pause is a checkpoint</h3>
+            <p class="text-zinc-400 text-sm">
+                When a task stops to ask something, the question and its answer are governed
+                like any other call &mdash; not waved through because the work already started.
+                A failed relay leaves the decision unspent, so a retry is a retry and not a
+                second authorisation.
+            </p>
+        </div>
+
+        <div class="p-6 rounded-2xl bg-zinc-900/30 border border-zinc-800/50">
+            <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 mb-4">
                 <AuditIcon />
             </div>
-            <div>
-                <h3 class="text-base font-semibold text-zinc-100 mb-2">Neither gate prompts a human</h3>
-                <p class="text-zinc-400 text-sm mb-2">
-                    The synchronous L7 <code class="text-zinc-300">requireApproval</code> control
-                    <strong>fails closed</strong> &mdash; the call is blocked. The async gate is
-                    fail-closed too, on a decision the client volunteers by driving
-                    <code class="text-zinc-300">tasks/update</code>. There is no inbox, no
-                    pending-request list, no &ldquo;click to allow&rdquo; anywhere. Hangar used to
-                    elicit the client mid-poll; that belonged to the 2025-11-25 wire it no longer
-                    serves.
-                </p>
-                <p class="text-zinc-400 text-sm">
-                    And the forensic chain follows: <code class="text-zinc-300">TaskCreated</code>,
-                    <code class="text-zinc-300">TaskConsentDecided</code>,
-                    <code class="text-zinc-300">TaskCompleted</code> /
-                    <code class="text-zinc-300">TaskFailed</code> /
-                    <code class="text-zinc-300">TaskCancelled</code> and
-                    <code class="text-zinc-300">DigestMismatchInTask</code> &mdash; append-only, keyed by
-                    <code class="text-zinc-300">task_id</code>, carrying <code class="text-zinc-300">tenant_id</code>
-                    and <code class="text-zinc-300">correlation_id</code>. The full lifecycle of any
-                    relayed task is reconstructable from the event stream.
-                </p>
-            </div>
+            <h3 class="text-base font-semibold text-zinc-100 mb-2">A chain that survives the wait</h3>
+            <p class="text-zinc-400 text-sm">
+                Creation, every decision, and the outcome are appended as they happen, keyed to
+                the task and carrying tenant and correlation. Twenty minutes later the record is
+                still a sequence, not an inference.
+            </p>
         </div>
     </div>
 
-    <p class="mt-8 text-center text-xs text-zinc-600 max-w-2xl mx-auto">
-        Served, not coming: the 2026-07-28 surface and the SEP-2663 Tasks reshape
-        (inbound <code class="font-mono">tasks/update</code>) are the live path in
-        <code class="font-mono">2.0.0</code>. They were once described here as forward-compatible plumbing that would
-        activate itself when the SDK caught up &mdash; it did not, and could not: the SDK
-        shipped <code class="font-mono">2.0.0</code> with the older Tasks types unchanged,
-        so Hangar vendors the wire instead. Advertise and serve exactly what runs.
+    <p class="mt-8 text-center text-sm text-zinc-500 max-w-2xl mx-auto">
+        Nothing here prompts a human. There is no inbox and no &ldquo;click to allow&rdquo;
+        &mdash; decisions come from policy and from the client driving the exchange, which is
+        what keeps an unattended agent unattended.
+        <a href="/docs/guides/GOVERNED_TASKS" class="text-zinc-400 underline decoration-zinc-600 hover:decoration-zinc-400">How it works</a>.
     </p>
 </section>
