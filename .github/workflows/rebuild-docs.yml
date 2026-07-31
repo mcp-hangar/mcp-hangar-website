@@ -46,8 +46,27 @@ jobs:
           node-version: '22'
           cache: 'pnpm'
 
+      # `pnpm update` does NOT re-resolve a github:owner/repo#branch dependency:
+      # it treats the existing lockfile entry as satisfying the specifier and
+      # reports "Already up to date". This step therefore reported success and
+      # changed nothing every night, while the site served docs frozen at the
+      # commit last resolved -- 11 commits and a major release behind by the
+      # time anyone checked. Dropping the resolved entry first forces a real
+      # resolve, and the `git diff` gate below then means what it says.
       - name: Bump @mcp-hangar/docs to latest commit
-        run: pnpm --filter site update @mcp-hangar/docs
+        run: |
+          python3 - <<'EOF'
+          import re, pathlib
+          p = pathlib.Path("pnpm-lock.yaml")
+          t = p.read_text()
+          t = re.sub(r"\n  '@mcp-hangar/docs@[^\n]*':\n(?:    [^\n]*\n)+", "\n", t)
+          t = re.sub(
+              r"(      '@mcp-hangar/docs':\n        specifier: [^\n]*\n)        version: [^\n]*\n",
+              r"\1", t)
+          p.write_text(t)
+          EOF
+          pnpm install --lockfile-only
+          grep -m1 -A2 "'@mcp-hangar/docs':" pnpm-lock.yaml
 
       - name: Commit and push if docs changed
         run: |
