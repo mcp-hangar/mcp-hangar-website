@@ -50,6 +50,18 @@ export const GET: APIRoute = async ({ props }) => {
   // Machines get prose, not diagrams — strip inline SVG from Visual learn pages.
   body = stripSvg(body);
 
+  // Unwrap MDX components. Stripping the import lines above left the tags they
+  // referred to in place, so 7 of 15 learn pages shipped literal
+  // `<Callout variant="note">…</Callout>` to anything reading the markdown.
+  // The content inside a callout is prose worth keeping, so unwrap rather than
+  // delete: opening and closing tags of capitalised components go, their
+  // children stay. Self-closing components carry no prose and are dropped.
+  body = body
+    .replace(/<([A-Z][A-Za-z0-9]*)\b[^>]*\/>\s*/g, '')
+    .replace(/<\/?([A-Z][A-Za-z0-9]*)\b[^>]*>/g, '')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+
   const tags = entry.data.tags?.length ? `\nTags: ${entry.data.tags.join(', ')}` : '';
   const updated = entry.data.updated.toISOString().split('T')[0];
 
@@ -58,7 +70,7 @@ export const GET: APIRoute = async ({ props }) => {
     '',
     `> ${entry.data.description}`,
     '',
-    `Type: ${entry.data.type} | Level: ${entry.data.level} | Time: ${entry.data.time} | Updated: ${updated}${tags}`,
+    `Type: ${entry.data.type} | Level: ${entry.data.level} | Time: ${entry.data.time} | Released: ${entry.data.status === 'ship' ? '1.6.0' : '2.0.0'} | Updated: ${updated}${tags}`,
     `Source: https://mcp-hangar.io/learn/${entry.id}`,
     '',
     '---',

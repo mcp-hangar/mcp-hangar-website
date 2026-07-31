@@ -14,11 +14,36 @@ export async function getStaticPaths() {
 const { doc } = Astro.props;
 const { Content } = await render(doc);
 const currentPath = `/docs/${doc.id}`;
+
+// Derive a description from the body when the frontmatter has none. Without
+// this, 100 of the 101 docs pages shipped the identical placeholder as their
+// meta/og/twitter description, which makes every page look the same to a
+// search engine or an AI summarising the site. Adding frontmatter to a
+// hundred upstream files would drift; deriving it cannot.
+function deriveDescription(body = '') {
+  const text = body
+    .replace(/^---[\s\S]*?---/, '')          // frontmatter
+    .replace(/```[\s\S]*?```/g, '')          // fenced code
+    .replace(/^\s*#\s+.*$/m, '')             // the h1, which the <title> already carries
+    .replace(/^\s*(#{1,6}|>|[-*+]|\d+\.)\s+/gm, '')  // headings, quotes, list markers
+    .replace(/!?\[([^\]]*)\]\([^)]*\)/g, '$1')      // links and images -> their text
+    .replace(/[*_`]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (!text) return null;
+  const cut = text.slice(0, 200);
+  const end = cut.lastIndexOf('. ');
+  const out = (end > 80 ? cut.slice(0, end + 1) : cut).trim();
+  return out.length > 160 ? out.slice(0, 157).trimEnd() + '…' : out;
+}
+
+const description =
+  doc.data.description || deriveDescription(doc.body) || 'MCP Hangar Documentation';
 ---
 
 <DocsLayout
   title={`${doc.data.title} | Docs | MCP Hangar`}
-  description={doc.data.description || 'MCP Hangar Documentation'}
+  description={description}
   path={currentPath}
 >
   <article class="prose prose-invert max-w-none docs-article">

@@ -3,5 +3,8 @@ Allow: /
 
 Sitemap: https://mcp-hangar.io/sitemap.xml
 
-# LLM-friendly documentation index (llmstxt.org standard)
-# See: https://mcp-hangar.io/llms.txt
+# Machine-readable content (llmstxt.org standard).
+#   /llms.txt       index of every page, with a .md URL for each
+#   /llms-full.txt  the documentation inlined in full
+# Every HTML page also has a markdown twin at the same path + ".md",
+# e.g. https://mcp-hangar.io/docs/upgrade.md
