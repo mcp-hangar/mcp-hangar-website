@@ -7,11 +7,13 @@ interface Props {
 const { variant = "note", class: className = "" } = Astro.props;
 
 const variants = {
-    // "Landing in 2.0" preview banner -- amber/warning accent, distinct from
-    // the emerald "shipped" surfaces so it reads as a not-yet/coming signal.
+    // Amber/warning accent for anything that is not yet shipped, so it reads
+    // as a not-yet signal against the emerald "shipped" surfaces. Currently
+    // unused: the task relay it was built for went stable in 2.0.0. Kept for
+    // the next preview rather than re-derived then.
     preview: {
         wrap: "bg-amber-500/[0.06] border-amber-500/20 text-amber-100/90",
-        label: "Landing in 2.0",
+        label: "Not yet shipped",
         labelClass: "bg-amber-500/10 border-amber-500/30 text-amber-300",
         dot: "bg-amber-400",
         showDot: true,

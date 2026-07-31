@@ -88,12 +88,11 @@ the tool-projection registry today, and the field is intent, not behaviour.
 The fence has a time axis, and conflating the two halves is the easiest way to
 build a false assumption into a rollout:
 
-- **Released today** — core `1.6.2` and operator `v0.14.0`: the enforcement plane,
+- **The enforcement plane** — core `1.6.0`+ and operator `v0.14.0`+: the enforcement plane,
   end to end. The L7 egress verdict and the L3/L4 backstop that makes it stick.
-- **Landing in 2.0 (preview)** — the [governed task relay](/learn/relay-with-governance),
-  on the `2.0.0rc3` line built on the v2 SDK. It is real and running on the preview,
-  but it is **not** in `1.6.2`. Plan a rollout on what shipped, not on what is
-  coming.
+- **Shipped in 2.0.0** — the [governed task relay](/learn/relay-with-governance),
+  built on the v2 SDK. It is **not** in the 1.6.x line, so if you are still on
+  1.6.x, plan the rollout as an upgrade rather than a config change.
 
 ## The fence is the feature
 

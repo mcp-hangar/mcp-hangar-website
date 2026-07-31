@@ -56,7 +56,7 @@ const TLABEL: Record<string, string> = {
   Why: 'Deep dive',
   Visual: 'Visual',
 };
-const statusText = (s: string) => (s === 'ship' ? '1.6.0' : 'v2 preview');
+const statusText = (s: string) => (s === 'ship' ? '1.6.0' : '2.0.0');
 ---
 
 <Base
@@ -262,13 +262,13 @@ const statusText = (s: string) => (s === 'ship' ? '1.6.0' : 'v2 preview');
           <div class="asyncrow">
             <button type="button" class="ctl abox" data-theme="async" data-filter="relay-with-governance the-governed-task-relay-flow govern-an-async-task-end-to-end tasks-on-the-v2-sdk" data-active="false">
               <span class="acc"></span>
-              <span class="ah">Task relay <span class="tag v2">v2 preview</span></span>
+              <span class="ah">Task relay <span class="tag v2">2.0.0</span></span>
               <span class="ad">GovernedTaskStore: ownership + digest re-verify</span>
             </button>
             <span class="conn" aria-hidden="true"></span>
             <button type="button" class="ctl abox" data-theme="async" data-filter="mid-flight-consent govern-an-async-task-end-to-end" data-active="false">
               <span class="acc"></span>
-              <span class="ah">Consent gate <span class="tag v2">v2 preview</span></span>
+              <span class="ah">Consent gate <span class="tag v2">2.0.0</span></span>
               <span class="ad">mid-flight input_required · fail-closed</span>
             </button>
           </div>
@@ -302,7 +302,7 @@ const statusText = (s: string) => (s === 'ship' ? '1.6.0' : 'v2 preview');
         <div class="fgroup">
           <span class="lbl">Status</span>
           <button class="chip" data-f="status" data-v="ship">Shipped 1.6.0</button>
-          <button class="chip" data-f="status" data-v="preview">v2 preview</button>
+          <button class="chip" data-f="status" data-v="v2">2.0.0</button>
         </div>
         <span class="count" id="count"></span>
       </div>
@@ -390,7 +390,7 @@ const statusText = (s: string) => (s === 'ship' ? '1.6.0' : 'v2 preview');
 
   /* ---- architecture map ---- */
   /* per-theme accent, reused from the type palette (matches the card rails) */
-  /* Map controls carry NO type-hue. The meaning ("v2 preview", "experimental")
+  /* Map controls carry NO type-hue. The meaning ("2.0.0", "experimental")
      is already in the text badges, and the type palette belongs to the cards +
      legend — so the diagram stays neutral and never competes with it. One neutral
      accent; the brand marks only the active (clicked) control. */

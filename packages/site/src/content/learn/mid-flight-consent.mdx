@@ -5,19 +5,18 @@ type: Concept
 level: Core
 time: "7 min"
 theme: async
-status: preview
+status: v2
 updated: 2026-07-28
 tags: [concepts, consent, tasks, async, governance]
 ---
 
 import Callout from '../../components/Callout.astro';
 
-<Callout variant="preview">
-  **Landing in 2.0.** The gate described here ships on the **v2 preview**
-  (`2.0.0rc3`, built on the stable `mcp==2.0.0`) and is **not** in the released `1.6.2`
-  line, which still rejects any upstream task handle with
-  `TaskRelayNotSupported`. On the preview it is live by default;
-  `relay_tasks_enabled: false` is the per-deployment rollback.
+<Callout variant="note">
+  **Shipped in 2.0.0.** The gate described here is in the released **2.0.0**
+  line and **not** in 1.6.x, which still rejects any upstream task handle with
+  `TaskRelayNotSupported`. It is live by default; `relay_tasks_enabled: false`
+  is the per-deployment rollback.
 
   **This page changed on 2026-07-28.** The gate used to be an interactive
   elicitation -- Hangar asked your client a question mid-poll. On the SEP-2663

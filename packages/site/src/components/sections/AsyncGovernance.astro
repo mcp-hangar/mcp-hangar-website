@@ -6,20 +6,21 @@ import AuditIcon from "../icons/AuditIcon.astro";
 ---
 
 <!--
-  v2-PREVIEW SECTION. Everything described here lands on the v2 preview
-  (prerelease 2.0.0rc3 / mcp==2.0.0), NOT in released 1.6.2. Every visible
-  claim is gated behind the "Landing in 2.0" badge below. Do not remove the
-  badge or re-theme this section to emerald (shipped) without moving the copy
-  to match what actually ships in stable. Grounding: ADR-014, task_relay_handlers.py.
+  Shipped in 2.0.0 (mcp==2.0.0). This section was gated behind an amber
+  "Landing in 2.0" badge while the relay was a preview; the condition that
+  guard set -- copy matching what actually ships in stable -- is now met, so
+  the badge states the release instead of promising one. It is still NOT in
+  the 1.6.x line, which is what the badge has to keep saying.
+  Grounding: ADR-014, task_relay_handlers.py.
 -->
 <section id="async-governance" class="max-w-6xl mx-auto px-6 pb-32">
     <div class="text-center mb-12">
         <div
-            class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-semibold uppercase tracking-wider cursor-default mb-5"
+            class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-semibold uppercase tracking-wider cursor-default mb-5"
             role="status"
         >
-            <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse" aria-hidden="true"/>
-            Landing in 2.0 &middot; v2 preview
+            <span class="w-2 h-2 rounded-full bg-emerald-400" aria-hidden="true"/>
+            Shipped in 2.0.0 &middot; not in 1.6.x
         </div>
         <h2 class="text-sm font-semibold text-zinc-500 uppercase tracking-wider mb-3">
             Governed async tasks
@@ -29,21 +30,22 @@ import AuditIcon from "../icons/AuditIcon.astro";
         </p>
         <p class="text-lg text-zinc-400 max-w-2xl mx-auto mt-4">
             Synchronous <code class="text-zinc-300">tools/call</code> is governed today.
-            Async tasks were the one call-shape left dormant. On the v2 preview Hangar
+            Async tasks were the one call-shape left dormant. From 2.0.0 Hangar
             <em>relays</em> upstream-created tasks and interposes governance on their
             lifecycle &mdash; it does not become an executor. No scheduler, no job runner,
             no result store. The proxy stays a proxy.
         </p>
     </div>
 
-    <!-- Preview banner: this is the honest boundary between shipped and coming. -->
-    <div class="mb-6 p-4 rounded-2xl bg-amber-500/[0.06] border border-amber-500/20 text-center">
-        <p class="text-sm text-amber-200/90">
-            Not in stable <span class="font-mono">v1.6.2</span>. This is the v2 preview
-            (<span class="font-mono">2.0.0rc3</span> / <span class="font-mono">mcp==2.0.0</span>),
-            per <a href="/docs/adr/adr-014-tasks-relay-with-governance" class="underline decoration-amber-400/40 hover:decoration-amber-400">ADR-014</a>.
-            The seam is activated on the v2 preview; the relay still engages per-upstream
-            only on an upstream&rsquo;s first real task.
+    <!-- Version boundary: shipped in 2.0.0, absent from 1.6.x. -->
+    <div class="mb-6 p-4 rounded-2xl bg-zinc-500/[0.06] border border-zinc-500/20 text-center">
+        <p class="text-sm text-zinc-300/90">
+            Shipped in <span class="font-mono">2.0.0</span>
+            (<span class="font-mono">mcp==2.0.0</span>), per
+            <a href="/docs/adr/adr-014-tasks-relay-with-governance" class="underline decoration-zinc-400/40 hover:decoration-zinc-300">ADR-014</a>.
+            Not in the <span class="font-mono">1.6.x</span> line. The seam is
+            activated by default; the relay still engages per-upstream only on an
+            upstream&rsquo;s first real task.
         </p>
     </div>
 

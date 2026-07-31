@@ -32,7 +32,7 @@ const TLABEL: Record<string, string> = {
 };
 const { type, level, time, status } = entry.data;
 const typeColor = TC[type];
-const statusLabel = status === 'ship' ? 'Shipped 1.6.0' : 'v2 preview';
+const statusLabel = status === 'ship' ? 'Shipped 1.6.0' : 'Shipped 2.0.0';
 ---
 
 <Base
@@ -67,7 +67,7 @@ const statusLabel = status === 'ship' ? 'Shipped 1.6.0' : 'v2 preview';
               'ml-auto px-2 py-0.5 rounded font-semibold',
               status === 'ship'
                 ? 'bg-emerald-500/10 text-emerald-400'
-                : 'bg-amber-500/10 text-amber-400',
+                : 'bg-sky-500/10 text-sky-400',
             ]}
           >
             {statusLabel}
