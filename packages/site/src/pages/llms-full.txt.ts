@@ -10,9 +10,38 @@ interface DocEntry {
   body?: string;
 }
 
+// Resolve a repo-relative markdown link against the document that contains it.
+// The dump is flat, so `../upgrade.md` and `AUTHENTICATION.md` mean nothing to
+// whoever reads it — 138 of the links in this file were unresolvable before
+// this existed. Everything becomes an absolute URL that can actually be
+// fetched; anything already absolute is left alone.
+function absolutise(body: string, docId: string): string {
+  const dir = docId.includes('/') ? docId.slice(0, docId.lastIndexOf('/')) : '';
+  const resolve = (target: string): string => {
+    const segments = (dir ? dir.split('/') : []).concat(target.split('/'));
+    const out: string[] = [];
+    for (const s of segments) {
+      if (s === '' || s === '.') continue;
+      if (s === '..') out.pop();
+      else out.push(s);
+    }
+    return out.join('/');
+  };
+  return body.replace(/\]\(([^)\s]+?)(#[^)\s]*)?\)/g, (whole, target: string, hash = '') => {
+    if (/^(https?:|mailto:|#)/.test(target)) return whole;
+    if (target.startsWith('/')) return `](${SITE}${target}${hash})`;
+    // Extension-less relative targets are docs paths too (`reference/configuration`).
+    // Anything carrying a different extension is left alone rather than guessed at.
+    const looksLikeDoc = target.endsWith('.md') || !/\.[a-z0-9]+$/i.test(target);
+    if (!looksLikeDoc) return whole;
+    return `](${SITE}/docs/${resolve(target).replace(/\.md$/, '')}.md${hash})`;
+  });
+}
+
 function cleanBody(doc: DocEntry): string {
   // Strip the leading h1 and any inline SVG — machine output is prose, no diagrams.
-  return stripSvg((doc.body || '').replace(/^#\s+.+\n*/, '').trim());
+  const body = stripSvg((doc.body || '').replace(/^#\s+.+\n*/, '').trim());
+  return absolutise(body, doc.id);
 }
 
 function renderSection(title: string, entries: DocEntry[]): string {

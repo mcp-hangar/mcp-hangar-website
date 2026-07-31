@@ -4,10 +4,29 @@ import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 
+const SITE_URL = 'https://mcp-hangar.io';
+
 export default defineConfig({
-  site: 'https://mcp-hangar.io',
+  site: SITE_URL,
   output: 'static',
-  integrations: [react(), mdx(), sitemap()],
+  integrations: [
+    react(),
+    mdx(),
+    // Strip the trailing slash the sitemap would otherwise emit. This is not
+    // cosmetic: vercel.json sets `trailingSlash: false`, so every canonical
+    // and og:url on the site is slash-less, and Vercel 308-redirects the
+    // slashed form. Without this the sitemap advertised 136 URLs that each
+    // redirected, and disagreed with the canonical tag on the page it pointed
+    // at. Done in `serialize` rather than with a `trailingSlash` option --
+    // this integration version rejects that key, and rejecting it makes it
+    // emit no sitemap at all rather than falling back.
+    sitemap({
+      serialize(item) {
+        if (item.url !== SITE_URL + '/') item.url = item.url.replace(/\/$/, '');
+        return item;
+      },
+    }),
+  ],
   markdown: {
     shikiConfig: {
       theme: 'github-dark',

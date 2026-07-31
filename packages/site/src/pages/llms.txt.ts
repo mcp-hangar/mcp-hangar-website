@@ -69,6 +69,8 @@ export const GET: APIRoute = async () => {
 - Task relay-with-governance (ADR-014) shipped in 2.0.0; it is not in the 1.6.x line
 - GitHub: https://github.com/mcp-hangar/mcp-hangar
 - Website: ${SITE}
+- Full documentation inlined for machines: ${SITE}/llms-full.txt
+- Every page below also exists as markdown at the same path + ".md"
 
 ## Getting Started
 
