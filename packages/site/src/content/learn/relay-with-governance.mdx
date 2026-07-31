@@ -8,16 +8,14 @@ type: Concept
 level: Deep
 time: "10 min"
 theme: async
-status: preview
+status: v2
 ---
 
 import Callout from '../../components/Callout.astro';
 
-<Callout variant="preview">
-  **Landing in 2.0.** Everything on this page describes the governed task relay
-  on the **v2 preview** (`2.0.0rc3`, built on the stable `mcp==2.0.0`). It is **not** in
-  the released `1.6.2` line. Where the text says a handler serves or a gate
-  fires, read it as "on the v2 preview" -- today, released Hangar still cleanly
+<Callout variant="note">
+  **Shipped in 2.0.0.** Everything on this page describes the governed task
+  relay as released in **2.0.0**. It is **not** in 1.6.x, which still cleanly
   rejects upstream task handles with `TaskRelayNotSupported`.
 </Callout>
 
@@ -156,7 +154,7 @@ authorization model -- it reused the one that was already load-bearing.
 
 ## The three serving handlers
 
-On the v2 preview, a client follows up on a relayed task through four native
+On 2.0.0, a client follows up on a relayed task through four native
 `tasks/*` handlers, each fail-closed and upstream-truthful:
 
 | Handler | What it does | The governance in it |
@@ -277,7 +275,7 @@ DigestMismatchInTask # the async supply-chain event
 ```
 
 Six events, and the code path emits exactly these six. ADR-014's Decision 3 also
-names a `TaskInputRequired` transition in the lifecycle set, but on the v2 preview
+names a `TaskInputRequired` transition in the lifecycle set, but on 2.0.0
 that event is defined and metered, not emitted -- an `input_required` status is
 handled inline by the consent gate above, and the decision it produces is what
 lands on the chain as `TaskConsentDecided`. Every *emitted* transition of a

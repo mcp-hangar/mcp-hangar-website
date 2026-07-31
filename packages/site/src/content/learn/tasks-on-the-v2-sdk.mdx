@@ -8,17 +8,16 @@ type: Concept
 level: Deep
 time: "8 min"
 theme: async
-status: preview
+status: v2
 ---
 
 import Callout from '../../components/Callout.astro';
 
-<Callout variant="preview">
-  **Landing in 2.0.** Everything on this page describes the **v2 preview**
-  (`2.0.0rc3`, built on the stable `mcp==2.0.0`). It is **not** in the released `1.6.2`
-  line, and none of it is GA. Where the text says Hangar negotiates or serves a
-  task capability, read it as "on the v2 preview" -- today, released Hangar still
-  cleanly rejects upstream task handles with `TaskRelayNotSupported`.
+<Callout variant="note">
+  **Shipped in 2.0.0.** Everything on this page describes the released
+  **2.0.0** line, built on the stable `mcp==2.0.0`. It is **not** in 1.6.x,
+  which still cleanly rejects upstream task handles with
+  `TaskRelayNotSupported`.
 </Callout>
 
 # MCP on the v2 SDK: Tasks as a negotiated capability
@@ -119,7 +118,7 @@ stays a proxy; it just finally has a stable contract to govern across.
 ADR-008 gated the relay build on **two** triggers: a real upstream emitting
 tasks, *and* the task API graduating out of experimental. The second trigger was
 outside anyone's control -- it was the SDK's to grant. `mcp==2.0.0` granting it
-is why the relay seam ships on the v2 preview now and not a quarter ago. The
+is why the relay seam ships in 2.0.0 now and not a quarter ago. The
 governance was never the bottleneck. The *negotiability* of the thing it governs
 was.
 
@@ -128,4 +127,4 @@ was.
 *Grounded in [ADR-014](/docs/adr/ADR-014-tasks-relay-with-governance) (relay-with-governance)
 and the SDK v2 migration (`mcp==2.0.0`), with the SEP-2663 wire vendored per
 [ADR-015](/docs/adr/ADR-015-vendored-task-wire). Everything is MIT and
-self-hosted -- no SaaS. Preview only; not in released `1.6.2`.*
+self-hosted -- no SaaS. Shipped in `2.0.0`; not in the 1.6.x line.*

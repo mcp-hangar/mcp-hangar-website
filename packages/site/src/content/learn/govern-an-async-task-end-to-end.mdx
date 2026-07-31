@@ -5,20 +5,18 @@ type: Tutorial
 level: Core
 time: "15 min"
 theme: async
-status: preview
+status: v2
 updated: 2026-07-22
 tags: [tutorial, tasks, async, consent, governance]
 ---
 
 import Callout from '../../components/Callout.astro';
 
-<Callout variant="preview">
-  **Landing in 2.0.** This walkthrough runs on the **v2 preview** (`2.0.0rc3`,
-  built on the stable `mcp==2.0.0`). Governed task relay is **not** in the released
-  `1.6.2` line -- on `1.6.2` an upstream task handle is still cleanly rejected
-  with `TaskRelayNotSupported`. Everything below is real on the preview and
-  **not** a GA promise. Where a step says a handler serves or the gate fires,
-  read it as "on the v2 preview."
+<Callout variant="note">
+  **Shipped in 2.0.0.** This walkthrough runs on the released **2.0.0** line.
+  Governed task relay is **not** in 1.6.x -- there an upstream task handle is
+  still cleanly rejected with `TaskRelayNotSupported`. It is live by default;
+  `relay_tasks_enabled: false` is the per-deployment rollback.
 </Callout>
 
 # Govern an async task end-to-end
@@ -43,7 +41,7 @@ you have connected.
 
 ## Before you start
 
-You need the v2 preview build, one upstream that answers a tool call with a
+You need 2.0.0 or newer, one upstream that answers a tool call with a
 task, and a client that can actually reach this surface. That last one is a real
 constraint, not a formality:
 
@@ -57,7 +55,7 @@ constraint, not a formality:
   enforces presence, not just agreement. A missing or contradictory header is
   `-32020`.
 
-`relay_tasks_enabled` is live by default on the preview; set it to `false` for a
+`relay_tasks_enabled` is live by default; set it to `false` for a
 per-deployment rollback. It was briefly off after the surface was found
 advertising a wire it did not serve, and went back on once that wire was served
 and verified end to end -- which is the thing worth checking before ever moving
@@ -296,5 +294,5 @@ bridge. It relayed and it governed. The proxy stayed a proxy.
 *Grounded in [ADR-014](/docs/adr/ADR-014-tasks-relay-with-governance)
 (relay-with-governance), building on [ADR-002](/docs/adr/ADR-002-event-sourcing)
 (the provenance chain) and [ADR-004](/docs/adr/ADR-004-sep-1766-digest-pinning) (digest
-pinning). v2 preview (`2.0.0rc3`, `mcp==2.0.0`); everything is MIT and
+pinning). Shipped in `2.0.0` (`mcp==2.0.0`); everything is MIT and
 self-hosted -- no SaaS.*

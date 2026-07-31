@@ -28,7 +28,7 @@ const learn = defineCollection({
     level: z.enum(['Intro', 'Core', 'Deep']),
     time: z.string(),
     theme: z.enum(['foundations', 'enforcement', 'async', 'observability']),
-    status: z.enum(['ship', 'preview']),
+    status: z.enum(['ship', 'v2']),
   }),
 });
 
