@@ -1,0 +1,113 @@
+---
+title: "The Fossil Record"
+date: 2026-07-31
+author: MCP Hangar Team
+description: "A symbol in the reference SDK with the right name, the right docstring, and the wrong shape. Why the tasks fossil in stable mcp-types is deliberate rather than forgotten, why hasattr is not feature detection, and the ninety-second habit that catches the whole class."
+tags: [mcp, sdk, protocol, governance]
+---
+
+# The Fossil Record
+
+A symbol exists in the reference SDK. You import it. It has the right name, the right docstring, and the right general shape. You build on it.
+
+It means nothing. It is a fossil — the impression of a protocol revision that died, pressed into a type system that nobody remembered to clear out.
+
+This is a short piece about one instance of that, and about the ninety-second habit that catches the entire class.
+
+## The specific fossil
+
+The MCP tasks extension was reshaped between SEP-1686 and SEP-2663. Not tweaked — reshaped, in a way that is wire-incompatible end to end:
+
+| | SEP-1686 (dead) | SEP-2663 (current) |
+|---|---|---|
+| `CreateTaskResult` | nested `{_meta, task}` | flat, with `resultType: "task"` |
+| TTL field | `ttl` | `ttlMs` |
+| Poll interval | `pollInterval` | `pollIntervalMs` |
+| `tasks/result` | present | removed — `-32601` |
+
+Now go install `mcp-types` 2.0.0. Not a beta. Not a release candidate. The stable distribution, published alongside a stable SDK that implements the 2026-07-28 core revision correctly — `resultType`, MRTR, `server/discover`, all of it.
+
+The task types in it are the SEP-1686 shape. Nested result. `ttl`. `pollInterval`. The request type for `tasks/result` is still there — a method the current revision deleted, its type sitting in the package like a light left on in an empty house.
+
+Except that the light was left on deliberately, and this is where my first draft of this post was wrong.
+
+The mechanism took two PRs, two weeks apart. `python-sdk#2714`, merged 2 June, removed the tasks implementation **and** the types. A clean removal — nothing forgotten, nothing left behind. Then `python-sdk#2849`, merged 16 June — the regeneration of the protocol types for the 2026-07-28 revision — put the types back. On purpose, types-only, and it says so in `src/mcp/types/_types.py`:
+
+> Tasks: introduced in 2025-11-25, removed from the core spec in 2026-07-28 (continuing as an extension). Defined here types-only; their methods are not in the request/notification unions below, so they are never dispatched.
+
+That is a better fact than the one I went looking for, and it makes the argument sharper rather than softer. Nobody left a light on. The fossil is intentional, documented, and correct on its own terms: the types are carried for the 2025-11-25 generation and deliberately wired to no dispatcher, exactly as the comment says. And none of that helps me, because `hasattr` cannot read a comment. The symbol is present. It answers `True`. The shape behind it is the dead one. A fossil somebody forgot to clean up is an oversight you can file a bug against; a fossil that is deliberate, documented and permanent is a property of the package you have to program around forever.
+
+The live vocabulary is somewhere else entirely. `python-sdk#3005` — still open as I write this — introduces tasks *as an extension*, which is the first time they have been one: the SEP-1686 tasks it replaces were in the core spec, never an extension. It defines its own task models rather than importing the ones already sitting in the package. It has to. They describe a different wire. What it does import from `mcp_types` is the generic scaffolding — `Request`, `RequestParams`, `Result` — the parts that are about JSON-RPC rather than about tasks.
+
+So the stable package ships exactly one task vocabulary, and it is the inert one. The live one is in an unmerged pull request. Installing the SDK gets you the fossil by default, and nothing at the import site tells you which one you got.
+
+## Why `hasattr` is not feature detection
+
+Here is the part that generalises, and the reason I am writing this down instead of quietly fixing it and moving on.
+
+I had forward-compatibility flags in a `_sdk_compat` module. `HAS_LIST_TASKS`. `HAS_TASKS_UPDATE`. Each one a `hasattr` against the SDK's type namespace, each one sitting there patiently waiting to flip to `True` when the ecosystem caught up.
+
+They will never flip. Not because the feature never lands — it probably will — but because **types of this kind do not evolve in place**. When the new tasks extension merges, it will not mutate `CreateTaskResult` from nested to flat. It will introduce its own models in its own module, which is precisely what `#3005` does. The symbol I am probing will keep existing, keep having the wrong shape, and keep answering `True` to a question I never actually asked.
+
+`hasattr(sdk, "CreateTaskResult")` asks: *does this package contain a symbol with this name?*
+
+I thought I was asking: *does this package speak the protocol revision I am targeting?*
+
+Those questions have nothing to do with each other. A symbol's presence tells you about the package's git history, not about the wire. In a fast-moving protocol, git history and wire format diverge constantly, and the gap between them is exactly where a package with a dead layer in it looks identical to a package with a live one.
+
+## The ninety-second habit
+
+The fix is not clever and it does not scale into a principle you can put on a slide. It is a habit, and it costs about ninety seconds:
+
+> Before building anything on a type from someone else's SDK, dump its **actual shape** — `model_fields`, `__annotations__`, whatever your ecosystem gives you — and diff that against the spec **and** against the pull request that implements it.
+
+Not the release notes. Not the changelog. Not the summary paragraph at the top of the docs site. Those are prose about the artifact, written by a human under deadline, and prose is the first thing to fall out of sync.
+
+The artifact does not lie about its own shape. It has no capacity to.
+
+I have been describing this internally as *artifact over summary*, and I keep finding new places it applies. Release notes are a summary of a diff. A changelog is a summary of a release. A docs page is a summary of a changelog. Every layer is one more opportunity for the description to stop tracking the thing described — and every layer is faster and cheaper to read than the thing itself, which is precisely why it wins by default.
+
+## The same failure, one level up
+
+While I was working through this, upstream produced a second instance of the same bug — in prose this time, which is a satisfying kind of symmetry.
+
+The finalised text of the tasks SEP specified error code `-32003` for a missing task capability. The core schema said `-32021`. The changelog records the renumbering: the codes moved, the schema moved with them, and the SEP prose kept the old number. Four occurrences of a fossil — lines 89, 97, 467 and 797 of `seps/2663-tasks-extension.md` — in a document marked Final.
+
+I had shipped `-32021`. Not through diligence, or foresight, or a better process — I had simply implemented against `schema.ts` instead of against the SEP text, because the schema is the artifact and the SEP is the description of it. The habit picked the right source without me having to be smart about it, which is the only kind of discipline that survives contact with a Friday afternoon.
+
+Upstream fixed it two days ago. `modelcontextprotocol#3116`, from a human contributor, editing the SEP source directly — and its rendered docs page, `docs/seps/2663-tasks-extension.mdx`, alongside it. Four occurrences corrected in each. Merged 2026-07-29 at 21:58:29Z.
+
+Forty-seven minutes later, a second PR merged that stamped every finalised SEP with a banner declaring it a historical record, and rewrote the contribution guidelines to say that final SEPs are not updated after finalisation.
+
+So the correction landed with three quarters of an hour to spare before the door it came through was closed. Every remaining fossil in every finalised SEP is now, by policy, permanent. Which is a defensible governance decision — finality means something, and a spec that keeps shifting under implementers is worse than one with known errata. It just means the schema is now unambiguously the source of truth and the prose is unambiguously commentary, and anyone still implementing from the prose is implementing from a snapshot with no correction path.
+
+Read the schema. Read the wire. Read the type.
+
+## What we did about it
+
+The concrete resolution, in the intermediary I maintain: the task wire types are now **vendored**. A local module owns the SEP-2663 shapes — flat result, `resultType`, `ttlMs`, `pollIntervalMs` — and the serialisation path imports exclusively from there.
+
+No task type from the SDK's namespace reaches the wire any more. Every result the serving path hands back is a vendored shape. The one place the fossil survives is inward-facing, and it is worth naming rather than rounding off: the governance ledger still *stores* snapshots as the SEP-1686 `mcp_types.Task`, and projects them into the SEP-2663 result at the serving boundary. That projection is a pure rename — the fossil already documents `ttl` as a retention duration in milliseconds and `poll_interval` as a suggested polling interval in milliseconds, which is exactly what `ttlMs` and `pollIntervalMs` mean — and moving the ledger onto the vendored type is a separate change. The honest claim is that the fossil is off the wire, not that it is out of the process.
+
+The methods that the current revision removes are unregistered rather than left responding, and a client that asks for one without negotiating the capability gets `-32021` with the required capabilities named, rather than a generic method-not-found that tells it nothing about how to recover.
+
+Vendoring a dependency's types is normally a smell. Here it is the only honest option: the package's types and the package's protocol target genuinely disagree, and picking one means picking the one the wire uses.
+
+That work is in [mcp-hangar](https://mcp-hangar.io) 2.0.0, released today: a plain `pip install mcp-hangar` now gets you the stable SDK, the 2026-07-28 revision, and the vendored wire. Getting from a beta SDK to stable took a single rebuild — not because the betas were safe, but because the migration happened early and cheap assertions caught each delta the moment it appeared.
+
+Which is the actual moral, and it is not "slow down". Moving early onto a pre-release dependency was correct and I would do it again. The risk in moving fast was never the speed — it was **detection latency**, the gap between a dependency changing shape underneath you and you finding out. You close that gap with cheap assertions that fail loudly, not by waiting for someone else to declare it safe.
+
+Ninety seconds. `model_fields`. Diff it against the spec and against the PR.
+
+The fossils are already in the package. They are not going to announce themselves.
+
+## References
+
+- [`python-sdk#2714`](https://github.com/modelcontextprotocol/python-sdk/pull/2714) — removed the tasks implementation and its types
+- [`python-sdk#2849`](https://github.com/modelcontextprotocol/python-sdk/pull/2849) — the 2026-07-28 protocol-types regeneration that restored them, deliberately types-only
+- [`python-sdk#3005`](https://github.com/modelcontextprotocol/python-sdk/pull/3005) — tasks as an extension, still open
+- [`modelcontextprotocol#3116`](https://github.com/modelcontextprotocol/modelcontextprotocol/pull/3116) — the `-32003` → `-32021` errata fix in the SEP source and its docs page
+- [SEP-2663 — MCP Tasks](https://github.com/modelcontextprotocol/modelcontextprotocol)
+- ADR-015 — the vendored SEP-2663 wire, and the rule that bars `mcp_types.Task*` from any serving path
+
+*Source: [github.com/mcp-hangar/mcp-hangar](https://github.com/mcp-hangar/mcp-hangar).*
