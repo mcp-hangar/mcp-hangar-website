@@ -273,14 +273,14 @@ const statusText = (s: string) => (s === 'ship' ? '1.6.0' : '2.0.0');
             </button>
           </div>
           <div class="asyncnote">
-            ADR-014 · not in the stable 1.6.x line · relay off → clean <code>TaskRelayNotSupported</code>.
+            ADR-014 · shipped in 2.0.0, not in the 1.6.x line · relay off → clean <code>TaskRelayNotSupported</code>.
           </div>
         </div>
 
         <!-- cross-cutting audit band, spanning under the per-request path -->
         <button type="button" class="ctl auditband" data-theme="observability" data-filter="governance-observability" data-active="false">
           <span class="ab-l">Audit &amp; observability</span>
-          <span class="ab-r">cross-cutting under the per-request path — domain events + OTel spans at every governed step · v1.6.0 (relay task events v2-preview)</span>
+          <span class="ab-r">cross-cutting under the per-request path — domain events + OTel spans at every governed step · v1.6.0 (relay task events in 2.0.0)</span>
         </button>
       </section>
 
@@ -623,6 +623,7 @@ const statusText = (s: string) => (s === 'ship' ? '1.6.0' : '2.0.0');
   .learn-hub .card .meta .sep { width: 3px; height: 3px; border-radius: 50%; background: var(--faint); }
   .learn-hub .pill { font-size: 10.5px; font-weight: 700; padding: 2px 7px; border-radius: 5px; letter-spacing: .02em; margin-left: auto; }
   .learn-hub .pill.ship { background: var(--ship-bg); color: var(--ship); }
+  /* Kept for a future preview; the task relay it was built for shipped in 2.0.0. */
   .learn-hub .pill.preview { background: var(--preview-bg); color: var(--preview); }
   .learn-hub .card.hidden { display: none; }
   .learn-hub .empty { grid-column: 1 / -1; text-align: center; color: var(--faint); padding: 40px; font-size: 14px; }
