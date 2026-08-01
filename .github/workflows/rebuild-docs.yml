@@ -1,9 +1,17 @@
 name: Rebuild on Docs Update
 
-# Bumps the @mcp-hangar/docs lockfile entry to the latest docs commit and
-# pushes, which triggers a Vercel rebuild with the new docs. A plain empty
-# commit is NOT enough: pnpm-lock.yaml pins the docs tarball to a specific
-# commit, so without updating the lockfile the rebuild ships stale docs.
+# Re-pins the @mcp-hangar/docs lockfile entry to the latest docs commit so a
+# Vercel rebuild ships current docs. pnpm-lock.yaml pins the docs tarball to a
+# specific commit, so a plain empty commit is not enough -- the lockfile itself
+# must move.
+#
+# This runs as a PULL REQUEST, not a direct push. `main` is protected (PRs
+# required, `build-and-test` must pass), so the old `git push` to main was
+# rejected every night with GH006 -- the bump ran, produced a changed lockfile,
+# and then could not land it, which is how the site served docs eight commits
+# stale. Opening a PR lets the required check run and the change land the only
+# way main accepts changes. Uses the release-bot app token when configured so
+# the PR's checks trigger (a GITHUB_TOKEN-authored PR does not trigger them).
 #
 # Trigger from the main mcp-hangar repo on docs changes:
 #
@@ -18,23 +26,37 @@ on:
   repository_dispatch:
     types: [docs-updated]
 
-  # Daily rebuild to catch docs changes
+  # Daily catch-up for docs changes
   schedule:
     - cron: '0 4 * * *'
 
   workflow_dispatch:
 
+permissions:
+  contents: write
+  pull-requests: write
+
+env:
+  # If an App-token secret is configured, open the PR with it so its checks run;
+  # otherwise fall back to GITHUB_TOKEN (the PR still opens, for a human to merge).
+  RELEASE_BOT_APP_ID: ${{ secrets.RELEASE_BOT_APP_ID }}
+
 jobs:
   bump-docs:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
 
     steps:
+      - uses: actions/create-github-app-token@v3
+        id: app-token
+        if: ${{ env.RELEASE_BOT_APP_ID != '' }}
+        with:
+          app-id: ${{ secrets.RELEASE_BOT_APP_ID }}
+          private-key: ${{ secrets.RELEASE_BOT_PRIVATE_KEY }}
+
       - name: Checkout
         uses: actions/checkout@v7
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ steps.app-token.outputs.token || secrets.GITHUB_TOKEN }}
 
       - uses: pnpm/action-setup@v6
         with:
@@ -48,11 +70,8 @@ jobs:
 
       # `pnpm update` does NOT re-resolve a github:owner/repo#branch dependency:
       # it treats the existing lockfile entry as satisfying the specifier and
-      # reports "Already up to date". This step therefore reported success and
-      # changed nothing every night, while the site served docs frozen at the
-      # commit last resolved -- 11 commits and a major release behind by the
-      # time anyone checked. Dropping the resolved entry first forces a real
-      # resolve, and the `git diff` gate below then means what it says.
+      # reports "Already up to date". Dropping the resolved entry first forces a
+      # real resolve, so the `git diff` gate below means what it says.
       - name: Bump @mcp-hangar/docs to latest commit
         run: |
           python3 - <<'EOF'
@@ -68,14 +87,18 @@ jobs:
           pnpm install --lockfile-only
           grep -m1 -A2 "'@mcp-hangar/docs':" pnpm-lock.yaml
 
-      - name: Commit and push if docs changed
-        run: |
-          if git diff --quiet -- pnpm-lock.yaml; then
-            echo "Docs already up to date — nothing to rebuild."
-            exit 0
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add pnpm-lock.yaml
-          git commit -m "chore: bump docs to latest [skip ci]"
-          git push
+      - name: Open PR if the docs pin moved
+        uses: peter-evans/create-pull-request@v8
+        with:
+          token: ${{ steps.app-token.outputs.token || secrets.GITHUB_TOKEN }}
+          branch: chore/rebuild-docs-pin
+          delete-branch: true
+          add-paths: pnpm-lock.yaml
+          commit-message: "chore(site): bump docs pin to latest"
+          title: "chore(site): bump docs pin to latest"
+          body: |
+            Automated by `rebuild-docs` -- re-pins `@mcp-hangar/docs` in `pnpm-lock.yaml`
+            to the latest docs `main` so the deployed site serves current documentation.
+
+            Merging this triggers a Vercel rebuild with the new docs. If `pnpm-lock.yaml`
+            is unchanged the pin was already current and no PR is opened.
