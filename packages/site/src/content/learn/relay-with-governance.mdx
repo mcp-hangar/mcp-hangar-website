@@ -255,14 +255,14 @@ went live.
 
 That is the shape of the whole gate: a decision is taken first, the gate opens
 only on an explicit yes, and every path that isn't an explicit yes terminates the
-task in the safe direction and leaves a signed line in the provenance chain. It
+task in the safe direction and leaves an attributed line in the provenance record. It
 is the one place in Hangar where governance stops and *asks* -- and even there, it
 refuses to guess.
 
 ## The provenance chain closes over async
 
 String these events together and you get the point of the whole exercise. Every
-lifecycle transition of a relayed task is an append-only event keyed on `task_id`,
+lifecycle transition of a relayed task emits an event keyed on `task_id`,
 carrying `tenant_id` and `correlation_id`:
 
 ```
