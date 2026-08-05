@@ -30,7 +30,7 @@ This is a hands-on tour of what Hangar does with that promise. Hangar
 proxy seam that already governs synchronous calls -- it never runs the task,
 never schedules it, never stores its result. You will mint a task, follow it up,
 answer a mid-flight input request, read a digest-checked result off the poll,
-and read the decision back off the provenance chain.
+and follow the decision through the events it emits.
 
 Every method below is a real wire call from the SEP-2663 set -- `tasks/get`,
 `tasks/update`, `tasks/cancel`. There are only three: the SEP removes
@@ -256,8 +256,8 @@ fetches it on your behalf so the inline field is populated either way.
 
 ## Step 7 -- Read the decision back
 
-Every transition you just drove is an append-only, `task_id`-keyed event on the
-provenance chain, each carrying `tenant_id` and `correlation_id`:
+Every transition you just drove emits a `task_id`-keyed event, each carrying
+`tenant_id` and `correlation_id`:
 
 ```text
 TaskCreated          # step 3 -- at relay time, before the handle reached you
@@ -283,7 +283,8 @@ object the instant it was relayed; you followed it up through owner-scoped,
 upstream-truthful handlers; you answered a mid-flight input request through the
 governed `tasks/update` and had that decision recorded; you read a result off the
 poll that was re-checked against its pinned contract before it was handed over;
-and you read the whole story back off an append-only provenance chain.
+and every step of it emitted an attributed event your telemetry backend can
+stitch back together.
 
 And Hangar took on no executor liabilities to do it: no scheduler, no result
 store, no GC correctness, no cancellation-race ownership, no worker-to-main-loop

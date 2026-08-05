@@ -70,7 +70,7 @@ control fire at the seam, and follow the result back up.
   
   <line x1="180" y1="452" x2="580" y2="452" stroke="currentColor" stroke-width="1" stroke-dasharray="3 3" opacity="0.5"/>
   <text x="380" y="474" text-anchor="middle" font-size="12" fill="currentColor" opacity="0.8">Every verdict is deterministic — no scores, no heuristics —</text>
-  <text x="380" y="491" text-anchor="middle" font-size="12" fill="currentColor" opacity="0.8">and written to the append-only provenance chain.</text>
+  <text x="380" y="491" text-anchor="middle" font-size="12" fill="currentColor" opacity="0.8">and recorded as an attributed governance event.</text>
   <text x="380" y="527" text-anchor="middle" font-size="13" fill="currentColor" font-weight="600">Allowed calls are relayed, untouched, to the owner.</text>
 
   
@@ -138,8 +138,8 @@ owns execution.
 **The return trip.** The result comes back up the same seam: output is scanned and
 secret values are redacted, reusing the redactor's deterministic value-patterns —
 the same ones argument scanning refuses on the way in, plus one inbound-only PEM
-addition the redactor does not carry — and the governed result is written to the
-append-only provenance chain. So most of what the redactor masks on the way out is
+addition the redactor does not carry — and the governed result is recorded as a
+governance event. So most of what the redactor masks on the way out is
 what a policy refuses on the way in — largely one set of rules, both directions. (A
 call the policy *denies* raises `EgressPolicyDeniedError` before it reaches the wire,
 short-circuiting this return trip.)
