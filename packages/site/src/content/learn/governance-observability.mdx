@@ -1,6 +1,6 @@
 ---
 title: "Governance observability"
-description: "OTel GenAI/MCP semconv spans and an identity-attributed, append-only audit chain over every governed call."
+description: "OTel GenAI/MCP semconv spans and an identity-attributed audit record exported to OTLP and your SIEM over every governed call."
 type: Concept
 level: Core
 time: "6 min"
@@ -17,12 +17,13 @@ question the moment after: *how do you know it decided that?* An enforcement
 plane you cannot see through is not an enforcement plane -- it is a claim. So
 Hangar treats observability as part of the governance surface, not a bolt-on.
 Every governed call leaves two traces: a live OpenTelemetry span you watch in
-real time, and an append-only audit event that is attributed to the identity
-that made the call and survives long after the trace has aged out.
+real time, and an audit record attributed to the identity that made the call,
+exported to your telemetry and SIEM backends rather than kept only for the
+lifetime of a trace.
 
 The two surfaces answer different questions. The span answers *what is
 happening right now* -- latency, errors, which upstream, which verdict. The
-audit chain answers *what happened, who did it, and under which contract* --
+audit record answers *what happened, who did it, and under which contract* --
 the forensic record. They share one spine: the same identity that authorizes
 the call names the span and signs the audit line.
 
@@ -65,13 +66,20 @@ latency, and health-check series, and two telemetry-health alerts --
 page you when the observability pipeline itself breaks. The instrument that
 watches everything else is also watched.
 
-## An audit chain, not a log stream
+## An attributed audit record, not a log line
 
-Spans expire. The audit surface does not. Security-relevant domain events --
-`ToolInvocationCompleted`, `ToolInvocationFailed`, `McpServerStateChanged` --
-are emitted onto an append-only, event-sourced chain (the same event-sourcing
-spine the rest of the platform is built on) and exported as OTLP log records
-whenever `OTEL_EXPORTER_OTLP_ENDPOINT` is set, with no extra configuration.
+Spans expire, and they sample. Audit records do neither. Security-relevant
+domain events -- `ToolInvocationCompleted`, `ToolInvocationFailed`,
+`McpServerStateChanged` -- are exported as OTLP log records whenever
+`OTEL_EXPORTER_OTLP_ENDPOINT` is set, with no extra configuration, and to your
+SIEM in the formats below. Retention is your collector's, which means it is
+governed by the policy you already run for security telemetry.
+
+What that does *not* yet include is a durable event stream inside Hangar
+itself. Aggregate state is persisted as state, not as an append-only chain, so
+the guarantee on offer today is delivery and attribution rather than local
+replay. The event-sourced spine is being wired now, deliberately and in the
+open; until it is, this page describes what ships.
 
 Every record is *attributed*. Caller identity -- `mcp.caller.type`,
 `mcp.caller.id`, `mcp.caller.roles` -- is propagated from the call's identity
@@ -83,7 +91,7 @@ audit trail can never shrug and say it does not know who did it.
 
 ## It lands where your SIEM already lives
 
-Append-only and identity-attributed only matters if the record reaches the
+Identity attribution only matters if the record reaches the
 system your security team already runs. Beyond OTLP, Hangar ships audit
 exporters that all implement one `IAuditExporter` protocol and write to file,
 callback, or stderr for container log collection:
@@ -100,18 +108,18 @@ environment-variable reference and the exporter wiring for each format.
 
 ## Deterministic by design
 
-One thing you will not find on a Hangar span or in its audit chain is an
+One thing you will not find on a Hangar span or in its audit record is an
 anomaly score. Enforcement is deterministic -- glob-matched tool rules,
 named secret-pattern groups, size limits, digest pins -- so an
 `enforcement_action` in a trace maps to a rule you can read, and a denied call
-in the audit chain says *which* rule denied it. Egress policy is
+in the audit record says *which* rule denied it. Egress policy is
 audit-by-default, so you watch violations accumulate on the governance
 dashboard before you flip a policy to `Enforce` and it begins to block. And
 because every deterministic verdict fails closed, the record of a block is not
 an alert you have to interpret -- it is a fact you can hand to an auditor.
 
 That is the whole shape of it. The span shows you the call as it happens; the
-audit chain remembers who made it and under what rule; both speak conventions
+audit record names who made it and under what rule; both speak conventions
 your existing backends already parse. Governance you can prove is the only kind
 worth having.
 
