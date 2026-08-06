@@ -1,6 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import { getCollection, render } from 'astro:content';
+import { isUpcoming, sinceLabel } from '../../lib/version-badge';
 
 export async function getStaticPaths() {
   const entries = await getCollection('learn');
@@ -17,7 +18,7 @@ const fmtDate = (d: Date) =>
   d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 
 // Facet presentation — mirrors the /learn hub so a reader landing here sees the
-// same signals: type badge in its color, level, time, and the status pill.
+// same signals: type badge in its color, level, time, and the release pill.
 const TC: Record<string, string> = {
   Concept: '#2dd4bf',
   Tutorial: '#38bdf8',
@@ -30,9 +31,9 @@ const TLABEL: Record<string, string> = {
   Why: 'Deep dive',
   Visual: 'Visual',
 };
-const { type, level, time, status } = entry.data;
+const { type, level, time, since } = entry.data;
 const typeColor = TC[type];
-const statusLabel = status === 'ship' ? 'Shipped 1.6.0' : 'Shipped 2.0.0';
+const upcoming = isUpcoming(since);
 ---
 
 <Base
@@ -65,12 +66,12 @@ const statusLabel = status === 'ship' ? 'Shipped 1.6.0' : 'Shipped 2.0.0';
           <span
             class:list={[
               'ml-auto px-2 py-0.5 rounded font-semibold',
-              status === 'ship'
-                ? 'bg-emerald-500/10 text-emerald-400'
-                : 'bg-sky-500/10 text-sky-400',
+              upcoming
+                ? 'bg-amber-500/10 text-amber-400'
+                : 'bg-emerald-500/10 text-emerald-400',
             ]}
           >
-            {statusLabel}
+            {sinceLabel(since)}
           </span>
         </div>
         {entry.data.tags && (

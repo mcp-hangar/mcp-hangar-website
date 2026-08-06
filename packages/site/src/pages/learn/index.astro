@@ -1,6 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import { getCollection } from 'astro:content';
+import { isUpcoming, sinceLabel, sortVersionsDescending } from '../../lib/version-badge';
 
 const entries = await getCollection('learn');
 
@@ -16,6 +17,7 @@ const READING_ORDER = [
   'enforcement-plane-vs-api-gateway',
   'deterministic-not-anomaly-based',
   'costs-and-boundaries',
+  'more-than-one-hangar',
   'write-your-first-mcpegresspolicy',
   'the-l7-mcpegresspolicy-language',
   'digest-pinning',
@@ -56,7 +58,9 @@ const TLABEL: Record<string, string> = {
   Why: 'Deep dive',
   Visual: 'Visual',
 };
-const statusText = (s: string) => (s === 'ship' ? '1.6.0' : '2.0.0');
+// One chip per release actually present, newest first — a new `since` value
+// offers itself without anyone remembering to add a chip for it.
+const versions = sortVersionsDescending([...new Set(entries.map(e => e.data.since))]);
 ---
 
 <Base
@@ -300,9 +304,10 @@ const statusText = (s: string) => (s === 'ship' ? '1.6.0' : '2.0.0');
           <button class="chip" data-f="level" data-v="Deep">Deep</button>
         </div>
         <div class="fgroup">
-          <span class="lbl">Status</span>
-          <button class="chip" data-f="status" data-v="ship">Shipped 1.6.0</button>
-          <button class="chip" data-f="status" data-v="v2">2.0.0</button>
+          <span class="lbl">Since</span>
+          {versions.map(v => (
+            <button class="chip" data-f="since" data-v={v}>{sinceLabel(v)}</button>
+          ))}
         </div>
         <span class="count" id="count"></span>
       </div>
@@ -317,7 +322,7 @@ const statusText = (s: string) => (s === 'ship' ? '1.6.0' : '2.0.0');
             data-slug={entry.id}
             data-type={entry.data.type}
             data-level={entry.data.level}
-            data-status={entry.data.status}
+            data-since={entry.data.since}
             data-theme={entry.data.theme}
           >
             <div class="rail" />
@@ -332,7 +337,7 @@ const statusText = (s: string) => (s === 'ship' ? '1.6.0' : '2.0.0');
                 <span>{entry.data.level}</span>
                 <span class="sep" />
                 <span class="mono">{entry.data.time}</span>
-                <span class={`pill ${entry.data.status}`}>{statusText(entry.data.status)}</span>
+                <span class={`pill ${isUpcoming(entry.data.since) ? 'preview' : 'ship'}`}>{sinceLabel(entry.data.since)}</span>
               </div>
             </div>
           </a>
@@ -623,7 +628,7 @@ const statusText = (s: string) => (s === 'ship' ? '1.6.0' : '2.0.0');
   .learn-hub .card .meta .sep { width: 3px; height: 3px; border-radius: 50%; background: var(--faint); }
   .learn-hub .pill { font-size: 10.5px; font-weight: 700; padding: 2px 7px; border-radius: 5px; letter-spacing: .02em; margin-left: auto; }
   .learn-hub .pill.ship { background: var(--ship-bg); color: var(--ship); }
-  /* Kept for a future preview; the task relay it was built for shipped in 2.0.0. */
+  /* Amber: the release named is ahead of the one this site advertises. */
   .learn-hub .pill.preview { background: var(--preview-bg); color: var(--preview); }
   .learn-hub .card.hidden { display: none; }
   .learn-hub .empty { grid-column: 1 / -1; text-align: center; color: var(--faint); padding: 40px; font-size: 14px; }
@@ -639,9 +644,9 @@ const statusText = (s: string) => (s === 'ship' ? '1.6.0' : '2.0.0');
     const total = cards.length;
     const controls = [...document.querySelectorAll('.ctl')] as HTMLElement[];
     const active: {
-      type: Set<string>; level: Set<string>; status: Set<string>;
+      type: Set<string>; level: Set<string>; since: Set<string>;
       mapSlugs: Set<string> | null; control: HTMLElement | null;
-    } = { type: new Set(), level: new Set(), status: new Set(), mapSlugs: null, control: null };
+    } = { type: new Set(), level: new Set(), since: new Set(), mapSlugs: null, control: null };
 
     function apply() {
       let n = 0;
@@ -649,7 +654,7 @@ const statusText = (s: string) => (s === 'ship' ? '1.6.0' : '2.0.0');
         const ok =
           (!active.type.size || active.type.has(c.dataset.type!)) &&
           (!active.level.size || active.level.has(c.dataset.level!)) &&
-          (!active.status.size || active.status.has(c.dataset.status!)) &&
+          (!active.since.size || active.since.has(c.dataset.since!)) &&
           (!active.mapSlugs || active.mapSlugs.has(c.dataset.slug!));
         c.classList.toggle('hidden', !ok);
         if (ok) n++;
@@ -669,7 +674,7 @@ const statusText = (s: string) => (s === 'ship' ? '1.6.0' : '2.0.0');
     // facet chips
     document.querySelectorAll('.chip').forEach(ch =>
       ch.addEventListener('click', () => {
-        const f = (ch as HTMLElement).dataset.f as 'type' | 'level' | 'status';
+        const f = (ch as HTMLElement).dataset.f as 'type' | 'level' | 'since';
         const v = (ch as HTMLElement).dataset.v!;
         const on = ch.getAttribute('aria-pressed') === 'true';
         ch.setAttribute('aria-pressed', (!on).toString());

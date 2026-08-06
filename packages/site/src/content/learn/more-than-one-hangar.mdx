@@ -1,0 +1,198 @@
+---
+title: "Two Hangars, one verdict"
+description: "An enforcement plane sits on the call path, so its availability is the floor under everything it governs. Running a second one was a governance problem long before it was a scaling one — here is why, and what the answer costs."
+type: Why
+level: Core
+time: "9 min"
+theme: foundations
+since: "2.5.0"
+updated: 2026-08-07
+tags: [foundations, availability, coordination, leader-election, postgresql, adr-020]
+---
+
+Hangar governs by sitting *on* the call path — that is the whole premise of an
+[enforcement plane](/learn/what-is-a-policy-enforcement-plane), and
+[the bill for it](/learn/costs-and-boundaries) is a synchronous hop on every
+call. There is a second line on that bill which went unstated for a long time:
+**if the thing on the path is down, everything it governs is down**. Its
+availability is the floor under every tool call in the estate.
+
+Until 2.5.0 the honest answer to *can I run two of them* was no — run one and
+make its restart fast. This page is why that answer stood for so long, what
+changed, and what the new answer costs.
+
+## The failure was never a crash
+
+"Run a second one" sounds like a scaling question, and for a stateless proxy it
+would be. Hangar is not stateless: it decides. And two deciders that cannot see
+each other do not fail by falling over. They fail by **disagreeing**, quietly,
+while every health check stays green.
+
+Concretely, before 2.5.0, three replicas produced:
+
+- a server registered on one replica and invisible to the other two;
+- a session suspended by a detection rule on the replica that caught it, and
+  **still served** by its peers — a block a caller avoids by retrying until the
+  load balancer sends them somewhere else;
+- three discovery loops against one estate, each converging it to its own idea
+  of what exists, so one deregistered what another had just registered.
+
+The middle one is the reason this had to be solved rather than documented. A
+plane whose whole value is that it says *no* on every call, and which says yes
+on two connections out of three, is not degraded — it is **wrong in the
+direction it exists to prevent**, and nothing in it is loud about that. A
+governance plane that disagrees with itself is worse than one that is briefly
+absent, because absence is visible.
+
+So the problem was never running a second process. It was deciding what happens
+when two of them hold different beliefs.
+
+## Serving is replicated. Managing is leased.
+
+The answer splits Hangar's work in two along a line that turns out to be sharp.
+
+**Every replica serves.** Tool calls, the API, the MCP surface. Serving is never
+gated on coordination — not on holding anything, not on reaching a peer. This is
+the property the whole design protects: everything below can be broken and every
+replica still answers.
+
+**Exactly one replica manages.** Discovery, garbage collection, TTL
+deregistration and the metric-snapshot worker are *convergence loops* — they
+exist to move the estate toward a desired state. Three of them against one
+database is three sources of truth arguing. They run only while an instance
+holds a **lease**: a row with an expiry and a generation, in the storage backend
+the deployment already chose.
+
+Deliberately not the Kubernetes `Lease` object. Core runs on compose, on podman
+and from a `pip install`; a coordination primitive that only exists inside a
+cluster would make those deployments second-class.
+
+**Everything else is a projection.** Fleet membership, the tool catalogue, risk
+scores, session suspensions, the websocket feed — each replica rebuilds them
+locally by following the shared event log, so what you get back does not depend
+on which pod answered.
+
+## The lease is permission, not liveness
+
+This is the part worth internalising, because it is the difference between a
+leader election that is safe and one that merely usually works.
+
+A TTL alone does not make a leader safe. A holder that stalls — a
+stop-the-world pause, a starved thread, a node that freezes — has no way to know
+time has passed. It wakes up believing it is still the leader and finishes the
+sweep it started, undoing the work of the successor that legitimately replaced
+it. The clock it trusted was its own.
+
+Two mechanisms answer that, and they answer different halves.
+
+**The generation fences the write.** Every tenure gets a number. Carried into the
+`WHERE` clause of a destructive write, a stale generation matches **zero rows** —
+the stalled leader's deregistration does not fail loudly, it simply does not
+happen. Fencing is applied first to the irreversible operation: re-registering
+is an upsert, a duplicate metric snapshot is one row too many, a repeated
+discovery cycle is a wasted second. Deleting a server that a peer just brought
+back is none of those.
+
+**The renew deadline bounds the belief.** The holder gives the lease up *on its
+own* if it has not managed a successful renewal within a deadline deliberately
+shorter than the TTL, measured on a monotonic clock. An unreachable database is
+not an answer: the tenure is expiring on the database's clock whether or not
+anyone can read it. So the instance gives up slightly early rather than slightly
+late — choosing *nobody manages for a few seconds* over *two manage at once*.
+
+The honest statement of what that buys: **at the database there is never more
+than one holder** — acquisition is a single conditional statement, and threads
+racing for it produce exactly one winner. In *belief* there can briefly be two,
+and what bounds the damage there is fencing, which does not cover everything:
+
+| A stalled leader tries to | What stops it |
+| --- | --- |
+| deregister a server | the generation, in the `WHERE` clause — zero rows |
+| write the shared circuit-breaker row | the lease gate |
+| register something discovery found | local belief only |
+| take a metric snapshot | local belief only |
+
+The last two are survivable by construction, which is why they are allowed to
+rest on belief. That distinction is a decision, not an oversight, and it is
+written down as one.
+
+## What crosses the boundary, and what does not
+
+One rule, applied everywhere: **state about this replica's own resources stays
+local; state about the fleet is shared.**
+
+| | | |
+| --- | --- | --- |
+| Fleet membership | shared | otherwise which servers exist depends on who you asked |
+| Session suspension | shared | it is a decision about the *session*, not about a connection |
+| Circuit breakers | **local** | shared, one replica's network problem cuts a healthy upstream off from the rest |
+| Rate limits | **local** | per instance — and it says so |
+
+The two local ones are the interesting half. A circuit breaker answers *can I
+reach this*, and the answer is genuinely per-replica; making it fleet-wide would
+let one bad node amputate a working upstream for everyone. The cost is that each
+replica discovers an outage independently.
+
+## Two refusals
+
+**A cluster requires PostgreSQL.** Not as advice — as a refusal to start. Several
+replicas on a file-backed backend do not collide: each gets its own file, grants
+itself its own lease (a file admits one writer, so granting is *correct*), runs
+its own loops and holds its own fleet. They never disagree because they cannot
+see each other, so every probe stays green while the deployment has as many
+fleets as it has pods. Measured, before the refusal existed: three replicas, all
+three reporting `manages_fleet: true`.
+
+The question is asked on the axis the operator controls. A thousand pods each
+with their own storage is a legitimate thing to run; what is not legitimate is
+calling it one gateway. So declaring coordination is the statement that these
+replicas are meant to be one, and it is refused on storage they cannot share.
+
+**`subprocess` and `docker` servers belong to one instance.** Those modes do not
+describe a server the gateway talks to — they describe one it *runs*, as a child
+process with its stdio attached. There is no address a peer could use, so a
+replica serving a call to such a server does not reach the existing copy; it
+starts its own, with its own mounted volumes. They are refused at registration in
+a coordinated deployment, and refused again at launch on a follower. The
+supported multi-replica configuration is `remote`-mode servers, and that is a
+real reduction stated up front rather than discovered.
+
+## What it costs
+
+- **Rate limits multiply by the replica count.** Three replicas admit three times
+  the configured rate. Dividing the number by the count drifts exactly when it
+  matters — a rollout runs N+1 and a failure runs N−1 — and a shared token bucket
+  would put a database round trip on the path of every call. A fleet-wide limit
+  belongs at the ingress, where the fleet has one entrance.
+- **Anything travelling by the log lags by one tail interval.** A suspension
+  holds immediately where it was decided and within seconds on its peers. A
+  replica that joins *after* a suspension does not inherit it.
+- **There is a window with no manager.** When a holder dies without releasing the
+  lease, nothing converges the fleet until the tenure expires. Serving continues
+  throughout; a graceful shutdown hands over in seconds instead.
+- **Two versions run against one database for the length of every rollout.** That
+  makes schema compatibility with the previous release a standing rule rather
+  than a release-note item — and it has a visible consequence: a newer replica
+  can see an event from an older one whose side records the older version did not
+  write. It declines to guess and says so, rather than inventing a
+  configuration.
+
+## Why this was the last thing to arrive
+
+It would read as a gap that a governance plane got high availability after L7
+egress policy, digest pinning and a governed task relay. The order is the
+argument. Every one of those features is a *verdict*, and a verdict is only worth
+believing if the thing issuing it agrees with itself. Adding replicas earlier
+would have multiplied the surface that could disagree before there was a log to
+agree on, a producer identity on every event, or a rule saying which handlers
+may act outward.
+
+The interesting part was never the second process. It was earning the right to
+have one.
+
+---
+
+*The recipe is [Running more than one replica](/docs/cookbook/25-multiple-replicas);
+the decisions, their failure modes and what is assumed rather than enforced are in
+[ADR-020](/docs/adr/ADR-020-high-availability). Storage as one decision is
+[ADR-019](/docs/adr/ADR-019-one-storage-decision-two-backends).*

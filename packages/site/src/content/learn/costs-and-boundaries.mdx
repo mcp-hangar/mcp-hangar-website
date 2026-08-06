@@ -5,8 +5,8 @@ type: Why
 level: Intro
 time: "7 min"
 theme: foundations
-status: ship
-updated: 2026-07-23
+since: "1.6.0"
+updated: 2026-08-07
 tags: [foundations, cost, boundaries, non-goals, adr-009, adr-013]
 ---
 
@@ -47,6 +47,11 @@ this is hidden, and none of it is free:
 - **You run it.** Hangar is a proxy you deploy, plus a Kubernetes operator
   (admission webhooks) and its CRDs. It is self-hosted — the compute, the
   upgrades, and the on-call are yours.
+- **Its availability is the floor under everything it governs.** A plane on the
+  call path is down for every call when it is down. Through 2.4.0 the honest
+  answer was one instance and a fast restart; from 2.5.0 a replica set is
+  supported, on a shared PostgreSQL and `remote`-mode servers — with costs of its
+  own, laid out in [Two Hangars, one verdict](/learn/more-than-one-hangar).
 - **The network backstop is Kubernetes-shaped.** The L3/L4 half that makes an L7
   policy more than [a suggestion](/learn/what-is-a-policy-enforcement-plane) is
   compiled to `NetworkPolicy` / `CiliumNetworkPolicy`. Off Kubernetes, you keep
@@ -93,6 +98,9 @@ build a false assumption into a rollout:
 - **Shipped in 2.0.0** — the [governed task relay](/learn/relay-with-governance),
   built on the v2 SDK. It is **not** in the 1.6.x line, so if you are still on
   1.6.x, plan the rollout as an upgrade rather than a config change.
+- **Landing in 2.5.0** — [more than one replica](/learn/more-than-one-hangar),
+  behind a shared PostgreSQL. On 2.4.0 and earlier, replicas are not merely
+  unsupported: they disagree quietly, which is the worse half of the problem.
 
 ## The fence is the feature
 
