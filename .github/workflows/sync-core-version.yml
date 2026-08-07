@@ -40,7 +40,14 @@ jobs:
           GH_TOKEN: ${{ steps.app-token.outputs.token || secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
-          core="$(gh release view -R mcp-hangar/mcp-hangar --json tagName --jq '.tagName' | sed 's/^v//')"
+          # /releases/latest, which excludes prereleases by definition -- not
+          # `gh release view`, which reports whatever is newest. A candidate is
+          # briefly flagged "Latest" between the release job creating it and the
+          # flag being corrected, and this workflow opened a PR inside exactly
+          # that window for v2.5.0-rc.1: the marketing hero, the install button
+          # and the structured data would all have advertised a candidate that
+          # `pip install mcp-hangar` does not even resolve to.
+          core="$(gh api repos/mcp-hangar/mcp-hangar/releases/latest --jq '.tag_name' | sed 's/^v//')"
           cur="$(sed -n 's/.*export const VERSION = "\([^"]*\)".*/\1/p' packages/site/src/config.ts | head -1)"
           echo "core=$core" >> "$GITHUB_OUTPUT"
           echo "cur=$cur"   >> "$GITHUB_OUTPUT"
