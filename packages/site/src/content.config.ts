@@ -28,7 +28,10 @@ const learn = defineCollection({
     level: z.enum(['Intro', 'Core', 'Deep']),
     time: z.string(),
     theme: z.enum(['foundations', 'enforcement', 'async', 'observability']),
-    status: z.enum(['ship', 'v2']),
+    // The release this page's subject became true in. A version, not a state:
+    // whether it reads as "Since" or "Landing in" is decided against the
+    // advertised VERSION at render time (see lib/version-badge).
+    since: z.string().regex(/^\d+\.\d+\.\d+/, 'a release, e.g. "2.5.0"'),
   }),
 });
 

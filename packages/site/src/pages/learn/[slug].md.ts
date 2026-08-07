@@ -25,7 +25,7 @@ export const GET: APIRoute = async ({ props }) => {
         level: string;
         time: string;
         theme: string;
-        status: string;
+        since: string;
       };
       body?: string;
     };
@@ -70,7 +70,7 @@ export const GET: APIRoute = async ({ props }) => {
     '',
     `> ${entry.data.description}`,
     '',
-    `Type: ${entry.data.type} | Level: ${entry.data.level} | Time: ${entry.data.time} | Released: ${entry.data.status === 'ship' ? '1.6.0' : '2.0.0'} | Updated: ${updated}${tags}`,
+    `Type: ${entry.data.type} | Level: ${entry.data.level} | Time: ${entry.data.time} | Since: ${entry.data.since} | Updated: ${updated}${tags}`,
     `Source: https://mcp-hangar.io/learn/${entry.id}`,
     '',
     '---',
