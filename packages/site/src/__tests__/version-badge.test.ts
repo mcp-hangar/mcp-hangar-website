@@ -15,8 +15,21 @@ describe("version-badge", () => {
         expect(isUpcoming("2.0.0", "1.6.0")).toBe(true);
     });
 
-    it("ignores a pre-release suffix", () => {
+    it("treats a candidate as earlier than the release it is a candidate for", () => {
+        // The bug this replaced: the suffix was dropped before comparing, so
+        // advertising 2.5.0-rc.1 made a `since: "2.5.0"` page claim it shipped.
+        expect(isUpcoming("2.5.0", "2.5.0-rc.1")).toBe(true);
+        expect(isUpcoming("2.5.0", "2.5.0rc1")).toBe(true);
+        expect(isUpcoming("2.5.0", "2.5.0-rc.2")).toBe(true);
+        // And the other direction: a candidate has arrived once the stable is out.
         expect(isUpcoming("2.5.0rc1", "2.5.0")).toBe(false);
+        // A later release is still later, suffix or not.
+        expect(isUpcoming("2.6.0", "2.5.0-rc.1")).toBe(true);
+        expect(isUpcoming("2.4.0", "2.5.0-rc.1")).toBe(false);
+    });
+
+    it("labels a page for a release only a candidate exists of as landing", () => {
+        expect(sinceLabel("2.5.0", "2.5.0-rc.1")).toBe("Landing in 2.5.0");
     });
 
     it("retires 'Landing in' when the advertised version catches up", () => {

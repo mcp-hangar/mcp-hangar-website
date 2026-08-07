@@ -4,6 +4,12 @@
  * Current released version of mcp-hangar, shown across the marketing site
  * (hero badge/button, footer, quick-start output, structured data).
  * Bump this in one place when a new release ships.
+ *
+ * **Stable releases only.** `pip install mcp-hangar` does not resolve to a
+ * prerelease without `--pre`, so advertising a candidate here puts a version
+ * beside an install command that will not produce it. It also decides whether
+ * a Learn page reads "Since X" or "Landing in X" (see lib/version-badge), and
+ * a candidate for X is not X.
  */
 export const VERSION = "2.4.0";
 

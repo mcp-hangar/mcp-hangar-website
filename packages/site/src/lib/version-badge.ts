@@ -11,20 +11,34 @@
  */
 import { VERSION } from '../config';
 
-/** Numeric release parts; a pre-release suffix is dropped ("2.5.0rc1" -> 2.5.0). */
-function parts(version: string): number[] {
-  return version.split('.').map(part => parseInt(part, 10) || 0);
+/** The three numbers, and whether anything followed them. */
+function parts(version: string): { numbers: number[]; prerelease: boolean } {
+  const [core, ...rest] = version.split(/[-+]/);
+  const numbers = core.split('.').map(part => parseInt(part, 10) || 0);
+  // "2.5.0rc1" spells its candidate without a separator; "2.5.0-rc.1" with one.
+  const glued = /\d+[a-z]/i.test(core);
+  return { numbers, prerelease: rest.length > 0 || glued };
 }
 
-/** True when `since` names a release later than the one the site advertises. */
+/**
+ * True when `since` names a release later than the one the site advertises.
+ *
+ * **A candidate for a release is not that release.** Advertising `2.5.0-rc.1`
+ * used to make a page marked `since: "2.5.0"` render "Since 2.5.0" -- the
+ * suffix was dropped before comparing, so the two compared equal and the page
+ * claimed a version nobody could install. That is precisely the claim this
+ * field exists to prevent, and the first prerelease defeated it.
+ */
 export function isUpcoming(since: string, released: string = VERSION): boolean {
   const a = parts(since);
   const b = parts(released);
-  for (let i = 0; i < Math.max(a.length, b.length); i++) {
-    const delta = (a[i] ?? 0) - (b[i] ?? 0);
+  for (let i = 0; i < Math.max(a.numbers.length, b.numbers.length); i++) {
+    const delta = (a.numbers[i] ?? 0) - (b.numbers[i] ?? 0);
     if (delta !== 0) return delta > 0;
   }
-  return false;
+  // Same numbers. A stable `since` is still upcoming while only a candidate for
+  // it is out; a candidate `since` has arrived once the stable one is.
+  return !a.prerelease && b.prerelease;
 }
 
 /** "Since 2.0.0" for what you can run today; "Landing in 2.5.0" for what you cannot. */
