@@ -26,7 +26,10 @@ readonly MIN_PYTHON_MAJOR=3
 readonly MIN_PYTHON_MINOR=11
 readonly PYPI_JSON_URL="https://pypi.org/pypi/${PACKAGE_NAME}/json"
 readonly GITHUB_REPO="mcp-hangar/mcp-hangar"
-readonly DOCS_URL="https://docs.mcp-hangar.io"
+# NXDOMAIN until this said /docs. The installer prints this line to everyone
+# who runs it, and a subdomain that was never registered is a worse last
+# impression than no link at all.
+readonly DOCS_URL="https://mcp-hangar.io/docs"
 
 # ------------------------------------------------------------------------------
 # Global state
