@@ -50,4 +50,17 @@ describe('Learn track', () => {
     const lastHtml = readDist(path.join('learn', last, 'index.html'));
     expect(lastHtml).not.toContain('>Next<');
   });
+
+  it('never publishes a draft, by any route', () => {
+    // A draft is an outline waiting for an author. The guarantee is not "it is
+    // not linked" but "it is not reachable": no page, no markdown mirror, and
+    // nothing in the machine index a crawler would follow.
+    const slug = 'a-registry-is-not-an-enforcement-plane';
+    const distDir = path.join(process.cwd(), 'dist');
+    expect(fs.existsSync(path.join(distDir, 'learn', slug))).toBe(false);
+    expect(fs.existsSync(path.join(distDir, 'learn', `${slug}.md`))).toBe(false);
+    expect(readDist('llms.txt')).not.toContain(slug);
+    expect(readDist('llms-full.txt')).not.toContain(slug);
+    expect(readDist(path.join('learn', 'index.html'))).not.toContain(slug);
+  });
 });

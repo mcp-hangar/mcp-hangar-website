@@ -5,7 +5,7 @@ import path from 'node:path';
 import { stripSvg } from '../../lib/strip-svg';
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const entries = await getCollection('learn');
+  const entries = (await getCollection('learn')).filter(e => !e.data.draft);
   return entries.map(entry => ({
     params: { slug: entry.id },
     props: { entry },

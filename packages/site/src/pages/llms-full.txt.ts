@@ -79,7 +79,7 @@ function renderIndex(title: string, entries: DocEntry[], note: string): string {
 
 export const GET: APIRoute = async () => {
   const docs = await getCollection('oss') as unknown as DocEntry[];
-  const learn = await getCollection('learn') as unknown as DocEntry[];
+  const learn = (await getCollection('learn')).filter(e => !e.data.draft) as unknown as DocEntry[];
   // Site security posture pages. They join the docs' own security pages under
   // one `## Security` heading — a second heading of the same name would just be
   // a duplicate key in this file.

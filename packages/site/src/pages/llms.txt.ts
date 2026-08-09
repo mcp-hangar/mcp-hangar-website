@@ -5,7 +5,7 @@ const SITE = 'https://mcp-hangar.io';
 
 export const GET: APIRoute = async () => {
   const docs = await getCollection('oss');
-  const learn = await getCollection('learn');
+  const learn = (await getCollection('learn')).filter(e => !e.data.draft);
   const securityPages = (await getCollection('security')).sort(
     (a, b) => a.data.order - b.data.order
   );

@@ -32,6 +32,10 @@ const learn = defineCollection({
     // whether it reads as "Since" or "Landing in" is decided against the
     // advertised VERSION at render time (see lib/version-badge).
     since: z.string().regex(/^\d+\.\d+\.\d+/, 'a release, e.g. "2.5.0"'),
+    // An outline waiting for its author. Drafts are built by nothing: not the
+    // hub, not a route, not llms.txt — so a half-written page cannot be reached
+    // by guessing its URL or by a crawler following the machine index.
+    draft: z.boolean().optional().default(false),
   }),
 });
 

@@ -7,7 +7,7 @@ import PipelineMotif from '../../components/PipelineMotif.astro';
 // where they sit in it. Filtering here still preserves that order within results.
 import { START_HERE, rank } from '../../lib/learn-track';
 
-const entries = await getCollection('learn');
+const entries = (await getCollection('learn')).filter(e => !e.data.draft);
 const sorted = entries.sort((a, b) => {
   const ra = rank(a.id), rb = rank(b.id);
   if (ra !== rb) return ra - rb;
