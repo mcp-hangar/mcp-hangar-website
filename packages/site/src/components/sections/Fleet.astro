@@ -1,0 +1,71 @@
+---
+/**
+ * The 2.5.0 capability the homepage never mentioned, and the section where a
+ * detail earns more trust than a claim: the reason the log is read the way it
+ * is. Anyone who has written a follower over a SQL table recognises it, and
+ * nobody writes it on a marketing page.
+ *
+ * Facts confined to what shipped: a replica set behind one PostgreSQL, one
+ * lease-holder, a commit-ordered log. No multi-region, no autoscaling, no
+ * zero-downtime promise.
+ */
+---
+
+<section class="max-w-6xl mx-auto px-6 pb-32">
+  <div class="max-w-3xl mx-auto text-center mb-12">
+    <h2 class="font-mono text-sm font-semibold text-zinc-500 uppercase tracking-[0.16em] mb-4">
+      Since 2.5.0
+    </h2>
+    <p class="text-4xl font-bold tracking-tight text-zinc-100 mb-5 text-balance">
+      Runs as a fleet
+    </p>
+    <p class="text-xl text-zinc-400">
+      Until 2.5.0 the honest answer to <em>can I run two of them</em> was no — run one
+      and make its restart fast. Now a replica set shares one PostgreSQL and agrees
+      with itself.
+    </p>
+  </div>
+
+  <div class="grid gap-5 md:grid-cols-3">
+    <div class="rounded-2xl border border-zinc-800/60 bg-zinc-900/30 p-6">
+      <h3 class="text-lg font-semibold text-zinc-100 mb-2">One writer for the estate</h3>
+      <p class="text-zinc-400 text-sm leading-relaxed">
+        A single instance holds the management lease. Discovery, deregistration and the
+        other estate-wide moves happen there, so two replicas cannot undo each other's
+        work.
+      </p>
+    </div>
+    <div class="rounded-2xl border border-zinc-800/60 bg-zinc-900/30 p-6">
+      <h3 class="text-lg font-semibold text-zinc-100 mb-2">Fenced, not just elected</h3>
+      <p class="text-zinc-400 text-sm leading-relaxed">
+        The lease carries a generation. A holder that has been superseded and does not
+        yet know it is refused on write, rather than trusted because it still believes
+        it leads.
+      </p>
+    </div>
+    <div class="rounded-2xl border border-zinc-800/60 bg-zinc-900/30 p-6">
+      <h3 class="text-lg font-semibold text-zinc-100 mb-2">A log every replica agrees on</h3>
+      <p class="text-zinc-400 text-sm leading-relaxed">
+        State is an event log the replicas follow, so a server registered on one is
+        visible to the rest instead of living in one instance's memory.
+      </p>
+    </div>
+  </div>
+
+  <div class="max-w-3xl mx-auto mt-8 rounded-2xl border border-zinc-800/60 bg-zinc-950/40 p-7">
+    <p class="text-zinc-300">
+      The detail that makes it correct: a follower cannot assume events become visible
+      in the order they were numbered. A lower-numbered event can commit after a
+      higher-numbered one, so a reader that trusted the numbering would step straight
+      over it and never come back. The tail waits for the point past which no earlier
+      write can still appear.
+    </p>
+    <a
+      href="/learn/more-than-one-hangar"
+      class="group inline-flex items-center gap-2 mt-5 text-sm font-semibold text-zinc-300 hover:text-zinc-100 transition-colors"
+    >
+      What it takes to run more than one
+      <span class="transition-transform group-hover:translate-x-0.5" aria-hidden="true">&rarr;</span>
+    </a>
+  </div>
+</section>
