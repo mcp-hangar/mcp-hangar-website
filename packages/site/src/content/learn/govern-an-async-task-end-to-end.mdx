@@ -19,8 +19,6 @@ import Callout from '../../components/Callout.astro';
   `relay_tasks_enabled: false` is the per-deployment rollback.
 </Callout>
 
-# Govern an async task end-to-end
-
 An MCP **task** answers a long-running `tools/call` by handing you back a
 *promise* -- a `task_id` -- with the real work finishing minutes later, on a
 `tasks/get` you poll out of band.
