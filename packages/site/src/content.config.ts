@@ -35,6 +35,26 @@ const learn = defineCollection({
   }),
 });
 
+// Security posture pages: the CVE ledger and the OWASP MCP Top 10 mapping.
+//
+// A collection rather than hardcoded `.astro` pages, because every `.md` mirror
+// route on this site is collection-backed — a static page would ship with no
+// markdown twin and appear in no llms.txt section. It also makes "adding a CVE
+// entry is one markdown block" true by construction.
+//
+// The schema is deliberately thinner than `learn`'s: these pages are evergreen
+// reference, so they carry no reading-time, level, or `since` facets. `order`
+// is the listing order on /security, nothing more.
+const security = defineCollection({
+  loader: glob({ pattern: '**/*.mdx', base: './src/content/security' }),
+  schema: z.object({
+    title: z.string(),
+    description: z.string(),
+    updated: z.coerce.date(),
+    order: z.number(),
+  }),
+});
+
 const oss = defineCollection({
   loader: ossDocsLoader(),
   schema: z.object({
@@ -47,4 +67,4 @@ const oss = defineCollection({
   }),
 });
 
-export const collections = { blog, learn, oss };
+export const collections = { blog, learn, security, oss };

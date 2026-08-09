@@ -206,6 +206,49 @@ describe('Build Output', () => {
       expect(html).toContain('SoftwareApplication');
     });
 
+    // The /security section is a content collection precisely so it gets the
+    // same machine surface as every other content page: a `.md` twin at the
+    // same path and a line in llms.txt. These assert that, not the prose.
+    it('should list the security collection in the llms.txt Security section', () => {
+      const content = readDistFile('llms.txt');
+      expect(content).toContain('## Security');
+      expect(content).toContain('https://mcp-hangar.io/security/cve-ledger.md');
+      expect(content).toContain('https://mcp-hangar.io/security/owasp-mcp-top-10.md');
+      // One Security heading, not two — the docs pages share it.
+      expect(content.match(/^## Security$/gm)?.length).toBe(1);
+    });
+
+    it('should generate .md mirrors for the security pages', () => {
+      for (const slug of ['cve-ledger', 'owasp-mcp-top-10']) {
+        const md = readDistFile(`security/${slug}.md`);
+        expect(md).toContain(`Source: https://mcp-hangar.io/security/${slug}`);
+        expect(md).not.toContain('<nav');
+        // MDX scaffolding must not leak into the machine surface.
+        expect(md).not.toContain('import ');
+        expect(md).not.toContain('<Callout');
+      }
+    });
+
+    it('should give every CVE ledger entry a deep-linkable anchor', () => {
+      const html = readDistFile('security/cve-ledger/index.html');
+      expect(html).toContain('id="cve-2026-59950"');
+    });
+
+    it('should link both posture pages from the /security landing page', () => {
+      const html = readDistFile('security/index.html');
+      expect(html).toContain('href="/security/cve-ledger"');
+      expect(html).toContain('href="/security/owasp-mcp-top-10"');
+      // The advisory posts stay on the blog; the hub points at them.
+      expect(html).toContain('href="/blog/2026-07-16-security-advisory-cve-2026-59950"');
+    });
+
+    it('should keep the OWASP page honest about scope and unfinished rows', () => {
+      const html = readDistFile('security/owasp-mcp-top-10/index.html');
+      expect(html).toContain('Out of scope by design');
+      expect(html).toContain('Needs owner review');
+      expect(html).toContain('it does not guess intent');
+    });
+
     it('all llms.txt links should have corresponding .md files', () => {
       const content = readDistFile('llms.txt');
       const links = content.match(/https:\/\/mcp-hangar\.io\/([^\s)]+\.md)/g) || [];

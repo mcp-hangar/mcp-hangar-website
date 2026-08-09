@@ -6,6 +6,9 @@ const SITE = 'https://mcp-hangar.io';
 export const GET: APIRoute = async () => {
   const docs = await getCollection('oss');
   const learn = await getCollection('learn');
+  const securityPages = (await getCollection('security')).sort(
+    (a, b) => a.data.order - b.data.order
+  );
   const posts = (await getCollection('blog')).sort(
     (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
   );
@@ -27,10 +30,17 @@ export const GET: APIRoute = async () => {
     ...docs.filter(d => d.id.startsWith('observability/')),
     ...docs.filter(d => d.id.startsWith('runbooks/')),
   ].map(d => `- [${d.data.title}](${SITE}/docs/${d.id}.md)`).join('\n');
-  const security = docs
-    .filter(d => d.id.startsWith('security'))
-    .map(d => `- [${d.data.title}](${SITE}/docs/${d.id}.md)`)
-    .join('\n');
+  // One Security section, two sources: the site's `security` collection (the
+  // public posture pages) followed by the docs' own security pages. A second
+  // `## Security` heading would just be a duplicate key in this file.
+  const security = [
+    ...securityPages.map(
+      s => `- [${s.data.title}](${SITE}/security/${s.id}.md) — ${s.data.description}`
+    ),
+    ...docs
+      .filter(d => d.id.startsWith('security'))
+      .map(d => `- [${d.data.title}](${SITE}/docs/${d.id}.md)`),
+  ].join('\n');
   const adr = categorize('adr/');
   const development = categorize('development/');
   const integrations = categorize('integrations/');
