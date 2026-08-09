@@ -53,22 +53,30 @@ describe('Build Output', () => {
     expect(html).toContain('viewBox="0 0 24 24"');
   });
 
-  it('should render step numbers, titles, and descriptions', () => {
+  // The step-by-step operator tutorial that used to run inline here now lives at
+  // /learn/from-install-to-a-governed-deny. The landing page keeps the install
+  // command and points at the three doors instead.
+  it('should offer the three doors out of the landing page', () => {
     const html = readDistFile('index.html');
-    expect(html).toContain('Install the operator');
-    expect(html).toContain('Apply an egress policy');
-    expect(html).toContain('1');
+    expect(html).toContain('Where to go next');
+    expect(html).toContain('href="/learn/"');
+    expect(html).toContain('href="/docs/getting-started/quickstart"');
   });
 
-  it('should render step children', () => {
+  it('should render the install command in the start door', () => {
     const html = readDistFile('index.html');
     expect(html).toContain('pip install mcp-hangar');
   });
 
-  it('should render connector lines between steps', () => {
+  it('should link the async governance teaser to its Learn page', () => {
     const html = readDistFile('index.html');
-    expect(html).toContain('w-px');
-    expect(html).toContain('bg-gradient-to-b');
+    expect(html).toContain('href="/learn/relay-with-governance"');
+  });
+
+  it('should fold production hardening behind a disclosure rather than a section', () => {
+    const html = readDistFile('index.html');
+    expect(html).toContain('Production hardening &amp; standards');
+    expect(html).toContain('<details');
   });
 
   it('should render icon SVGs correctly', () => {

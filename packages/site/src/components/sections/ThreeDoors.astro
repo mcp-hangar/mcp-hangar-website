@@ -1,0 +1,137 @@
+---
+import { getCollection } from "astro:content";
+import CopyIcon from "../icons/CopyIcon.astro";
+import CheckIcon from "../icons/CheckIcon.astro";
+import BookOpenIcon from "../icons/BookOpenIcon.astro";
+import FileTextIcon from "../icons/FileTextIcon.astro";
+import { countCookbookRecipes } from "../../docsNav";
+import { INSTALL_COMMAND } from "../../config";
+
+/**
+ * Three equal boxes implied three equal choices. Installing is the one thing most
+ * readers came for, so it gets the weight and the other two sit beside it.
+ */
+const recipeCount = countCookbookRecipes(await getCollection("oss"));
+const learnCount = (await getCollection("learn")).length;
+---
+
+<section class="max-w-6xl mx-auto px-6 pb-32">
+    <div class="max-w-3xl mx-auto text-center mb-14">
+        <h2 class="text-4xl md:text-5xl font-bold tracking-tight text-zinc-100 mb-5 text-balance">
+            Install it, understand it, or look it up
+        </h2>
+        <p class="text-xl text-zinc-400">
+            Where to go next, depending on why you came.
+        </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-[1.25fr_1fr] gap-5">
+        <!-- Primary: install -->
+        <div class="rounded-3xl bg-emerald-500/[0.06] border border-emerald-500/25 p-8 md:p-10 flex flex-col">
+            <span class="text-sm font-semibold text-emerald-400 uppercase tracking-[0.16em] mb-4">
+                Start
+            </span>
+            <h3 class="text-2xl font-bold text-zinc-100 mb-3">Run it against your own servers</h3>
+            <p class="text-lg text-zinc-400 mb-7">
+                Install the Python core, put a policy in front of one MCP server, and watch
+                a call get denied on purpose.
+            </p>
+
+            <div
+                id="start-copy-btn"
+                role="button"
+                tabindex={0}
+                aria-label="Copy pip install command to clipboard"
+                class="group flex items-center gap-3 bg-zinc-950/60 border border-zinc-800 hover:border-emerald-500/40 rounded-xl px-5 py-4 font-mono text-base cursor-pointer transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 mb-6"
+            >
+                <span class="text-zinc-600 select-none">$</span>
+                <span class="start-copy-text text-zinc-200 truncate">{INSTALL_COMMAND}</span>
+                <span class="text-zinc-600 group-hover:text-emerald-400 transition-colors ml-auto shrink-0">
+                    <span class="start-copy-idle"><CopyIcon /></span>
+                    <span class="start-copy-success hidden"><CheckIcon /></span>
+                </span>
+            </div>
+
+            <a
+                href="/docs/getting-started/quickstart"
+                class="mt-auto inline-flex items-center justify-center gap-2 px-6 py-4 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-semibold text-lg rounded-xl transition-colors"
+            >
+                Quickstart
+                <span aria-hidden="true">&rarr;</span>
+            </a>
+        </div>
+
+        <!-- Secondary: learn + docs -->
+        <div class="grid grid-rows-2 gap-5">
+            <a
+                href="/learn/"
+                class="group rounded-3xl bg-zinc-900/30 border border-zinc-800/50 hover:border-sky-500/30 hover:bg-zinc-900/50 p-7 transition-all duration-300 flex flex-col"
+            >
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-11 h-11 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400 shrink-0">
+                        <BookOpenIcon />
+                    </div>
+                    <h3 class="text-xl font-semibold text-zinc-100 group-hover:text-sky-300 transition-colors">Learn</h3>
+                    <span class="ml-auto font-mono text-sm text-zinc-600">{learnCount}</span>
+                </div>
+                <p class="text-base text-zinc-500 leading-relaxed">
+                    Explainers and walkthroughs: what an enforcement plane is, how a request
+                    travels it, and where it stops.
+                </p>
+                <span class="mt-auto pt-5 inline-flex items-center gap-2 text-base font-semibold text-sky-400">
+                    Start with the request path
+                    <span class="transition-transform group-hover:translate-x-0.5" aria-hidden="true">&rarr;</span>
+                </span>
+            </a>
+
+            <a
+                href="/docs/"
+                class="group rounded-3xl bg-zinc-900/30 border border-zinc-800/50 hover:border-emerald-500/30 hover:bg-zinc-900/50 p-7 transition-all duration-300 flex flex-col"
+            >
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-11 h-11 rounded-xl bg-zinc-700/30 border border-zinc-600/30 flex items-center justify-center text-zinc-400 shrink-0">
+                        <FileTextIcon />
+                    </div>
+                    <h3 class="text-xl font-semibold text-zinc-100 group-hover:text-emerald-300 transition-colors">Docs</h3>
+                    <span class="ml-auto font-mono text-sm text-zinc-600">{recipeCount}</span>
+                </div>
+                <p class="text-base text-zinc-500 leading-relaxed">
+                    Production recipes, plus configuration, CLI, REST API and MCP tool
+                    reference.
+                </p>
+                <span class="mt-auto pt-5 inline-flex items-center gap-2 text-base font-semibold text-emerald-400">
+                    Open the cookbook
+                    <span class="transition-transform group-hover:translate-x-0.5" aria-hidden="true">&rarr;</span>
+                </span>
+            </a>
+        </div>
+    </div>
+</section>
+
+<script>
+    const startBtn = document.getElementById("start-copy-btn");
+    if (startBtn) {
+        const copy = async () => {
+            const txtNode = startBtn.querySelector(".start-copy-text");
+            const command = txtNode ? (txtNode.textContent || "").trim() : "";
+            await navigator.clipboard.writeText(command);
+            const idle = startBtn.querySelector(".start-copy-idle");
+            const success = startBtn.querySelector(".start-copy-success");
+            if (idle && success) {
+                idle.classList.add("hidden");
+                success.classList.remove("hidden");
+                setTimeout(() => {
+                    idle.classList.remove("hidden");
+                    success.classList.add("hidden");
+                }, 2000);
+            }
+        };
+        startBtn.addEventListener("click", copy);
+        startBtn.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                startBtn.click();
+            }
+        });
+    }
+</script>
