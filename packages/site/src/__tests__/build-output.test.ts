@@ -287,4 +287,23 @@ describe('Build Output', () => {
       expect(missing).toEqual([]);
     });
   });
+
+  // WS-7 removed the CSS rule that hid a duplicate <h1>. Learn reuses the same
+  // .blog-content wrapper as the blog, so stripping the heading from only one
+  // of them left fourteen Learn pages rendering two — caught by the WS-8 gate,
+  // not by looking at a blog post. One heading, everywhere, asserted.
+  it('renders exactly one h1 on every article page', () => {
+    const roots = ['learn', 'blog'];
+    for (const root of roots) {
+      const dir = path.join(process.cwd(), 'dist', root);
+      const slugs = fs.readdirSync(dir, { withFileTypes: true })
+        .filter(d => d.isDirectory())
+        .map(d => d.name);
+      expect(slugs.length).toBeGreaterThan(0);
+      for (const slug of slugs) {
+        const html = readDistFile(path.join(root, slug, 'index.html'));
+        expect((html.match(/<h1[\s>]/g) || []).length).toBe(1);
+      }
+    }
+  });
 });
