@@ -75,7 +75,7 @@ const titleOf = new Map(allEntries.map(e => [e.id, e.data.title]));
             class:list={[
               'ml-auto px-2 py-0.5 rounded font-semibold',
               upcoming
-                ? 'bg-amber-500/10 text-amber-400'
+                ? 'bg-zinc-500/10 text-zinc-400'
                 : 'bg-emerald-500/10 text-emerald-400',
             ]}
           >
@@ -103,7 +103,7 @@ const titleOf = new Map(allEntries.map(e => [e.id, e.data.title]));
     <footer class="mt-16 pt-10 border-t border-zinc-800/60">
       {track.deeper.length > 0 && (
         <div class="mb-12">
-          <h2 class="text-sm font-semibold text-emerald-400 uppercase tracking-[0.16em] mb-5">
+          <h2 class="font-mono text-sm font-semibold text-emerald-400 uppercase tracking-[0.16em] mb-5">
             Go deeper in the docs
           </h2>
           <ul class="grid gap-3 sm:grid-cols-2">

@@ -8,10 +8,10 @@ import LockIcon from "../icons/LockIcon.astro";
 
 <section id="features" class="max-w-6xl mx-auto px-6 pb-32">
     <div class="max-w-3xl mx-auto text-center mb-14">
-        <h2 class="text-sm font-semibold text-emerald-400 uppercase tracking-[0.16em] mb-4">
+        <h2 class="font-mono text-sm font-semibold text-emerald-400 uppercase tracking-[0.16em] mb-4">
             Capabilities
         </h2>
-        <p class="text-4xl md:text-5xl font-bold tracking-tight text-zinc-100 text-balance">
+        <p class="text-4xl font-bold tracking-tight text-zinc-100 text-balance">
             Everything you need to run MCP in production
         </p>
     </div>
@@ -58,37 +58,37 @@ import LockIcon from "../icons/LockIcon.astro";
         </div>
 
         <!-- Observability -->
-        <div class="group p-7 md:p-8 rounded-3xl bg-zinc-900/30 border border-zinc-800/50 hover:border-sky-500/20 transition-all duration-300">
+        <div class="group p-7 md:p-8 rounded-3xl bg-zinc-900/30 border border-zinc-800/50 hover:border-zinc-700/50 transition-all duration-300">
             <div class="flex items-center gap-3 mb-5">
-                <div class="w-12 h-12 rounded-2xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400">
+                <div class="w-12 h-12 rounded-2xl bg-zinc-800/40 border border-zinc-700/50 flex items-center justify-center text-zinc-300">
                     <EyeIcon />
                 </div>
                 <h3 class="text-xl font-semibold text-zinc-100">Observability</h3>
             </div>
             <ul class="space-y-3">
                 <li class="flex items-start gap-2">
-                    <span class="text-sky-400 mt-1.5 text-xs">&#9654;</span>
+                    <span class="text-zinc-300 mt-1.5 text-xs">&#9654;</span>
                     <div>
                         <span class="text-zinc-200 text-base font-medium">Full call logging</span>
                         <p class="text-zinc-500 text-sm mt-1 leading-relaxed">Every tool call logged with caller identity, server, timestamp, and arguments.</p>
                     </div>
                 </li>
                 <li class="flex items-start gap-2">
-                    <span class="text-sky-400 mt-1.5 text-xs">&#9654;</span>
+                    <span class="text-zinc-300 mt-1.5 text-xs">&#9654;</span>
                     <div>
                         <span class="text-zinc-200 text-base font-medium">OpenTelemetry GenAI/MCP semconv</span>
                         <p class="text-zinc-500 text-sm mt-1 leading-relaxed">Traces and metrics aligned to the OTel GenAI &amp; MCP semantic conventions. CLIENT spans trace the upstream boundary; logs and traces correlate.</p>
                     </div>
                 </li>
                 <li class="flex items-start gap-2">
-                    <span class="text-sky-400 mt-1.5 text-xs">&#9654;</span>
+                    <span class="text-zinc-300 mt-1.5 text-xs">&#9654;</span>
                     <div>
                         <span class="text-zinc-200 text-base font-medium">Metrics &amp; telemetry-health alerts</span>
                         <p class="text-zinc-500 text-sm mt-1 leading-relaxed">Transport, message, connection, and cost metrics — with alerts on the health of the telemetry pipeline itself.</p>
                     </div>
                 </li>
                 <li class="flex items-start gap-2">
-                    <span class="text-sky-400 mt-1.5 text-xs">&#9654;</span>
+                    <span class="text-zinc-300 mt-1.5 text-xs">&#9654;</span>
                     <div>
                         <span class="text-zinc-200 text-base font-medium">Interceptor framework</span>
                         <p class="text-zinc-500 text-sm mt-1 leading-relaxed">Hook-based event model with wildcard subscriptions. In-process interceptor invocation on the call path (experimental).</p>
@@ -232,7 +232,7 @@ import LockIcon from "../icons/LockIcon.astro";
             <div class="pt-6">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 mt-5">
                 <div>
-                    <h4 class="text-sm font-semibold text-amber-400 uppercase tracking-[0.14em] mb-4">Transport</h4>
+                    <h4 class="font-mono text-sm font-semibold text-amber-400 uppercase tracking-[0.14em] mb-4">Transport</h4>
                     <ul class="space-y-2.5 text-zinc-400 text-base">
                         <li class="flex items-start gap-2"><span class="text-amber-400 mt-1">&#x2022;</span><span>TLS with custom CA support</span></li>
                         <li class="flex items-start gap-2"><span class="text-amber-400 mt-1">&#x2022;</span><span>SSRF protection, enforced at connect time</span></li>
@@ -240,7 +240,7 @@ import LockIcon from "../icons/LockIcon.astro";
                     </ul>
                 </div>
                 <div>
-                    <h4 class="text-sm font-semibold text-amber-400 uppercase tracking-[0.14em] mb-4">Identity</h4>
+                    <h4 class="font-mono text-sm font-semibold text-amber-400 uppercase tracking-[0.14em] mb-4">Identity</h4>
                     <ul class="space-y-2.5 text-zinc-400 text-base">
                         <li class="flex items-start gap-2"><span class="text-amber-400 mt-1">&#x2022;</span><span>JWT/OIDC with JWKS validation</span></li>
                         <li class="flex items-start gap-2"><span class="text-amber-400 mt-1">&#x2022;</span><span>API keys (SHA-256) with optional expiry</span></li>
@@ -248,7 +248,7 @@ import LockIcon from "../icons/LockIcon.astro";
                     </ul>
                 </div>
                 <div>
-                    <h4 class="text-sm font-semibold text-amber-400 uppercase tracking-[0.14em] mb-4">Runtime</h4>
+                    <h4 class="font-mono text-sm font-semibold text-amber-400 uppercase tracking-[0.14em] mb-4">Runtime</h4>
                     <ul class="space-y-2.5 text-zinc-400 text-base">
                         <li class="flex items-start gap-2"><span class="text-amber-400 mt-1">&#x2022;</span><span>Capability declaration &amp; verification</span></li>
                         <li class="flex items-start gap-2"><span class="text-amber-400 mt-1">&#x2022;</span><span>Exponential rate limiting</span></li>
@@ -260,7 +260,7 @@ import LockIcon from "../icons/LockIcon.astro";
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <h4 class="text-sm font-semibold text-emerald-400 uppercase tracking-[0.14em] mb-4">Anchored in standards</h4>
+                    <h4 class="font-mono text-sm font-semibold text-emerald-400 uppercase tracking-[0.14em] mb-4">Anchored in standards</h4>
                     <ul class="space-y-2.5 text-zinc-400 text-base">
                         <li class="flex items-start gap-2"><span class="text-emerald-400 mt-1">&#x2022;</span><span>RFC 8707 audience binding &amp; multi-issuer trust</span></li>
                         <li class="flex items-start gap-2"><span class="text-emerald-400 mt-1">&#x2022;</span><span>RFC 9728 protected-resource metadata</span></li>
@@ -270,7 +270,7 @@ import LockIcon from "../icons/LockIcon.astro";
                     </ul>
                 </div>
                 <div>
-                    <h4 class="text-sm font-semibold text-emerald-400 uppercase tracking-[0.14em] mb-4">OWASP MCP Top 10</h4>
+                    <h4 class="font-mono text-sm font-semibold text-emerald-400 uppercase tracking-[0.14em] mb-4">OWASP MCP Top 10</h4>
                     <p class="text-zinc-400 text-base leading-relaxed">
                         Mapped against the OWASP MCP Top 10 &mdash; including what Hangar
                         deliberately does not cover. It does not parse prompt semantics:

@@ -17,7 +17,7 @@ const learnCount = (await getCollection("learn")).length;
 
 <section class="max-w-6xl mx-auto px-6 pb-32">
     <div class="max-w-3xl mx-auto text-center mb-14">
-        <h2 class="text-4xl md:text-5xl font-bold tracking-tight text-zinc-100 mb-5 text-balance">
+        <h2 class="text-4xl font-bold tracking-tight text-zinc-100 mb-5 text-balance">
             Install it, understand it, or look it up
         </h2>
         <p class="text-xl text-zinc-400">
@@ -28,7 +28,7 @@ const learnCount = (await getCollection("learn")).length;
     <div class="grid grid-cols-1 md:grid-cols-[1.25fr_1fr] gap-5">
         <!-- Primary: install -->
         <div class="rounded-3xl bg-emerald-500/[0.06] border border-emerald-500/25 p-8 md:p-10 flex flex-col">
-            <span class="text-sm font-semibold text-emerald-400 uppercase tracking-[0.16em] mb-4">
+            <span class="font-mono text-sm font-semibold text-emerald-400 uppercase tracking-[0.16em] mb-4">
                 Start
             </span>
             <h3 class="text-2xl font-bold text-zinc-100 mb-3">Run it against your own servers</h3>
@@ -65,20 +65,20 @@ const learnCount = (await getCollection("learn")).length;
         <div class="grid grid-rows-2 gap-5">
             <a
                 href="/learn/"
-                class="group rounded-3xl bg-zinc-900/30 border border-zinc-800/50 hover:border-sky-500/30 hover:bg-zinc-900/50 p-7 transition-all duration-300 flex flex-col"
+                class="group rounded-3xl bg-zinc-900/30 border border-zinc-800/50 hover:border-zinc-600/60 hover:bg-zinc-900/50 p-7 transition-all duration-300 flex flex-col"
             >
                 <div class="flex items-center gap-3 mb-3">
-                    <div class="w-11 h-11 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400 shrink-0">
+                    <div class="w-11 h-11 rounded-xl bg-zinc-800/40 border border-zinc-700/50 flex items-center justify-center text-zinc-300 shrink-0">
                         <BookOpenIcon />
                     </div>
-                    <h3 class="text-xl font-semibold text-zinc-100 group-hover:text-sky-300 transition-colors">Learn</h3>
+                    <h3 class="text-xl font-semibold text-zinc-100 group-hover:text-zinc-200 transition-colors">Learn</h3>
                     <span class="ml-auto font-mono text-sm text-zinc-600">{learnCount}</span>
                 </div>
                 <p class="text-base text-zinc-500 leading-relaxed">
                     Explainers and walkthroughs: what an enforcement plane is, how a request
                     travels it, and where it stops.
                 </p>
-                <span class="mt-auto pt-5 inline-flex items-center gap-2 text-base font-semibold text-sky-400">
+                <span class="mt-auto pt-5 inline-flex items-center gap-2 text-base font-semibold text-zinc-300">
                     Start with the request path
                     <span class="transition-transform group-hover:translate-x-0.5" aria-hidden="true">&rarr;</span>
                 </span>
