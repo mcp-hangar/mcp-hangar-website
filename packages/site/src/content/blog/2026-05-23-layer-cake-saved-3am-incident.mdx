@@ -6,8 +6,6 @@ description: "03:14:22 — a provider starts returning HTTP 200 responses with m
 tags: [mcp, mcp-hangar, reliability, incidents, observability, architecture]
 ---
 
-# The Layer Cake That Saved a 3 AM Incident
-
 The most interesting incidents are the ones nobody hears about.
 
 This one happened on a Tuesday at 03:14:22. An upstream API the MCP server was wrapping started returning HTTP 200 responses with malformed JSON bodies. Status code green, content broken. The MCP server forwarded the broken payloads to Hangar, which forwarded them to the agents. The agents — being agents — tried to do something with the garbage. Failures cascaded into the LLM's reasoning loop in unhelpful ways.

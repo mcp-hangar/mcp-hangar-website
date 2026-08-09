@@ -38,6 +38,19 @@ function absolutise(body: string, docId: string): string {
   });
 }
 
+// The `security` collection is MDX, so its raw body still carries the import
+// lines and the component tags they refer to. Machines get the prose: drop the
+// imports, drop self-closing components (they carry no prose), and unwrap the
+// rest so a `<Callout>`'s contents survive. Same rule as the `.md` mirrors.
+function mdxToProse(body: string): string {
+  return body
+    .replace(/^(import|export)\s+.*$/gm, '')
+    .replace(/<([A-Z][A-Za-z0-9]*)\b[^>]*\/>\s*/g, '')
+    .replace(/<\/?([A-Z][A-Za-z0-9]*)\b[^>]*>/g, '')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
 function cleanBody(doc: DocEntry): string {
   // Strip the leading h1 and any inline SVG — machine output is prose, no diagrams.
   const body = stripSvg((doc.body || '').replace(/^#\s+.+\n*/, '').trim());
@@ -66,7 +79,17 @@ function renderIndex(title: string, entries: DocEntry[], note: string): string {
 
 export const GET: APIRoute = async () => {
   const docs = await getCollection('oss') as unknown as DocEntry[];
-  const learn = await getCollection('learn') as unknown as DocEntry[];
+  const learn = (await getCollection('learn')).filter(e => !e.data.draft) as unknown as DocEntry[];
+  // Site security posture pages. They join the docs' own security pages under
+  // one `## Security` heading — a second heading of the same name would just be
+  // a duplicate key in this file.
+  const securityPages = (await getCollection('security'))
+    .sort((a, b) => a.data.order - b.data.order)
+    .map(s => ({
+      id: s.id,
+      data: { title: s.data.title, description: s.data.description },
+      body: mdxToProse(s.body ?? ''),
+    })) as DocEntry[];
   const posts = (await getCollection('blog')).sort(
     (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
   );
@@ -94,7 +117,10 @@ export const GET: APIRoute = async () => {
       ...docs.filter(d => d.id.startsWith('observability/')),
       ...docs.filter(d => d.id.startsWith('runbooks/')),
     ]),
-    renderSection('Security', docs.filter(d => d.id.startsWith('security'))),
+    renderSection('Security', [
+      ...securityPages,
+      ...docs.filter(d => d.id.startsWith('security')),
+    ]),
     renderSection('Integrations', byPrefix('integrations/')),
     renderSection('Other', docs.filter(
       d => d.id !== 'index' && !categorizedPrefixes.some(p => d.id.startsWith(p))

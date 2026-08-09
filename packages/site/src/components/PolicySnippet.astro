@@ -1,0 +1,48 @@
+---
+import { Code } from "astro:components";
+
+/**
+ * A short policy, shown as a file rather than as a code sample: the filename
+ * tab is the point — this is a thing you put in a repo, not a snippet you
+ * paste into a console.
+ *
+ * Highlighting goes through Astro's Shiki with the same `github-dark` theme the
+ * docs use (`astro.config.mjs`), so a policy looks identical wherever it
+ * appears. Keep these tight — around a dozen lines. If a snippet needs more, it
+ * is a cookbook recipe, not a card illustration.
+ */
+interface Props {
+    filename: string;
+    code: string;
+    /** Narrowed to what this component is for: policy files and the commands
+     *  that apply them. `Code` types its `lang`, and `string` does not satisfy it. */
+    lang?: "yaml" | "json" | "bash";
+    class?: string;
+}
+
+const { filename, code, lang = "yaml", class: className = "" } = Astro.props;
+---
+
+<figure class={`rounded-xl border border-zinc-800 bg-zinc-950/60 overflow-hidden ${className}`}>
+    <figcaption
+        class="flex items-center gap-2 border-b border-zinc-800 px-4 py-2 font-mono text-xs text-zinc-500"
+    >
+        <span class="inline-block h-1.5 w-1.5 rounded-full bg-zinc-700" aria-hidden="true"></span>
+        {filename}
+    </figcaption>
+    <div class="policy-snippet overflow-x-auto px-4 py-3 text-sm">
+        <Code code={code.trim()} lang={lang} theme="github-dark" />
+    </div>
+</figure>
+
+<style is:global>
+    /* Shiki paints its own background; the figure already provides one. */
+    .policy-snippet pre {
+        background: transparent !important;
+        margin: 0;
+    }
+    .policy-snippet code {
+        font-family: var(--font-mono, ui-monospace, monospace);
+        line-height: 1.65;
+    }
+</style>

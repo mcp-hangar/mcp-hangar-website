@@ -1,0 +1,53 @@
+---
+title: "A registry is not an enforcement plane"
+description: "The MCP ecosystem is building discovery and distribution. Neither decides whether a call is allowed to happen."
+type: "Why"
+level: "Core"
+time: "8 min"
+theme: "foundations"
+since: "2.5.0"
+updated: 2026-08-09
+draft: true
+tags: ["registry", "ecosystem", "positioning"]
+---
+
+{/*
+  OUTLINE ONLY — body is Marcin's to write.
+
+  This page is `draft: true`, so nothing builds it: no hub card, no route, no
+  `.md` mirror, no llms entry. Flip the flag when the body is written; the
+  reading order in `src/lib/learn-track.ts` will need an entry too, otherwise
+  the page publishes without prev/next.
+
+  The argument, as agreed:
+
+  1. What a registry answers.
+     Discovery and distribution — which servers exist, where they are, what
+     they claim to expose. Genuinely useful, and the ecosystem is right to
+     build it. Be generous here; the piece is not against the registry.
+
+  2. What it does not answer.
+     Whether *this* caller may make *this* call *now*. A registry is a
+     catalogue: it describes, it does not decide. Nothing in the protocol
+     turns an entry into a refusal.
+
+  3. Why the gap widens rather than closes.
+     Every extension — tasks, interceptors, the registry itself — adds call
+     shapes. Each one is another thing that can happen and nothing new that
+     can say no. Growth of the surface is growth of the gap.
+
+  4. The distinction to leave the reader with.
+     Catalogue vs verdict. An enforcement plane is not a better registry; it
+     is the other half — the part that answers with allow or deny, on the
+     path, before the call reaches anything.
+
+  Constraints for the body:
+  - No "gateway" anywhere (C2).
+  - Do not claim the registry is unsafe or badly designed; the argument is
+    about a category boundary, not a defect.
+  - Do not claim unregistered servers get no traffic (C4) — that is precisely
+    the claim this page must not smuggle back in.
+  - Link out to: /learn/what-is-a-policy-enforcement-plane (the positive
+    definition) and /learn/enforcement-plane-vs-api-gateway (the neighbouring
+    distinction).
+*/}

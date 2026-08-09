@@ -6,8 +6,6 @@ description: "Your agent just discovered it can call hangar_call in a loop. Twel
 tags: [mcp, mcp-hangar, security, observability, architecture, open-source]
 ---
 
-# When Your LLM Won't Stop Talking: Rate Limiting in MCP Hangar
-
 Your agent just discovered it can call `hangar_call` in a loop. It's doing exactly that. Twelve hundred requests in ninety seconds, all legitimate from the model's perspective — it's just being thorough. Your MCP server is on its knees. The provider it's hammering has started returning garbage. The agent, undeterred, keeps calling.
 
 This is not a hypothetical. It's what happens when you give a sufficiently motivated LLM tool access and no ceiling.

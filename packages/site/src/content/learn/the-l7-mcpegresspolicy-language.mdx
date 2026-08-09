@@ -10,12 +10,10 @@ updated: 2026-07-22
 tags: [concepts, enforcement, egress, policy, adr-013]
 ---
 
-# The L7 MCPEgressPolicy language
-
-Registration answers one question -- *may this server receive traffic at all?* A
-namespace opted into enforcement gets a default-deny egress, unregistered pods
-fail admission, and a registered server stays dark until its image is
-digest-pinned. That is a switch, not a policy. `MCPEgressPolicy` is the
+Registration answers one question -- *may this server receive traffic at all?* In a
+namespace opted into enforcement the operator applies a default-deny egress,
+admission validates the server's spec, and a registered server's egress is
+withheld until its image is digest-pinned. That is a switch, not a policy. `MCPEgressPolicy` is the
 declarative language that sits above the switch and answers the next question:
 *which upstreams, which tool calls, with which arguments -- and what happens when
 the answer is no?*

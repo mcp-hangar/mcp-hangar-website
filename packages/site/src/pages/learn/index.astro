@@ -2,11 +2,12 @@
 import Base from '../../layouts/Base.astro';
 import { getCollection } from 'astro:content';
 import { isUpcoming, sinceLabel, sortVersionsDescending } from '../../lib/version-badge';
+import PipelineMotif from '../../components/PipelineMotif.astro';
 // The reading order moved to lib/learn-track, so the individual pages can show
 // where they sit in it. Filtering here still preserves that order within results.
 import { START_HERE, rank } from '../../lib/learn-track';
 
-const entries = await getCollection('learn');
+const entries = (await getCollection('learn')).filter(e => !e.data.draft);
 const sorted = entries.sort((a, b) => {
   const ra = rank(a.id), rb = rank(b.id);
   if (ra !== rb) return ra - rb;
@@ -126,84 +127,7 @@ const versions = sortVersionsDescending([...new Set(entries.map(e => e.data.sinc
 
           <!-- 3 · the enforcement pipeline (ordered, vertical) — the seam, the
                dense visual centerpiece of the spine -->
-          <div class="seam">
-            <div class="seamlabel">The enforcement pipeline</div>
-            <div class="seamsub">ordered — top → bottom is real execution order</div>
-            <div class="pipelegend">
-              <span><i class="k k-gate"></i> governance gate</span>
-              <span><i class="k k-rel"></i> reliability</span>
-              <span><i class="k k-off"></i> opt-in · off</span>
-            </div>
-            <ol class="pipe">
-              <li>
-                <button type="button" class="ctl step is-gate" data-theme="enforcement" data-filter="what-is-a-policy-enforcement-plane enforcement-plane-vs-api-gateway" data-active="false">
-                  <span class="acc"></span>
-                  <span class="sord">a</span>
-                  <span class="sbody"><span class="sh">Tool-access authz</span><span class="sd">tenant / member scope</span></span>
-                </button>
-              </li>
-              <li>
-                <button type="button" class="ctl step is-gate" data-theme="enforcement" data-filter="what-is-a-policy-enforcement-plane" data-active="false">
-                  <span class="acc"></span>
-                  <span class="sord">b</span>
-                  <span class="sbody"><span class="sh">Tool-withdrawal check</span><span class="sd">per-tenant withdrawal</span></span>
-                </button>
-              </li>
-              <li>
-                <button type="button" class="ctl step is-gate" data-theme="enforcement" data-filter="digest-pinning" data-active="false">
-                  <span class="acc"></span>
-                  <span class="sord">c</span>
-                  <span class="sbody"><span class="sh">Tool-schema digest-pin verify <span class="tag opt">opt-in</span></span><span class="sd">schema drift fails closed</span></span>
-                </button>
-              </li>
-              <li>
-                <button type="button" class="ctl step is-rel" data-theme="enforcement" data-filter="the-request-path" data-active="false">
-                  <span class="acc"></span>
-                  <span class="sord">d</span>
-                  <span class="sbody"><span class="sh">Circuit-breaker / health</span><span class="sd">reliability</span></span>
-                </button>
-              </li>
-              <li>
-                <button type="button" class="ctl step is-off" data-theme="enforcement" data-filter="the-request-path" data-active="false">
-                  <span class="acc"></span>
-                  <span class="sord">e</span>
-                  <span class="sbody"><span class="sh">Interceptor validators <span class="tag off">off</span></span><span class="sd">opt-in · off by default</span></span>
-                </button>
-              </li>
-              <li>
-                <button type="button" class="ctl step is-gate" data-theme="enforcement" data-filter="the-l7-mcpegresspolicy-language" data-active="false">
-                  <span class="acc"></span>
-                  <span class="sord">f</span>
-                  <span class="sbody"><span class="sh">Approval gate</span><span class="sd">human-in-the-loop</span></span>
-                </button>
-              </li>
-              <li>
-                <button type="button" class="ctl step is-rel" data-theme="enforcement" data-filter="the-request-path" data-active="false">
-                  <span class="acc"></span>
-                  <span class="sord">g</span>
-                  <span class="sbody"><span class="sh">Concurrency / backpressure</span><span class="sd">reliability</span></span>
-                </button>
-              </li>
-              <li>
-                <button type="button" class="ctl step is-off" data-theme="enforcement" data-filter="the-request-path" data-active="false">
-                  <span class="acc"></span>
-                  <span class="sord">h</span>
-                  <span class="sbody"><span class="sh">Interceptor mutators — request <span class="tag off">off</span></span><span class="sd">opt-in · off by default</span></span>
-                </button>
-              </li>
-              <li>
-                <button type="button" class="ctl step is-gate is-l7" data-theme="enforcement" data-filter="the-l7-mcpegresspolicy-language write-your-first-mcpegresspolicy from-install-to-a-governed-deny" data-active="false">
-                  <span class="acc"></span>
-                  <span class="sord">i</span>
-                  <span class="sbody">
-                    <span class="sh">Egress L7 policy <span class="slast">last gate before the wire</span></span>
-                    <span class="sd">tool + arguments — fires inside invoke_tool, right before upstream I/O</span>
-                    <span class="sstat">core v1.6.0+ · end-to-end needs operator v0.14.0+</span>
-                  </span>
-                </button>
-              </li>
-            </ol>
-          </div>
+          <PipelineMotif size="full" />
 
           <span class="dconn wire" aria-hidden="true"><span class="wirenote">↓ to the wire</span></span>
 
@@ -266,10 +190,10 @@ const versions = sortVersionsDescending([...new Set(entries.map(e => e.data.sinc
       <div class="facets">
         <div class="fgroup">
           <span class="lbl">Type</span>
-          <button class="chip" data-f="type" data-v="Concept"><span class="sw" style="background:var(--concept)"></span>Concept</button>
-          <button class="chip" data-f="type" data-v="Tutorial"><span class="sw" style="background:var(--tutorial)"></span>Tutorial</button>
-          <button class="chip" data-f="type" data-v="Why"><span class="sw" style="background:var(--why)"></span>Deep dive</button>
-          <button class="chip" data-f="type" data-v="Visual"><span class="sw" style="background:var(--visual)"></span>Visual</button>
+          <button class="chip" data-f="type" data-v="Concept">Concept</button>
+          <button class="chip" data-f="type" data-v="Tutorial">Tutorial</button>
+          <button class="chip" data-f="type" data-v="Why">Deep dive</button>
+          <button class="chip" data-f="type" data-v="Visual">Visual</button>
         </div>
         <div class="fgroup">
           <span class="lbl">Level</span>
@@ -342,10 +266,13 @@ const versions = sortVersionsDescending([...new Set(entries.map(e => e.data.sinc
     --line-2: #3f3f46;       /* zinc-700 */
     --brand: #d4d4d8;        /* zinc-300 — accents are neutral; green means allow */
     --brand-dim: #27272a;     /* zinc-800 */
-    --concept: #2dd4bf;      /* teal */
-    --tutorial: #38bdf8;     /* sky */
-    --why: #a78bfa;          /* violet */
-    --visual: #fbbf24;       /* amber */
+    /* Page type is carried by its icon and its label; it used to also get a
+       hue, which made four more colours compete with the verdict palette for
+       no extra information. All four resolve to the same neutral now. */
+    --concept: #a1a1aa;      /* zinc-400 */
+    --tutorial: #a1a1aa;
+    --why: #a1a1aa;
+    --visual: #a1a1aa;
     --ship: #a1a1aa;         /* zinc-400 — shipped is the normal state, so no hue */
     --ship-bg: #27272a;       /* zinc-800 */
     --preview: #fbbf24;
@@ -430,8 +357,6 @@ const versions = sortVersionsDescending([...new Set(entries.map(e => e.data.sinc
      seam-width blocks IN the spine, joined by downward connectors only. */
   .learn-hub .flow { display: flex; flex-direction: column; align-items: center; gap: 0; }
   .learn-hub .node,
-  .learn-hub .seam,
-  .learn-hub .respside { width: 100%; max-width: 480px; }
 
   /* spine endpoints (client / auth / upstream) */
   .learn-hub .node {
@@ -444,47 +369,13 @@ const versions = sortVersionsDescending([...new Set(entries.map(e => e.data.sinc
   .learn-hub .node .naside { font-size: 11.5px; color: var(--faint); margin-top: 6px; padding-top: 6px; border-top: 1px dotted var(--line-2); }
 
   /* the enforcement seam — the dense, ORDERED pipeline: the tall centrepiece */
-  .learn-hub .seam {
-    border: 1px solid color-mix(in srgb, var(--brand) 40%, var(--line));
-    background: linear-gradient(180deg, var(--brand-dim), var(--panel)); border-radius: 12px; padding: 14px 13px;
-  }
-  .learn-hub .seam .seamlabel { text-align: center; font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color: var(--brand); font-weight: 800; }
-  .learn-hub .seam .seamsub { text-align: center; font-size: 12px; color: var(--faint); margin: 2px 0 8px; }
-  .learn-hub .pipelegend { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; font-size: 11px; color: var(--faint); }
-  .learn-hub .pipelegend span { display: inline-flex; align-items: center; gap: 5px; }
-  .learn-hub .pipelegend .k { width: 9px; height: 9px; border-radius: 2px; }
-  .learn-hub .pipelegend .k-gate { background: var(--ink-2); }
-  .learn-hub .pipelegend .k-rel { background: var(--faint); opacity: .7; }
-  .learn-hub .pipelegend .k-off { background: transparent; border: 1px dashed var(--line-2); }
 
   /* the ordered pipeline: top -> bottom is execution order (a spine + ordinals) */
-  .learn-hub .pipe { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; position: relative; }
-  .learn-hub .step { width: 100%; padding: 10px 12px; display: flex; align-items: flex-start; gap: 10px; }
-  .learn-hub .step .sord {
-    flex: 0 0 auto; width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; margin-top: 1px;
-    font-family: var(--font-mono, ui-monospace, monospace); font-size: 11px; font-weight: 700;
-    color: var(--muted); background: var(--raise); border: 1px solid var(--line-2);
-  }
-  .learn-hub .step .sbody { display: flex; flex-direction: column; min-width: 0; }
-  .learn-hub .step .sh { font-weight: 700; font-size: 14px; color: var(--ink); display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
-  .learn-hub .step .sd { font-size: 12px; color: var(--muted); margin-top: 2px; }
-  .learn-hub .step .sstat { font-size: 11px; color: var(--faint); margin-top: 4px; }
 
   /* PRIMARY governance gates: solid, full-contrast, prominent */
-  .learn-hub .step.is-gate { border-color: var(--line-2); }
-  .learn-hub .step.is-gate .sord { color: var(--ink); background: var(--panel); }
   /* SECONDARY reliability steps: solid but dimmed back */
-  .learn-hub .step.is-rel { background: var(--panel-2); opacity: .82; }
-  .learn-hub .step.is-rel .sh { color: var(--ink-2); font-weight: 600; }
   /* OFF-by-default interceptors: dashed + muted, clearly not live */
-  .learn-hub .step.is-off { border-style: dashed; background: transparent; opacity: .62; }
-  .learn-hub .step.is-off .sh { color: var(--muted); font-weight: 600; }
   /* the L7 gate — the climax of the seam: last gate before the wire (seam emphasis) */
-  .learn-hub .step.is-l7 { border-color: color-mix(in srgb, var(--brand) 45%, var(--line)); background: color-mix(in srgb, var(--brand-dim) 70%, var(--panel)); }
-  .learn-hub .step.is-l7 .slast {
-    font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em;
-    color: var(--brand); border: 1px solid color-mix(in srgb, var(--brand) 45%, transparent); border-radius: 5px; padding: 1px 5px;
-  }
 
   /* response block — the last stage in the spine, after upstream */
   .learn-hub .respside {
@@ -598,7 +489,7 @@ const versions = sortVersionsDescending([...new Set(entries.map(e => e.data.sinc
     display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
   }
   .learn-hub .card .meta { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; font-size: 11.5px; color: var(--muted); }
-  .learn-hub .card .type { color: var(--tc); font-weight: 700; }
+  .learn-hub .card .type { color: var(--ink-2); font-weight: 700; font-family: var(--font-mono, ui-monospace, monospace); text-transform: uppercase; letter-spacing: .08em; font-size: 11px; }
   .learn-hub .card .meta .sep { width: 3px; height: 3px; border-radius: 50%; background: var(--faint); }
   .learn-hub .pill { font-size: 10.5px; font-weight: 700; padding: 2px 7px; border-radius: 5px; letter-spacing: .02em; margin-left: auto; }
   .learn-hub .pill.ship { background: var(--ship-bg); color: var(--ship); }
