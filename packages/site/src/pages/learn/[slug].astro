@@ -2,6 +2,7 @@
 import Base from '../../layouts/Base.astro';
 import { getCollection, render } from 'astro:content';
 import { isUpcoming, sinceLabel } from '../../lib/version-badge';
+import { trackPosition } from '../../lib/learn-track';
 
 export async function getStaticPaths() {
   const entries = await getCollection('learn');
@@ -34,6 +35,13 @@ const TLABEL: Record<string, string> = {
 const { type, level, time, since } = entry.data;
 const typeColor = TC[type];
 const upcoming = isUpcoming(since);
+
+// Where this page sits in the guided track, and what it hands off to. Without
+// this a reader finishing a page had nowhere to go: eight of the sixteen pages
+// linked to no sibling at all.
+const track = trackPosition(entry.id);
+const allEntries = await getCollection('learn');
+const titleOf = new Map(allEntries.map(e => [e.id, e.data.title]));
 ---
 
 <Base
@@ -91,5 +99,72 @@ const upcoming = isUpcoming(since);
         <Content />
       </div>
     </article>
+
+    <footer class="mt-16 pt-10 border-t border-zinc-800/60">
+      {track.deeper.length > 0 && (
+        <div class="mb-12">
+          <h2 class="text-sm font-semibold text-emerald-400 uppercase tracking-[0.16em] mb-5">
+            Go deeper in the docs
+          </h2>
+          <ul class="grid gap-3 sm:grid-cols-2">
+            {track.deeper.map(d => (
+              <li>
+                <a
+                  href={d.href}
+                  class="group flex items-center justify-between gap-3 rounded-xl bg-zinc-900/40 border border-zinc-800/60 hover:border-emerald-500/30 hover:bg-zinc-900/60 px-4 py-3.5 transition-colors"
+                >
+                  <span class="text-base text-zinc-300 group-hover:text-emerald-300 transition-colors">{d.label}</span>
+                  <span class="text-zinc-600 group-hover:text-emerald-400 group-hover:translate-x-0.5 transition-all shrink-0" aria-hidden="true">&rarr;</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {track.index !== null && (
+        <nav aria-label="Learn track">
+          <div class="flex items-center justify-between gap-4 mb-5">
+            <span class="font-mono text-xs text-zinc-500 uppercase tracking-wider">
+              Step {track.index} of {track.total} &middot; Learn track
+            </span>
+            <a href="/learn" class="text-sm text-zinc-500 hover:text-emerald-400 transition-colors">
+              All concepts
+            </a>
+          </div>
+
+          <div class="grid gap-3 sm:grid-cols-2">
+            {track.prev && (
+              <a
+                href={`/learn/${track.prev}`}
+                class="group rounded-xl bg-zinc-900/40 border border-zinc-800/60 hover:border-emerald-500/30 hover:bg-zinc-900/60 px-5 py-4 transition-colors"
+              >
+                <span class="flex items-center gap-1.5 text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-1.5">
+                  <span class="group-hover:-translate-x-0.5 transition-transform" aria-hidden="true">&larr;</span>
+                  Previous
+                </span>
+                <span class="block text-base font-medium text-zinc-200 group-hover:text-emerald-300 transition-colors text-balance">
+                  {titleOf.get(track.prev)}
+                </span>
+              </a>
+            )}
+            {track.next && (
+              <a
+                href={`/learn/${track.next}`}
+                class={`group rounded-xl bg-zinc-900/40 border border-zinc-800/60 hover:border-emerald-500/30 hover:bg-zinc-900/60 px-5 py-4 transition-colors sm:text-right ${track.prev ? '' : 'sm:col-start-2'}`}
+              >
+                <span class="flex items-center gap-1.5 text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-1.5 sm:justify-end">
+                  Next
+                  <span class="group-hover:translate-x-0.5 transition-transform" aria-hidden="true">&rarr;</span>
+                </span>
+                <span class="block text-base font-medium text-zinc-200 group-hover:text-emerald-300 transition-colors text-balance">
+                  {titleOf.get(track.next)}
+                </span>
+              </a>
+            )}
+          </div>
+        </nav>
+      )}
+    </footer>
   </main>
 </Base>
