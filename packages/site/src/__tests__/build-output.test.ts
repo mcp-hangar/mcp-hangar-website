@@ -15,7 +15,7 @@ describe('Build Output', () => {
     expect(html).toContain('mcp-hangar');
     
     expect(html).toContain('href="/docs/"');
-    expect(html).toContain('href="/docs/blog/"');
+    expect(html).toContain('href="/blog/"');
     
     expect(html).toContain('id="features"');
   });

@@ -34,7 +34,7 @@ There are new per-server transport metrics too -- `mcp_hangar_messages_sent_tota
 
 `MCPEgressPolicy` -- the L7 half of Hangar's enforcement plane -- is now shipped across the stack. Declare, per MCP server or server group, a deny-by-default allow-list of upstreams (matched against the same digest/issuer primitives you already pin), plus deterministic tool-call and argument rules and a network backstop. The operator (`v0.14.0`) compiles the policy and pushes it to core, which enforces every tool call at the invocation chokepoint before it touches the wire. Audit-by-default, so you can watch before you block.
 
-The Helm chart now installs the `MCPEgressPolicy` CRD and grants the operator the RBAC to reconcile it, so the feature works from a plain `helm install`. See the [Egress Policy guide](/docs/guides/egress-policy) to get started.
+The Helm chart now installs the `MCPEgressPolicy` CRD and grants the operator the RBAC to reconcile it, so the feature works from a plain `helm install`. See the [Egress Policy guide](/docs/guides/EGRESS_POLICY) to get started.
 
 ## Get it
 
