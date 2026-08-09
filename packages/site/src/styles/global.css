@@ -6,6 +6,34 @@
 @theme {
     --font-sans: 'Space Grotesk', system-ui, sans-serif;
     --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+    /* Colour is semantics, not decoration.
+     *
+     * The base is zinc. Exactly two colours carry meaning, because the product
+     * is a binary verdict: a policy either allows a call or it does not. A
+     * third marks the one state that is neither — a control that exists but is
+     * not on by default.
+     *
+     * Nothing else gets a hue. If a colour here shows up on something that is
+     * not a verdict or an opt-in state, that is a bug in the design, not a
+     * style preference.
+     *
+     * Colour is never the only encoding: every verdict also carries its text
+     * label (ALLOW / DENY). See VerdictChip.
+     */
+
+    /* allow — the existing brand green (#10b981 / #6ee7b7), deliberately
+     * unchanged, so the palette narrows without the brand shifting. */
+    --color-verdict-allow: #10b981;
+    --color-verdict-allow-soft: #6ee7b7;
+
+    /* deny — rose-500/300. New to the codebase: there was no red anywhere. */
+    --color-verdict-deny: #f43f5e;
+    --color-verdict-deny-soft: #fda4af;
+
+    /* not on by default — opt-in, off, or preview. Amber survives only here. */
+    --color-state-optin: #f59e0b;
+    --color-state-optin-soft: #fcd34d;
     --animate-pulse-slow: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
     --animate-fade-in: fade-in 0.6s ease-out both;
     --animate-slide-up: slide-up 0.5s ease-out both;
@@ -14,7 +42,7 @@
 .prose-invert {
   --tw-prose-body: #d4d4d8;
   --tw-prose-headings: #fafafa;
-  --tw-prose-links: #34d399;
+  --tw-prose-links: #f4f4f5;
   --tw-prose-bold: #fafafa;
   --tw-prose-code: #e4e4e7;
   --tw-prose-pre-bg: #18181b;
@@ -23,7 +51,7 @@
   --tw-prose-bullets: #52525b;
   --tw-prose-hr: #27272a;
   --tw-prose-quotes: #a1a1aa;
-  --tw-prose-quote-borders: #34d399;
+  --tw-prose-quote-borders: #52525b;
   --tw-prose-th-borders: #3f3f46;
   --tw-prose-td-borders: #27272a;
 }
@@ -61,7 +89,7 @@
   border-radius: 0.3rem;
   font-size: 0.875em;
   font-family: 'JetBrains Mono', 'Fira Code', monospace;
-  color: #a7f3d0;
+  color: #e4e4e7;
 }
 
 .docs-article pre {
@@ -78,8 +106,8 @@
 }
 
 .docs-article pre:hover {
-  border-color: rgba(52, 211, 153, 0.15);
-  box-shadow: 0 4px 24px -4px rgba(52, 211, 153, 0.06), 0 0 0 1px rgba(52, 211, 153, 0.05);
+  border-color: rgba(113, 113, 122, 0.3);
+  box-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(113, 113, 122, 0.12);
 }
 
 .docs-article pre code {
@@ -87,20 +115,24 @@
 }
 
 .docs-article a {
-  text-decoration: none;
-  border-bottom: 1px solid transparent;
-  transition: border-color 0.2s;
+  /* Links are zinc and underlined. They used to be green with a hover-only
+     underline, which spent the brand colour on every link on the site and left
+     a link indistinguishable from body text until you pointed at it. */
+  text-decoration: underline;
+  text-decoration-color: #52525b;
+  text-underline-offset: 3px;
+  transition: text-decoration-color 0.2s;
 }
 
 .docs-article a:hover {
-  border-bottom-color: #34d399;
+  text-decoration-color: #f4f4f5;
 }
 
 .docs-article blockquote {
   position: relative;
-  background: linear-gradient(135deg, rgba(52, 211, 153, 0.06) 0%, rgba(9, 9, 11, 0.4) 100%);
-  border: 1px solid rgba(52, 211, 153, 0.15);
-  border-left: 3px solid #34d399;
+  background: linear-gradient(135deg, rgba(113, 113, 122, 0.10) 0%, rgba(9, 9, 11, 0.4) 100%);
+  border: 1px solid rgba(113, 113, 122, 0.25);
+  border-left: 3px solid #52525b;
   padding: 1rem 1.25rem;
   border-radius: 0 0.75rem 0.75rem 0;
   backdrop-filter: blur(4px);
@@ -108,9 +140,9 @@
 }
 
 .docs-article blockquote:hover {
-  border-color: rgba(52, 211, 153, 0.25);
-  border-left-color: #34d399;
-  box-shadow: 0 4px 20px -4px rgba(52, 211, 153, 0.08);
+  border-color: rgba(113, 113, 122, 0.4);
+  border-left-color: #a1a1aa;
+  box-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.45);
 }
 
 .docs-article blockquote p {
@@ -223,7 +255,7 @@ body {
 }
 
 ::selection {
-    @apply bg-emerald-400/30 text-zinc-100;
+    @apply bg-zinc-300/30 text-zinc-50;
 }
 
 /* Terminal-style cursor blink */

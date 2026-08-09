@@ -8,47 +8,47 @@ import LockIcon from "../icons/LockIcon.astro";
 
 <section id="features" class="max-w-6xl mx-auto px-6 pb-32">
     <div class="max-w-3xl mx-auto text-center mb-14">
-        <h2 class="text-sm font-semibold text-emerald-400 uppercase tracking-[0.16em] mb-4">
+        <h2 class="font-mono text-sm font-semibold text-zinc-300 uppercase tracking-[0.16em] mb-4">
             Capabilities
         </h2>
-        <p class="text-4xl md:text-5xl font-bold tracking-tight text-zinc-100 text-balance">
+        <p class="text-4xl font-bold tracking-tight text-zinc-100 text-balance">
             Everything you need to run MCP in production
         </p>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <!-- Governance -->
-        <div class="group p-7 md:p-8 rounded-3xl bg-zinc-900/30 border border-zinc-800/50 hover:border-emerald-500/20 transition-all duration-300">
+        <div class="group p-7 md:p-8 rounded-3xl bg-zinc-900/30 border border-zinc-800/50 hover:border-zinc-700/50 transition-all duration-300">
             <div class="flex items-center gap-3 mb-5">
-                <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+                <div class="w-12 h-12 rounded-2xl bg-zinc-800/40 border border-zinc-700/50 flex items-center justify-center text-zinc-300">
                     <ShieldCheckIcon />
                 </div>
                 <h3 class="text-xl font-semibold text-zinc-100">Governance</h3>
             </div>
             <ul class="space-y-3">
                 <li class="flex items-start gap-2">
-                    <span class="text-emerald-400 mt-1.5 text-xs">&#9654;</span>
+                    <span class="text-zinc-300 mt-1.5 text-xs">&#9654;</span>
                     <div>
                         <span class="text-zinc-200 text-base font-medium">Per-caller access policies</span>
                         <p class="text-zinc-500 text-sm mt-1 leading-relaxed">Per-server, per-tool RBAC. Block writes, allow read-only per team.</p>
                     </div>
                 </li>
                 <li class="flex items-start gap-2">
-                    <span class="text-emerald-400 mt-1.5 text-xs">&#9654;</span>
+                    <span class="text-zinc-300 mt-1.5 text-xs">&#9654;</span>
                     <div>
                         <span class="text-zinc-200 text-base font-medium">Tool access filtering</span>
                         <p class="text-zinc-500 text-sm mt-1 leading-relaxed">Allow/deny by glob pattern. Block delete_* across the board.</p>
                     </div>
                 </li>
                 <li class="flex items-start gap-2">
-                    <span class="text-emerald-400 mt-1.5 text-xs">&#9654;</span>
+                    <span class="text-zinc-300 mt-1.5 text-xs">&#9654;</span>
                     <div>
                         <span class="text-zinc-200 text-base font-medium">Authentication</span>
                         <p class="text-zinc-500 text-sm mt-1 leading-relaxed">API keys (SHA-256 at rest), JWT/OIDC, identity propagation to audit logs.</p>
                     </div>
                 </li>
                 <li class="flex items-start gap-2">
-                    <span class="text-emerald-400 mt-1.5 text-xs">&#9654;</span>
+                    <span class="text-zinc-300 mt-1.5 text-xs">&#9654;</span>
                     <div>
                         <span class="text-zinc-200 text-base font-medium">Mutator pipeline</span>
                         <p class="text-zinc-500 text-sm mt-1 leading-relaxed">Priority-ordered payload transformations. Audit-only shadow mode for safe rollouts.</p>
@@ -58,37 +58,37 @@ import LockIcon from "../icons/LockIcon.astro";
         </div>
 
         <!-- Observability -->
-        <div class="group p-7 md:p-8 rounded-3xl bg-zinc-900/30 border border-zinc-800/50 hover:border-sky-500/20 transition-all duration-300">
+        <div class="group p-7 md:p-8 rounded-3xl bg-zinc-900/30 border border-zinc-800/50 hover:border-zinc-700/50 transition-all duration-300">
             <div class="flex items-center gap-3 mb-5">
-                <div class="w-12 h-12 rounded-2xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400">
+                <div class="w-12 h-12 rounded-2xl bg-zinc-800/40 border border-zinc-700/50 flex items-center justify-center text-zinc-300">
                     <EyeIcon />
                 </div>
                 <h3 class="text-xl font-semibold text-zinc-100">Observability</h3>
             </div>
             <ul class="space-y-3">
                 <li class="flex items-start gap-2">
-                    <span class="text-sky-400 mt-1.5 text-xs">&#9654;</span>
+                    <span class="text-zinc-300 mt-1.5 text-xs">&#9654;</span>
                     <div>
                         <span class="text-zinc-200 text-base font-medium">Full call logging</span>
                         <p class="text-zinc-500 text-sm mt-1 leading-relaxed">Every tool call logged with caller identity, server, timestamp, and arguments.</p>
                     </div>
                 </li>
                 <li class="flex items-start gap-2">
-                    <span class="text-sky-400 mt-1.5 text-xs">&#9654;</span>
+                    <span class="text-zinc-300 mt-1.5 text-xs">&#9654;</span>
                     <div>
                         <span class="text-zinc-200 text-base font-medium">OpenTelemetry GenAI/MCP semconv</span>
                         <p class="text-zinc-500 text-sm mt-1 leading-relaxed">Traces and metrics aligned to the OTel GenAI &amp; MCP semantic conventions. CLIENT spans trace the upstream boundary; logs and traces correlate.</p>
                     </div>
                 </li>
                 <li class="flex items-start gap-2">
-                    <span class="text-sky-400 mt-1.5 text-xs">&#9654;</span>
+                    <span class="text-zinc-300 mt-1.5 text-xs">&#9654;</span>
                     <div>
                         <span class="text-zinc-200 text-base font-medium">Metrics &amp; telemetry-health alerts</span>
                         <p class="text-zinc-500 text-sm mt-1 leading-relaxed">Transport, message, connection, and cost metrics — with alerts on the health of the telemetry pipeline itself.</p>
                     </div>
                 </li>
                 <li class="flex items-start gap-2">
-                    <span class="text-sky-400 mt-1.5 text-xs">&#9654;</span>
+                    <span class="text-zinc-300 mt-1.5 text-xs">&#9654;</span>
                     <div>
                         <span class="text-zinc-200 text-base font-medium">Interceptor framework</span>
                         <p class="text-zinc-500 text-sm mt-1 leading-relaxed">Hook-based event model with wildcard subscriptions. In-process interceptor invocation on the call path (experimental).</p>
@@ -98,41 +98,41 @@ import LockIcon from "../icons/LockIcon.astro";
         </div>
 
         <!-- Reliability -->
-        <div class="group p-7 md:p-8 rounded-3xl bg-zinc-900/30 border border-zinc-800/50 hover:border-emerald-500/20 transition-all duration-300">
+        <div class="group p-7 md:p-8 rounded-3xl bg-zinc-900/30 border border-zinc-800/50 hover:border-zinc-700/50 transition-all duration-300">
             <div class="flex items-center gap-3 mb-5">
-                <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+                <div class="w-12 h-12 rounded-2xl bg-zinc-800/40 border border-zinc-700/50 flex items-center justify-center text-zinc-300">
                     <BoltIcon />
                 </div>
                 <h3 class="text-xl font-semibold text-zinc-100">Reliability</h3>
             </div>
             <ul class="space-y-3">
                 <li class="flex items-start gap-2">
-                    <span class="text-emerald-400 mt-1.5 text-xs">&#9654;</span>
+                    <span class="text-zinc-300 mt-1.5 text-xs">&#9654;</span>
                     <div>
                         <span class="text-zinc-200 text-base font-medium">More than one replica</span>
                         <p class="text-zinc-500 text-sm mt-1 leading-relaxed">
                             A replica set behind a shared PostgreSQL, with one instance holding the
                             management lease.
-                            <a href="/learn/more-than-one-hangar" class="text-emerald-400/80 hover:text-emerald-300 underline underline-offset-2 decoration-emerald-500/30">How it converges &rarr;</a>
+                            <a href="/learn/more-than-one-hangar" class="text-zinc-300 hover:text-zinc-100 underline underline-offset-2 decoration-zinc-600/60">How it converges &rarr;</a>
                         </p>
                     </div>
                 </li>
                 <li class="flex items-start gap-2">
-                    <span class="text-emerald-400 mt-1.5 text-xs">&#9654;</span>
+                    <span class="text-zinc-300 mt-1.5 text-xs">&#9654;</span>
                     <div>
                         <span class="text-zinc-200 text-base font-medium">Circuit breaker</span>
                         <p class="text-zinc-500 text-sm mt-1 leading-relaxed">Failing servers isolated automatically. Exponential backoff, graceful degradation.</p>
                     </div>
                 </li>
                 <li class="flex items-start gap-2">
-                    <span class="text-emerald-400 mt-1.5 text-xs">&#9654;</span>
+                    <span class="text-zinc-300 mt-1.5 text-xs">&#9654;</span>
                     <div>
                         <span class="text-zinc-200 text-base font-medium">Server groups &amp; load balancing</span>
                         <p class="text-zinc-500 text-sm mt-1 leading-relaxed">Failover, health tracking, round-robin, weighted, and priority-based routing.</p>
                     </div>
                 </li>
                 <li class="flex items-start gap-2">
-                    <span class="text-emerald-400 mt-1.5 text-xs">&#9654;</span>
+                    <span class="text-zinc-300 mt-1.5 text-xs">&#9654;</span>
                     <div>
                         <span class="text-zinc-200 text-base font-medium">Lifecycle management</span>
                         <p class="text-zinc-500 text-sm mt-1 leading-relaxed">Lazy loading on first call. Auto shutdown after idle TTL. Health monitoring.</p>
@@ -211,15 +211,15 @@ import LockIcon from "../icons/LockIcon.astro";
             <li class="text-sm font-medium text-zinc-300 bg-zinc-950/50 border border-zinc-800 rounded-full px-4 py-2">Rate limiting</li>
             <li class="text-sm font-medium text-zinc-300 bg-zinc-950/50 border border-zinc-800 rounded-full px-4 py-2">Command allow-list</li>
             <li class="text-sm font-medium text-zinc-300 bg-zinc-950/50 border border-zinc-800 rounded-full px-4 py-2">Secret redaction</li>
-            <li class="text-sm font-medium text-emerald-300/90 bg-emerald-500/[0.07] border border-emerald-500/20 rounded-full px-4 py-2">RFC 8707</li>
-            <li class="text-sm font-medium text-emerald-300/90 bg-emerald-500/[0.07] border border-emerald-500/20 rounded-full px-4 py-2">RFC 9728</li>
-            <li class="text-sm font-medium text-emerald-300/90 bg-emerald-500/[0.07] border border-emerald-500/20 rounded-full px-4 py-2">RFC 5424</li>
+            <li class="text-sm font-medium text-zinc-100/90 bg-zinc-800/30 border border-zinc-700/50 rounded-full px-4 py-2">RFC 8707</li>
+            <li class="text-sm font-medium text-zinc-100/90 bg-zinc-800/30 border border-zinc-700/50 rounded-full px-4 py-2">RFC 9728</li>
+            <li class="text-sm font-medium text-zinc-100/90 bg-zinc-800/30 border border-zinc-700/50 rounded-full px-4 py-2">RFC 5424</li>
             <li class="text-sm font-medium text-amber-300/90 bg-amber-500/[0.07] border border-amber-500/20 rounded-full px-4 py-2">OWASP MCP Top 10</li>
         </ul>
 
         <details class="group/d mt-6 border-t border-zinc-800/50">
             <summary
-                class="flex items-center gap-2 pt-4 cursor-pointer list-none select-none text-sm font-semibold text-zinc-400 hover:text-emerald-300 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded"
+                class="flex items-center gap-2 pt-4 cursor-pointer list-none select-none text-sm font-semibold text-zinc-400 hover:text-zinc-100 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-700 rounded"
             >
                 <span class="group-open/d:hidden">See what each control covers</span>
                 <span class="hidden group-open/d:inline">Hide the detail</span>
@@ -232,7 +232,7 @@ import LockIcon from "../icons/LockIcon.astro";
             <div class="pt-6">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 mt-5">
                 <div>
-                    <h4 class="text-sm font-semibold text-amber-400 uppercase tracking-[0.14em] mb-4">Transport</h4>
+                    <h4 class="font-mono text-sm font-semibold text-amber-400 uppercase tracking-[0.14em] mb-4">Transport</h4>
                     <ul class="space-y-2.5 text-zinc-400 text-base">
                         <li class="flex items-start gap-2"><span class="text-amber-400 mt-1">&#x2022;</span><span>TLS with custom CA support</span></li>
                         <li class="flex items-start gap-2"><span class="text-amber-400 mt-1">&#x2022;</span><span>SSRF protection, enforced at connect time</span></li>
@@ -240,7 +240,7 @@ import LockIcon from "../icons/LockIcon.astro";
                     </ul>
                 </div>
                 <div>
-                    <h4 class="text-sm font-semibold text-amber-400 uppercase tracking-[0.14em] mb-4">Identity</h4>
+                    <h4 class="font-mono text-sm font-semibold text-amber-400 uppercase tracking-[0.14em] mb-4">Identity</h4>
                     <ul class="space-y-2.5 text-zinc-400 text-base">
                         <li class="flex items-start gap-2"><span class="text-amber-400 mt-1">&#x2022;</span><span>JWT/OIDC with JWKS validation</span></li>
                         <li class="flex items-start gap-2"><span class="text-amber-400 mt-1">&#x2022;</span><span>API keys (SHA-256) with optional expiry</span></li>
@@ -248,7 +248,7 @@ import LockIcon from "../icons/LockIcon.astro";
                     </ul>
                 </div>
                 <div>
-                    <h4 class="text-sm font-semibold text-amber-400 uppercase tracking-[0.14em] mb-4">Runtime</h4>
+                    <h4 class="font-mono text-sm font-semibold text-amber-400 uppercase tracking-[0.14em] mb-4">Runtime</h4>
                     <ul class="space-y-2.5 text-zinc-400 text-base">
                         <li class="flex items-start gap-2"><span class="text-amber-400 mt-1">&#x2022;</span><span>Capability declaration &amp; verification</span></li>
                         <li class="flex items-start gap-2"><span class="text-amber-400 mt-1">&#x2022;</span><span>Exponential rate limiting</span></li>
@@ -260,17 +260,17 @@ import LockIcon from "../icons/LockIcon.astro";
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <h4 class="text-sm font-semibold text-emerald-400 uppercase tracking-[0.14em] mb-4">Anchored in standards</h4>
+                    <h4 class="font-mono text-sm font-semibold text-zinc-300 uppercase tracking-[0.14em] mb-4">Anchored in standards</h4>
                     <ul class="space-y-2.5 text-zinc-400 text-base">
-                        <li class="flex items-start gap-2"><span class="text-emerald-400 mt-1">&#x2022;</span><span>RFC 8707 audience binding &amp; multi-issuer trust</span></li>
-                        <li class="flex items-start gap-2"><span class="text-emerald-400 mt-1">&#x2022;</span><span>RFC 9728 protected-resource metadata</span></li>
-                        <li class="flex items-start gap-2"><span class="text-emerald-400 mt-1">&#x2022;</span><span>Per-tenant tool-schema pinning</span></li>
-                        <li class="flex items-start gap-2"><span class="text-emerald-400 mt-1">&#x2022;</span><span>SIEM export: CEF, LEEF, JSONL, Syslog (RFC 5424)</span></li>
-                        <li class="flex items-start gap-2"><span class="text-emerald-400 mt-1">&#x2022;</span><span>OTLP trace/audit-span export</span></li>
+                        <li class="flex items-start gap-2"><span class="text-zinc-300 mt-1">&#x2022;</span><span>RFC 8707 audience binding &amp; multi-issuer trust</span></li>
+                        <li class="flex items-start gap-2"><span class="text-zinc-300 mt-1">&#x2022;</span><span>RFC 9728 protected-resource metadata</span></li>
+                        <li class="flex items-start gap-2"><span class="text-zinc-300 mt-1">&#x2022;</span><span>Per-tenant tool-schema pinning</span></li>
+                        <li class="flex items-start gap-2"><span class="text-zinc-300 mt-1">&#x2022;</span><span>SIEM export: CEF, LEEF, JSONL, Syslog (RFC 5424)</span></li>
+                        <li class="flex items-start gap-2"><span class="text-zinc-300 mt-1">&#x2022;</span><span>OTLP trace/audit-span export</span></li>
                     </ul>
                 </div>
                 <div>
-                    <h4 class="text-sm font-semibold text-emerald-400 uppercase tracking-[0.14em] mb-4">OWASP MCP Top 10</h4>
+                    <h4 class="font-mono text-sm font-semibold text-zinc-300 uppercase tracking-[0.14em] mb-4">OWASP MCP Top 10</h4>
                     <p class="text-zinc-400 text-base leading-relaxed">
                         Mapped against the OWASP MCP Top 10 &mdash; including what Hangar
                         deliberately does not cover. It does not parse prompt semantics:

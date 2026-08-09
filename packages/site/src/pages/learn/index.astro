@@ -330,7 +330,7 @@ const versions = sortVersionsDescending([...new Set(entries.map(e => e.data.sinc
 
 <style>
   .learn-hub {
-    /* Reconciled to the site's zinc-dark / emerald palette (Tailwind theme). */
+    /* Reconciled to the site's zinc base plus the verdict tokens (Tailwind theme). */
     --panel: #18181b;        /* zinc-900 */
     --panel-2: #1b1b1f;
     --raise: #27272a;        /* zinc-800 */
@@ -340,14 +340,14 @@ const versions = sortVersionsDescending([...new Set(entries.map(e => e.data.sinc
     --faint: #71717a;        /* zinc-500 */
     --line: #27272a;         /* zinc-800 */
     --line-2: #3f3f46;       /* zinc-700 */
-    --brand: #34d399;        /* emerald-400 */
-    --brand-dim: #0f2f26;
+    --brand: #d4d4d8;        /* zinc-300 — accents are neutral; green means allow */
+    --brand-dim: #27272a;     /* zinc-800 */
     --concept: #2dd4bf;      /* teal */
     --tutorial: #38bdf8;     /* sky */
     --why: #a78bfa;          /* violet */
     --visual: #fbbf24;       /* amber */
-    --ship: #34d399;
-    --ship-bg: #0f2a20;
+    --ship: #a1a1aa;         /* zinc-400 — shipped is the normal state, so no hue */
+    --ship-bg: #27272a;       /* zinc-800 */
     --preview: #fbbf24;
     --preview-bg: #2a230f;
     --shadow: 0 1px 0 rgba(255, 255, 255, .02) inset, 0 8px 30px rgba(0, 0, 0, .45);

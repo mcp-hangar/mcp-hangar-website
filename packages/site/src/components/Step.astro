@@ -13,12 +13,12 @@ const { number, title, description, isLast = false } = Astro.props;
     <!-- Left column: number badge + connector line -->
     <div class="flex flex-col items-center">
         <div
-            class="relative z-10 flex items-center justify-center w-10 h-10 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 font-bold text-sm shrink-0 shadow-lg shadow-emerald-500/5"
+            class="relative z-10 flex items-center justify-center w-10 h-10 rounded-full bg-zinc-700/40 border border-zinc-600/60 text-zinc-300 font-bold text-sm shrink-0 shadow-lg shadow-zinc-800/20"
         >
             {number}
         </div>
         {!isLast && (
-            <div class="w-px flex-1 bg-gradient-to-b from-emerald-500/30 to-emerald-500/5 mt-3"></div>
+            <div class="w-px flex-1 bg-gradient-to-b from-zinc-600/60 to-zinc-800/20 mt-3"></div>
         )}
     </div>
 
