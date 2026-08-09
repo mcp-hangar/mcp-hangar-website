@@ -183,28 +183,53 @@ import LockIcon from "../icons/LockIcon.astro";
     </div>
 
     <!--
-      Production hardening and the standards it is anchored in used to be two more
-      full-height sections. They are reference material: true, worth publishing, and
-      not what someone reads on the way in. Folded behind one disclosure.
+      Hardening and the standards behind it used to be two more full-height sections.
+      The coverage itself stays on the page as a strip — putting all of it behind a
+      summary is what made the first attempt feel like a drawer — and only the
+      per-control detail expands.
     -->
-    <details class="group/d mt-6 rounded-2xl bg-zinc-900/30 border border-zinc-800/50 overflow-hidden">
-        <summary
-            class="flex items-center gap-3 p-5 cursor-pointer list-none select-none hover:bg-zinc-900/40 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-inset"
-        >
-            <div class="w-9 h-9 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 shrink-0">
+    <div class="mt-6 rounded-2xl bg-zinc-900/30 border border-zinc-800/50 p-6 md:p-7">
+        <div class="flex items-start gap-4 mb-6">
+            <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 shrink-0">
                 <LockIcon />
             </div>
-            <div class="flex-1 min-w-0">
-                <h3 class="font-semibold text-zinc-100">Production hardening &amp; standards</h3>
-                <p class="text-sm text-zinc-500">Transport, identity, runtime — and the RFCs and OWASP mapping behind them</p>
+            <div class="min-w-0">
+                <h3 class="text-lg font-semibold text-zinc-100">Production hardening &amp; standards</h3>
+                <p class="text-sm text-zinc-500 mt-0.5">
+                    Transport, identity and runtime controls — and the RFCs and the OWASP
+                    mapping behind them.
+                </p>
             </div>
-            <span
-                class="text-zinc-600 group-open/d:rotate-180 transition-transform duration-300 shrink-0"
-                aria-hidden="true"
-            >&#9662;</span>
-        </summary>
+        </div>
 
-        <div class="px-5 pb-6 pt-1 border-t border-zinc-800/50">
+        <ul class="flex flex-wrap gap-2">
+            <li class="text-xs font-medium text-zinc-300 bg-zinc-950/50 border border-zinc-800 rounded-full px-3 py-1.5">TLS &amp; custom CA</li>
+            <li class="text-xs font-medium text-zinc-300 bg-zinc-950/50 border border-zinc-800 rounded-full px-3 py-1.5">SSRF, at connect time</li>
+            <li class="text-xs font-medium text-zinc-300 bg-zinc-950/50 border border-zinc-800 rounded-full px-3 py-1.5">WebSocket Origin/Host</li>
+            <li class="text-xs font-medium text-zinc-300 bg-zinc-950/50 border border-zinc-800 rounded-full px-3 py-1.5">JWT/OIDC + JWKS</li>
+            <li class="text-xs font-medium text-zinc-300 bg-zinc-950/50 border border-zinc-800 rounded-full px-3 py-1.5">API keys, SHA-256</li>
+            <li class="text-xs font-medium text-zinc-300 bg-zinc-950/50 border border-zinc-800 rounded-full px-3 py-1.5">Rate limiting</li>
+            <li class="text-xs font-medium text-zinc-300 bg-zinc-950/50 border border-zinc-800 rounded-full px-3 py-1.5">Command allow-list</li>
+            <li class="text-xs font-medium text-zinc-300 bg-zinc-950/50 border border-zinc-800 rounded-full px-3 py-1.5">Secret redaction</li>
+            <li class="text-xs font-medium text-emerald-300/90 bg-emerald-500/[0.07] border border-emerald-500/20 rounded-full px-3 py-1.5">RFC 8707</li>
+            <li class="text-xs font-medium text-emerald-300/90 bg-emerald-500/[0.07] border border-emerald-500/20 rounded-full px-3 py-1.5">RFC 9728</li>
+            <li class="text-xs font-medium text-emerald-300/90 bg-emerald-500/[0.07] border border-emerald-500/20 rounded-full px-3 py-1.5">RFC 5424</li>
+            <li class="text-xs font-medium text-amber-300/90 bg-amber-500/[0.07] border border-amber-500/20 rounded-full px-3 py-1.5">OWASP MCP Top 10</li>
+        </ul>
+
+        <details class="group/d mt-6 border-t border-zinc-800/50">
+            <summary
+                class="flex items-center gap-2 pt-4 cursor-pointer list-none select-none text-sm font-semibold text-zinc-400 hover:text-emerald-300 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded"
+            >
+                <span class="group-open/d:hidden">See what each control covers</span>
+                <span class="hidden group-open/d:inline">Hide the detail</span>
+                <span
+                    class="text-zinc-600 group-open/d:rotate-180 transition-transform duration-300"
+                    aria-hidden="true"
+                >&#9662;</span>
+            </summary>
+
+            <div class="pt-6">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 mt-5">
                 <div>
                     <h4 class="text-sm font-semibold text-amber-400 uppercase tracking-wider mb-3">Transport</h4>
@@ -254,8 +279,9 @@ import LockIcon from "../icons/LockIcon.astro";
                     </p>
                 </div>
             </div>
-        </div>
-    </details>
+            </div>
+        </details>
+    </div>
 </section>
 
 <style>
