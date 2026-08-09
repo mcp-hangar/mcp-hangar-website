@@ -5,8 +5,6 @@ author: MCP Hangar Team
 description: "v1.2 introduces SHA-256 digest pinning for MCP tool schemas, implementing a preemptive version of SEP-1766 to detect drift and block unauthorized mutations."
 ---
 
-# Tool Integrity for MCP: Digest Pinning in MCP Hangar v1.2
-
 v1.1 gave you observability. v1.2 gives you certainty that the tools you observed are the tools you're running.
 
 This release introduces digest pinning for Model Context Protocol (MCP) tools, implementing a preemptive version of SEP-1766. This feature prevents tool drift and unauthorized mutation by validating the SHA-256 fingerprint of every tool definition before it reaches the agent. Here is what shipped and how to use it.

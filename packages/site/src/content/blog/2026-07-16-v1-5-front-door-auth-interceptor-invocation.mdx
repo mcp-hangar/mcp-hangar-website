@@ -6,8 +6,6 @@ description: "v1.5 makes OIDC front-door auth work end-to-end over the HTTP serv
 tags: [mcp, mcp-hangar, security, governance, auth, open-source]
 ---
 
-# MCP Hangar v1.5 -- Front-Door Auth End-to-End, Interceptor Invocation, and Task Governance
-
 v1.4 shipped the front door -- multi-issuer OIDC trust, resource-bound audiences, per-tenant tool projection. v1.5 makes sure the right callers actually get through it, and gives you two new places to govern the call path: interceptor invocation and task lifecycle.
 
 Upgrade is drop-in -- `pip install --upgrade mcp-hangar`. Here is what changed.

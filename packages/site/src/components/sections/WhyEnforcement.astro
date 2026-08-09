@@ -1,4 +1,6 @@
 ---
+import VerdictChip from "../VerdictChip.astro";
+
 /**
  * The argument here is a binary, so the section is built as one: what a detector
  * hands you on the left, what a verdict hands you on the right. The header is
@@ -63,9 +65,9 @@
             </div>
 
             <div class="inline-flex items-center gap-2.5 font-mono text-base mb-7">
-                <span class="rounded-xl border border-verdict-allow/30 bg-verdict-allow/10 text-verdict-allow-soft px-4 py-3">allow</span>
+                <VerdictChip verdict="allow" />
                 <span class="text-zinc-600">/</span>
-                <span class="rounded-xl border border-verdict-deny/30 bg-verdict-deny/10 text-verdict-deny-soft px-4 py-3">deny</span>
+                <VerdictChip verdict="deny" code="-32021" />
             </div>
 
             <p class="text-lg text-zinc-300 mb-7">

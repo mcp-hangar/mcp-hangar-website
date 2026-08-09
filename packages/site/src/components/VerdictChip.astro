@@ -1,0 +1,36 @@
+---
+/**
+ * The product in one element: a policy produced an answer, and the answer is
+ * binary.
+ *
+ * The label is never optional. Colour tells you the verdict faster, but it is
+ * the second encoding, not the first — screen readers, printouts, and about
+ * one man in twelve get the same information from the text (C11).
+ */
+interface Props {
+    verdict: "allow" | "deny";
+    /** The wire code that carries the refusal, e.g. `-32021`. */
+    code?: string;
+    size?: "sm" | "md";
+    class?: string;
+}
+
+const { verdict, code, size = "md", class: className = "" } = Astro.props;
+
+const tone = {
+    allow: "border-verdict-allow/35 bg-verdict-allow/10 text-verdict-allow-soft",
+    deny: "border-verdict-deny/35 bg-verdict-deny/10 text-verdict-deny-soft",
+}[verdict];
+
+const dims = {
+    sm: "text-[11px] px-2 py-0.5 gap-1.5",
+    md: "text-xs px-2.5 py-1 gap-2",
+}[size];
+---
+
+<span
+    class={`inline-flex items-center font-mono font-semibold uppercase tracking-[0.1em] rounded border ${tone} ${dims} ${className}`}
+>
+    {verdict}
+    {code && <span class="opacity-60 tracking-normal normal-case">{code}</span>}
+</span>

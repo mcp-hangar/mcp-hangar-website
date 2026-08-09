@@ -12,7 +12,7 @@ import { INSTALL_COMMAND } from "../../config";
  * readers came for, so it gets the weight and the other two sit beside it.
  */
 const recipeCount = countCookbookRecipes(await getCollection("oss"));
-const learnCount = (await getCollection("learn")).length;
+const learnCount = (await getCollection("learn")).filter(e => !e.data.draft).length;
 ---
 
 <section class="max-w-6xl mx-auto px-6 pb-32">

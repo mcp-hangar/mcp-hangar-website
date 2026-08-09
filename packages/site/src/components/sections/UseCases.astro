@@ -1,0 +1,156 @@
+---
+import PolicySnippet from "../PolicySnippet.astro";
+import PipelineMotif from "../PipelineMotif.astro";
+import WireRecord from "../WireRecord.astro";
+
+/**
+ * Four things you do with it, replacing a sixteen-tile capability grid.
+ *
+ * The grid was a list of everything true about the product, which is a
+ * different genre from a page that has to answer "what would I use this for".
+ * What left the homepage did not leave the site — circuit breakers, load
+ * balancing, lifecycle, mutators and the OTel detail all live in the docs and
+ * Learn, which is where someone looks for them.
+ *
+ * Each card names the gates it covers, using the same a–i letters as the
+ * pipeline, so the diagram and the cards are the same claim at two zoom levels.
+ *
+ * Every snippet below is real configuration, taken from the reference docs —
+ * a landing page inventing plausible YAML is worse than one showing none.
+ */
+
+const toolAccess = `mcp_servers:
+  github:
+    tools:
+      allow_list: ["github.get_*", "github.list_*"]
+      approval_list: ["github.create_issue"]`;
+
+const digestPin = `mcp_servers:
+  payments:
+    tool_projection:
+      digest_enforcement: block`;
+
+const egress = `apiVersion: mcp-hangar.io/v1alpha2
+kind: MCPEgressPolicy
+metadata:
+  name: payments-egress
+spec:
+  mode: Enforce
+  tools:
+    allow: ["payments.get_*"]
+    deny: ["payments.refund"]`;
+---
+
+<section id="features" class="max-w-6xl mx-auto px-6 pb-32">
+  <div class="max-w-3xl mx-auto text-center mb-14">
+    <h2 class="font-mono text-sm font-semibold text-zinc-500 uppercase tracking-[0.16em] mb-4">
+      What you do with it
+    </h2>
+    <p class="text-4xl font-bold tracking-tight text-zinc-100 text-balance">
+      Four decisions, taken before the call leaves
+    </p>
+  </div>
+
+  <div class="grid gap-5 md:grid-cols-2">
+    <!-- 1 · authz + approvals -->
+    <article class="rounded-3xl border border-zinc-800/60 bg-zinc-900/30 p-7 md:p-8 flex flex-col">
+      <h3 class="text-xl font-bold text-zinc-100 mb-2">Govern who calls what</h3>
+      <p class="text-zinc-400 mb-5">
+        Expose only the tools a caller should see, and hold the dangerous ones for a
+        human. Both decisions are per server and per tool, and both are recorded
+        against the identity that triggered them.
+      </p>
+      <PolicySnippet filename="config.yaml" code={toolAccess} class="mb-5" />
+      <div class="mt-auto flex items-center justify-between gap-4 pt-2">
+        <PipelineMotif size="mini" gates={["a", "f"]} />
+        <a href="/learn/what-is-a-policy-enforcement-plane" class="text-sm font-semibold text-zinc-300 hover:text-zinc-100 transition-colors whitespace-nowrap">
+          The gates &rarr;
+        </a>
+      </div>
+    </article>
+
+    <!-- 2 · tool-schema digest pinning -->
+    <article class="rounded-3xl border border-zinc-800/60 bg-zinc-900/30 p-7 md:p-8 flex flex-col">
+      <h3 class="text-xl font-bold text-zinc-100 mb-2">Pin what tools claim to be</h3>
+      <p class="text-zinc-400 mb-5">
+        A tool's <em>schema</em> — its name, description and input/output shape — is
+        fingerprinted with SHA-256 over its canonical form (RFC 8785). If an upstream
+        quietly changes what a tool accepts, the call fails closed instead of running
+        against the new shape.
+      </p>
+      <PolicySnippet filename="config.yaml" code={digestPin} class="mb-5" />
+      <p class="text-sm text-zinc-500 mb-5">
+        Distinct from container <em>image</em> digest pinning, which the operator does
+        separately at admission time.
+      </p>
+      <div class="mt-auto flex items-center justify-between gap-4 pt-2">
+        <PipelineMotif size="mini" gates={["c"]} />
+        <a href="/learn/digest-pinning" class="text-sm font-semibold text-zinc-300 hover:text-zinc-100 transition-colors whitespace-nowrap">
+          How pinning works &rarr;
+        </a>
+      </div>
+    </article>
+
+    <!-- 3 · L7 egress — the flagship, given the width -->
+    <article class="md:col-span-2 rounded-3xl border border-zinc-700/60 bg-zinc-900/50 p-7 md:p-9">
+      <div class="grid gap-7 md:grid-cols-[1.1fr_1fr] md:items-start">
+        <div>
+          <h3 class="text-2xl font-bold text-zinc-100 mb-3">Control where data goes</h3>
+          <p class="text-lg text-zinc-400 mb-5">
+            The last gate before the wire. An egress policy decides which upstreams a
+            server may reach and which tool calls it may make — down to the arguments —
+            and it is evaluated inside the tool invocation, immediately before any
+            outbound I/O happens.
+          </p>
+          <p class="text-sm text-zinc-500 mb-6">
+            End-to-end enforcement needs core <span class="font-mono">v1.6.0+</span> and
+            operator <span class="font-mono">v0.14.0+</span>; the operator ships the
+            <span class="font-mono"> MCPEgressPolicy</span> CRD and its controller.
+          </p>
+          <div class="flex items-center gap-5">
+            <PipelineMotif size="mini" gates={["i"]} />
+            <a href="/learn/the-l7-mcpegresspolicy-language" class="text-sm font-semibold text-zinc-300 hover:text-zinc-100 transition-colors">
+              The policy language &rarr;
+            </a>
+          </div>
+        </div>
+        <PolicySnippet filename="payments-egress.yaml" code={egress} />
+      </div>
+    </article>
+
+    <!-- 4 · audit -->
+    <article class="md:col-span-2 rounded-3xl border border-zinc-800/60 bg-zinc-900/30 p-7 md:p-8">
+      <div class="grid gap-7 md:grid-cols-[1fr_1.2fr] md:items-center">
+        <div>
+          <h3 class="text-xl font-bold text-zinc-100 mb-2">Prove what happened</h3>
+          <p class="text-zinc-400 mb-4">
+            Every call is written down with the caller attached — allowed and denied
+            alike. A verdict nobody can attribute proves nothing, so identity travels
+            with the record rather than being reconstructed afterwards.
+          </p>
+          <p class="text-sm text-zinc-500">
+            Exportable as CEF, LEEF, JSONL and RFC 5424 syslog. OTLP is a separate
+            trace and audit-span path, not a SIEM format.
+          </p>
+        </div>
+        <div class="grid gap-3">
+          <WireRecord
+            time="12:04:41"
+            caller="team-research@corp"
+            method="tools/call"
+            target="github.create_issue"
+            verdict="deny"
+            code="-32021"
+          />
+          <WireRecord
+            time="12:04:52"
+            caller="team-research@corp"
+            method="tools/call"
+            target="github.list_issues"
+            verdict="allow"
+          />
+        </div>
+      </div>
+    </article>
+  </div>
+</section>

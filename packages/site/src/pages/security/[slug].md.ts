@@ -5,7 +5,7 @@ import path from 'node:path';
 import { stripSvg } from '../../lib/strip-svg';
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const entries = (await getCollection('learn')).filter(e => !e.data.draft);
+  const entries = await getCollection('security');
   return entries.map(entry => ({
     params: { slug: entry.id },
     props: { entry },
@@ -20,19 +20,14 @@ export const GET: APIRoute = async ({ props }) => {
         title: string;
         description: string;
         updated: Date;
-        tags?: string[];
-        type: string;
-        level: string;
-        time: string;
-        theme: string;
-        since: string;
+        order: number;
       };
       body?: string;
     };
   };
 
   // Read original MDX source
-  const mdxPath = path.resolve(`src/content/learn/${entry.id}.mdx`);
+  const mdxPath = path.resolve(`src/content/security/${entry.id}.mdx`);
   let body = '';
   try {
     const raw = await fs.readFile(mdxPath, 'utf-8');
@@ -47,22 +42,18 @@ export const GET: APIRoute = async ({ props }) => {
   } catch {
     body = entry.body || '';
   }
-  // Machines get prose, not diagrams — strip inline SVG from Visual learn pages.
+  // Machines get prose, not diagrams.
   body = stripSvg(body);
 
-  // Unwrap MDX components. Stripping the import lines above left the tags they
-  // referred to in place, so 7 of 15 learn pages shipped literal
-  // `<Callout variant="note">…</Callout>` to anything reading the markdown.
-  // The content inside a callout is prose worth keeping, so unwrap rather than
-  // delete: opening and closing tags of capitalised components go, their
-  // children stay. Self-closing components carry no prose and are dropped.
+  // Unwrap MDX components — same rule as the learn mirror: opening and closing
+  // tags of capitalised components go, their children stay; self-closing
+  // components carry no prose and are dropped.
   body = body
     .replace(/<([A-Z][A-Za-z0-9]*)\b[^>]*\/>\s*/g, '')
     .replace(/<\/?([A-Z][A-Za-z0-9]*)\b[^>]*>/g, '')
     .replace(/\n{3,}/g, '\n\n')
     .trim();
 
-  const tags = entry.data.tags?.length ? `\nTags: ${entry.data.tags.join(', ')}` : '';
   const updated = entry.data.updated.toISOString().split('T')[0];
 
   const header = [
@@ -70,8 +61,8 @@ export const GET: APIRoute = async ({ props }) => {
     '',
     `> ${entry.data.description}`,
     '',
-    `Type: ${entry.data.type} | Level: ${entry.data.level} | Time: ${entry.data.time} | Since: ${entry.data.since} | Updated: ${updated}${tags}`,
-    `Source: https://mcp-hangar.io/learn/${entry.id}`,
+    `Updated: ${updated}`,
+    `Source: https://mcp-hangar.io/security/${entry.id}`,
     '',
     '---',
     '',

@@ -1,0 +1,38 @@
+---
+import VerdictChip from "./VerdictChip.astro";
+
+/**
+ * One line of the audit trail, rendered the way it is written: who called what,
+ * on which server, and what the policy answered.
+ *
+ * The motif is that everything on the wire looks like evidence. Attribution is
+ * not decoration here — a verdict nobody can attribute is the thing an
+ * enforcement plane exists to avoid, so `caller` is required.
+ */
+interface Props {
+    /** Wall-clock prefix. Kept short; this is a record, not a log dump. */
+    time?: string;
+    /** Who made the call. Required: an unattributed verdict proves nothing. */
+    caller: string;
+    method: string;
+    target?: string;
+    verdict: "allow" | "deny";
+    code?: string;
+    class?: string;
+}
+
+const { time, caller, method, target, verdict, code, class: className = "" } = Astro.props;
+---
+
+<div class={`overflow-x-auto ${className}`}>
+    <div
+        class="inline-flex min-w-full items-center gap-3 whitespace-nowrap rounded-lg border border-zinc-800 bg-zinc-950/60 px-4 py-3 font-mono text-sm"
+    >
+        {time && <span class="text-zinc-600 tabular-nums">{time}</span>}
+        <span class="text-zinc-300">{caller}</span>
+        <span class="text-zinc-600" aria-hidden="true">&rarr;</span>
+        <span class="text-zinc-100">{method}</span>
+        {target && <span class="text-zinc-500">{target}</span>}
+        <span class="ml-auto pl-4"><VerdictChip verdict={verdict} code={code} size="sm" /></span>
+    </div>
+</div>

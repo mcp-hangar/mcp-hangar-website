@@ -15,7 +15,7 @@ describe('Build Output', () => {
     expect(html).toContain('mcp-hangar');
     
     expect(html).toContain('href="/docs/"');
-    expect(html).toContain('href="/docs/blog/"');
+    expect(html).toContain('href="/blog/"');
     
     expect(html).toContain('id="features"');
   });
@@ -33,7 +33,8 @@ describe('Build Output', () => {
   it('should render key sections', () => {
     const html = readDistFile('index.html');
     expect(html).toContain('How it works');
-    expect(html).toContain('Capabilities');
+    expect(html).toContain('What you do with it');
+    expect(html).toContain('Runs as a fleet');
   });
 
   it('should render footer with copyright or open source text', () => {
@@ -42,10 +43,29 @@ describe('Build Output', () => {
     expect(html).toContain('MIT License');
   });
 
-  it('should render capability titles and descriptions', () => {
+  // The sixteen-tile capability grid is gone; four use-case cards replace it.
+  it('should render the four use cases, not a capability grid', () => {
     const html = readDistFile('index.html');
-    expect(html).toContain('Governance');
-    expect(html).toContain('Per-caller access policies');
+    expect(html).toContain('Govern who calls what');
+    expect(html).toContain('Pin what tools claim to be');
+    expect(html).toContain('Control where data goes');
+    expect(html).toContain('Prove what happened');
+    // The anchor two nav surfaces still point at has to survive the swap.
+    expect(html).toContain('id="features"');
+  });
+
+  it('should lead with a real denial rather than an illustration', () => {
+    const html = readDistFile('index.html');
+    expect(html).toContain('MCPEgressPolicy');       // the policy
+    expect(html).toContain('github.create_issue');   // the call it refuses
+    expect(html).toContain('-32021');                // the code on the wire
+    expect(html).toContain('team-research@corp');    // attributed to a caller
+  });
+
+  it('should keep the egress version qualifier wherever egress is promised', () => {
+    const html = readDistFile('index.html');
+    expect(html).toContain('v1.6.0+');
+    expect(html).toContain('v0.14.0+');
   });
 
   it('should render features with icons', () => {
@@ -73,10 +93,12 @@ describe('Build Output', () => {
     expect(html).toContain('href="/learn/relay-with-governance"');
   });
 
-  it('should fold production hardening behind a disclosure rather than a section', () => {
+  // Hardening was a full section, then a disclosure; it is one sentence now,
+  // and the detail lives at /security.
+  it('should reduce hardening to a sentence that points at /security', () => {
     const html = readDistFile('index.html');
-    expect(html).toContain('Production hardening &amp; standards');
-    expect(html).toContain('<details');
+    expect(html).toContain('OWASP MCP Top 10');
+    expect(html).toContain('href="/security"');
   });
 
   it('should render icon SVGs correctly', () => {
@@ -206,6 +228,49 @@ describe('Build Output', () => {
       expect(html).toContain('SoftwareApplication');
     });
 
+    // The /security section is a content collection precisely so it gets the
+    // same machine surface as every other content page: a `.md` twin at the
+    // same path and a line in llms.txt. These assert that, not the prose.
+    it('should list the security collection in the llms.txt Security section', () => {
+      const content = readDistFile('llms.txt');
+      expect(content).toContain('## Security');
+      expect(content).toContain('https://mcp-hangar.io/security/cve-ledger.md');
+      expect(content).toContain('https://mcp-hangar.io/security/owasp-mcp-top-10.md');
+      // One Security heading, not two — the docs pages share it.
+      expect(content.match(/^## Security$/gm)?.length).toBe(1);
+    });
+
+    it('should generate .md mirrors for the security pages', () => {
+      for (const slug of ['cve-ledger', 'owasp-mcp-top-10']) {
+        const md = readDistFile(`security/${slug}.md`);
+        expect(md).toContain(`Source: https://mcp-hangar.io/security/${slug}`);
+        expect(md).not.toContain('<nav');
+        // MDX scaffolding must not leak into the machine surface.
+        expect(md).not.toContain('import ');
+        expect(md).not.toContain('<Callout');
+      }
+    });
+
+    it('should give every CVE ledger entry a deep-linkable anchor', () => {
+      const html = readDistFile('security/cve-ledger/index.html');
+      expect(html).toContain('id="cve-2026-59950"');
+    });
+
+    it('should link both posture pages from the /security landing page', () => {
+      const html = readDistFile('security/index.html');
+      expect(html).toContain('href="/security/cve-ledger"');
+      expect(html).toContain('href="/security/owasp-mcp-top-10"');
+      // The advisory posts stay on the blog; the hub points at them.
+      expect(html).toContain('href="/blog/2026-07-16-security-advisory-cve-2026-59950"');
+    });
+
+    it('should keep the OWASP page honest about scope and unfinished rows', () => {
+      const html = readDistFile('security/owasp-mcp-top-10/index.html');
+      expect(html).toContain('Out of scope by design');
+      expect(html).toContain('Needs owner review');
+      expect(html).toContain('it does not guess intent');
+    });
+
     it('all llms.txt links should have corresponding .md files', () => {
       const content = readDistFile('llms.txt');
       const links = content.match(/https:\/\/mcp-hangar\.io\/([^\s)]+\.md)/g) || [];
@@ -221,5 +286,24 @@ describe('Build Output', () => {
       }
       expect(missing).toEqual([]);
     });
+  });
+
+  // WS-7 removed the CSS rule that hid a duplicate <h1>. Learn reuses the same
+  // .blog-content wrapper as the blog, so stripping the heading from only one
+  // of them left fourteen Learn pages rendering two — caught by the WS-8 gate,
+  // not by looking at a blog post. One heading, everywhere, asserted.
+  it('renders exactly one h1 on every article page', () => {
+    const roots = ['learn', 'blog'];
+    for (const root of roots) {
+      const dir = path.join(process.cwd(), 'dist', root);
+      const slugs = fs.readdirSync(dir, { withFileTypes: true })
+        .filter(d => d.isDirectory())
+        .map(d => d.name);
+      expect(slugs.length).toBeGreaterThan(0);
+      for (const slug of slugs) {
+        const html = readDistFile(path.join(root, slug, 'index.html'));
+        expect((html.match(/<h1[\s>]/g) || []).length).toBe(1);
+      }
+    }
   });
 });

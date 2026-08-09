@@ -2,23 +2,43 @@
 import Badge from "../Badge.astro";
 import Button from "../Button.astro";
 import GithubIcon from "../icons/GithubIcon.astro";
+import PolicySnippet from "../PolicySnippet.astro";
+import WireRecord from "../WireRecord.astro";
 import { LINKS, VERSION_TAG } from "../../config";
+
+/**
+ * The thesis is about the ecosystem, not about competitors: the spec defines
+ * capabilities, a registry defines distribution, and nothing defines control.
+ * Every new SEP makes that gap wider rather than smaller, which is why the
+ * claim is durable enough to lead with.
+ *
+ * Under it sits the proof rather than a screenshot of a dashboard: a policy,
+ * a call, and the verdict with the code that actually goes on the wire.
+ */
+const policy = `apiVersion: mcp-hangar.io/v1alpha2
+kind: MCPEgressPolicy
+metadata:
+  name: gh-readonly
+spec:
+  mode: Enforce
+  tools:
+    allow: ["github.get_*", "github.list_*"]`;
 ---
 
 <section class="max-w-6xl mx-auto px-6 pt-24 pb-32">
   <div class="max-w-3xl mx-auto text-center">
     <Badge class="animate-fade-in mb-8">{VERSION_TAG} — Open Source — MIT License</Badge>
 
-    <h1 class="animate-slide-up text-5xl font-bold tracking-tight leading-[1.1] mb-6">
-      The policy enforcement
-      <br/>
-      <span class="bg-gradient-to-r from-zinc-300 via-zinc-100 to-teal-400 bg-clip-text text-transparent">
-        plane for MCP.
-      </span>
+    <h1 class="animate-slide-up text-5xl font-bold tracking-tight leading-[1.1] mb-6 text-balance">
+      MCP is getting a registry, tasks, and interceptors.
+      <br class="hidden md:block" />
+      <span class="text-zinc-400">Nothing in the protocol enforces anything.</span>
     </h1>
 
     <p class="text-2xl text-zinc-300 mb-4">
-      Hangar runs every MCP tool call through one deterministic policy path in Kubernetes: admission policy on each server, per-server egress rules, and an audit trail with identity attribution for every call.
+      Hangar runs every MCP tool call through one deterministic policy path in Kubernetes:
+      admission policy on each server, per-server egress rules, and an audit trail with
+      identity attribution for every call.
     </p>
 
     <p class="text-lg text-zinc-500 max-w-xl mx-auto mb-10">
@@ -33,6 +53,27 @@ import { LINKS, VERSION_TAG } from "../../config";
         <GithubIcon /> GitHub
       </Button>
     </div>
+  </div>
 
+  <!-- The proof, not an illustration of it. -->
+  <div class="max-w-3xl mx-auto mt-16">
+    <p class="font-mono text-xs font-semibold text-zinc-500 uppercase tracking-[0.16em] text-center mb-5">
+      A call denied on purpose
+    </p>
+    <div class="grid gap-4">
+      <PolicySnippet filename="gh-readonly.yaml" code={policy} />
+      <WireRecord
+        time="12:04:41"
+        caller="team-research@corp"
+        method="tools/call"
+        target="github.create_issue"
+        verdict="deny"
+        code="-32021"
+      />
+    </div>
+    <p class="text-sm text-zinc-500 text-center mt-5">
+      The policy allows two read patterns, so the write is refused before it reaches GitHub —
+      and the refusal is recorded against the caller who made it.
+    </p>
   </div>
 </section>

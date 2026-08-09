@@ -6,8 +6,6 @@ description: "v1.6 puts Hangar's telemetry on the OpenTelemetry GenAI/MCP semant
 tags: [mcp, mcp-hangar, observability, opentelemetry, tracing, enforcement, open-source]
 ---
 
-# MCP Hangar v1.6 -- OTel Semantic Conventions, Transport Tracing, and the Egress-Policy Plane
-
 v1.5 opened the front door. v1.6 is about seeing through it -- and about the last mile of enforcement. Two themes: Hangar's telemetry now speaks the OpenTelemetry GenAI/MCP semantic conventions end to end, and the L7 `MCPEgressPolicy` enforcement plane is shipped across all three components (core `1.6.0`, operator `v0.14.0`, Helm charts).
 
 Upgrade is drop-in -- `pip install --upgrade mcp-hangar`, or pull `ghcr.io/mcp-hangar/mcp-hangar:1.6.0`. One breaking change for telemetry consumers is called out below and in the [upgrade guide](/docs/upgrade).
@@ -34,7 +32,7 @@ There are new per-server transport metrics too -- `mcp_hangar_messages_sent_tota
 
 `MCPEgressPolicy` -- the L7 half of Hangar's enforcement plane -- is now shipped across the stack. Declare, per MCP server or server group, a deny-by-default allow-list of upstreams (matched against the same digest/issuer primitives you already pin), plus deterministic tool-call and argument rules and a network backstop. The operator (`v0.14.0`) compiles the policy and pushes it to core, which enforces every tool call at the invocation chokepoint before it touches the wire. Audit-by-default, so you can watch before you block.
 
-The Helm chart now installs the `MCPEgressPolicy` CRD and grants the operator the RBAC to reconcile it, so the feature works from a plain `helm install`. See the [Egress Policy guide](/docs/guides/egress-policy) to get started.
+The Helm chart now installs the `MCPEgressPolicy` CRD and grants the operator the RBAC to reconcile it, so the feature works from a plain `helm install`. See the [Egress Policy guide](/docs/guides/EGRESS_POLICY) to get started.
 
 ## Get it
 

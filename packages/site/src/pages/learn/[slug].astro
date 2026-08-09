@@ -5,7 +5,7 @@ import { isUpcoming, sinceLabel } from '../../lib/version-badge';
 import { trackPosition } from '../../lib/learn-track';
 
 export async function getStaticPaths() {
-  const entries = await getCollection('learn');
+  const entries = (await getCollection('learn')).filter(e => !e.data.draft);
   return entries.map(entry => ({
     params: { slug: entry.id },
     props: { entry },
