@@ -6,8 +6,6 @@ description: "v1.6 puts Hangar's telemetry on the OpenTelemetry GenAI/MCP semant
 tags: [mcp, mcp-hangar, observability, opentelemetry, tracing, enforcement, open-source]
 ---
 
-# MCP Hangar v1.6 -- OTel Semantic Conventions, Transport Tracing, and the Egress-Policy Plane
-
 v1.5 opened the front door. v1.6 is about seeing through it -- and about the last mile of enforcement. Two themes: Hangar's telemetry now speaks the OpenTelemetry GenAI/MCP semantic conventions end to end, and the L7 `MCPEgressPolicy` enforcement plane is shipped across all three components (core `1.6.0`, operator `v0.14.0`, Helm charts).
 
 Upgrade is drop-in -- `pip install --upgrade mcp-hangar`, or pull `ghcr.io/mcp-hangar/mcp-hangar:1.6.0`. One breaking change for telemetry consumers is called out below and in the [upgrade guide](/docs/upgrade).

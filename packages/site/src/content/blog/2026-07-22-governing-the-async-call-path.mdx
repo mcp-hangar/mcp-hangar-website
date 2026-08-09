@@ -6,8 +6,6 @@ description: "The async call path was the one governed call-shape left dormant. 
 tags: [mcp, mcp-hangar, governance, tasks, async, consent, human-in-the-loop, open-source]
 ---
 
-# Governing the async call path: task relay-with-governance and mid-flight consent
-
 Every synchronous `tools/call` through Hangar is governed. Identity is bound, the tool digest is re-verified, the L7 egress policy fires, the whole thing lands in the event stream keyed by `correlation_id`. That has been true since v1.5 opened the front door.
 
 The async call path was not. A tool that returns a task handle instead of a result -- the call that finishes later -- was the one governed call-shape left *dormant*. Not ungoverned by accident. Dormant by decision.
