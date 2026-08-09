@@ -266,10 +266,10 @@ const versions = sortVersionsDescending([...new Set(entries.map(e => e.data.sinc
       <div class="facets">
         <div class="fgroup">
           <span class="lbl">Type</span>
-          <button class="chip" data-f="type" data-v="Concept"><span class="sw" style="background:var(--concept)"></span>Concept</button>
-          <button class="chip" data-f="type" data-v="Tutorial"><span class="sw" style="background:var(--tutorial)"></span>Tutorial</button>
-          <button class="chip" data-f="type" data-v="Why"><span class="sw" style="background:var(--why)"></span>Deep dive</button>
-          <button class="chip" data-f="type" data-v="Visual"><span class="sw" style="background:var(--visual)"></span>Visual</button>
+          <button class="chip" data-f="type" data-v="Concept">Concept</button>
+          <button class="chip" data-f="type" data-v="Tutorial">Tutorial</button>
+          <button class="chip" data-f="type" data-v="Why">Deep dive</button>
+          <button class="chip" data-f="type" data-v="Visual">Visual</button>
         </div>
         <div class="fgroup">
           <span class="lbl">Level</span>
@@ -342,10 +342,13 @@ const versions = sortVersionsDescending([...new Set(entries.map(e => e.data.sinc
     --line-2: #3f3f46;       /* zinc-700 */
     --brand: #d4d4d8;        /* zinc-300 — accents are neutral; green means allow */
     --brand-dim: #27272a;     /* zinc-800 */
-    --concept: #2dd4bf;      /* teal */
-    --tutorial: #38bdf8;     /* sky */
-    --why: #a78bfa;          /* violet */
-    --visual: #fbbf24;       /* amber */
+    /* Page type is carried by its icon and its label; it used to also get a
+       hue, which made four more colours compete with the verdict palette for
+       no extra information. All four resolve to the same neutral now. */
+    --concept: #a1a1aa;      /* zinc-400 */
+    --tutorial: #a1a1aa;
+    --why: #a1a1aa;
+    --visual: #a1a1aa;
     --ship: #a1a1aa;         /* zinc-400 — shipped is the normal state, so no hue */
     --ship-bg: #27272a;       /* zinc-800 */
     --preview: #fbbf24;
@@ -598,7 +601,7 @@ const versions = sortVersionsDescending([...new Set(entries.map(e => e.data.sinc
     display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
   }
   .learn-hub .card .meta { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; font-size: 11.5px; color: var(--muted); }
-  .learn-hub .card .type { color: var(--tc); font-weight: 700; }
+  .learn-hub .card .type { color: var(--ink-2); font-weight: 700; font-family: var(--font-mono, ui-monospace, monospace); text-transform: uppercase; letter-spacing: .08em; font-size: 11px; }
   .learn-hub .card .meta .sep { width: 3px; height: 3px; border-radius: 50%; background: var(--faint); }
   .learn-hub .pill { font-size: 10.5px; font-weight: 700; padding: 2px 7px; border-radius: 5px; letter-spacing: .02em; margin-left: auto; }
   .learn-hub .pill.ship { background: var(--ship-bg); color: var(--ship); }
