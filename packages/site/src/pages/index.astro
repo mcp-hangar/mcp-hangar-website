@@ -2,15 +2,11 @@
 import Base from '../layouts/Base.astro';
 
 import Hero from '../components/sections/Hero.astro';
-import Architecture from '../components/sections/Architecture.astro';
 import WhyEnforcement from '../components/sections/WhyEnforcement.astro';
-import QuickStart from '../components/sections/QuickStart.astro';
+import Architecture from '../components/sections/Architecture.astro';
 import Capabilities from '../components/sections/Capabilities.astro';
-import ProductionSecurity from '../components/sections/ProductionSecurity.astro';
-import StandardsCoverage from '../components/sections/StandardsCoverage.astro';
 import AsyncGovernance from '../components/sections/AsyncGovernance.astro';
-import Documentation from '../components/sections/Documentation.astro';
-import BuiltonOpenSource from '../components/sections/BuiltonOpenSource.astro';
+import ThreeDoors from '../components/sections/ThreeDoors.astro';
 ---
 
 <Base title="MCP Hangar -- Policy Enforcement Plane for MCP" description="The Kubernetes-native policy enforcement plane for MCP. Deterministic admission and egress policy, attributable audit, and SIEM export -- MIT, self-hosted, no SaaS." path="/">
@@ -23,16 +19,17 @@ import BuiltonOpenSource from '../components/sections/BuiltonOpenSource.astro';
             class="fixed inset-0 bg-[url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noise%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noise)%22/%3E%3C/svg%3E')] opacity-[0.03]"/>
     </div>
 
+    <!--
+        Six sections, one question each. Anything that needs more than a screen to
+        answer lives in /learn or /docs and is linked from here, rather than being
+        inlined a second time.
+    -->
     <main>
         <Hero />
-        <Architecture />
         <WhyEnforcement />
-        <QuickStart />
+        <Architecture />
         <Capabilities />
-        <ProductionSecurity />
-        <StandardsCoverage />
         <AsyncGovernance />
-        <Documentation />
-        <BuiltonOpenSource />
+        <ThreeDoors />
     </main>
 </Base>

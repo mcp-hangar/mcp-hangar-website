@@ -1,0 +1,151 @@
+---
+import { getCollection } from "astro:content";
+import CopyIcon from "../icons/CopyIcon.astro";
+import CheckIcon from "../icons/CheckIcon.astro";
+import RocketIcon from "../icons/RocketIcon.astro";
+import BookOpenIcon from "../icons/BookOpenIcon.astro";
+import FileTextIcon from "../icons/FileTextIcon.astro";
+import { countCookbookRecipes } from "../../docsNav";
+import { INSTALL_COMMAND } from "../../config";
+
+/**
+ * One exit, three doors. The step-by-step install used to run inline here as a
+ * full tutorial; it is a better tutorial at /learn, and this page only has to
+ * get someone to the right door.
+ */
+const recipeCount = countCookbookRecipes(await getCollection("oss"));
+const learnCount = (await getCollection("learn")).length;
+---
+
+<section class="max-w-6xl mx-auto px-6 pb-32">
+    <div class="text-center mb-10">
+        <h2 class="text-sm font-semibold text-zinc-500 uppercase tracking-wider mb-3">
+            Where to go next
+        </h2>
+        <p class="text-2xl md:text-3xl font-bold text-zinc-100">
+            Install it, understand it, or look it up
+        </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <!-- Door 1: install -->
+        <div class="flex flex-col p-6 rounded-2xl bg-zinc-900/30 border border-zinc-800/50">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-9 h-9 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
+                    <RocketIcon />
+                </div>
+                <h3 class="font-semibold text-zinc-100">Start</h3>
+            </div>
+            <p class="text-sm text-zinc-500 mb-4">
+                Install the Python core and make your first governed call.
+            </p>
+            <div
+                id="start-copy-btn"
+                role="button"
+                tabindex={0}
+                aria-label="Copy pip install command to clipboard"
+                class="group inline-flex items-center gap-3 bg-zinc-950/60 border border-zinc-800 hover:border-emerald-500/30 rounded-xl px-4 py-3 font-mono text-sm cursor-pointer transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 mb-4"
+            >
+                <span class="text-zinc-500">$</span>
+                <span class="start-copy-text text-zinc-300 truncate">{INSTALL_COMMAND}</span>
+                <span class="text-zinc-600 group-hover:text-emerald-400 transition-colors ml-auto shrink-0">
+                    <span class="start-copy-idle"><CopyIcon /></span>
+                    <span class="start-copy-success hidden"><CheckIcon /></span>
+                </span>
+            </div>
+            <a
+                href="/docs/getting-started/quickstart"
+                class="mt-auto inline-flex items-center gap-1.5 text-sm font-semibold text-emerald-400 hover:text-emerald-300 transition-colors"
+            >
+                Quickstart <span aria-hidden="true">&rarr;</span>
+            </a>
+        </div>
+
+        <!-- Door 2: learn -->
+        <div class="flex flex-col p-6 rounded-2xl bg-zinc-900/30 border border-zinc-800/50">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-9 h-9 rounded-lg bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400 shrink-0">
+                    <BookOpenIcon />
+                </div>
+                <h3 class="font-semibold text-zinc-100">Learn</h3>
+            </div>
+            <p class="text-sm text-zinc-500 mb-4">
+                {learnCount} explainers and hands-on walkthroughs — what an enforcement plane
+                is, how a request travels it, and where it stops.
+            </p>
+            <ul class="space-y-1.5 text-sm mb-5">
+                <li>
+                    <a href="/learn/the-request-path" class="text-zinc-400 hover:text-sky-300 transition-colors">The request path</a>
+                </li>
+                <li>
+                    <a href="/learn/from-install-to-a-governed-deny" class="text-zinc-400 hover:text-sky-300 transition-colors">From install to a governed deny</a>
+                </li>
+                <li>
+                    <a href="/learn/more-than-one-hangar" class="text-zinc-400 hover:text-sky-300 transition-colors">Two Hangars, one verdict</a>
+                </li>
+            </ul>
+            <a
+                href="/learn/"
+                class="mt-auto inline-flex items-center gap-1.5 text-sm font-semibold text-sky-400 hover:text-sky-300 transition-colors"
+            >
+                All of Learn <span aria-hidden="true">&rarr;</span>
+            </a>
+        </div>
+
+        <!-- Door 3: docs -->
+        <div class="flex flex-col p-6 rounded-2xl bg-zinc-900/30 border border-zinc-800/50">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-9 h-9 rounded-lg bg-zinc-700/30 border border-zinc-600/30 flex items-center justify-center text-zinc-400 shrink-0">
+                    <FileTextIcon />
+                </div>
+                <h3 class="font-semibold text-zinc-100">Docs</h3>
+            </div>
+            <p class="text-sm text-zinc-500 mb-4">
+                {recipeCount} production recipes, plus configuration, CLI, REST API and MCP
+                tool reference.
+            </p>
+            <ul class="space-y-1.5 text-sm mb-5">
+                <li>
+                    <a href="/docs/cookbook/index" class="text-zinc-400 hover:text-emerald-300 transition-colors">Cookbook</a>
+                </li>
+                <li>
+                    <a href="/docs/reference/configuration" class="text-zinc-400 hover:text-emerald-300 transition-colors">Configuration reference</a>
+                </li>
+            </ul>
+            <a
+                href="/docs/"
+                class="mt-auto inline-flex items-center gap-1.5 text-sm font-semibold text-emerald-400 hover:text-emerald-300 transition-colors"
+            >
+                All docs <span aria-hidden="true">&rarr;</span>
+            </a>
+        </div>
+    </div>
+</section>
+
+<script>
+    const startBtn = document.getElementById("start-copy-btn");
+    if (startBtn) {
+        const copy = async () => {
+            const txtNode = startBtn.querySelector(".start-copy-text");
+            const command = txtNode ? (txtNode.textContent || "").trim() : "";
+            await navigator.clipboard.writeText(command);
+            const idle = startBtn.querySelector(".start-copy-idle");
+            const success = startBtn.querySelector(".start-copy-success");
+            if (idle && success) {
+                idle.classList.add("hidden");
+                success.classList.remove("hidden");
+                setTimeout(() => {
+                    idle.classList.remove("hidden");
+                    success.classList.add("hidden");
+                }, 2000);
+            }
+        };
+        startBtn.addEventListener("click", copy);
+        startBtn.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                startBtn.click();
+            }
+        });
+    }
+</script>
