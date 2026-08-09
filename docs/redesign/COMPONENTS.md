@@ -114,26 +114,61 @@ recipe, not a card illustration.
 
 ---
 
-## `PipelineMotif` — not in this PR
+## `PipelineMotif`
 
-The ordered-gates diagram in `full` / `compact` / `mini` is the remaining WS-2
-component, and it is a rebuild rather than a move: WS-0 measured the current
-diagram at **20 `.ctl` divs, 281 lines of page-scoped CSS and a filter script,
-inline in a 711-line page, with zero SVG**. Extracting it means moving markup,
-stylesheet and behaviour together and then proving the Learn hub still filters
-identically — which is its own review, not a footnote to three small
-components.
+The ordered gates a call meets, in one place, in three sizes. **The order is the
+content** — top-to-bottom is real execution order, and egress is last because it
+fires immediately before upstream I/O. A size that reordered the gates would be
+lying about the product.
 
-Sizes it needs to end up with:
-
-- `full` — the Learn hub's interactive version, on tokens
-- `compact` — a horizontal strip for the homepage "how it works"
-- `mini` — an inline marker lighting the gates a given use-case card covers
-
-One visual language across all three: same gate letters (a–i), same
-`state-optin` markers for anything off by default, same mono labels.
-
+```astro
 ---
+import PipelineMotif from "../components/PipelineMotif.astro";
+---
+<PipelineMotif size="full" />                    {/* the Learn hub seam */}
+<PipelineMotif size="compact" />                 {/* homepage strip */}
+<PipelineMotif size="mini" gates={["a", "f"]} /> {/* a use-case card */}
+```
+
+| prop | type | default |
+| --- | --- | --- |
+| `size` | `"full" \| "compact" \| "mini"` | `"full"` |
+| `gates` | `string[]` | `[]` — for `mini`: which letters to light |
+
+The nine gates live in one `GATES` array inside the component, so the three
+sizes cannot drift apart. Gate letters (a–i) mean the same thing everywhere:
+
+| | gate | kind |
+| --- | --- | --- |
+| a | Tool-access authz | gate |
+| b | Tool-withdrawal check | gate |
+| c | Tool-schema digest-pin verify | gate · opt-in |
+| d | Circuit-breaker / health | reliability |
+| e | Interceptor validators | off by default |
+| f | Approval gate | gate |
+| g | Concurrency / backpressure | reliability |
+| h | Interceptor mutators — request | off by default |
+| i | Egress L7 policy | gate · last before the wire |
+
+### Two things worth knowing before you touch it
+
+**Filtering stays on the page.** `full` emits `.ctl` buttons carrying
+`data-filter`; the Learn hub's own script wires those to its card grid. That
+behaviour is a relationship between the diagram and a grid the component cannot
+see, so it is page behaviour, not component behaviour — the component would have
+to reach into the page to own it.
+
+**The styles had to move with the markup.** Astro scopes a page's `<style>` to
+that page's elements. The moment the seam became a component, the hub's rules
+stopped matching it and it rendered unstyled — so its CSS now lives in the
+component, with the `.learn-hub` ancestor dropped from every selector (that class
+belongs to the page, and a scoped selector naming it never matches). The custom
+properties are deliberately *not* redefined: they inherit through the DOM inside
+the hub, and the fallbacks cover use anywhere else. The page's now-dead copies
+were removed.
+
+Extraction was verified by diffing the built hub before and after: identical
+apart from Astro's scoped-style ids and hashed CSS filenames.
 
 ## Facet colours: removed
 
