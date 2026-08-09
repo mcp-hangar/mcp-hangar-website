@@ -51,12 +51,12 @@ const titleOf = new Map(allEntries.map(e => [e.id, e.data.title]));
 >
   <main class="max-w-3xl mx-auto px-6 py-16">
     <!-- Back link -->
-    <a href="/learn" class="inline-flex items-center gap-1.5 text-sm text-zinc-500 hover:text-emerald-400 transition-colors mb-8 group">
+    <a href="/learn" class="inline-flex items-center gap-1.5 text-sm text-zinc-500 hover:text-zinc-300 transition-colors mb-8 group">
       <span class="group-hover:-translate-x-0.5 transition-transform">&larr;</span>
       All concepts
     </a>
 
-    <article class="prose prose-invert prose-emerald max-w-none docs-article">
+    <article class="prose prose-invert max-w-none docs-article">
       <header class="not-prose mb-10">
         <!-- Compact facet meta row — same signals as the /learn hub cards. -->
         <div class="flex flex-wrap items-center gap-x-3 gap-y-2 mb-4 text-xs">
@@ -76,7 +76,7 @@ const titleOf = new Map(allEntries.map(e => [e.id, e.data.title]));
               'ml-auto px-2 py-0.5 rounded font-semibold',
               upcoming
                 ? 'bg-zinc-500/10 text-zinc-400'
-                : 'bg-emerald-500/10 text-emerald-400',
+                : 'bg-zinc-800/40 text-zinc-300',
             ]}
           >
             {sinceLabel(since)}
@@ -103,7 +103,7 @@ const titleOf = new Map(allEntries.map(e => [e.id, e.data.title]));
     <footer class="mt-16 pt-10 border-t border-zinc-800/60">
       {track.deeper.length > 0 && (
         <div class="mb-12">
-          <h2 class="font-mono text-sm font-semibold text-emerald-400 uppercase tracking-[0.16em] mb-5">
+          <h2 class="font-mono text-sm font-semibold text-zinc-300 uppercase tracking-[0.16em] mb-5">
             Go deeper in the docs
           </h2>
           <ul class="grid gap-3 sm:grid-cols-2">
@@ -111,10 +111,10 @@ const titleOf = new Map(allEntries.map(e => [e.id, e.data.title]));
               <li>
                 <a
                   href={d.href}
-                  class="group flex items-center justify-between gap-3 rounded-xl bg-zinc-900/40 border border-zinc-800/60 hover:border-emerald-500/30 hover:bg-zinc-900/60 px-4 py-3.5 transition-colors"
+                  class="group flex items-center justify-between gap-3 rounded-xl bg-zinc-900/40 border border-zinc-800/60 hover:border-zinc-600/60 hover:bg-zinc-900/60 px-4 py-3.5 transition-colors"
                 >
-                  <span class="text-base text-zinc-300 group-hover:text-emerald-300 transition-colors">{d.label}</span>
-                  <span class="text-zinc-600 group-hover:text-emerald-400 group-hover:translate-x-0.5 transition-all shrink-0" aria-hidden="true">&rarr;</span>
+                  <span class="text-base text-zinc-300 group-hover:text-zinc-100 transition-colors">{d.label}</span>
+                  <span class="text-zinc-600 group-hover:text-zinc-300 group-hover:translate-x-0.5 transition-all shrink-0" aria-hidden="true">&rarr;</span>
                 </a>
               </li>
             ))}
@@ -128,7 +128,7 @@ const titleOf = new Map(allEntries.map(e => [e.id, e.data.title]));
             <span class="font-mono text-xs text-zinc-500 uppercase tracking-wider">
               Step {track.index} of {track.total} &middot; Learn track
             </span>
-            <a href="/learn" class="text-sm text-zinc-500 hover:text-emerald-400 transition-colors">
+            <a href="/learn" class="text-sm text-zinc-500 hover:text-zinc-300 transition-colors">
               All concepts
             </a>
           </div>
@@ -137,13 +137,13 @@ const titleOf = new Map(allEntries.map(e => [e.id, e.data.title]));
             {track.prev && (
               <a
                 href={`/learn/${track.prev}`}
-                class="group rounded-xl bg-zinc-900/40 border border-zinc-800/60 hover:border-emerald-500/30 hover:bg-zinc-900/60 px-5 py-4 transition-colors"
+                class="group rounded-xl bg-zinc-900/40 border border-zinc-800/60 hover:border-zinc-600/60 hover:bg-zinc-900/60 px-5 py-4 transition-colors"
               >
                 <span class="flex items-center gap-1.5 text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-1.5">
                   <span class="group-hover:-translate-x-0.5 transition-transform" aria-hidden="true">&larr;</span>
                   Previous
                 </span>
-                <span class="block text-base font-medium text-zinc-200 group-hover:text-emerald-300 transition-colors text-balance">
+                <span class="block text-base font-medium text-zinc-200 group-hover:text-zinc-100 transition-colors text-balance">
                   {titleOf.get(track.prev)}
                 </span>
               </a>
@@ -151,13 +151,13 @@ const titleOf = new Map(allEntries.map(e => [e.id, e.data.title]));
             {track.next && (
               <a
                 href={`/learn/${track.next}`}
-                class={`group rounded-xl bg-zinc-900/40 border border-zinc-800/60 hover:border-emerald-500/30 hover:bg-zinc-900/60 px-5 py-4 transition-colors sm:text-right ${track.prev ? '' : 'sm:col-start-2'}`}
+                class={`group rounded-xl bg-zinc-900/40 border border-zinc-800/60 hover:border-zinc-600/60 hover:bg-zinc-900/60 px-5 py-4 transition-colors sm:text-right ${track.prev ? '' : 'sm:col-start-2'}`}
               >
                 <span class="flex items-center gap-1.5 text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-1.5 sm:justify-end">
                   Next
                   <span class="group-hover:translate-x-0.5 transition-transform" aria-hidden="true">&rarr;</span>
                 </span>
-                <span class="block text-base font-medium text-zinc-200 group-hover:text-emerald-300 transition-colors text-balance">
+                <span class="block text-base font-medium text-zinc-200 group-hover:text-zinc-100 transition-colors text-balance">
                   {titleOf.get(track.next)}
                 </span>
               </a>

@@ -27,7 +27,7 @@ const next = currentIndex >= 0 && currentIndex < allPages.length - 1 ? allPages[
     {prev ? (
       <a
         href={prev.href}
-        class="group flex items-center gap-2 text-sm text-zinc-400 hover:text-emerald-400 transition-colors"
+        class="group flex items-center gap-2 text-sm text-zinc-400 hover:text-zinc-300 transition-colors"
       >
         <svg class="w-4 h-4 transition-transform group-hover:-translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
@@ -38,7 +38,7 @@ const next = currentIndex >= 0 && currentIndex < allPages.length - 1 ? allPages[
     {next ? (
       <a
         href={next.href}
-        class="group flex items-center gap-2 text-sm text-zinc-400 hover:text-emerald-400 transition-colors ml-auto"
+        class="group flex items-center gap-2 text-sm text-zinc-400 hover:text-zinc-300 transition-colors ml-auto"
       >
         <span>{next.label}</span>
         <svg class="w-4 h-4 transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
