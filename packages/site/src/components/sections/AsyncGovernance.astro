@@ -7,23 +7,22 @@
 ---
 
 <section class="max-w-6xl mx-auto px-6 pb-32">
-    <div class="max-w-3xl border-l-2 border-emerald-500/40 pl-6 md:pl-9">
-        <span class="text-xs font-semibold text-emerald-400 uppercase tracking-[0.14em]">
+    <div class="max-w-3xl mx-auto text-center">
+        <span class="text-sm font-semibold text-emerald-400 uppercase tracking-[0.16em]">
             Governed async tasks
         </span>
-        <h2 class="text-2xl md:text-3xl font-bold tracking-tight text-zinc-100 mt-3 mb-4 text-balance">
+        <h2 class="text-3xl md:text-5xl font-bold tracking-tight text-zinc-100 mt-4 mb-6 text-balance">
             Your longest-running operations were the least governed ones
         </h2>
-        <p class="text-lg text-zinc-400 mb-6">
+        <p class="text-xl text-zinc-400 mb-8">
             The export, the migration, the bulk write — everything expensive and hard to
             undo hands back a handle in milliseconds and does the real work later. Hangar
             governs the relay of that task, and the moment it pauses for input, without
-            ever becoming the executor: no scheduler, no job runner, no result store of
-            its own.
+            ever becoming the executor.
         </p>
         <a
             href="/learn/relay-with-governance"
-            class="group inline-flex items-center gap-1.5 text-sm font-semibold text-emerald-400 hover:text-emerald-300 transition-colors"
+            class="group inline-flex items-center gap-2 text-base font-semibold text-emerald-400 hover:text-emerald-300 transition-colors"
         >
             How the governed relay works
             <span class="transition-transform group-hover:translate-x-0.5" aria-hidden="true">&rarr;</span>

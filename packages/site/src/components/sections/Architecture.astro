@@ -1,101 +1,100 @@
 ---
 /**
- * The old version of this was a small heading over three vague boxes: true, but it
- * did not say anything a reader could not already guess. The centre node now names
- * the gates in the order a call meets them, which is the actual content.
+ * The centre node names the gates in the order a call meets them — that ordering
+ * is the actual content, and it is what the old three-vague-boxes version left out.
  */
 ---
 
 <section class="max-w-6xl mx-auto px-6 pb-32">
-    <div class="max-w-3xl mb-10">
-        <span class="text-xs font-semibold text-emerald-400 uppercase tracking-[0.14em]">
+    <div class="max-w-3xl mx-auto text-center mb-14">
+        <span class="text-sm font-semibold text-emerald-400 uppercase tracking-[0.16em]">
             How it works
         </span>
-        <h2 class="text-3xl md:text-4xl font-bold tracking-tight text-zinc-100 mt-3 mb-4">
+        <h2 class="text-4xl md:text-5xl font-bold tracking-tight text-zinc-100 mt-4 mb-5 text-balance">
             One proxy between your agents and your MCP servers
         </h2>
-        <p class="text-lg text-zinc-400">
+        <p class="text-xl text-zinc-400">
             Every call arrives on the same path and meets the same gates, in the same
             order, whatever the agent and whatever the backend.
         </p>
     </div>
 
-    <div class="rounded-2xl bg-zinc-900/30 border border-zinc-800/50 p-6 md:p-10">
-        <div class="flex flex-col md:flex-row md:items-stretch gap-5 md:gap-4">
+    <div class="rounded-3xl bg-zinc-900/30 border border-zinc-800/50 p-6 md:p-12">
+        <div class="flex flex-col md:flex-row md:items-stretch gap-6 md:gap-5">
             <!-- Callers -->
             <div class="md:flex-1 md:self-center">
-                <div class="rounded-xl bg-sky-500/[0.06] border border-sky-500/20 p-5 text-center">
-                    <span class="block text-base font-semibold text-zinc-100">AI agents</span>
-                    <span class="block text-sm text-zinc-400 mt-1">Claude, GPT, custom</span>
+                <div class="rounded-2xl bg-sky-500/[0.06] border border-sky-500/20 p-7 text-center">
+                    <span class="block text-xl font-semibold text-zinc-100">AI agents</span>
+                    <span class="block text-base text-zinc-400 mt-1.5">Claude, GPT, custom</span>
                 </div>
             </div>
 
             <!-- Connector -->
-            <div class="hidden md:flex flex-col items-center justify-center gap-2 px-1">
-                <span class="font-mono text-[11px] text-zinc-500 tracking-wider">MCP</span>
-                <div class="w-14 h-px bg-gradient-to-r from-sky-500/50 to-emerald-500/50"></div>
+            <div class="hidden md:flex flex-col items-center justify-center gap-2.5 px-1">
+                <span class="font-mono text-xs text-zinc-500 tracking-wider">MCP</span>
+                <div class="w-16 h-px bg-gradient-to-r from-sky-500/50 to-emerald-500/50"></div>
             </div>
-            <div class="md:hidden flex flex-col items-center gap-1.5">
-                <div class="w-px h-6 bg-gradient-to-b from-sky-500/50 to-emerald-500/50"></div>
-                <span class="font-mono text-[11px] text-zinc-500 tracking-wider">MCP</span>
-                <div class="w-px h-6 bg-gradient-to-b from-sky-500/50 to-emerald-500/50"></div>
+            <div class="md:hidden flex flex-col items-center gap-2">
+                <div class="w-px h-7 bg-gradient-to-b from-sky-500/50 to-emerald-500/50"></div>
+                <span class="font-mono text-xs text-zinc-500 tracking-wider">MCP</span>
+                <div class="w-px h-7 bg-gradient-to-b from-sky-500/50 to-emerald-500/50"></div>
             </div>
 
             <!-- Hangar: the gates, in order -->
-            <div class="md:flex-[1.5]">
-                <div class="rounded-xl bg-emerald-500/[0.07] border border-emerald-500/25 p-5 md:p-6">
-                    <div class="flex items-baseline justify-between gap-3 mb-4">
-                        <span class="text-base font-semibold text-emerald-300">Hangar</span>
-                        <span class="font-mono text-[11px] text-emerald-500/70 uppercase tracking-wider">per request</span>
+            <div class="md:flex-[1.6]">
+                <div class="rounded-2xl bg-emerald-500/[0.07] border border-emerald-500/25 p-6 md:p-7">
+                    <div class="flex items-baseline justify-between gap-3 mb-5">
+                        <span class="text-xl font-semibold text-emerald-300">Hangar</span>
+                        <span class="font-mono text-xs text-emerald-500/70 uppercase tracking-wider">per request</span>
                     </div>
-                    <ol class="space-y-2">
-                        <li class="flex items-center gap-3 rounded-lg bg-zinc-950/40 border border-emerald-500/10 px-3 py-2">
-                            <span class="font-mono text-[11px] text-emerald-500/60 w-4 shrink-0">1</span>
-                            <span class="text-sm text-zinc-200">Identity &amp; authentication</span>
+                    <ol class="space-y-2.5">
+                        <li class="flex items-center gap-3.5 rounded-xl bg-zinc-950/40 border border-emerald-500/10 px-4 py-3">
+                            <span class="font-mono text-xs text-emerald-500/60 w-4 shrink-0">1</span>
+                            <span class="text-base text-zinc-200">Identity &amp; authentication</span>
                         </li>
-                        <li class="flex items-center gap-3 rounded-lg bg-zinc-950/40 border border-emerald-500/10 px-3 py-2">
-                            <span class="font-mono text-[11px] text-emerald-500/60 w-4 shrink-0">2</span>
-                            <span class="text-sm text-zinc-200">Tool-access policy</span>
+                        <li class="flex items-center gap-3.5 rounded-xl bg-zinc-950/40 border border-emerald-500/10 px-4 py-3">
+                            <span class="font-mono text-xs text-emerald-500/60 w-4 shrink-0">2</span>
+                            <span class="text-base text-zinc-200">Tool-access policy</span>
                         </li>
-                        <li class="flex items-center gap-3 rounded-lg bg-zinc-950/40 border border-emerald-500/10 px-3 py-2">
-                            <span class="font-mono text-[11px] text-emerald-500/60 w-4 shrink-0">3</span>
-                            <span class="text-sm text-zinc-200">L7 egress policy</span>
+                        <li class="flex items-center gap-3.5 rounded-xl bg-zinc-950/40 border border-emerald-500/10 px-4 py-3">
+                            <span class="font-mono text-xs text-emerald-500/60 w-4 shrink-0">3</span>
+                            <span class="text-base text-zinc-200">L7 egress policy</span>
                         </li>
-                        <li class="flex items-center gap-3 rounded-lg bg-zinc-950/40 border border-emerald-500/10 px-3 py-2">
-                            <span class="font-mono text-[11px] text-emerald-500/60 w-4 shrink-0">4</span>
-                            <span class="text-sm text-zinc-200">Audit record, with the caller attached</span>
+                        <li class="flex items-center gap-3.5 rounded-xl bg-zinc-950/40 border border-emerald-500/10 px-4 py-3">
+                            <span class="font-mono text-xs text-emerald-500/60 w-4 shrink-0">4</span>
+                            <span class="text-base text-zinc-200">Audit record, caller attached</span>
                         </li>
                     </ol>
                 </div>
             </div>
 
             <!-- Connector -->
-            <div class="hidden md:flex flex-col items-center justify-center gap-2 px-1">
-                <span class="font-mono text-[11px] text-zinc-500 tracking-wider">MCP</span>
-                <div class="w-14 h-px bg-gradient-to-r from-emerald-500/50 to-zinc-600/50"></div>
+            <div class="hidden md:flex flex-col items-center justify-center gap-2.5 px-1">
+                <span class="font-mono text-xs text-zinc-500 tracking-wider">MCP</span>
+                <div class="w-16 h-px bg-gradient-to-r from-emerald-500/50 to-zinc-600/50"></div>
             </div>
-            <div class="md:hidden flex flex-col items-center gap-1.5">
-                <div class="w-px h-6 bg-gradient-to-b from-emerald-500/50 to-zinc-600/50"></div>
-                <span class="font-mono text-[11px] text-zinc-500 tracking-wider">MCP</span>
-                <div class="w-px h-6 bg-gradient-to-b from-emerald-500/50 to-zinc-600/50"></div>
+            <div class="md:hidden flex flex-col items-center gap-2">
+                <div class="w-px h-7 bg-gradient-to-b from-emerald-500/50 to-zinc-600/50"></div>
+                <span class="font-mono text-xs text-zinc-500 tracking-wider">MCP</span>
+                <div class="w-px h-7 bg-gradient-to-b from-emerald-500/50 to-zinc-600/50"></div>
             </div>
 
             <!-- Backends -->
             <div class="md:flex-1 md:self-center">
-                <div class="rounded-xl bg-zinc-800/30 border border-zinc-700/40 p-5 text-center">
-                    <span class="block text-base font-semibold text-zinc-100">MCP servers</span>
-                    <span class="block text-sm text-zinc-400 mt-1">Databases, APIs, tools</span>
+                <div class="rounded-2xl bg-zinc-800/30 border border-zinc-700/40 p-7 text-center">
+                    <span class="block text-xl font-semibold text-zinc-100">MCP servers</span>
+                    <span class="block text-base text-zinc-400 mt-1.5">Databases, APIs, tools</span>
                 </div>
             </div>
         </div>
 
-        <div class="mt-7 pt-5 border-t border-zinc-800/50">
+        <div class="mt-9 pt-6 border-t border-zinc-800/50 text-center">
             <a
                 href="/learn/the-request-path"
-                class="inline-flex items-center gap-1.5 text-sm font-semibold text-emerald-400 hover:text-emerald-300 transition-colors"
+                class="group inline-flex items-center gap-2 text-base font-semibold text-emerald-400 hover:text-emerald-300 transition-colors"
             >
                 Follow a single call through every gate
-                <span aria-hidden="true">&rarr;</span>
+                <span class="transition-transform group-hover:translate-x-0.5" aria-hidden="true">&rarr;</span>
             </a>
         </div>
     </div>
