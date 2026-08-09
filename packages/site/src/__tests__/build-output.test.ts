@@ -264,11 +264,16 @@ describe('Build Output', () => {
       expect(html).toContain('href="/blog/2026-07-16-security-advisory-cve-2026-59950"');
     });
 
-    it('should keep the OWASP page honest about scope and unfinished rows', () => {
+    it('should keep the OWASP page honest about scope and limits', () => {
       const html = readDistFile('security/owasp-mcp-top-10/index.html');
       expect(html).toContain('Out of scope by design');
-      expect(html).toContain('Needs owner review');
       expect(html).toContain('it does not guess intent');
+      // MCP04 and MCP09 stopped being "needs owner review" once the operator's
+      // source settled them — but only into a narrower claim, and the page has
+      // to keep saying where each one stops rather than rounding up to Covered.
+      expect(html).toContain('misconfiguration, not concealment');
+      expect(html).toContain('defaults to <code>warn</code>');
+      expect(html).not.toContain('an unregistered server gets no traffic today');
     });
 
     it('all llms.txt links should have corresponding .md files', () => {

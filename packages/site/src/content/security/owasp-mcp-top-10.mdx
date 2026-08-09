@@ -16,10 +16,10 @@ by category, against the shipped release (**2.5.0**).
 The page is deliberately unflattering in places. Hangar is a policy enforcement
 plane: it enforces deterministic policy on the MCP call path and produces an
 attributable audit trail. It does not read prompt or tool-argument semantics and
-will not pretend to — so three of the ten are **out of scope by design**, two are
-**partial** with the remaining work tracked in the open, and two rows are marked
-**needs owner review** because our own sources disagree about what has shipped.
-An unfinished row is more useful than a confident guess.
+will not pretend to — so three of the ten are **out of scope by design** and four
+are **partial**, each with the limit named rather than implied. Two rows carried
+"needs owner review" until the operator's source settled them; what that produced
+is a narrower claim than either internal record made, and it is below the map.
 
 The engineering record this page summarises is the docs' own
 [OWASP MCP Top 10 coverage](/docs/security/OWASP_MCP_TOP_10_COVERAGE) page,
@@ -33,12 +33,12 @@ one is the bug.
 | MCP01 | Token Mismanagement & Secret Exposure | Partial | Front-door auth: RFC 8707 audience binding, RFC 9728 protected-resource metadata, JWT/OIDC + JWKS, API keys stored only as SHA-256 hashes with optional expiry. Plus a named secret-pattern scan on tool arguments in the L7 policy language | [Authentication](/docs/guides/AUTHENTICATION) · [Egress policy](/docs/guides/EGRESS_POLICY) |
 | MCP02 | Privilege Escalation via Scope Creep | Partial | Tool-access authz (gate `a`) and the approval gate (gate `f`): per-tenant scoping, tool allow/deny lists, a human checkpoint on privileged calls | [Egress policy](/docs/guides/EGRESS_POLICY) · [Approval adapters](/docs/guides/APPROVAL_ADAPTERS) |
 | MCP03 | Tool Poisoning | Covered | Tool-schema digest-pin verify (gate `c`, **opt-in**) plus the tool-withdrawal check (gate `b`) — a schema that drifts after approval fails the call closed, or is recorded in advisory mode | [Digest pinning](/learn/digest-pinning) · [ADR-004](/docs/adr/ADR-004-sep-1766-digest-pinning) |
-| MCP04 | Software Supply Chain & Dependency Tampering | **Needs owner review** | Hangar's own artifacts are cosign-signed and SBOM'd, and chart digests are pinned. For **MCP-server images**, two internal records disagree about whether admission withholds traffic from an unpinned image — see the note below | [ADR-013](/docs/adr/ADR-013-egress-policy-enforcement-model) · [docs coverage record](/docs/security/OWASP_MCP_TOP_10_COVERAGE) |
+| MCP04 | Software Supply Chain & Dependency Tampering | Partial | Hangar's own artifacts are cosign-signed and SBOM'd, and chart digests are pinned. For **MCP-server images** the operator does check digest pinning at admission — but the policy **defaults to `warn`**, which admits the pod and records a warning. `block` is opt-in at operator startup, and a per-server annotation waives it | [ADR-013](/docs/adr/ADR-013-egress-policy-enforcement-model) · [docs coverage record](/docs/security/OWASP_MCP_TOP_10_COVERAGE) |
 | MCP05 | Command Injection & Execution | Out of scope by design | — | — |
 | MCP06 | Intent Flow Subversion | Out of scope by design | — | — |
 | MCP07 | Insufficient Authentication & Authorization | Covered | The auth middleware binds the authenticated caller and tenant before any gate runs; every governed route passes one authz chokepoint; identity is propagated end to end and the path fails closed | [Authentication](/docs/guides/AUTHENTICATION) · [Front door](/docs/guides/FRONT_DOOR) |
 | MCP08 | Lack of Audit and Telemetry | Covered | Domain events and OTel spans at every governed step; each allowed call carries caller identity into its audit record; SIEM export in CEF, LEEF 2.0, RFC 5424 syslog and JSON-lines | [Compliance](/docs/operations/COMPLIANCE) · [Observability](/docs/guides/OBSERVABILITY) |
-| MCP09 | Shadow MCP Servers | **Needs owner review** | A registry of `MCPServer` resources, admission validation of their spec, and per-server egress policy exist. Whether an *unregistered* server is actually denied traffic is what the two records disagree on — see the note below | [ADR-013](/docs/adr/ADR-013-egress-policy-enforcement-model) · [Egress policy](/docs/guides/EGRESS_POLICY) |
+| MCP09 | Shadow MCP Servers | Partial | Registry of `MCPServer` resources, admission validation, per-server egress policy, and — in namespaces labelled `mcp-hangar.io/enforce-egress=true` — a webhook that rejects a pod claiming to be a provider for a server that is not registered. It keys on the pod's own `mcp-hangar.io/provider` label, so it catches **misconfiguration, not concealment** | [ADR-013](/docs/adr/ADR-013-egress-policy-enforcement-model) · [Egress policy](/docs/guides/EGRESS_POLICY) |
 | MCP10 | Context Injection & Over-Sharing | Out of scope by design | — | — |
 
 Gate letters (`a`–`i`) are the ordered enforcement gates a call meets; see
@@ -98,54 +98,41 @@ expansion** — that would take behavioural baselining, which this product
 deliberately does not do. Enforcement here is deterministic: a policy either
 permits a call or it does not.
 
-## Needs owner review
+## Where the two partial rows stop
 
-<Callout variant="note">
-  Two rows are unresolved. They are left visibly unfinished rather than filled
-  in with a guess, because the two sources we would fill them from disagree.
-</Callout>
+MCP04 and MCP09 turned on the same question — whether the operator's enforcement
+phases actually shipped — and two internal records answered it differently.
+[ADR-013](/docs/adr/ADR-013-egress-policy-enforcement-model) called phases 1–3
+shipped in operator `v0.13.0`; the
+[docs coverage record](/docs/security/OWASP_MCP_TOP_10_COVERAGE) still listed the
+same work as tracked in open issues.
 
-Both rows turn on the same question, so here is the evidence rather than a
-verdict.
+The operator's source settles it: **the mechanisms shipped, and they are
+narrower than "an unregistered server gets no traffic".** Both records were
+partly right, and neither described what the code does.
 
-[ADR-013](/docs/adr/ADR-013-egress-policy-enforcement-model) describes the
-operator's enforcement phases 1–3 as **shipped in operator `v0.13.0`**: in a
-namespace opted in with the label `mcp-hangar.io/enforce-egress=true`, it says
-default-deny egress applies, unregistered provider pods fail admission, and a
-registered server's egress is withheld until its image is digest-pinned. The
-[docs coverage record](/docs/security/OWASP_MCP_TOP_10_COVERAGE), last reviewed
-2026-07-18, still records both as not-yet-enforced with the work tracked in open
-operator issues.
+**MCP09 — the admission gate keys on self-declaration.** A pod is rejected when
+it carries `mcp-hangar.io/provider=<name>` and no `MCPServer` of that name exists
+in its namespace. A pod without that label is explicitly admitted as "not an
+MCP-server pod". So the gate catches a provider pointed at a server nobody
+registered — a **misconfiguration** — and not a workload that simply never
+announces itself, which is what "shadow" means. What constrains that one is the
+default-deny egress at L3/L4, not admission. The webhook is also scoped by
+namespace selector to `mcp-hangar.io/enforce-egress=true`, so it is off wherever
+that label is absent.
 
-**One of those two is stale, and this page will not guess which.** The
-difference matters: it is the difference between "we have a registry" and "an
-unregistered server gets no traffic", which is exactly the claim OWASP's MCP09
-prevention control is about — and the sort of claim that should never be
-inferred from a document's date.
+**MCP04 — the image check defaults to advisory.** Digest pinning is evaluated at
+admission, but the policy has three settings and ships as `warn`: an unpinned
+image is admitted with a warning recorded. `block` has to be turned on at
+operator startup, and an annotation can waive it per server. So "images are
+digest-pinned" is available, not the default.
 
-**MCP04 — Software Supply Chain & Dependency Tampering.** Undisputed: Hangar
-signs and SBOMs its own release artifacts and pins chart digests. Open question:
-whether an `MCPServer` whose image is on a mutable tag is actually refused
-traffic today, and in which namespaces.
-
-**MCP09 — Shadow MCP Servers.** Undisputed: the registry (`MCPServer` CRDs),
-admission validation of the spec, and per-server egress policy all exist. Open
-question: whether an unregistered server gets **no traffic**. Until an owner
-confirms, read MCP09 here as "registry plus scoped egress", not "shadow MCP
-prevented" — and note that even on the ADR-013 reading, enforcement applies only
-in namespaces that opted in by label, so it is off everywhere else.
-
-Resolving both is one check against the released operator. The rows get a real
-posture the moment someone runs it.
-
-**One more contradiction, flagged rather than mapped.** An observability
-reference page describes a semantic-analysis engine evaluating multi-step tool
-call sequences and states that detection signals are emitted today. Nothing on
-this page counts that as coverage of anything, and no page documents how such
-rules would be authored — which is why it is listed here rather than in a row.
-It also sits badly with the stance in the next section, so someone should
-reconcile the two. Until then: the enforcement described on this page is
-deterministic, and no risk score decides any outcome.
+Neither limit is a defect — an opt-in, fail-closed webhook that does not gate
+namespaces which never opted in is a deliberate blast-radius choice. They are
+recorded here because the distance between "we have a registry" and "an
+unregistered server gets no traffic" is exactly what OWASP's MCP09 prevention
+control asks about, and a coverage page that blurred it would be worth less than
+one that says where the line is.
 
 ## Out of scope by design
 
