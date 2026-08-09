@@ -2,37 +2,11 @@
 import Base from '../../layouts/Base.astro';
 import { getCollection } from 'astro:content';
 import { isUpcoming, sinceLabel, sortVersionsDescending } from '../../lib/version-badge';
+// The reading order moved to lib/learn-track, so the individual pages can show
+// where they sit in it. Filtering here still preserves that order within results.
+import { START_HERE, rank } from '../../lib/learn-track';
 
 const entries = await getCollection('learn');
-
-// The default reading order — a guided spine from install to the deep dives,
-// running Intro -> Core -> Deep and foundations -> enforcement -> async. Curated
-// here (not in frontmatter) so the whole sequence lives in one place; any page
-// not listed falls to the end, most-recent first. Filtering preserves this order
-// within the results.
-const READING_ORDER = [
-  'from-install-to-a-governed-deny',   // start here
-  'what-is-a-policy-enforcement-plane',
-  'the-request-path',
-  'enforcement-plane-vs-api-gateway',
-  'deterministic-not-anomaly-based',
-  'costs-and-boundaries',
-  'more-than-one-hangar',
-  'write-your-first-mcpegresspolicy',
-  'the-l7-mcpegresspolicy-language',
-  'digest-pinning',
-  'governance-observability',
-  'the-governed-task-relay-flow',
-  'mid-flight-consent',
-  'govern-an-async-task-end-to-end',
-  'relay-with-governance',
-  'tasks-on-the-v2-sdk',
-];
-const START_HERE = 'from-install-to-a-governed-deny';
-const rank = (slug: string) => {
-  const i = READING_ORDER.indexOf(slug);
-  return i === -1 ? Number.POSITIVE_INFINITY : i;
-};
 const sorted = entries.sort((a, b) => {
   const ra = rank(a.id), rb = rank(b.id);
   if (ra !== rb) return ra - rb;
