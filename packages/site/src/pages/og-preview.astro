@@ -1,0 +1,57 @@
+---
+import Base from '../layouts/Base.astro';
+import { ogCards } from '../og/cards';
+
+// Contact sheet for the generated cards. Not content: noindex in the head,
+// Disallow in robots.txt, filtered out of the sitemap. It exists so a copy or
+// palette change can be reviewed as a set — a clipped title or a chip in the
+// wrong colour is obvious across a grid and invisible one card at a time.
+
+const cards = await ogCards();
+
+const KINDS = ['home', 'blog', 'security', 'learn', 'docs'] as const;
+const groups = KINDS.map(kind => ({
+    kind,
+    items: cards.filter(c => c.props.kind === kind),
+})).filter(g => g.items.length > 0);
+---
+
+<Base
+    title="OG card contact sheet"
+    description="Every generated Open Graph card, in one place."
+    path="/og-preview"
+    noindex
+>
+    <div class="max-w-6xl mx-auto px-6 py-16">
+        <h1 class="text-3xl font-bold text-zinc-100">OG card contact sheet</h1>
+        <p class="mt-3 text-zinc-400 max-w-2xl">
+            {cards.length} cards, one per page, generated at build time from frontmatter.
+            Every image is 2400&#215;1260. This page is excluded from search and the sitemap.
+        </p>
+
+        {groups.map(group => (
+            <section class="mt-14">
+                <h2 class="font-mono text-xs uppercase tracking-[0.2em] text-zinc-500 border-b border-zinc-800 pb-3">
+                    {group.kind} <span class="text-zinc-600">&#183; {group.items.length}</span>
+                </h2>
+                <div class="mt-6 grid gap-8 sm:grid-cols-2">
+                    {group.items.map(card => (
+                        <figure class="min-w-0">
+                            <img
+                                src={`/og/${card.slug}.png`}
+                                width="1200"
+                                height="630"
+                                loading="lazy"
+                                alt={`OG card for ${card.page}`}
+                                class="w-full rounded-lg border border-zinc-800 bg-zinc-950"
+                            />
+                            <figcaption class="mt-2 font-mono text-xs text-zinc-500 truncate">
+                                <a href={card.page} class="hover:text-zinc-300">{card.page}</a>
+                            </figcaption>
+                        </figure>
+                    ))}
+                </div>
+            </section>
+        ))}
+    </div>
+</Base>

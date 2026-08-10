@@ -4,14 +4,23 @@ import SiteNav from '../components/SiteNav.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import { VERSION } from '../config';
 
+import { ogPathFor } from '../og/resolve';
+
 interface Props {
     title: string;
     description: string;
     path: string;
     keywords?: string;
+    /** Keeps a page out of search results. Also exempts it from the OG build gate. */
+    noindex?: boolean;
 }
 
-const { title, description, path, keywords } = Astro.props;
+const { title, description, path, keywords, noindex } = Astro.props;
+
+// Per-page OG card, generated at build by src/pages/og/[...slug].png.ts.
+// Anything unmapped falls back to the site-wide asset and is reported at the
+// end of the build (see astro.config integration) rather than passing quietly.
+const ogImage = ogPathFor(path);
 const siteUrl = 'https://mcp-hangar.io';
 const url = `${siteUrl}${path}`;
 const defaultKeywords = "MCP, Model Context Protocol, policy enforcement, admission control, Kubernetes, egress policy, governance, audit, SIEM";
@@ -26,6 +35,7 @@ const defaultKeywords = "MCP, Model Context Protocol, policy enforcement, admiss
     <meta name="description" content={description} />
     <meta name="keywords" content={keywords || defaultKeywords} />
     <link rel="canonical" href={url} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -34,13 +44,13 @@ const defaultKeywords = "MCP, Model Context Protocol, policy enforcement, admiss
     <meta property="og:url" content={url} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:image" content={`${siteUrl}/og-image.png`} />
+    <meta property="og:image" content={`${siteUrl}${ogImage}`} />
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:url" content={url} />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
-    <meta name="twitter:image" content={`${siteUrl}/og-image.png`} />
+    <meta name="twitter:image" content={`${siteUrl}${ogImage}`} />
 
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="theme-color" content="#09090b" />
