@@ -1,5 +1,7 @@
 User-agent: *
 Allow: /
+# Contact sheet for the generated OG cards — a build artefact, not content.
+Disallow: /og-preview
 
 Sitemap: https://mcp-hangar.io/sitemap.xml
 
