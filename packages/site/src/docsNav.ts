@@ -82,7 +82,17 @@ const SECTIONS: SectionDef[] = [
 const HIDDEN_IDS = new Set<string>([
   'code-of-conduct',
   'CONTRIBUTING', // root duplicate of development/CONTRIBUTING
-  'CHANGELOG', // uppercase root file; duplicates the lowercase `changelog` doc
+  // Guards the pinned docs tarball, which still carries both changelog files:
+  // uppercase `CHANGELOG.md` is release-please's target and the current one,
+  // lowercase `changelog` a frozen copy. Both are built and both stay reachable
+  // by URL either way — as above, hiding is nav-only. All this entry decides is
+  // which of the two the sidebar and the pager point at, and today it points at
+  // the stale copy at /docs/changelog. Wrong, but the alternative is two
+  // changelog links in the nav, one of them stale. The fix belongs in the docs
+  // repo, which is dropping the duplicate `CHANGELOG.md` and pointing
+  // release-please at the lowercase path; once the pin moves past that commit,
+  // this entry matches nothing and can go with it.
+  'CHANGELOG',
 ]);
 
 /**

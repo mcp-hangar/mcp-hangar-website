@@ -88,17 +88,17 @@ lean on. And the egress policy carries a `toolSchemaDigestRef` field that the L7
 evaluator **does not yet consume**: the pin enforced at invoke is resolved from
 the tool-projection registry today, and the field is intent, not behaviour.
 
-## Released, versus landing
+## Which release each half arrived in
 
-The fence has a time axis, and conflating the two halves is the easiest way to
-build a false assumption into a rollout:
+The fence has a time axis, and assuming a control was always there is the easiest
+way to build a false assumption into a rollout:
 
 - **The enforcement plane** — core `1.6.0`+ and operator `v0.14.0`+: the enforcement plane,
   end to end. The L7 egress verdict and the L3/L4 backstop that makes it stick.
 - **Shipped in 2.0.0** — the [governed task relay](/learn/relay-with-governance),
   built on the v2 SDK. It is **not** in the 1.6.x line, so if you are still on
   1.6.x, plan the rollout as an upgrade rather than a config change.
-- **Landing in 2.5.0** — [more than one replica](/learn/more-than-one-hangar),
+- **Shipped in 2.5.0** — [more than one replica](/learn/more-than-one-hangar),
   behind a shared PostgreSQL. On 2.4.0 and earlier, replicas are not merely
   unsupported: they disagree quietly, which is the worse half of the problem.
 
