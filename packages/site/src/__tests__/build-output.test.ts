@@ -54,6 +54,27 @@ describe('Build Output', () => {
     expect(html).toContain('id="features"');
   });
 
+  // The hero names the verdict and the category; it does not argue for either.
+  it('should lead with the verdict and say what the product is', () => {
+    const html = readDistFile('index.html');
+    expect(html).toContain('Every MCP tool call ends in a verdict.');
+    expect(html).toContain('policy enforcement plane for MCP on Kubernetes');
+  });
+
+  // The ecosystem thesis is an argument, so it opens the argument section --
+  // one below the hero. If it ever climbs back into the h1, this fails.
+  it('should argue the ecosystem thesis below the hero, not in it', () => {
+    const html = readDistFile('index.html');
+    const verdict = html.indexOf('Every MCP tool call ends in a verdict.');
+    const thesis = html.indexOf('Nothing in the protocol');
+
+    expect(verdict).toBeGreaterThan(-1);
+    expect(thesis).toBeGreaterThan(verdict);
+    expect(html).toMatch(/Hangar is\s+the layer/);
+    // It has to sit inside "Why enforcement, not detection", not float above it.
+    expect(thesis).toBeGreaterThan(html.indexOf('Why enforcement, not detection'));
+  });
+
   it('should lead with a real denial rather than an illustration', () => {
     const html = readDistFile('index.html');
     expect(html).toContain('MCPEgressPolicy');       // the policy
