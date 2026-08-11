@@ -62,21 +62,14 @@ One detail worth noting: `TokenBucket` uses `time.monotonic()` for refill calcul
 
 Rate limiting is the first check. Not the second. Not after validation. First.
 
-```
-MCP Client → CommandBus.send(command)
-                    │
-                    ▼
-        RateLimitMiddleware.__call__()
-                    │
-          rate_limiter.consume(key)
-                    │
-            ┌───────┴────────┐
-            │                │
-          allowed          rejected
-            │                │
-         next handler    HTTP 429
-                         + X-RateLimit headers
-                         + Retry-After
+```mermaid
+flowchart TD
+    client["MCP client"] --> bus["CommandBus.send(command)"]
+    bus --> mw["RateLimitMiddleware.__call__()"]
+    mw --> consume["rate_limiter.consume(key)"]
+
+    consume -->|allowed| next["next handler"]
+    consume -->|rejected| reject["HTTP 429<br/>+ X-RateLimit headers<br/>+ Retry-After"]
 ```
 
 The comment in the source is unambiguous: *"Rate limit first (cheapest check) to reduce abuse surface."* Validation is more expensive. Approval gate is more expensive. If a caller is going to be rejected, reject them before spending cycles on anything else.

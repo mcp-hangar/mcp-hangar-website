@@ -12,6 +12,7 @@ import rehypeRaw from 'rehype-raw';
 import rehypeShiki from '@shikijs/rehype';
 import rehypeStringify from 'rehype-stringify';
 import rehypeDocLinks from '../../lib/rehype-doc-links';
+import rehypeMermaidPre from '../../lib/rehype-mermaid-pre';
 
 async function createMarkdownProcessor(validIds: Set<string>) {
   return unified()
@@ -22,6 +23,9 @@ async function createMarkdownProcessor(validIds: Set<string>) {
     // Rewrite relative `.md` links between docs into `/docs/...` site routes.
     // The current doc's id is passed per-file via the VFile's `data.docId`.
     .use(rehypeDocLinks, { validIds })
+    // Ahead of the highlighter: a mermaid fence becomes a diagram container,
+    // so there is nothing left for shiki to colour.
+    .use(rehypeMermaidPre)
     .use(rehypeShiki, {
       theme: 'github-dark',
     })

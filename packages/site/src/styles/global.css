@@ -262,3 +262,31 @@ body {
 .cursor-blink {
     animation: blink 1s step-end infinite;
 }
+
+/* Mermaid diagrams — see components/MermaidRuntime.astro.
+ *
+ * The container arrives as a `<pre>` holding diagram source and leaves holding
+ * an SVG, so it is styled for the second state: no monospace metrics, no code
+ * padding fighting the drawing's own whitespace, and the frame kept because a
+ * diagram wants the same card the code blocks around it sit in.
+ */
+pre.mermaid {
+    display: flex;
+    justify-content: center;
+    padding: 1.5rem 1rem;
+    line-height: normal;
+    overflow-x: auto;
+}
+
+pre.mermaid svg {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Only while the renderer is in flight, and only once it has committed to
+ * running (the class is added by script and removed in `finally`). A reader
+ * with JS off, or one whose render throws, sees the diagram source — never an
+ * empty frame. */
+.mermaid-pending pre.mermaid {
+    visibility: hidden;
+}
