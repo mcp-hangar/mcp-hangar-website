@@ -8,8 +8,8 @@ import { VERDICT, ZINC, FONT, CARD } from "./tokens";
  * its colour, and whether a verdict chip appears.
  *
  * Templates never invent copy: everything but the eyebrow comes from
- * frontmatter. The one hard-coded sentence is the homepage thesis, which is the
- * hero's own line, kept verbatim.
+ * frontmatter. The one hard-coded sentence is the homepage h1, kept verbatim —
+ * if the hero's line changes, this one changes with it.
  */
 
 const PAD = 72;
@@ -135,8 +135,10 @@ function rule(color: string) {
 export function homeCard() {
     return shell(
         [
-            eyebrow("Policy enforcement plane for MCP", ZINC[500]),
-            title("MCP is getting a registry, tasks, and interceptors. Nothing in the protocol enforces anything."),
+            // The card is the hero as a shared link, so it carries the same
+            // spine word — and the DENY chip below turns it into an example.
+            eyebrow("Policy enforcement plane for MCP on Kubernetes", ZINC[500]),
+            title("Every MCP tool call ends in a verdict."),
         ],
         chip("deny", "-32021"),
     );

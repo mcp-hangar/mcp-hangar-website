@@ -2,9 +2,15 @@
 import VerdictChip from "../VerdictChip.astro";
 
 /**
- * The argument here is a binary, so the section is built as one: what a detector
- * hands you on the left, what a verdict hands you on the right. The header is
- * centred; the two panels stay left-aligned inside, because lists do.
+ * This is where the ecosystem thesis belongs — it used to be the h1, which made
+ * it an essay standing where an orientation should be. Here the reader already
+ * knows what Hangar is, so the thesis does the one job it is good at: it says
+ * why the category has to exist at all, and it says the gap is a layering
+ * decision rather than an oversight, which is the honest framing.
+ *
+ * The argument under it is a binary, so the section is built as one: what a
+ * detector hands you on the left, what a verdict hands you on the right. The
+ * header is centred; the two panels stay left-aligned inside, because lists do.
  */
 ---
 
@@ -13,7 +19,12 @@ import VerdictChip from "../VerdictChip.astro";
         <h2 class="text-4xl font-bold tracking-tight text-zinc-100 mb-5 text-balance">
             Why enforcement, not detection
         </h2>
-        <p class="text-xl text-zinc-400">
+        <p class="text-xl text-zinc-300 mb-5 text-balance">
+            MCP is getting a registry, tasks, and interceptors. Nothing in the protocol
+            enforces anything. That's not a bug — it's a layering decision. Hangar is
+            the layer.
+        </p>
+        <p class="text-lg text-zinc-500">
             No anomaly scores to tune, no baseline to train. If your platform team can
             review a NetworkPolicy, they can review a Hangar policy.
         </p>

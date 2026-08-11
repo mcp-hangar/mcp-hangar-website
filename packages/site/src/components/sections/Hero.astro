@@ -7,10 +7,24 @@ import WireRecord from "../WireRecord.astro";
 import { LINKS, VERSION_TAG } from "../../config";
 
 /**
- * The thesis is about the ecosystem, not about competitors: the spec defines
- * capabilities, a registry defines distribution, and nothing defines control.
- * Every new SEP makes that gap wider rather than smaller, which is why the
- * claim is durable enough to lead with.
+ * The hero orients; it does not argue. One word carries the whole page —
+ * *verdict* — and it is the same word the design system is built on (allow is
+ * green, deny is rose, nothing else gets a hue) and the same word the proof
+ * block below produces on the wire. Say it in the h1 and the page has a spine.
+ *
+ * The ecosystem thesis that used to sit here is not gone, it is demoted one
+ * section: it opens "Why enforcement, not detection", where it justifies a
+ * category to someone who already knows what they are looking at. A reader who
+ * has not been told what this is yet cannot be argued with.
+ *
+ * The subhead is cut for scanning, not reading: the category and the audience
+ * filter ("on Kubernetes") land in the first sentence, then one mechanism per
+ * sentence, then the two constraints. Three mechanisms wedged between commas
+ * is a paragraph nobody finishes.
+ *
+ * It says "Hangar", not "MCP Hangar": MCP appears once per sentence at most,
+ * and the wordmark sits in the nav thirty pixels above. The brand is already
+ * on screen; repeating it costs a word and buys nothing.
  *
  * Under it sits the proof rather than a screenshot of a dashboard: a policy,
  * a call, and the verdict with the code that actually goes on the wire.
@@ -29,20 +43,21 @@ spec:
   <div class="max-w-3xl mx-auto text-center">
     <Badge class="animate-fade-in mb-8">{VERSION_TAG} — Open Source — MIT License</Badge>
 
-    <h1 class="animate-slide-up text-5xl font-bold tracking-tight leading-[1.1] mb-6 text-balance">
-      MCP is getting a registry, tasks, and interceptors.
-      <br class="hidden md:block" />
-      <span class="text-zinc-400">Nothing in the protocol enforces anything.</span>
+    <h1 class="animate-slide-up text-5xl md:text-6xl font-bold tracking-tight leading-[1.05] mb-6 text-balance">
+      Every MCP tool call ends in a verdict.
     </h1>
 
-    <p class="text-2xl text-zinc-300 mb-4">
-      Hangar runs every MCP tool call through one deterministic policy path in Kubernetes:
-      admission policy on each server, per-server egress rules, and an audit trail with
-      identity attribution for every call.
+    <p class="text-2xl text-zinc-300 mb-5 text-balance">
+      Hangar is a policy enforcement plane for MCP on Kubernetes.
+    </p>
+
+    <p class="text-lg text-zinc-400 max-w-xl mx-auto mb-3">
+      Admission policy per server. Egress rules per tool call. An audit trail that
+      names who did what.
     </p>
 
     <p class="text-lg text-zinc-500 max-w-xl mx-auto mb-10">
-      Deterministic, not ML. MIT and self-hosted — no SaaS, ever.
+      Deterministic — no ML. Self-hosted — no SaaS. MIT.
     </p>
 
     <div class="flex flex-wrap justify-center gap-4">
