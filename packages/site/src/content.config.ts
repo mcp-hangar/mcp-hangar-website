@@ -15,6 +15,12 @@ const blog = defineCollection({
     updated: z.coerce.date().optional(),
     author: z.string(),
     tags: z.array(z.string()).optional(),
+    // A document type, not a subject. An advisory names an identifier and the
+    // action a reader has to take; a post about hardening work is neither, no
+    // matter how much security it discusses. /security lists on this flag
+    // rather than on `tags`, which is folksonomy — four posts carry the
+    // `security` tag and exactly one of them is a disclosure.
+    advisory: z.boolean().optional().default(false),
     draft: z.boolean().optional().default(false),
     coverImage: z.string().optional(),
   }),

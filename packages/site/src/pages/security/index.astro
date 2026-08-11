@@ -8,8 +8,13 @@ const pages = (await getCollection('security')).sort(
 
 // The advisory posts already live on the blog and are the canonical write-ups.
 // This hub points at them; it does not restate them.
+//
+// Listed on the `advisory` flag, not on the `security` tag. The tag is a
+// subject and four posts wear it — rate limiting, the approval gate, the 1.5
+// release — so tag-matching filled a section headed "Advisories" with feature
+// announcements, on the one page that opens by promising an honest boundary.
 const advisories = (await getCollection('blog'))
-  .filter(p => !p.data.draft && (p.data.tags ?? []).includes('security'))
+  .filter(p => !p.data.draft && p.data.advisory)
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 
 const fmtDate = (d: Date) =>
