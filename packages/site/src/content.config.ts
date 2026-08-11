@@ -8,6 +8,11 @@ const blog = defineCollection({
     title: z.string(),
     description: z.string(),
     date: z.coerce.date(),
+    // A revision date, for posts that get one. Feeds `dateModified` in the
+    // article's JSON-LD, which falls back to `date` when it is absent — the
+    // field is always emitted, so a consumer never has to guess whether an
+    // unrevised post is simply undated.
+    updated: z.coerce.date().optional(),
     author: z.string(),
     tags: z.array(z.string()).optional(),
     draft: z.boolean().optional().default(false),
