@@ -6,11 +6,14 @@ import { LINKS } from "../config";
 // nav names places, and "what it does" is the page you are already on. There is
 // no /features route to redirect — it was only ever the /#features anchor, which
 // the footer still carries.
+// Slash-less, like every canonical and og:url on the site: vercel.json sets
+// `trailingSlash: false`, so the slashed form is a 308 the visitor pays for.
+// This nav renders twice per page, so it was the biggest source of them.
 const navLinks = [
-  { href: "/docs/", label: "Docs" },
-  { href: "/learn/", label: "Learn" },
-  { href: "/security/", label: "Security" },
-  { href: "/blog/", label: "Blog" },
+  { href: "/docs", label: "Docs" },
+  { href: "/learn", label: "Learn" },
+  { href: "/security", label: "Security" },
+  { href: "/blog", label: "Blog" },
   { href: LINKS.github, label: "GitHub", external: true },
 ];
 ---
