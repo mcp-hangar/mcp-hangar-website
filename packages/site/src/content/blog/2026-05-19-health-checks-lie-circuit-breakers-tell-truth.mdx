@@ -28,9 +28,11 @@ Hangar emits a `McpServerDegraded` domain event. Metrics update. Alerts fire (if
 
 The state machine is straightforward:
 
-```
-READY ──fail×3──► DEGRADED
-DEGRADED ──recovery──► INITIALIZING ──ready──► READY
+```mermaid
+stateDiagram-v2
+    READY --> DEGRADED: fail ×3
+    DEGRADED --> INITIALIZING: recovery
+    INITIALIZING --> READY: ready
 ```
 
 This catches one specific failure mode: the server is gone. Process died. Connection refused. TCP timeout. The probe can't reach it at all. After ~90 seconds, Hangar knows.
@@ -68,8 +70,10 @@ mcp_servers:
 
 When a tool call to a member fails — connection error, timeout, RPC-level error — the breaker increments a counter. After `failure_threshold` failures (default: 10), the circuit opens:
 
-```
-CLOSED ──N failures──► OPEN ──timeout──► CLOSED
+```mermaid
+stateDiagram-v2
+    CLOSED --> OPEN: failure_threshold reached
+    OPEN --> CLOSED: reset_timeout_s elapsed
 ```
 
 While the circuit is `OPEN`, the group enters `degraded` state and every subsequent call is rejected immediately. Not after a 10-second timeout. Immediately. The caller gets a `circuit_open` error in milliseconds. After `reset_timeout_s` (default: 60 seconds), the next call closes the circuit and traffic resumes.

@@ -1,0 +1,130 @@
+---
+/**
+ * Draws any `<pre class="mermaid">` on the page (emitted by lib/rehype-mermaid-pre)
+ * and nothing else.
+ *
+ * Included site-wide from Base.astro, but it costs a page without a diagram
+ * nothing: the module checks for a mermaid node first and only then reaches for
+ * the library, so mermaid lands in its own lazy chunk that docs pages, blog
+ * posts and the homepage never request unless they actually have a diagram.
+ *
+ * Rendering happens in the browser rather than at build time on purpose. The
+ * build-time alternative (rehype-mermaid → mermaid-isomorphic) needs a Chromium
+ * installed during `vercel build`; a diagram is not worth putting a headless
+ * browser on the critical path of every deploy.
+ *
+ * Theming follows the site's own rule (see styles/global.css): zinc carries
+ * structure, and the three semantic colours are reserved for verdicts and
+ * opt-in state. A diagram is structure, so it is zinc throughout — a mermaid
+ * default palette here would be the loudest thing on the page and would mean
+ * something it does not.
+ */
+---
+
+<script>
+  const nodes = document.querySelectorAll<HTMLElement>('pre.mermaid');
+
+  if (nodes.length > 0) {
+    const root = document.documentElement;
+    // Hide the fence's source text only once we know we are going to replace
+    // it, and only for as long as that takes. If the import or the parse
+    // fails, the class comes off and the reader gets the diagram source
+    // instead of an empty gap — the same thing they would have seen before
+    // this component existed.
+    root.classList.add('mermaid-pending');
+
+    try {
+      const { default: mermaid } = await import('mermaid');
+
+      // 'JetBrains Mono Variable' is the family @fontsource-variable actually
+      // registers; the bare name is kept after it as the local fallback.
+      const mono = "'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, monospace";
+
+      const zinc = {
+        surface: '#18181b', // zinc-900 — node fill
+        surfaceAlt: '#27272a', // zinc-800 — clusters, notes, alt rows
+        border: '#3f3f46', // zinc-700
+        borderStrong: '#52525b', // zinc-600
+        line: '#71717a', // zinc-500 — edges
+        text: '#e4e4e7', // zinc-200 — labels
+        textDim: '#a1a1aa', // zinc-400 — edge labels, secondary text
+      };
+
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: 'base',
+        // Diagrams are authored in this repo and the docs repo, never supplied
+        // by a reader, but strict costs nothing here: `<br/>` line breaks still
+        // work, and no diagram on either site uses click bindings.
+        securityLevel: 'strict',
+        fontFamily: mono,
+        themeCSS: `
+          .node rect, .node polygon, .node circle, .node path { stroke-width: 1px; }
+          .edgeLabel { border-radius: 4px; }
+        `,
+        themeVariables: {
+          darkMode: true,
+          background: 'transparent',
+          fontFamily: mono,
+          fontSize: '14px',
+
+          primaryColor: zinc.surface,
+          primaryBorderColor: zinc.borderStrong,
+          primaryTextColor: zinc.text,
+          secondaryColor: zinc.surfaceAlt,
+          secondaryBorderColor: zinc.border,
+          secondaryTextColor: zinc.text,
+          tertiaryColor: zinc.surfaceAlt,
+          tertiaryBorderColor: zinc.border,
+          tertiaryTextColor: zinc.textDim,
+
+          mainBkg: zinc.surface,
+          nodeBorder: zinc.borderStrong,
+          nodeTextColor: zinc.text,
+          lineColor: zinc.line,
+          textColor: zinc.textDim,
+          titleColor: zinc.text,
+
+          // flowchart
+          clusterBkg: 'rgba(39, 39, 42, 0.35)', // zinc-800/35
+          clusterBorder: zinc.border,
+          edgeLabelBackground: '#09090b', // zinc-950 — the page ground
+          defaultLinkColor: zinc.line,
+
+          // sequence
+          actorBkg: zinc.surface,
+          actorBorder: zinc.borderStrong,
+          actorTextColor: zinc.text,
+          actorLineColor: zinc.border,
+          signalColor: zinc.line,
+          signalTextColor: zinc.textDim,
+          labelBoxBkgColor: zinc.surfaceAlt,
+          labelBoxBorderColor: zinc.border,
+          labelTextColor: zinc.text,
+          loopTextColor: zinc.textDim,
+          noteBkgColor: zinc.surfaceAlt,
+          noteBorderColor: zinc.border,
+          noteTextColor: zinc.text,
+          activationBkgColor: zinc.surfaceAlt,
+          activationBorderColor: zinc.borderStrong,
+          sequenceNumberColor: '#09090b',
+
+          // state / flowchart shared
+          altBackground: zinc.surfaceAlt,
+          compositeBackground: zinc.surface,
+          compositeBorder: zinc.border,
+          compositeTitleBackground: zinc.surfaceAlt,
+          labelColor: zinc.text,
+          errorBkgColor: zinc.surfaceAlt,
+          errorTextColor: zinc.textDim,
+        },
+      });
+
+      await mermaid.run({ nodes: Array.from(nodes) });
+    } catch (err) {
+      console.error('[mermaid] diagram rendering failed, showing source', err);
+    } finally {
+      root.classList.remove('mermaid-pending');
+    }
+  }
+</script>

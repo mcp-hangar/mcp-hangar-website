@@ -41,25 +41,20 @@ When a tool hits the `approval_list`, execution stops. The gate creates a pendin
 
 The flow from the inside:
 
-```
-MCP Client invokes tool
-        │
-        ▼
-ToolAccessResolver.check(tool_name, policy)
-        │
-        ├── deny_list match? → BLOCK immediately
-        │
-        ├── approval_list match? → CREATE pending approval
-        │       │
-        │       ├── notify channel (dashboard / Slack / noop)
-        │       │
-        │       └── wait for decision (up to approval_timeout_seconds)
-        │               │
-        │               ├── approved → EXECUTE
-        │               ├── denied  → REJECT with reason
-        │               └── timeout → ERROR (error_code: "approval_timeout")
-        │
-        └── allow_list match (or no rule) → EXECUTE
+```mermaid
+flowchart TD
+    invoke["MCP client invokes tool"] --> check["ToolAccessResolver.check(tool_name, policy)"]
+
+    check -->|deny_list match| block["BLOCK immediately"]
+    check -->|"allow_list match (or no rule)"| exec["EXECUTE"]
+    check -->|approval_list match| pending["CREATE pending approval"]
+
+    pending --> notify["notify channel<br/>dashboard / Slack / noop"]
+    notify --> wait["wait for decision<br/>up to approval_timeout_seconds"]
+
+    wait -->|approved| exec
+    wait -->|denied| reject["REJECT with reason"]
+    wait -->|timeout| err["ERROR<br/>error_code: approval_timeout"]
 ```
 
 The pending approval carries: `approval_id`, `provider_id`, `tool_name`, an `arguments_hash` (not the raw arguments — more on that below), the channel, and an expiry timestamp.
