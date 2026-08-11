@@ -2,11 +2,22 @@ import { describe, it, expect } from 'vitest';
 import fs from 'fs';
 import path from 'path';
 
+const DIST = path.join(process.cwd(), 'dist');
+
 // Helper to read built HTML files
 const readDistFile = (filePath: string) => {
-  const fullPath = path.join(process.cwd(), 'dist', filePath);
+  const fullPath = path.join(DIST, filePath);
   return fs.readFileSync(fullPath, 'utf-8');
 };
+
+/** Every built page, for the assertions that have to hold site-wide. */
+function* htmlFiles(dir: string): Generator<string> {
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) yield* htmlFiles(full);
+    else if (entry.name.endsWith('.html')) yield full;
+  }
+}
 
 describe('Build Output', () => {
   it('should generate index.html with correct content', () => {
@@ -14,8 +25,8 @@ describe('Build Output', () => {
     
     expect(html).toContain('mcp-hangar');
     
-    expect(html).toContain('href="/docs/"');
-    expect(html).toContain('href="/blog/"');
+    expect(html).toContain('href="/docs"');
+    expect(html).toContain('href="/blog"');
     
     expect(html).toContain('id="features"');
   });
@@ -100,7 +111,7 @@ describe('Build Output', () => {
   it('should offer the three doors out of the landing page', () => {
     const html = readDistFile('index.html');
     expect(html).toContain('Where to go next');
-    expect(html).toContain('href="/learn/"');
+    expect(html).toContain('href="/learn"');
     expect(html).toContain('href="/docs/getting-started/quickstart"');
   });
 
@@ -126,6 +137,31 @@ describe('Build Output', () => {
     const html = readDistFile('index.html');
     expect(html).toContain('svg');
     expect(html).toContain('stroke="currentColor"');
+  });
+
+  /**
+   * The canonical URL on this site has no trailing slash — `vercel.json` sets
+   * `trailingSlash: false`, the sitemap `serialize` strips it, and every
+   * canonical and og:url is emitted slash-less. So a slashed internal link is
+   * not a style question: Vercel answers it with a 308 and the visitor pays a
+   * round-trip before the page they clicked starts loading.
+   *
+   * Applied once, this drifts back the first time someone adds a component.
+   * Asserted over the whole of dist/, it cannot: the build goes red instead of
+   * waiting for the next audit. `href="/"` is exempt — the root is the one
+   * path whose canonical form is a slash.
+   */
+  it('should link internal pages without a trailing slash, everywhere in dist', () => {
+    const SLASHED = /href="\/(docs|learn|blog|security)(\/[^"]*)?\/"/g;
+
+    const offenders = [...htmlFiles(DIST)]
+      .map(file => ({
+        page: path.relative(DIST, file),
+        hits: [...new Set(fs.readFileSync(file, 'utf-8').match(SLASHED) ?? [])],
+      }))
+      .filter(f => f.hits.length > 0);
+
+    expect(offenders).toEqual([]);
   });
 
   it('should generate privacy policy page', () => {
