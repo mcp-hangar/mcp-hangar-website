@@ -74,6 +74,13 @@ direction:
   digests exists in the validator, but it is not reached on this invoke path today.)
 - **A schema that cannot be canonicalized or verified at all** — treated as drift.
   Unverifiable is not a reason to allow; it is a reason to stop.
+- **A pin addressed to a tenant the caller cannot be** — a pin can be declared for
+  every caller or for one tenant, and a per-tenant pin is matched by the tenant on
+  the authenticated principal. A gateway running without authentication has no
+  such principal, so a per-tenant pin there can never be looked up. Since 2.6.0
+  that configuration does not start: it names the pins it found and the auth
+  setting that makes them unmatchable, rather than serving an integrity guarantee
+  it cannot keep. To pin without authentication, declare the pin for every caller.
 
 There is a graded adoption path — a policy can start in **audit**, logging drift
 without blocking, so you can watch a fleet and capture the real digests before you
