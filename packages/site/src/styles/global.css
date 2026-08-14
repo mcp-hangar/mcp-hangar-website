@@ -305,6 +305,7 @@ pre.mermaid svg {
  * map an accent means "you are here", and green already means allow.
  */
 .learn-map {
+    --sunken: #131316;       /* below zinc-900 — a surface cards sit ON */
     --panel: #18181b;        /* zinc-900 */
     --panel-2: #1b1b1f;
     --raise: #27272a;        /* zinc-800 */
