@@ -43,7 +43,7 @@ const versions = sortVersionsDescending([...new Set(entries.map(e => e.data.sinc
   description="Understand how Hangar governs every MCP call — concepts, walkthroughs, and the design reasoning behind the enforcement plane. Explore by the request path, or filter the library."
   path="/learn"
 >
-  <div class="learn-hub">
+  <div class="learn-hub learn-map">
     <div class="wrap">
       <header class="hero">
         <div class="eyebrow">Learn</div>
@@ -254,18 +254,9 @@ const versions = sortVersionsDescending([...new Set(entries.map(e => e.data.sinc
 
 <style>
   .learn-hub {
-    /* Reconciled to the site's zinc base plus the verdict tokens (Tailwind theme). */
-    --panel: #18181b;        /* zinc-900 */
-    --panel-2: #1b1b1f;
-    --raise: #27272a;        /* zinc-800 */
-    --ink: #fafafa;          /* zinc-50 */
-    --ink-2: #d4d4d8;        /* zinc-300 */
-    --muted: #a1a1aa;        /* zinc-400 */
-    --faint: #71717a;        /* zinc-500 */
-    --line: #27272a;         /* zinc-800 */
-    --line-2: #3f3f46;       /* zinc-700 */
-    --brand: #d4d4d8;        /* zinc-300 — accents are neutral; green means allow */
-    --brand-dim: #27272a;     /* zinc-800 */
+    /* The map's palette and control live on `.learn-map` in global.css — the
+       hub shares them with every other drawing of the request path. What is
+       left here is the hub's own: the card facets and its shadow. */
     /* Page type is carried by its icon and its label; it used to also get a
        hue, which made four more colours compete with the verdict palette for
        no extra information. All four resolve to the same neutral now. */
@@ -278,7 +269,6 @@ const versions = sortVersionsDescending([...new Set(entries.map(e => e.data.sinc
     --preview: #fbbf24;
     --preview-bg: #2a230f;
     --shadow: 0 1px 0 rgba(255, 255, 255, .02) inset, 0 8px 30px rgba(0, 0, 0, .45);
-    --r: 14px;
   }
   .learn-hub .mono { font-family: var(--font-mono, ui-monospace, monospace); }
   .learn-hub .wrap { max-width: 1140px; margin: 0 auto; padding: 0 22px; }
@@ -313,14 +303,8 @@ const versions = sortVersionsDescending([...new Set(entries.map(e => e.data.sinc
   .learn-hub .clearmap { color: var(--brand); cursor: pointer; font-weight: 600; margin-left: 4px; }
   .learn-hub .clearmap:hover { text-decoration: underline; }
 
-  /* generic control reset (nodes, seam layers, lanes, audit band are all buttons) */
-  .learn-hub .ctl {
-    appearance: none; font: inherit; text-align: left; cursor: pointer; color: inherit;
-    background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
-    position: relative; overflow: hidden; transition: transform .15s, border-color .15s, box-shadow .15s;
-  }
-  .learn-hub .ctl:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--muted) 45%, var(--line)); }
-  .learn-hub .ctl:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+  /* The control reset, its hover and its focus ring come from `.learn-map`.
+     What stays here is the hub's own signal: which control you clicked. */
   .learn-hub .ctl[data-active="true"] { border-color: var(--brand); box-shadow: 0 0 0 2px color-mix(in srgb, var(--brand) 70%, transparent) inset; }
   .learn-hub .ctl .acc { position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--brand); opacity: 0; transition: opacity .15s; }
   .learn-hub .ctl[data-active="true"] .acc { opacity: 1; }

@@ -150,17 +150,13 @@ const lit = new Set(gates);
      * scoped selector naming it would never match.
      *
      * The custom properties (--line, --panel, --brand, …) are deliberately not
-     * redefined: they inherit from the hub through the DOM, and the fallbacks
-     * below cover the component being used anywhere else.
+     * redefined: they inherit from `.learn-map` through the DOM, and the
+     * fallbacks below cover the component being used anywhere else.
+     *
+     * The control reset, hover and focus ring are `.learn-map`'s too — global,
+     * because three drawings of this path shared one copy each of them.
      */
   .ctl { --acc: var(--faint); }
-  .ctl {
-    appearance: none; font: inherit; text-align: left; cursor: pointer; color: inherit;
-    background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
-    position: relative; overflow: hidden; transition: transform .15s, border-color .15s, box-shadow .15s;
-  }
-  .ctl:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--muted) 45%, var(--line)); }
-  .ctl:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
   .ctl[data-active="true"] { border-color: var(--brand); box-shadow: 0 0 0 2px color-mix(in srgb, var(--brand) 70%, transparent) inset; }
   .ctl .acc { position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--brand); opacity: 0; transition: opacity .15s; }
   .ctl[data-active="true"] .acc { opacity: 1; }

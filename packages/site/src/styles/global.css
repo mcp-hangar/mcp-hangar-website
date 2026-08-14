@@ -290,3 +290,70 @@ pre.mermaid svg {
 .mermaid-pending pre.mermaid {
     visibility: hidden;
 }
+
+/* The Learn map — the shared material behind every drawing of the request
+ * path: the hub's architecture map, the pipeline motif inside it, and the
+ * stages on /learn/the-request-path.
+ *
+ * It lives here rather than in any one of them because Astro scopes a
+ * component's `<style>` to that component's own elements: the hub's rules
+ * stop at the components it renders, so each drawing was re-declaring the
+ * same palette and the same control. Three copies of one design is three
+ * places for it to drift.
+ *
+ * Tokens are the site's zinc base. `--brand` is zinc-300, not a hue: on this
+ * map an accent means "you are here", and green already means allow.
+ */
+.learn-map {
+    --panel: #18181b;        /* zinc-900 */
+    --panel-2: #1b1b1f;
+    --raise: #27272a;        /* zinc-800 */
+    --ink: #fafafa;          /* zinc-50 */
+    --ink-2: #d4d4d8;        /* zinc-300 */
+    --muted: #a1a1aa;        /* zinc-400 */
+    --faint: #71717a;        /* zinc-500 */
+    --line: #27272a;         /* zinc-800 */
+    --line-2: #3f3f46;       /* zinc-700 */
+    --brand: #d4d4d8;        /* zinc-300 — accents are neutral */
+    --brand-dim: #27272a;    /* zinc-800 */
+    --r: 14px;
+}
+
+/* Every box on the map a reader can act on: a hub node, a pipeline step, a
+ * stage on the request path. The active/open state stays with each drawing —
+ * they signal it differently — but the material and the lift are shared. */
+.learn-map .ctl {
+    appearance: none;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    color: inherit;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+    transition: transform .15s, border-color .15s, box-shadow .15s;
+}
+
+.learn-map .ctl:hover {
+    transform: translateY(-2px);
+    border-color: color-mix(in srgb, var(--muted) 45%, var(--line));
+}
+
+/* The focusable element is the control itself, except on a `<details>`, where
+ * the browser puts focus on the summary inside it. */
+.learn-map .ctl:focus-visible,
+.learn-map .ctl > summary:focus-visible {
+    outline: 2px solid var(--brand);
+    outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .learn-map .ctl {
+        transition: none;
+    }
+    .learn-map .ctl:hover {
+        transform: none;
+    }
+}

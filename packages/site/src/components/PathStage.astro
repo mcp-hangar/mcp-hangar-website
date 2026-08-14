@@ -53,11 +53,9 @@ const {
 
 <li class:list={["rp-item", seam && "is-seam"]}>
     {seamLabel && <p class="rp-seamlabel">{seamLabel}</p>}
-    <details class:list={["rp-card", badge ? "is-gate" : "is-node"]} name="rp-stage" open={open}>
+    <details class:list={["ctl", "rp-card", badge ? "is-gate" : "is-node"]} name="rp-stage" open={open}>
         <summary>
-            <span class="rp-ord" aria-hidden="true">
-                {badge ? badge : <span class="rp-dot"></span>}
-            </span>
+            <span class="rp-ord" aria-hidden="true">{badge}</span>
             <span class="rp-head">
                 {kicker && <span class="rp-kicker">{kicker}</span>}
                 <span class="rp-title">{title}</span>
@@ -105,8 +103,7 @@ const {
         border-radius: 12px 12px 0 0;
         padding-top: 8px;
     }
-    .is-seam:has(+ .rp-item:not(.is-seam)),
-    .is-seam:last-child {
+    .is-seam:has(+ .rp-item:not(.is-seam)) {
         border-bottom: 1px solid color-mix(in srgb, var(--brand) 25%, var(--line));
         border-radius: 0 0 12px 12px;
         padding-bottom: 10px;
@@ -122,25 +119,12 @@ const {
         color: var(--brand);
     }
 
-    /* The card is the hub's control: same panel, same border, same lift. */
-    .rp-card {
-        background: var(--panel);
-        border: 1px solid var(--line);
-        border-radius: 12px;
-        position: relative;
-        overflow: hidden;
-        transition:
-            transform 0.15s,
-            border-color 0.15s,
-            box-shadow 0.15s;
-    }
+    /* The card is the map's control — `.learn-map .ctl` in global.css carries
+       the panel, the border, the lift and the focus ring. Only the open state
+       is this drawing's own. */
     .rp-card.is-node {
         border-style: dashed;
         border-color: var(--line-2);
-    }
-    .rp-card:hover {
-        transform: translateY(-2px);
-        border-color: color-mix(in srgb, var(--muted) 45%, var(--line));
     }
     .rp-card[open] {
         border-color: var(--brand);
@@ -168,10 +152,6 @@ const {
     summary::-webkit-details-marker {
         display: none;
     }
-    summary:focus-visible {
-        outline: 2px solid var(--brand);
-        outline-offset: 2px;
-    }
 
     /* The spine column. A gate puts its ordinal here, an endpoint a node dot —
        either way the axis is the same one the spine is drawn on. */
@@ -195,7 +175,10 @@ const {
     .rp-card[open] .rp-ord {
         border-color: var(--brand);
     }
-    .rp-dot {
+    /* An endpoint has no ordinal, so its column carries a node dot instead —
+       the spine still passes through something at every stage. */
+    .is-node .rp-ord::before {
+        content: "";
         width: 7px;
         height: 7px;
         border-radius: 50%;
@@ -314,12 +297,8 @@ const {
     }
 
     @media (prefers-reduced-motion: reduce) {
-        .rp-card,
         .rp-mark {
             transition: none;
-        }
-        .rp-card:hover {
-            transform: none;
         }
     }
 </style>
