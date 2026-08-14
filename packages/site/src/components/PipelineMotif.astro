@@ -205,15 +205,18 @@ const lit = new Set(gates);
   .tag.off { background: transparent; color: var(--faint); border: 1px dashed var(--line-2); }
   .tag.v2 { background: var(--preview-bg); color: var(--preview); }
 
-    /* compact — the shape of the pipeline, no detail. Horizontal, scrolls
-       rather than wrapping, so the order stays readable as an order. */
+    /* compact — the shape of the pipeline, no detail. Wraps rather than
+       scrolling: nine gates never fit one row, and the half-visible tail a
+       scroller left behind read as clipped rather than as an order. Wrapped
+       rows keep reading order, so the order survives the wrap. */
     .pipeline-compact {
         display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
         gap: 6px;
-        overflow-x: auto;
         list-style: none;
         margin: 0;
-        padding: 0 0 4px;
+        padding: 0;
     }
     .pc-step {
         display: inline-flex;
