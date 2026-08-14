@@ -1,0 +1,286 @@
+---
+/**
+ * One stage on the request path: what fires, in one line, with the full
+ * explanation folded underneath it.
+ *
+ * It is a native `<details>` with a shared `name`, so the accordion is the
+ * browser's — one stage open at a time, keyboard and screen reader support
+ * included, and it still works with JavaScript off. Nothing here needs a
+ * script, so nothing here ships one.
+ *
+ * Consecutive stages marked `seam` render as one panel: a run of them picks up
+ * a shared tint and a left rail, and the first and last of the run round off.
+ * That is done with adjacency rather than a wrapper element so the stages stay
+ * a flat list — the spine in RequestPath is positioned against the card edge,
+ * and a wrapper would push the seam's badges off it.
+ */
+interface Props {
+    /** Short mark on the spine — "1", "L4", "out". Three characters, tops. */
+    badge: string;
+    title: string;
+    /** What fires here, in one line. Visible whether or not the stage is open. */
+    summary: string;
+    /** Inside the enforcement seam. */
+    seam?: boolean;
+    /** Rendered above the card; set it on the first stage of a seam run. */
+    seamLabel?: string;
+    /** How this stage refuses, if it refuses. Carries the deny colour. */
+    denyChip?: string;
+    /** A control that exists but is not on by default. Carries the opt-in colour. */
+    optinChip?: string;
+    /** Drawn dashed: the backstop and the return trip are not gates. */
+    dashed?: boolean;
+    /** Open on load. The first stage is, so the interaction is visible. */
+    open?: boolean;
+}
+
+const {
+    badge,
+    title,
+    summary,
+    seam = false,
+    seamLabel,
+    denyChip,
+    optinChip,
+    dashed = false,
+    open = false,
+} = Astro.props;
+---
+
+<li class:list={["rp-item", seam && "is-seam"]}>
+    {seamLabel && <p class="rp-seamlabel">{seamLabel}</p>}
+    <details class:list={["rp-card", dashed && "is-dashed"]} name="rp-stage" open={open}>
+        <summary>
+            <span class="rp-badge" aria-hidden="true">{badge}</span>
+            <span class="rp-head">
+                <span class="rp-title">{title}</span>
+                <span class="rp-sum">{summary}</span>
+                {(denyChip || optinChip) && (
+                    <span class="rp-chips">
+                        {denyChip && <span class="rp-chip is-deny">{denyChip}</span>}
+                        {optinChip && <span class="rp-chip is-optin">{optinChip}</span>}
+                    </span>
+                )}
+            </span>
+            <span class="rp-mark" aria-hidden="true"></span>
+        </summary>
+        <div class="rp-body">
+            <slot />
+        </div>
+    </details>
+</li>
+
+<style>
+    .rp-item {
+        position: relative;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* The seam: a run of stages inside the proxy, drawn as one panel around
+       them. It bleeds 14px wider than the cards and pays that back as padding,
+       so the cards — and the badges the spine runs through — do not move. */
+    .is-seam {
+        margin: 0 -14px;
+        padding: 0.3rem 13px 0.3rem 12px;
+        border-left: 2px solid rgba(161, 161, 170, 0.45);
+        border-right: 1px solid rgba(113, 113, 122, 0.25);
+        background: linear-gradient(
+            90deg,
+            rgba(113, 113, 122, 0.13),
+            rgba(113, 113, 122, 0.04)
+        );
+    }
+    /* Close the flex gap between stages of the same run, then pay it back as
+       padding: the panel has to be continuous, the cards still need the air. */
+    .is-seam + .is-seam {
+        margin-top: -0.75rem;
+        padding-top: 0.75rem;
+    }
+    .rp-item:not(.is-seam) + .is-seam {
+        border-top: 1px solid rgba(113, 113, 122, 0.25);
+        border-radius: 14px 14px 0 0;
+        padding-top: 0.5rem;
+    }
+    .is-seam:has(+ .rp-item:not(.is-seam)),
+    .is-seam:last-child {
+        border-bottom: 1px solid rgba(113, 113, 122, 0.25);
+        border-radius: 0 0 14px 14px;
+        padding-bottom: 0.6rem;
+    }
+
+    .rp-seamlabel {
+        margin: 0.35rem 0 0.5rem;
+        padding-left: 1rem;
+        font-family: var(--font-mono, ui-monospace, monospace);
+        font-size: 0.6875rem;
+        font-weight: 600;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: #a1a1aa;
+    }
+
+    .rp-card {
+        border: 1px solid rgba(63, 63, 70, 0.75);
+        border-radius: 12px;
+        /* Opaque: the spine runs behind the cards and must not show through. */
+        background: #0e0e10;
+        transition:
+            border-color 0.18s ease,
+            background 0.18s ease;
+    }
+    .rp-card.is-dashed {
+        border-style: dashed;
+        border-color: rgba(82, 82, 91, 0.9);
+    }
+    .rp-card:hover {
+        border-color: rgba(113, 113, 122, 0.9);
+    }
+    .rp-card[open] {
+        border-color: rgba(161, 161, 170, 0.55);
+        background: #131316;
+    }
+
+    summary {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.85rem;
+        padding: 0.8rem 1rem;
+        cursor: pointer;
+        list-style: none;
+    }
+    summary::-webkit-details-marker {
+        display: none;
+    }
+    summary:focus-visible {
+        outline: 2px solid #a1a1aa;
+        outline-offset: 2px;
+        border-radius: 12px;
+    }
+
+    .rp-badge {
+        flex: 0 0 28px;
+        width: 28px;
+        height: 28px;
+        display: grid;
+        place-items: center;
+        border-radius: 8px;
+        border: 1px solid rgba(82, 82, 91, 0.9);
+        background: #18181b;
+        font-family: var(--font-mono, ui-monospace, monospace);
+        font-size: 0.625rem;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        color: #d4d4d8;
+    }
+    .rp-card[open] .rp-badge {
+        border-color: rgba(161, 161, 170, 0.7);
+        color: #fafafa;
+    }
+
+    .rp-head {
+        min-width: 0;
+        flex: 1;
+    }
+    .rp-title {
+        display: block;
+        font-size: 0.9375rem;
+        font-weight: 600;
+        color: #fafafa;
+        line-height: 1.35;
+    }
+    .rp-sum {
+        display: block;
+        margin-top: 0.15rem;
+        font-size: 0.8125rem;
+        line-height: 1.5;
+        color: #a1a1aa;
+    }
+    .rp-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem;
+        margin-top: 0.45rem;
+    }
+    /* Colour is semantics here too: a refusal and an off-by-default control are
+       the only two things on this diagram that get a hue. The chip's text says
+       the same thing, so the colour is never the only encoding (C11). */
+    .rp-chip {
+        font-family: var(--font-mono, ui-monospace, monospace);
+        font-size: 0.625rem;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        border-radius: 5px;
+        border: 1px solid;
+        padding: 0.15rem 0.4rem;
+    }
+    .rp-chip.is-deny {
+        border-color: color-mix(in srgb, var(--color-verdict-deny) 35%, transparent);
+        background: color-mix(in srgb, var(--color-verdict-deny) 10%, transparent);
+        color: var(--color-verdict-deny-soft);
+    }
+    .rp-chip.is-optin {
+        border-color: color-mix(in srgb, var(--color-state-optin) 35%, transparent);
+        background: color-mix(in srgb, var(--color-state-optin) 10%, transparent);
+        color: var(--color-state-optin-soft);
+    }
+
+    /* A plus that becomes a cross. Two rules, no icon file. */
+    .rp-mark {
+        position: relative;
+        flex: 0 0 14px;
+        width: 14px;
+        height: 14px;
+        margin-top: 0.4rem;
+        transition: transform 0.18s ease;
+    }
+    .rp-mark::before,
+    .rp-mark::after {
+        content: "";
+        position: absolute;
+        inset: 50% 0 auto;
+        height: 1.5px;
+        background: #71717a;
+        border-radius: 1px;
+    }
+    .rp-mark::after {
+        transform: rotate(90deg);
+    }
+    .rp-card[open] .rp-mark {
+        transform: rotate(45deg);
+    }
+    .rp-card:hover .rp-mark::before,
+    .rp-card:hover .rp-mark::after {
+        background: #d4d4d8;
+    }
+
+    .rp-body {
+        padding: 0 1rem 1rem 3.85rem;
+        font-size: 0.9375rem;
+        line-height: 1.75;
+        color: #d4d4d8;
+    }
+    .rp-body :global(p) {
+        margin: 0 0 0.75rem;
+    }
+    .rp-body :global(p:last-child) {
+        margin-bottom: 0;
+    }
+    .rp-body :global(strong) {
+        color: #fafafa;
+    }
+
+    @media (max-width: 480px) {
+        .rp-body {
+            padding-left: 1rem;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .rp-card,
+        .rp-mark {
+            transition: none;
+        }
+    }
+</style>

@@ -1,0 +1,75 @@
+---
+/**
+ * The frame around the request path: one spine, top to bottom, with the
+ * stages a call meets slotted into it in order.
+ *
+ * It replaces a static SVG of the same path. The SVG had to carry every
+ * caption at once, so it either shouted or went unreadable, and the
+ * explanations lived in a prose section further down the page — a reader had
+ * to hold the picture in their head while scrolling to the words. Here the
+ * words live inside the stage they describe, one open at a time.
+ *
+ * The spine is a single line the badges sit on, because the claim the page is
+ * making is that there is exactly one path. Anything that drew a stage off to
+ * the side would be arguing against the page.
+ */
+interface Props {
+    /** The line under the flow — what is true of every stage above it. */
+    note?: string;
+    class?: string;
+}
+
+const { note, class: className = "" } = Astro.props;
+---
+
+<div class={`rp ${className}`}>
+    <ol class="rp-flow">
+        <slot />
+    </ol>
+    {note && <p class="rp-note">{note}</p>}
+</div>
+
+<style>
+    .rp {
+        margin: 2rem 0;
+    }
+
+    .rp-flow {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        position: relative;
+    }
+
+    /* The spine. One line, behind the cards, punched through by the badges —
+       it is the page's whole argument, so it is drawn once and never breaks.
+       30px = card padding (1rem) + half a 28px badge. */
+    .rp-flow::before {
+        content: "";
+        position: absolute;
+        left: 29px;
+        top: 1.2rem;
+        bottom: 1.2rem;
+        width: 2px;
+        border-radius: 2px;
+        background: linear-gradient(
+            180deg,
+            transparent,
+            rgba(161, 161, 170, 0.75) 6%,
+            rgba(161, 161, 170, 0.75) 94%,
+            transparent
+        );
+    }
+
+    .rp-note {
+        margin: 0.9rem 0 0;
+        padding-left: 30px;
+        font-size: 0.8125rem;
+        line-height: 1.6;
+        color: #a1a1aa;
+        text-wrap: balance;
+    }
+</style>

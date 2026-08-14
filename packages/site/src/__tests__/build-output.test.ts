@@ -252,6 +252,17 @@ describe('Build Output', () => {
       expect(md).not.toContain('<nav');
     });
 
+    // The request path draws its stages as components, so the stage names live
+    // in attributes rather than in the MDX prose. Without the unwrapper
+    // promoting them, the markdown twin is a run of unlabelled paragraphs.
+    it('should keep stage names in the request-path .md twin', () => {
+      const md = readDistFile('learn/the-request-path.md');
+      expect(md).toContain('**Identity.**');
+      expect(md).toContain('**Egress policy (L7).**');
+      expect(md).not.toContain('<PathStage');
+      expect(md).not.toContain('PathStage>');
+    });
+
     it('should generate .md endpoints for blog posts', () => {
       const files = fs.readdirSync(path.join(process.cwd(), 'dist', 'blog'))
         .filter(f => f.endsWith('.md'));

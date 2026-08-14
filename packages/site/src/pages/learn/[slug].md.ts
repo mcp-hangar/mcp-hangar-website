@@ -56,9 +56,27 @@ export const GET: APIRoute = async ({ props }) => {
   // The content inside a callout is prose worth keeping, so unwrap rather than
   // delete: opening and closing tags of capitalised components go, their
   // children stay. Self-closing components carry no prose and are dropped.
+  //
+  // Some components carry prose in their attributes rather than their
+  // children — a stage on the request path names itself in `title`/`summary`,
+  // and the flow's closing line lives in `note`. Dropping the tag would drop
+  // that text, leaving the markdown a run of unlabelled paragraphs, so those
+  // attributes are promoted to a line of prose before the tag goes.
+  const attr = (attrs: string, name: string) =>
+    attrs.match(new RegExp(`\\b${name}="([^"]*)"`))?.[1];
+  const promote = (attrs: string) => {
+    const title = attr(attrs, 'title');
+    const summary = attr(attrs, 'summary');
+    const note = attr(attrs, 'note');
+    if (title) return `\n**${title}.**${summary ? ` ${summary}` : ''}\n`;
+    if (note) return `\n${note}\n`;
+    return '';
+  };
+
   body = body
-    .replace(/<([A-Z][A-Za-z0-9]*)\b[^>]*\/>\s*/g, '')
-    .replace(/<\/?([A-Z][A-Za-z0-9]*)\b[^>]*>/g, '')
+    .replace(/<([A-Z][A-Za-z0-9]*)\b([^>]*)\/>\s*/g, (_m, _tag, attrs) => promote(attrs))
+    .replace(/<([A-Z][A-Za-z0-9]*)\b([^>]*)>/g, (_m, _tag, attrs) => promote(attrs))
+    .replace(/<\/([A-Z][A-Za-z0-9]*)\s*>/g, '')
     .replace(/\n{3,}/g, '\n\n')
     .trim();
 
