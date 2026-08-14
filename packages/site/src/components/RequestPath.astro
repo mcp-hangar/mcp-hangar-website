@@ -1,0 +1,65 @@
+---
+/**
+ * The frame around the request path: one spine, top to bottom, with the
+ * stages a call meets slotted into it in order.
+ *
+ * It replaces a static SVG of the same path. The SVG had to carry every
+ * caption at once, so it either shouted or went unreadable, and the
+ * explanations lived in a prose section further down the page — a reader had
+ * to hold the picture in their head while scrolling to the words.
+ *
+ * Visually it is the Learn hub's map, from the shared `.learn-map` material
+ * in global.css: same palette, same panel, same control. One path, drawn in
+ * two places, should not look like two products.
+ *
+ * The spine is a single line the stages sit on, because the claim the page is
+ * making is that there is exactly one path. Anything drawn off to the side
+ * would be arguing against the page.
+ */
+---
+
+<div class="rp learn-map">
+    <ol class="rp-flow">
+        <slot />
+    </ol>
+</div>
+
+<style>
+    .rp {
+        margin: 2rem 0;
+        background: radial-gradient(120% 120% at 50% 0, var(--panel-2), var(--panel));
+        border: 1px solid var(--line);
+        border-radius: var(--r);
+        padding: 18px 18px 20px;
+    }
+
+    .rp-flow {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        position: relative;
+    }
+
+    /* The spine. One line, behind the cards — it is the page's whole argument,
+       so it is drawn once and never breaks. 26px = card padding (16px) + half
+       a 22px ordinal, so the seam's ordinals sit on it. */
+    .rp-flow::before {
+        content: "";
+        position: absolute;
+        left: 26px;
+        top: 18px;
+        bottom: 18px;
+        width: 2px;
+        border-radius: 2px;
+        background: linear-gradient(
+            180deg,
+            transparent,
+            var(--line-2) 6%,
+            var(--line-2) 94%,
+            transparent
+        );
+    }
+</style>

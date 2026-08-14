@@ -1,0 +1,304 @@
+---
+/**
+ * One stage on the request path: what fires, in one line, with the full
+ * explanation folded underneath it.
+ *
+ * It is a native `<details>` with a shared `name`, so the accordion is the
+ * browser's — one stage open at a time, keyboard and screen reader support
+ * included, and it still works with JavaScript off. Nothing here needs a
+ * script, so nothing here ships one.
+ *
+ * Two shapes, borrowed from the Learn hub's map so the same path reads the
+ * same in both places: a gate carries an ordinal on the spine and a solid
+ * border, an endpoint carries an uppercase kicker and a dashed one. A stage
+ * with a `badge` is a gate; a stage with a `kicker` is an endpoint.
+ *
+ * Consecutive stages marked `seam` render as one panel — the hub's enforcement
+ * seam, in its neutral brand tint. That is done with adjacency rather than a
+ * wrapper element so the stages stay a flat list: the spine is positioned
+ * against the card edge, and a wrapper would push the seam's ordinals off it.
+ */
+interface Props {
+    /** Ordinal on the spine — a gate. "1", "2", "3". */
+    badge?: string;
+    /** Uppercase label — an endpoint. "Client", "Upstream". */
+    kicker?: string;
+    title: string;
+    /** What fires here, in one line. Visible whether or not the stage is open. */
+    summary: string;
+    /** Inside the enforcement seam. */
+    seam?: boolean;
+    /** Rendered above the card; set it on the first stage of a seam run. */
+    seamLabel?: string;
+    /** How this stage refuses, if it refuses. Carries the deny colour. */
+    denyChip?: string;
+    /** A control that exists but is not on by default. Carries the opt-in colour. */
+    optinChip?: string;
+    /** Open on load. The first gate is, so the interaction is visible. */
+    open?: boolean;
+}
+
+const {
+    badge,
+    kicker,
+    title,
+    summary,
+    seam = false,
+    seamLabel,
+    denyChip,
+    optinChip,
+    open = false,
+} = Astro.props;
+---
+
+<li class:list={["rp-item", seam && "is-seam"]}>
+    {seamLabel && <p class="rp-seamlabel">{seamLabel}</p>}
+    <details class:list={["ctl", "rp-card", badge ? "is-gate" : "is-node"]} name="rp-stage" open={open}>
+        <summary>
+            <span class="rp-ord" aria-hidden="true">{badge}</span>
+            <span class="rp-head">
+                {kicker && <span class="rp-kicker">{kicker}</span>}
+                <span class="rp-title">{title}</span>
+                <span class="rp-sum">{summary}</span>
+                {(denyChip || optinChip) && (
+                    <span class="rp-chips">
+                        {denyChip && <span class="rp-chip is-deny">{denyChip}</span>}
+                        {optinChip && <span class="rp-chip is-optin">{optinChip}</span>}
+                    </span>
+                )}
+            </span>
+            <span class="rp-mark" aria-hidden="true"></span>
+        </summary>
+        <div class="rp-body">
+            <slot />
+        </div>
+    </details>
+</li>
+
+<style>
+    .rp-item {
+        position: relative;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* The seam: a run of stages inside the proxy, drawn as the Learn hub draws
+       it. It bleeds 14px wider than the cards and pays that back as padding,
+       so the cards — and the ordinals the spine runs through — do not move. */
+    .is-seam {
+        margin: 0 -14px;
+        padding: 4px 13px 4px 12px;
+        border-left: 2px solid color-mix(in srgb, var(--brand) 40%, var(--line));
+        border-right: 1px solid color-mix(in srgb, var(--brand) 25%, var(--line));
+        background: linear-gradient(180deg, var(--brand-dim), transparent);
+    }
+    /* Close the flex gap between stages of the same run, then pay it back as
+       padding: the panel has to be continuous, the cards still need the air. */
+    .is-seam + .is-seam {
+        margin-top: -10px;
+        padding-top: 10px;
+    }
+    .rp-item:not(.is-seam) + .is-seam {
+        border-top: 1px solid color-mix(in srgb, var(--brand) 25%, var(--line));
+        border-radius: 12px 12px 0 0;
+        padding-top: 8px;
+    }
+    .is-seam:has(+ .rp-item:not(.is-seam)) {
+        border-bottom: 1px solid color-mix(in srgb, var(--brand) 25%, var(--line));
+        border-radius: 0 0 12px 12px;
+        padding-bottom: 10px;
+    }
+
+    .rp-seamlabel {
+        margin: 2px 0 8px;
+        text-align: center;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--brand);
+    }
+
+    /* The card is the map's control — `.learn-map .ctl` in global.css carries
+       the panel, the border, the lift and the focus ring. Only the open state
+       is this drawing's own. */
+    .rp-card.is-node {
+        border-style: dashed;
+        border-color: var(--line-2);
+    }
+    .rp-card[open] {
+        border-color: var(--brand);
+        box-shadow: 0 0 0 2px color-mix(in srgb, var(--brand) 70%, transparent) inset;
+    }
+    /* The hub's active-control accent, same 3px bar in the same place. */
+    .rp-card[open]::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: var(--brand);
+    }
+
+    summary {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 13px 16px;
+        cursor: pointer;
+        list-style: none;
+    }
+    summary::-webkit-details-marker {
+        display: none;
+    }
+
+    /* The spine column. A gate puts its ordinal here, an endpoint a node dot —
+       either way the axis is the same one the spine is drawn on. */
+    .rp-ord {
+        flex: 0 0 22px;
+        height: 22px;
+        display: grid;
+        place-items: center;
+        margin-top: 1px;
+        border-radius: 50%;
+        font-family: var(--font-mono, ui-monospace, monospace);
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--muted);
+    }
+    .is-gate .rp-ord {
+        color: var(--ink);
+        background: var(--panel);
+        border: 1px solid var(--line-2);
+    }
+    .rp-card[open] .rp-ord {
+        border-color: var(--brand);
+    }
+    /* An endpoint has no ordinal, so its column carries a node dot instead —
+       the spine still passes through something at every stage. */
+    .is-node .rp-ord::before {
+        content: "";
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--line-2);
+    }
+
+    .rp-head {
+        min-width: 0;
+        flex: 1;
+    }
+    .rp-kicker {
+        display: block;
+        font-size: 11.5px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--faint);
+        margin-bottom: 2px;
+    }
+    .rp-title {
+        display: block;
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--ink);
+        line-height: 1.35;
+    }
+    .rp-sum {
+        display: block;
+        margin-top: 2px;
+        font-size: 13px;
+        line-height: 1.5;
+        color: var(--muted);
+    }
+    .rp-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 8px;
+    }
+    /* Colour is semantics here too: a refusal and an off-by-default control are
+       the only two things on this diagram that get a hue, and both say the same
+       thing in text, so colour is never the only encoding (C11). Same
+       dimensions as the pipeline motif's tags. */
+    .rp-chip {
+        font-family: var(--font-mono, ui-monospace, monospace);
+        font-size: 9.5px;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        border-radius: 5px;
+        border: 1px solid;
+        padding: 2px 6px;
+    }
+    .rp-chip.is-deny {
+        border-color: color-mix(in srgb, var(--color-verdict-deny) 35%, transparent);
+        background: color-mix(in srgb, var(--color-verdict-deny) 10%, transparent);
+        color: var(--color-verdict-deny-soft);
+    }
+    .rp-chip.is-optin {
+        border-color: color-mix(in srgb, var(--color-state-optin) 35%, transparent);
+        background: color-mix(in srgb, var(--color-state-optin) 10%, transparent);
+        color: var(--color-state-optin-soft);
+    }
+
+    /* A plus that becomes a cross. Two rules, no icon file. */
+    .rp-mark {
+        position: relative;
+        flex: 0 0 12px;
+        width: 12px;
+        height: 12px;
+        margin-top: 6px;
+        transition: transform 0.15s;
+    }
+    .rp-mark::before,
+    .rp-mark::after {
+        content: "";
+        position: absolute;
+        inset: 50% 0 auto;
+        height: 1.5px;
+        background: var(--faint);
+        border-radius: 1px;
+    }
+    .rp-mark::after {
+        transform: rotate(90deg);
+    }
+    .rp-card[open] .rp-mark {
+        transform: rotate(45deg);
+    }
+    .rp-card:hover .rp-mark::before,
+    .rp-card:hover .rp-mark::after,
+    .rp-card[open] .rp-mark::before,
+    .rp-card[open] .rp-mark::after {
+        background: var(--brand);
+    }
+
+    .rp-body {
+        padding: 0 16px 14px 50px;
+        font-size: 14.5px;
+        line-height: 1.7;
+        color: var(--ink-2);
+    }
+    .rp-body :global(p) {
+        margin: 0 0 0.7rem;
+    }
+    .rp-body :global(p:last-child) {
+        margin-bottom: 0;
+    }
+    .rp-body :global(strong) {
+        color: var(--ink);
+    }
+
+    @media (max-width: 520px) {
+        .rp-body {
+            padding-left: 16px;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .rp-mark {
+            transition: none;
+        }
+    }
+</style>
