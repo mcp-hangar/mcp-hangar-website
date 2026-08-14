@@ -8,15 +8,21 @@
  * included, and it still works with JavaScript off. Nothing here needs a
  * script, so nothing here ships one.
  *
- * Consecutive stages marked `seam` render as one panel: a run of them picks up
- * a shared tint and a left rail, and the first and last of the run round off.
- * That is done with adjacency rather than a wrapper element so the stages stay
- * a flat list — the spine in RequestPath is positioned against the card edge,
- * and a wrapper would push the seam's badges off it.
+ * Two shapes, borrowed from the Learn hub's map so the same path reads the
+ * same in both places: a gate carries an ordinal on the spine and a solid
+ * border, an endpoint carries an uppercase kicker and a dashed one. A stage
+ * with a `badge` is a gate; a stage with a `kicker` is an endpoint.
+ *
+ * Consecutive stages marked `seam` render as one panel — the hub's enforcement
+ * seam, in its neutral brand tint. That is done with adjacency rather than a
+ * wrapper element so the stages stay a flat list: the spine is positioned
+ * against the card edge, and a wrapper would push the seam's ordinals off it.
  */
 interface Props {
-    /** Short mark on the spine — "1", "L4", "out". Three characters, tops. */
-    badge: string;
+    /** Ordinal on the spine — a gate. "1", "2", "3". */
+    badge?: string;
+    /** Uppercase label — an endpoint. "Client", "Upstream". */
+    kicker?: string;
     title: string;
     /** What fires here, in one line. Visible whether or not the stage is open. */
     summary: string;
@@ -28,31 +34,32 @@ interface Props {
     denyChip?: string;
     /** A control that exists but is not on by default. Carries the opt-in colour. */
     optinChip?: string;
-    /** Drawn dashed: the backstop and the return trip are not gates. */
-    dashed?: boolean;
-    /** Open on load. The first stage is, so the interaction is visible. */
+    /** Open on load. The first gate is, so the interaction is visible. */
     open?: boolean;
 }
 
 const {
     badge,
+    kicker,
     title,
     summary,
     seam = false,
     seamLabel,
     denyChip,
     optinChip,
-    dashed = false,
     open = false,
 } = Astro.props;
 ---
 
 <li class:list={["rp-item", seam && "is-seam"]}>
     {seamLabel && <p class="rp-seamlabel">{seamLabel}</p>}
-    <details class:list={["rp-card", dashed && "is-dashed"]} name="rp-stage" open={open}>
+    <details class:list={["rp-card", badge ? "is-gate" : "is-node"]} name="rp-stage" open={open}>
         <summary>
-            <span class="rp-badge" aria-hidden="true">{badge}</span>
+            <span class="rp-ord" aria-hidden="true">
+                {badge ? badge : <span class="rp-dot"></span>}
+            </span>
             <span class="rp-head">
+                {kicker && <span class="rp-kicker">{kicker}</span>}
                 <span class="rp-title">{title}</span>
                 <span class="rp-sum">{summary}</span>
                 {(denyChip || optinChip) && (
@@ -77,75 +84,84 @@ const {
         padding: 0;
     }
 
-    /* The seam: a run of stages inside the proxy, drawn as one panel around
-       them. It bleeds 14px wider than the cards and pays that back as padding,
-       so the cards — and the badges the spine runs through — do not move. */
+    /* The seam: a run of stages inside the proxy, drawn as the Learn hub draws
+       it. It bleeds 14px wider than the cards and pays that back as padding,
+       so the cards — and the ordinals the spine runs through — do not move. */
     .is-seam {
         margin: 0 -14px;
-        padding: 0.3rem 13px 0.3rem 12px;
-        border-left: 2px solid rgba(161, 161, 170, 0.45);
-        border-right: 1px solid rgba(113, 113, 122, 0.25);
-        background: linear-gradient(
-            90deg,
-            rgba(113, 113, 122, 0.13),
-            rgba(113, 113, 122, 0.04)
-        );
+        padding: 4px 13px 4px 12px;
+        border-left: 2px solid color-mix(in srgb, var(--brand) 40%, var(--line));
+        border-right: 1px solid color-mix(in srgb, var(--brand) 25%, var(--line));
+        background: linear-gradient(180deg, var(--brand-dim), transparent);
     }
     /* Close the flex gap between stages of the same run, then pay it back as
        padding: the panel has to be continuous, the cards still need the air. */
     .is-seam + .is-seam {
-        margin-top: -0.75rem;
-        padding-top: 0.75rem;
+        margin-top: -10px;
+        padding-top: 10px;
     }
     .rp-item:not(.is-seam) + .is-seam {
-        border-top: 1px solid rgba(113, 113, 122, 0.25);
-        border-radius: 14px 14px 0 0;
-        padding-top: 0.5rem;
+        border-top: 1px solid color-mix(in srgb, var(--brand) 25%, var(--line));
+        border-radius: 12px 12px 0 0;
+        padding-top: 8px;
     }
     .is-seam:has(+ .rp-item:not(.is-seam)),
     .is-seam:last-child {
-        border-bottom: 1px solid rgba(113, 113, 122, 0.25);
-        border-radius: 0 0 14px 14px;
-        padding-bottom: 0.6rem;
+        border-bottom: 1px solid color-mix(in srgb, var(--brand) 25%, var(--line));
+        border-radius: 0 0 12px 12px;
+        padding-bottom: 10px;
     }
 
     .rp-seamlabel {
-        margin: 0.35rem 0 0.5rem;
-        padding-left: 1rem;
-        font-family: var(--font-mono, ui-monospace, monospace);
-        font-size: 0.6875rem;
-        font-weight: 600;
-        letter-spacing: 0.14em;
+        margin: 2px 0 8px;
+        text-align: center;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.1em;
         text-transform: uppercase;
-        color: #a1a1aa;
+        color: var(--brand);
     }
 
+    /* The card is the hub's control: same panel, same border, same lift. */
     .rp-card {
-        border: 1px solid rgba(63, 63, 70, 0.75);
+        background: var(--panel);
+        border: 1px solid var(--line);
         border-radius: 12px;
-        /* Opaque: the spine runs behind the cards and must not show through. */
-        background: #0e0e10;
+        position: relative;
+        overflow: hidden;
         transition:
-            border-color 0.18s ease,
-            background 0.18s ease;
+            transform 0.15s,
+            border-color 0.15s,
+            box-shadow 0.15s;
     }
-    .rp-card.is-dashed {
+    .rp-card.is-node {
         border-style: dashed;
-        border-color: rgba(82, 82, 91, 0.9);
+        border-color: var(--line-2);
     }
     .rp-card:hover {
-        border-color: rgba(113, 113, 122, 0.9);
+        transform: translateY(-2px);
+        border-color: color-mix(in srgb, var(--muted) 45%, var(--line));
     }
     .rp-card[open] {
-        border-color: rgba(161, 161, 170, 0.55);
-        background: #131316;
+        border-color: var(--brand);
+        box-shadow: 0 0 0 2px color-mix(in srgb, var(--brand) 70%, transparent) inset;
+    }
+    /* The hub's active-control accent, same 3px bar in the same place. */
+    .rp-card[open]::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: var(--brand);
     }
 
     summary {
         display: flex;
         align-items: flex-start;
-        gap: 0.85rem;
-        padding: 0.8rem 1rem;
+        gap: 12px;
+        padding: 13px 16px;
         cursor: pointer;
         list-style: none;
     }
@@ -153,67 +169,85 @@ const {
         display: none;
     }
     summary:focus-visible {
-        outline: 2px solid #a1a1aa;
+        outline: 2px solid var(--brand);
         outline-offset: 2px;
-        border-radius: 12px;
     }
 
-    .rp-badge {
-        flex: 0 0 28px;
-        width: 28px;
-        height: 28px;
+    /* The spine column. A gate puts its ordinal here, an endpoint a node dot —
+       either way the axis is the same one the spine is drawn on. */
+    .rp-ord {
+        flex: 0 0 22px;
+        height: 22px;
         display: grid;
         place-items: center;
-        border-radius: 8px;
-        border: 1px solid rgba(82, 82, 91, 0.9);
-        background: #18181b;
+        margin-top: 1px;
+        border-radius: 50%;
         font-family: var(--font-mono, ui-monospace, monospace);
-        font-size: 0.625rem;
+        font-size: 11px;
         font-weight: 700;
-        letter-spacing: 0.02em;
-        color: #d4d4d8;
+        color: var(--muted);
     }
-    .rp-card[open] .rp-badge {
-        border-color: rgba(161, 161, 170, 0.7);
-        color: #fafafa;
+    .is-gate .rp-ord {
+        color: var(--ink);
+        background: var(--panel);
+        border: 1px solid var(--line-2);
+    }
+    .rp-card[open] .rp-ord {
+        border-color: var(--brand);
+    }
+    .rp-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--line-2);
     }
 
     .rp-head {
         min-width: 0;
         flex: 1;
     }
+    .rp-kicker {
+        display: block;
+        font-size: 11.5px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--faint);
+        margin-bottom: 2px;
+    }
     .rp-title {
         display: block;
-        font-size: 0.9375rem;
-        font-weight: 600;
-        color: #fafafa;
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--ink);
         line-height: 1.35;
     }
     .rp-sum {
         display: block;
-        margin-top: 0.15rem;
-        font-size: 0.8125rem;
+        margin-top: 2px;
+        font-size: 13px;
         line-height: 1.5;
-        color: #a1a1aa;
+        color: var(--muted);
     }
     .rp-chips {
         display: flex;
         flex-wrap: wrap;
-        gap: 0.35rem;
-        margin-top: 0.45rem;
+        gap: 6px;
+        margin-top: 8px;
     }
     /* Colour is semantics here too: a refusal and an off-by-default control are
-       the only two things on this diagram that get a hue. The chip's text says
-       the same thing, so the colour is never the only encoding (C11). */
+       the only two things on this diagram that get a hue, and both say the same
+       thing in text, so colour is never the only encoding (C11). Same
+       dimensions as the pipeline motif's tags. */
     .rp-chip {
         font-family: var(--font-mono, ui-monospace, monospace);
-        font-size: 0.625rem;
-        font-weight: 600;
-        letter-spacing: 0.06em;
+        font-size: 9.5px;
+        font-weight: 800;
+        letter-spacing: 0.04em;
         text-transform: uppercase;
         border-radius: 5px;
         border: 1px solid;
-        padding: 0.15rem 0.4rem;
+        padding: 2px 6px;
     }
     .rp-chip.is-deny {
         border-color: color-mix(in srgb, var(--color-verdict-deny) 35%, transparent);
@@ -229,11 +263,11 @@ const {
     /* A plus that becomes a cross. Two rules, no icon file. */
     .rp-mark {
         position: relative;
-        flex: 0 0 14px;
-        width: 14px;
-        height: 14px;
-        margin-top: 0.4rem;
-        transition: transform 0.18s ease;
+        flex: 0 0 12px;
+        width: 12px;
+        height: 12px;
+        margin-top: 6px;
+        transition: transform 0.15s;
     }
     .rp-mark::before,
     .rp-mark::after {
@@ -241,7 +275,7 @@ const {
         position: absolute;
         inset: 50% 0 auto;
         height: 1.5px;
-        background: #71717a;
+        background: var(--faint);
         border-radius: 1px;
     }
     .rp-mark::after {
@@ -251,29 +285,31 @@ const {
         transform: rotate(45deg);
     }
     .rp-card:hover .rp-mark::before,
-    .rp-card:hover .rp-mark::after {
-        background: #d4d4d8;
+    .rp-card:hover .rp-mark::after,
+    .rp-card[open] .rp-mark::before,
+    .rp-card[open] .rp-mark::after {
+        background: var(--brand);
     }
 
     .rp-body {
-        padding: 0 1rem 1rem 3.85rem;
-        font-size: 0.9375rem;
-        line-height: 1.75;
-        color: #d4d4d8;
+        padding: 0 16px 14px 50px;
+        font-size: 14.5px;
+        line-height: 1.7;
+        color: var(--ink-2);
     }
     .rp-body :global(p) {
-        margin: 0 0 0.75rem;
+        margin: 0 0 0.7rem;
     }
     .rp-body :global(p:last-child) {
         margin-bottom: 0;
     }
     .rp-body :global(strong) {
-        color: #fafafa;
+        color: var(--ink);
     }
 
-    @media (max-width: 480px) {
+    @media (max-width: 520px) {
         .rp-body {
-            padding-left: 1rem;
+            padding-left: 16px;
         }
     }
 
@@ -281,6 +317,9 @@ const {
         .rp-card,
         .rp-mark {
             transition: none;
+        }
+        .rp-card:hover {
+            transform: none;
         }
     }
 </style>

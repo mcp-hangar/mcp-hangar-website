@@ -24,7 +24,7 @@ the explanations live inside the diagram, in the order the call meets them.
 
 <RequestPath note="Every verdict is deterministic — no scores, no heuristics — and recorded as an attributed governance event.">
 
-<PathStage badge="in" title="Client / agent" summary="A tools/call arrives, carrying a token.">
+<PathStage kicker="Client" title="Client / agent" summary="A tools/call arrives, carrying a token.">
 
 A tool call enters carrying a token. Nothing about it is trusted yet.
 
@@ -87,11 +87,10 @@ the Enforce-mode picture; Audit is the adoption path you start on.
 </PathStage>
 
 <PathStage
-  badge="L4"
-  title="L3/L4 network backstop"
+  kicker="Network · L3/L4"
+  title="The network backstop"
   summary="NetworkPolicy or Cilium — the seam cannot be bypassed."
   denyChip="no backstop: fails closed"
-  dashed
 >
 
 Underneath the L7 seam, the operator compiles the same policy into a
@@ -103,7 +102,7 @@ closed rather than open when the backstop can't be applied.
 
 </PathStage>
 
-<PathStage badge="run" title="Upstream MCP server" summary="Allowed calls are relayed untouched. The upstream owns the work.">
+<PathStage kicker="Upstream" title="Upstream MCP server" summary="Allowed calls are relayed untouched. The upstream owns the work.">
 
 Only an allowed, in-contract call arrives here, relayed untouched. Hangar does
 not run the work — it **relays and governs**. The upstream owns execution.
@@ -111,10 +110,9 @@ not run the work — it **relays and governs**. The upstream owns execution.
 </PathStage>
 
 <PathStage
-  badge="out"
+  kicker="Response"
   title="The return trip"
   summary="Result → redact secrets → audit → client."
-  dashed
 >
 
 The result comes back up the same seam: output is scanned and secret values are
