@@ -1,0 +1,79 @@
+---
+title: "MCP Hangar v2 -- Sixteen Releases, and the Failure Mode That Shaped Them"
+date: 2026-08-16
+author: MCP Hangar Team
+description: "The v2 line went from 2.0.0 to 2.9.0 in sixteen days: HA and storage backends, the front door, event sourcing, Python 3.14. Most of the work came from one recurring failure mode -- a capability wired into a construction path nothing ran -- and from the gates that now make it visible."
+tags: [mcp, mcp-hangar, release, architecture, enforcement, testing, open-source]
+---
+
+The last release post here was v1.6. Since then the `2.x` line went stable and shipped sixteen releases in sixteen days, `2.0.0` on 31 July through `2.9.0` today. This post is the catch-up: what landed, and the one engineering problem that produced a disproportionate share of it.
+
+That problem is worth naming first, because it explains the shape of the rest.
+
+## One failure mode, found repeatedly
+
+Hangar had two ways to build its MCP server. The shipped one is what `serve --http` runs: `server/bootstrap` registers the tools, `server/lifecycle.mcp_app_for_serving` builds the ASGI app. The other was `MCPServerFactory` -- a dependency-injection surface with a fluent builder, its own ASGI assembly, and its own tests.
+
+Nothing in the product ever constructed it.
+
+A second construction path is not itself a defect. What made it expensive is that it looked serviceable, so a capability could be wired into it and appear wired. Four separate features were: the flat tool projection, the governance-extension advertisement, the transport-security allowlist, the task-relay serving surface. Each was registered on the factory, each had a green test, and none of it ran for a single user. They were found one at a time, by hand, over `#592`, `#594`, `#595` and `#596`.
+
+The tell is always the same and it is mechanical: **the tests construct the object under test through a path production does not take.** That is checkable without reading the feature at all.
+
+`2.9.0` retires the factory -- builder, ASGI combiners, `HangarFunctions`, `ServerConfig` and the thirteen `Hangar*Fn` protocols, about 2,700 lines with their tests. The work was not the deletion. It was deciding, per test, whether it asserted real behaviour through a dead constructor -- in which case it moved to the seam `bootstrap` actually uses -- or existed only to exercise the factory. The task-relay kill switch is the clearest case: it covers ADR-014's rollback path and both flag states matter, but it reached them through a constructor no deployment takes, so the switch could have worked in the test and not in production. It now calls the same two wiring functions `bootstrap` calls.
+
+While removing it, one more thing surfaced: the factory's `_register_core_tools` re-registered the `hangar_*` tools with a bare `@mcp.tool()`, without the rate-limit and authorization hooks the shipped `register_all_tools` applies. The uncalled path was also the ungoverned one.
+
+## The same shape, elsewhere
+
+Once the pattern had a name, it was findable in places that had nothing to do with the factory. Each of these is "the mechanism was present, the path to it was not":
+
+- **The approval gate was unreachable** (`2.1.0`). Human-in-the-loop approvals existed, were configurable, and were documented -- and no shipped code path could reach the gate. `2.1.0` wired it, and added a startup check that every subsystem the configuration asks for is reachable *on the path this process took*, so a configured-but-unreachable subsystem is a boot-time error rather than a silent no-op.
+- **Twenty-one of twenty-two `hangar_*` tools authorized nothing** (`2.2.0`). Authorization was implemented per-route in two modules and absent in the rest. The fix was structural: one route-driven chokepoint, plus a ratchet that a defined permission must be enforced.
+- **Digest pinning enforced nothing with auth disabled** (`2.6.0`). Pins were tenant-keyed, the tenant comes from the authenticated principal, and with authentication off every caller is anonymous -- so no pin ever matched. Two changes: pins can now be declared for every caller, and a gateway configured with per-tenant pins and no authentication refuses to start rather than serving an integrity guarantee it cannot keep.
+- **`hangar_load` could never succeed** (`2.9.0`). Hot-loading is on by default; bootstrap handed its resolver a runtime-availability record with every field hardcoded `false` and an empty installer list, so every load answered *"No compatible package found (missing runtime?)"*. There are now `uvx` and `npx` installers, and availability is asked of them rather than declared. `oci` and `mcpb` stay unimplemented and are reported unavailable -- the resolver will not pick a package the next line has no installer for.
+
+None of these were subtle once you looked. They were invisible because nothing asked the question at the boundary where the answer differs.
+
+## What now asks the question
+
+The durable output of this line is not the fixes; it is the set of gates that make the class detectable. All of these run on every pull request:
+
+- **Layering** -- `import-linter` enforces the hexagon (shared kernel, domain, application, infrastructure, delivery) instead of review catching it. A port importing its own adapter fails CI.
+- **Dead symbols** -- a baseline of public symbols nothing references, which may only shrink. Five defects in one month were code that could not run; each had been found by accident.
+- **Decision-path coverage** -- per-module branch-coverage floors, measured on a pinned selection so the number is reproducible, rather than one global percentage.
+- **Complexity** -- `C901` caps new code, with the pre-existing offenders carried as an explicit, shrinking list.
+- **The interpreter matrix** -- `3.11` through `3.14`, all required. `3.14` used to run only at release time and only advisorily; it now blocks a merge, and the published image runs it.
+- **The examples** -- CI now brings the compose examples up and asserts they become *healthy*, not merely running. Its first run found two config files that were never committed, because a bare `config.yaml` in `.gitignore` matches at any depth.
+
+That last one is representative. `examples/**` had no CI, and the first thing a new user runs had four defects in it: the gateway refused to start on a wildcard bind with no authentication (correct refusal, missing flag), the mounted config was never read because nothing set `MCP_CONFIG`, the healthcheck shelled out to `curl` which the `python:3.14-slim` image does not carry, and it asked for `/health`, which is a 404 on a gateway that serves `/health/live`, `/health/ready` and `/health/startup`.
+
+## The rest of the line
+
+Not all of it was correction. Also in `2.x`:
+
+- **Storage and coordination** (`2.5.0`) -- select a backend and Hangar runs as a replica set; nothing changes until you do. A `coordination:` block without a `persistence.backend` is refused at load rather than silently degrading.
+- **The front door** (`2.6.0`) -- a `front_door` gateway serves each caller the management surface its identity allows, and says why when that surface is empty rather than projecting zero tools in silence.
+- **Event sourcing, actually wired** (`2.3.0`, `2.4.0`) -- domain events are persisted at every drain point, events stored but not delivered are delivered on the next start, and a server that was degraded before a restart comes back degraded. Two CI gates guard the seams: handlers must not mutate the event they receive, and an event whose handler nothing feeds fails the build.
+- **Authorization surface** (`2.2.x`) -- one chokepoint, tenant-scoped approvals, and `policy:write` separated from `mcp_servers:write` so the operator's channel is its own permission.
+- **SSRF at connect time** (`2.5.x`) -- the endpoint check re-resolves at connection rather than trusting registration, and survives a redirect.
+- **Python 3.14** (`2.8.0`) -- a required CI citizen, and the interpreter in the published image. `pip install` still supports 3.11 through 3.14.
+
+## Upgrading
+
+`2.x` upgrades are drop-in for the gateway itself; the [upgrade guide](/docs/upgrade) carries a section per release. The ones most likely to touch you:
+
+- **`2.5.0`** -- nothing changes until you select a storage backend.
+- **`2.6.0`** -- three things to check before rolling out, including the digest-pinning precondition above.
+- **`2.9.0`** -- if you embedded Hangar through `MCPServerFactory`, there is no drop-in replacement, deliberately: the factory was never how the product ran. Drive the gateway, or use the same composition root the CLI does.
+
+The removals in `2.8.0` and `2.9.0` are all symbols that had no production caller, which is why they are minor releases with an upgrade note rather than a major.
+
+## Get it
+
+```bash
+pip install --upgrade mcp-hangar            # or: ghcr.io/mcp-hangar/mcp-hangar:2.9.0
+helm repo update && helm upgrade mcp-hangar mcp-hangar/mcp-hangar   # chart 0.15.2
+```
+
+As always, everything is MIT and self-hosted -- no SaaS.
