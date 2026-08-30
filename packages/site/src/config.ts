@@ -11,7 +11,7 @@
  * a Learn page reads "Since X" or "Landing in X" (see lib/version-badge), and
  * a candidate for X is not X.
  */
-export const VERSION = "2.16.0";
+export const VERSION = "2.17.0";
 
 /** Version prefixed with a leading "v", e.g. "v1.4.0". */
 export const VERSION_TAG = `v${VERSION}`;
