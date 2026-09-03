@@ -13,7 +13,8 @@
 
 /** The guided spine: Intro -> Core -> Deep, foundations -> enforcement -> async. */
 export const READING_ORDER = [
-    "from-install-to-a-governed-deny", // start here
+    "from-install-to-a-governed-deny-locally", // start here: a laptop, no cluster
+    "from-install-to-a-governed-deny", // the same thing with an operator
     "what-is-a-policy-enforcement-plane",
     "the-request-path",
     "enforcement-plane-vs-api-gateway",
@@ -53,6 +54,10 @@ export interface DocsLink {
  * record is not that.
  */
 export const DEEPER_READING: Record<string, DocsLink[]> = {
+    "from-install-to-a-governed-deny-locally": [
+        { href: "/docs/getting-started/quickstart", label: "Quickstart" },
+        { href: "/docs/reference/cli", label: "CLI reference: mcp-hangar pin" },
+    ],
     "from-install-to-a-governed-deny": [
         { href: "/docs/getting-started/quickstart", label: "Quickstart" },
         { href: "/docs/cookbook/24-egress-policy-language", label: "Cookbook: the egress policy language" },

@@ -1,17 +1,25 @@
 ---
-title: "From install to a governed deny in 10 minutes"
-description: "Install the operator, apply a policy, and watch the same call go from allowed to denied."
+title: "From install to a governed deny with an operator and a cluster"
+description: "Install the operator into a Kubernetes cluster, apply a policy, and watch the same call go from allowed to denied."
 section: tutorials
 updated: 2026-07-22
 tags: [tutorial, enforcement, egress-policy, operator, adr-013]
 type: Tutorial
 level: Intro
-time: "10 min"
+time: "30 min"
 theme: foundations
 since: "1.6.0"
 ---
 
 import Callout from '../../components/Callout.astro';
+
+**Before you start:** this walkthrough needs a Kubernetes cluster you can
+`kubectl apply` to, Hangar core already running in it, an `MCPServer` registered,
+and Cilium if any upstream is a hostname rather than an IP. It is the
+cluster-scale version of the story. If you want the same lesson on a laptop in
+five minutes, read [From install to a governed deny in 60 seconds (no
+cluster)](/learn/from-install-to-a-governed-deny-locally) instead -- same
+mechanism, one machine, no operator.
 
 The fastest way to understand an enforcement plane is to watch it change its mind
 about a call you already made. So that is what this does. You will stand up the
