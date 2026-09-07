@@ -18,15 +18,15 @@ const SECTIONS = ["blog", "learn", "security", "docs"] as const;
 const STANDALONE = new Set(["/privacy", "/terms"]);
 
 export function ogPathFor(pagePath: string): string {
-    const p = pagePath.replace(/\/+$/, "") || "/";
+  const p = pagePath.replace(/\/+$/, "") || "/";
 
-    if (p === "/") return "/og/home.png";
-    if (STANDALONE.has(p)) return `/og${p}.png`;
+  if (p === "/") return "/og/home.png";
+  if (STANDALONE.has(p)) return `/og${p}.png`;
 
-    for (const section of SECTIONS) {
-        if (p === `/${section}`) return `/og/${section}.png`;
-        if (p.startsWith(`/${section}/`)) return `/og${p}.png`;
-    }
+  for (const section of SECTIONS) {
+    if (p === `/${section}`) return `/og/${section}.png`;
+    if (p.startsWith(`/${section}/`)) return `/og${p}.png`;
+  }
 
-    return OG_FALLBACK;
+  return OG_FALLBACK;
 }

@@ -21,3 +21,8 @@ INSTALL_SCRIPT_FIX.md
 # Astro outputs
 packages/*/dist/
 packages/*/.astro/
+
+# Package manager and test outputs
+.pnpm-store/
+**/playwright-report/
+**/test-results/

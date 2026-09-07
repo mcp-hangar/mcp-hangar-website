@@ -1,4 +1,4 @@
-import path from 'node:path';
+import path from "node:path";
 
 /**
  * rehype plugin: rewrite relative `.md` links in docs content into site routes.
@@ -33,17 +33,21 @@ export interface RehypeDocLinksOptions {
 // Matches a leading URI scheme (http:, https:, mailto:, etc.).
 const HAS_SCHEME = /^[a-z][a-z0-9+.-]*:/i;
 
-function rewriteHref(href: string, currentDir: string, validIds?: Set<string>): string | null {
+function rewriteHref(
+  href: string,
+  currentDir: string,
+  validIds?: Set<string>
+): string | null {
   if (!href) return null;
   // Skip absolute / protocol-relative / root-relative / pure-anchor links.
   if (HAS_SCHEME.test(href)) return null;
-  if (href.startsWith('//')) return null;
-  if (href.startsWith('/')) return null;
-  if (href.startsWith('#')) return null;
+  if (href.startsWith("//")) return null;
+  if (href.startsWith("/")) return null;
+  if (href.startsWith("#")) return null;
 
   // Split off any #anchor (and ?query, defensively, kept with the anchor part).
-  const hashIdx = href.indexOf('#');
-  const anchor = hashIdx >= 0 ? href.slice(hashIdx) : '';
+  const hashIdx = href.indexOf("#");
+  const anchor = hashIdx >= 0 ? href.slice(hashIdx) : "";
   const pathPart = hashIdx >= 0 ? href.slice(0, hashIdx) : href;
 
   // Only rewrite links that point at a markdown file.
@@ -51,11 +55,11 @@ function rewriteHref(href: string, currentDir: string, validIds?: Set<string>): 
 
   // Resolve the relative path against the current document's directory.
   // path.posix.join collapses `./`, `../` and same-dir forms.
-  const withoutExt = pathPart.replace(/\.md$/i, '');
+  const withoutExt = pathPart.replace(/\.md$/i, "");
   const resolvedId = path.posix.join(currentDir, withoutExt);
 
   // Guard: never emit a path that escapes the docs root.
-  if (resolvedId.startsWith('..')) return null;
+  if (resolvedId.startsWith("..")) return null;
 
   // If we have the id set and the target isn't a known doc, leave it unchanged.
   if (validIds && !validIds.has(resolvedId)) return null;
@@ -68,14 +72,14 @@ export default function rehypeDocLinks(options: RehypeDocLinksOptions = {}) {
 
   return (tree: HastNode, file: { data?: Record<string, unknown> }) => {
     const currentId = file?.data?.docId;
-    if (typeof currentId !== 'string' || !currentId) return; // can't resolve — leave everything
+    if (typeof currentId !== "string" || !currentId) return; // can't resolve — leave everything
 
     const currentDir = path.posix.dirname(currentId); // '' -> '.', 'guides/X' -> 'guides'
 
     const visit = (node: HastNode) => {
-      if (node.tagName === 'a' && node.properties) {
+      if (node.tagName === "a" && node.properties) {
         const href = node.properties.href;
-        if (typeof href === 'string') {
+        if (typeof href === "string") {
           const next = rewriteHref(href, currentDir, validIds);
           if (next !== null) {
             node.properties.href = next;

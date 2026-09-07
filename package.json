@@ -19,6 +19,26 @@
     "build": "pnpm --filter site build",
     "preview": "pnpm --filter site preview",
     "check": "pnpm --filter site check",
-    "test": "pnpm --filter site test"
+    "test": "pnpm --filter site test",
+    "test:unit": "pnpm --filter site test:unit",
+    "test:build": "pnpm --filter site test:build",
+    "verify": "pnpm lint && pnpm format:check && pnpm check && pnpm test:unit && pnpm build && pnpm test:build && pnpm test:e2e",
+    "lint": "eslint .",
+    "format:check": "prettier --check .",
+    "format": "prettier --write .",
+    "test:e2e": "pnpm --filter site test:e2e"
+  },
+  "packageManager": "pnpm@11.1.3",
+  "engines": {
+    "node": ">=22.22.3 <23"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.10.0",
+    "eslint-plugin-astro": "^3.1.0",
+    "eslint-plugin-yml": "^3.8.1",
+    "prettier": "^3.9.6",
+    "prettier-plugin-astro": "^0.14.1",
+    "typescript-eslint": "^8.69.0"
   }
 }

@@ -57,31 +57,31 @@ interface SectionDef {
  * order. `Operations` intentionally gathers several sibling directories.
  */
 const SECTIONS: SectionDef[] = [
-  { title: 'Getting Started', prefixes: ['getting-started'] },
-  { title: 'Guides', prefixes: ['guides'] },
-  { title: 'Cookbook', prefixes: ['cookbook'] },
-  { title: 'Reference', prefixes: ['reference'] },
-  { title: 'Architecture', prefixes: ['architecture'] },
+  { title: "Getting Started", prefixes: ["getting-started"] },
+  { title: "Guides", prefixes: ["guides"] },
+  { title: "Cookbook", prefixes: ["cookbook"] },
+  { title: "Reference", prefixes: ["reference"] },
+  { title: "Architecture", prefixes: ["architecture"] },
   {
-    title: 'Operations',
+    title: "Operations",
     prefixes: [
-      'operations',
-      'observability',
-      'integrations',
-      'runbooks',
-      'security',
-      'upgrade',
-      'changelog',
+      "operations",
+      "observability",
+      "integrations",
+      "runbooks",
+      "security",
+      "upgrade",
+      "changelog",
     ],
   },
-  { title: 'ADRs', prefixes: ['adr'] },
-  { title: 'Development', prefixes: ['development', 'testing'] },
+  { title: "ADRs", prefixes: ["adr"] },
+  { title: "Development", prefixes: ["development", "testing"] },
 ];
 
 /** Pages that are built and reachable by URL but deliberately kept out of the nav. */
 const HIDDEN_IDS = new Set<string>([
-  'code-of-conduct',
-  'CONTRIBUTING', // root duplicate of development/CONTRIBUTING
+  "code-of-conduct",
+  "CONTRIBUTING", // root duplicate of development/CONTRIBUTING
   // Guards the pinned docs tarball, which still carries both changelog files:
   // uppercase `CHANGELOG.md` is release-please's target and the current one,
   // lowercase `changelog` a frozen copy. Both are built and both stay reachable
@@ -92,7 +92,7 @@ const HIDDEN_IDS = new Set<string>([
   // repo, which is dropping the duplicate `CHANGELOG.md` and pointing
   // release-please at the lowercase path; once the pin moves past that commit,
   // this entry matches nothing and can go with it.
-  'CHANGELOG',
+  "CHANGELOG",
 ]);
 
 /**
@@ -101,117 +101,118 @@ const HIDDEN_IDS = new Set<string>([
  */
 const EXPLICIT_ORDER: string[] = [
   // Getting Started
-  'getting-started/quickstart',
-  'getting-started/installation',
+  "getting-started/quickstart",
+  "getting-started/installation",
   // Guides
-  'guides/HTTP_TRANSPORT',
-  'guides/AUTHENTICATION',
-  'guides/FRONT_DOOR',
-  'guides/MCP_SERVER_GROUPS',
-  'guides/DISCOVERY',
-  'guides/KUBERNETES',
-  'guides/CONTAINERS',
-  'guides/OBSERVABILITY',
-  'guides/REST_API',
-  'guides/FACADE_API',
-  'guides/WEBSOCKETS',
-  'guides/LOG_STREAMING',
-  'guides/BATCH_INVOCATIONS',
-  'guides/TESTING',
+  "guides/HTTP_TRANSPORT",
+  "guides/AUTHENTICATION",
+  "guides/FRONT_DOOR",
+  "guides/MCP_SERVER_GROUPS",
+  "guides/DISCOVERY",
+  "guides/KUBERNETES",
+  "guides/CONTAINERS",
+  "guides/OBSERVABILITY",
+  "guides/REST_API",
+  "guides/FACADE_API",
+  "guides/WEBSOCKETS",
+  "guides/LOG_STREAMING",
+  "guides/BATCH_INVOCATIONS",
+  "guides/TESTING",
   // Cookbook (Overview first, then numbered recipes — new ones append in order)
-  'cookbook/index',
+  "cookbook/index",
   // Reference
-  'reference/configuration',
-  'reference/cli',
-  'reference/rest-api',
-  'reference/tools',
-  'reference/hot-reload',
+  "reference/configuration",
+  "reference/cli",
+  "reference/rest-api",
+  "reference/tools",
+  "reference/hot-reload",
   // Architecture
-  'architecture/OVERVIEW',
-  'architecture/EVENT_SOURCING',
-  'architecture/INTERCEPTOR_FRAMEWORK',
+  "architecture/OVERVIEW",
+  "architecture/EVENT_SOURCING",
+  "architecture/INTERCEPTOR_FRAMEWORK",
   // Operations
-  'operations/COMPLIANCE',
-  'observability/otel-integrations',
-  'integrations/openlit-otlp',
-  'runbooks/RELEASE',
-  'security',
-  'security/AUTH_SECURITY_AUDIT',
-  'upgrade',
-  'changelog',
+  "operations/COMPLIANCE",
+  "observability/otel-integrations",
+  "integrations/openlit-otlp",
+  "runbooks/RELEASE",
+  "security",
+  "security/AUTH_SECURITY_AUDIT",
+  "upgrade",
+  "changelog",
   // Development
-  'development/CONTRIBUTING',
-  'development/GIT_FLOW',
-  'development/BRANCH_PROTECTION',
-  'development/PROJECT_BOARD',
-  'development/EPIC_PLAYBOOK',
-  'development/HOTFIX_RUNBOOK',
-  'testing/approval-gate-manual-testing',
+  "development/CONTRIBUTING",
+  "development/GIT_FLOW",
+  "development/BRANCH_PROTECTION",
+  "development/PROJECT_BOARD",
+  "development/EPIC_PLAYBOOK",
+  "development/HOTFIX_RUNBOOK",
+  "testing/approval-gate-manual-testing",
 ];
 
 /** Short, curated sidebar labels. Falls back to `sidebar.label` then title. */
 const LABEL_OVERRIDES: Record<string, string> = {
-  'getting-started/quickstart': 'Quick Start',
-  'getting-started/installation': 'Installation',
-  'guides/HTTP_TRANSPORT': 'HTTP Transport',
-  'guides/AUTHENTICATION': 'Authentication & RBAC',
-  'guides/FRONT_DOOR': 'Front-Door Mode',
-  'guides/MCP_SERVER_GROUPS': 'Server Groups',
-  'guides/DISCOVERY': 'Discovery',
-  'guides/KUBERNETES': 'Kubernetes',
-  'guides/CONTAINERS': 'Containers',
-  'guides/OBSERVABILITY': 'Observability',
-  'guides/REST_API': 'REST API',
-  'guides/FACADE_API': 'Facade API',
-  'guides/WEBSOCKETS': 'WebSockets',
-  'guides/LOG_STREAMING': 'Log Streaming',
-  'guides/BATCH_INVOCATIONS': 'Batch Invocations',
-  'guides/TESTING': 'Testing',
-  'cookbook/index': 'Overview',
-  'reference/configuration': 'Configuration',
-  'reference/cli': 'CLI',
-  'reference/rest-api': 'REST API',
-  'reference/tools': 'MCP Tools',
-  'reference/hot-reload': 'Hot Reload',
-  'architecture/OVERVIEW': 'Overview',
-  'architecture/EVENT_SOURCING': 'Event Sourcing',
-  'architecture/INTERCEPTOR_FRAMEWORK': 'Interceptor Framework',
-  'operations/COMPLIANCE': 'Compliance Export',
-  'observability/otel-integrations': 'OpenTelemetry',
-  'integrations/openlit-otlp': 'OpenLIT OTLP',
-  'runbooks/RELEASE': 'Release Runbook',
-  security: 'Security Policy',
-  'security/AUTH_SECURITY_AUDIT': 'Auth Security Audit',
-  upgrade: 'Upgrade Guide',
-  changelog: 'Changelog',
-  'adr/ADR-001-cqrs': 'ADR-001 CQRS',
-  'adr/ADR-002-event-sourcing': 'ADR-002 Event Sourcing',
-  'adr/ADR-003-sagas': 'ADR-003 Sagas',
-  'adr/ADR-004-sep-1766-digest-pinning': 'ADR-004 Digest Pinning',
-  'adr/ADR-005-sep-1763-interceptor-compliance': 'ADR-005 Interceptor Compliance',
-  'adr/ADR-006-tetragon': 'ADR-006 Tetragon',
-  'adr/ADR-007-langfuse-integration': 'ADR-007 Langfuse',
-  'adr/ADR-008-tasks-relay-only': 'ADR-008 Tasks Relay-Only',
-  'adr/ADR-009-independent-release-topology': 'ADR-009 Release Topology',
-  'adr/ADR-010-retire-agent-cloud-tier': 'ADR-010 Retire Agent/Cloud',
-  'development/CONTRIBUTING': 'Contributing',
-  'development/GIT_FLOW': 'Git Flow',
-  'development/BRANCH_PROTECTION': 'Branch Protection',
-  'development/PROJECT_BOARD': 'Project Board',
-  'development/EPIC_PLAYBOOK': 'Epic Playbook',
-  'development/HOTFIX_RUNBOOK': 'Hotfix Runbook',
-  'testing/approval-gate-manual-testing': 'Approval Gate Testing',
+  "getting-started/quickstart": "Quick Start",
+  "getting-started/installation": "Installation",
+  "guides/HTTP_TRANSPORT": "HTTP Transport",
+  "guides/AUTHENTICATION": "Authentication & RBAC",
+  "guides/FRONT_DOOR": "Front-Door Mode",
+  "guides/MCP_SERVER_GROUPS": "Server Groups",
+  "guides/DISCOVERY": "Discovery",
+  "guides/KUBERNETES": "Kubernetes",
+  "guides/CONTAINERS": "Containers",
+  "guides/OBSERVABILITY": "Observability",
+  "guides/REST_API": "REST API",
+  "guides/FACADE_API": "Facade API",
+  "guides/WEBSOCKETS": "WebSockets",
+  "guides/LOG_STREAMING": "Log Streaming",
+  "guides/BATCH_INVOCATIONS": "Batch Invocations",
+  "guides/TESTING": "Testing",
+  "cookbook/index": "Overview",
+  "reference/configuration": "Configuration",
+  "reference/cli": "CLI",
+  "reference/rest-api": "REST API",
+  "reference/tools": "MCP Tools",
+  "reference/hot-reload": "Hot Reload",
+  "architecture/OVERVIEW": "Overview",
+  "architecture/EVENT_SOURCING": "Event Sourcing",
+  "architecture/INTERCEPTOR_FRAMEWORK": "Interceptor Framework",
+  "operations/COMPLIANCE": "Compliance Export",
+  "observability/otel-integrations": "OpenTelemetry",
+  "integrations/openlit-otlp": "OpenLIT OTLP",
+  "runbooks/RELEASE": "Release Runbook",
+  security: "Security Policy",
+  "security/AUTH_SECURITY_AUDIT": "Auth Security Audit",
+  upgrade: "Upgrade Guide",
+  changelog: "Changelog",
+  "adr/ADR-001-cqrs": "ADR-001 CQRS",
+  "adr/ADR-002-event-sourcing": "ADR-002 Event Sourcing",
+  "adr/ADR-003-sagas": "ADR-003 Sagas",
+  "adr/ADR-004-sep-1766-digest-pinning": "ADR-004 Digest Pinning",
+  "adr/ADR-005-sep-1763-interceptor-compliance":
+    "ADR-005 Interceptor Compliance",
+  "adr/ADR-006-tetragon": "ADR-006 Tetragon",
+  "adr/ADR-007-langfuse-integration": "ADR-007 Langfuse",
+  "adr/ADR-008-tasks-relay-only": "ADR-008 Tasks Relay-Only",
+  "adr/ADR-009-independent-release-topology": "ADR-009 Release Topology",
+  "adr/ADR-010-retire-agent-cloud-tier": "ADR-010 Retire Agent/Cloud",
+  "development/CONTRIBUTING": "Contributing",
+  "development/GIT_FLOW": "Git Flow",
+  "development/BRANCH_PROTECTION": "Branch Protection",
+  "development/PROJECT_BOARD": "Project Board",
+  "development/EPIC_PLAYBOOK": "Epic Playbook",
+  "development/HOTFIX_RUNBOOK": "Hotfix Runbook",
+  "testing/approval-gate-manual-testing": "Approval Gate Testing",
 };
 
 const ORDER_INDEX = new Map(EXPLICIT_ORDER.map((id, i) => [id, i]));
 
 /** Numeric-aware comparison so `cookbook/02` sorts before `cookbook/10`. */
 function naturalCompare(a: string, b: string): number {
-  return a.localeCompare(b, 'en', { numeric: true, sensitivity: 'base' });
+  return a.localeCompare(b, "en", { numeric: true, sensitivity: "base" });
 }
 
 function topSegment(id: string): string {
-  const slash = id.indexOf('/');
+  const slash = id.indexOf("/");
   return slash === -1 ? id : id.slice(0, slash);
 }
 
@@ -220,15 +221,17 @@ function titleCase(segment: string): string {
     .split(/[-_/]/)
     .filter(Boolean)
     .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(' ');
+    .join(" ");
 }
 
 function matchesPrefix(id: string, prefix: string): boolean {
-  return id === prefix || id.startsWith(prefix + '/');
+  return id === prefix || id.startsWith(prefix + "/");
 }
 
 function sectionFor(id: string): number {
-  return SECTIONS.findIndex((s) => s.prefixes.some((p) => matchesPrefix(id, p)));
+  return SECTIONS.findIndex((s) =>
+    s.prefixes.some((p) => matchesPrefix(id, p))
+  );
 }
 
 /**
@@ -243,7 +246,7 @@ function sectionFor(id: string): number {
 function cleanLabel(raw: string): string {
   const tidy = raw
     .trim()
-    .replace(/^\d+\s*[—–-]{1,2}\s*/, '')
+    .replace(/^\d+\s*[—–-]{1,2}\s*/, "")
     .split(/\s+(?:--|[—–])\s+/)[0]
     .trim();
   return tidy || raw.trim();

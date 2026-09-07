@@ -17,18 +17,18 @@
 import { ogPathFor } from "../og/resolve";
 
 export interface ArticleInput {
-    /** Collection id, which is also the last URL segment. */
-    slug: string;
-    title: string;
-    description: string;
-    /** Publication date from frontmatter. */
-    date: Date;
-    /** Revision date, when the post carries one. */
-    updated?: Date;
-    /** Byline from frontmatter. */
-    author: string;
-    /** Absolute site origin, e.g. `https://mcp-hangar.io`. */
-    siteUrl: string;
+  /** Collection id, which is also the last URL segment. */
+  slug: string;
+  title: string;
+  description: string;
+  /** Publication date from frontmatter. */
+  date: Date;
+  /** Revision date, when the post carries one. */
+  updated?: Date;
+  /** Byline from frontmatter. */
+  author: string;
+  /** Absolute site origin, e.g. `https://mcp-hangar.io`. */
+  siteUrl: string;
 }
 
 /**
@@ -44,34 +44,36 @@ const ORGANISATION_BYLINES = new Set(["MCP Hangar Team"]);
 /** Must match the Organization in the site-wide block, or the two disagree. */
 const PUBLISHER_NAME = "MCP Hangar";
 
-export function blogPostingSchema(input: ArticleInput): Record<string, unknown> {
-    const { slug, title, description, date, updated, author, siteUrl } = input;
-    const path = `/blog/${slug}`;
-    const url = `${siteUrl}${path}`;
+export function blogPostingSchema(
+  input: ArticleInput
+): Record<string, unknown> {
+  const { slug, title, description, date, updated, author, siteUrl } = input;
+  const path = `/blog/${slug}`;
+  const url = `${siteUrl}${path}`;
 
-    return {
-        "@context": "https://schema.org",
-        "@type": "BlogPosting",
-        headline: title,
-        description,
-        datePublished: date.toISOString(),
-        // Always present: consumers treat a missing dateModified as unknown
-        // rather than as "same as published".
-        dateModified: (updated ?? date).toISOString(),
-        url,
-        mainEntityOfPage: url,
-        image: `${siteUrl}${ogPathFor(path)}`,
-        author: {
-            "@type": ORGANISATION_BYLINES.has(author) ? "Organization" : "Person",
-            name: author,
-        },
-        publisher: {
-            "@type": "Organization",
-            name: PUBLISHER_NAME,
-            url: siteUrl,
-        },
-        inLanguage: "en",
-    };
+  return {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: title,
+    description,
+    datePublished: date.toISOString(),
+    // Always present: consumers treat a missing dateModified as unknown
+    // rather than as "same as published".
+    dateModified: (updated ?? date).toISOString(),
+    url,
+    mainEntityOfPage: url,
+    image: `${siteUrl}${ogPathFor(path)}`,
+    author: {
+      "@type": ORGANISATION_BYLINES.has(author) ? "Organization" : "Person",
+      name: author,
+    },
+    publisher: {
+      "@type": "Organization",
+      name: PUBLISHER_NAME,
+      url: siteUrl,
+    },
+    inLanguage: "en",
+  };
 }
 
 /**
@@ -83,5 +85,5 @@ export function blogPostingSchema(input: ArticleInput): Record<string, unknown> 
  * character, so consumers see the original text.
  */
 export function toJsonLd(value: unknown): string {
-    return JSON.stringify(value).replace(/</g, "\\u003c");
+  return JSON.stringify(value).replace(/</g, "\\u003c");
 }

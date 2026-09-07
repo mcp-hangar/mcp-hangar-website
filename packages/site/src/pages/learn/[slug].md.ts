@@ -1,12 +1,12 @@
-import type { APIRoute, GetStaticPaths } from 'astro';
-import { getCollection } from 'astro:content';
-import fs from 'node:fs/promises';
-import path from 'node:path';
-import { stripSvg } from '../../lib/strip-svg';
+import type { APIRoute, GetStaticPaths } from "astro";
+import { getCollection } from "astro:content";
+import fs from "node:fs/promises";
+import path from "node:path";
+import { stripSvg } from "../../lib/strip-svg";
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const entries = (await getCollection('learn')).filter(e => !e.data.draft);
-  return entries.map(entry => ({
+  const entries = (await getCollection("learn")).filter((e) => !e.data.draft);
+  return entries.map((entry) => ({
     params: { slug: entry.id },
     props: { entry },
   }));
@@ -33,19 +33,19 @@ export const GET: APIRoute = async ({ props }) => {
 
   // Read original MDX source
   const mdxPath = path.resolve(`src/content/learn/${entry.id}.mdx`);
-  let body = '';
+  let body: string;
   try {
-    const raw = await fs.readFile(mdxPath, 'utf-8');
+    const raw = await fs.readFile(mdxPath, "utf-8");
     // Strip frontmatter
-    const fmEnd = raw.indexOf('---', raw.indexOf('---') + 3);
+    const fmEnd = raw.indexOf("---", raw.indexOf("---") + 3);
     body = fmEnd > 0 ? raw.slice(fmEnd + 3).trim() : raw;
     // Strip import/export statements (MDX-specific) and leading h1 (already in header)
     body = body
-      .replace(/^(import|export)\s+.*$/gm, '')
-      .replace(/^#\s+.+\n*/m, '')
+      .replace(/^(import|export)\s+.*$/gm, "")
+      .replace(/^#\s+.+\n*/m, "")
       .trim();
   } catch {
-    body = entry.body || '';
+    body = entry.body || "";
   }
   // Machines get prose, not diagrams — strip inline SVG from Visual learn pages.
   body = stripSvg(body);
@@ -62,35 +62,37 @@ export const GET: APIRoute = async ({ props }) => {
   // Dropping the tag would drop that name, leaving the markdown a run of
   // unlabelled paragraphs, so it is promoted to a line of prose first.
   body = body
-    .replace(/<([A-Z][A-Za-z0-9]*)\b[^>]*\/>\s*/g, '')
+    .replace(/<([A-Z][A-Za-z0-9]*)\b[^>]*\/>\s*/g, "")
     .replace(/<([A-Z][A-Za-z0-9]*)\b([^>]*)>/g, (_m, _tag, attrs: string) => {
       const title = attrs.match(/\btitle="([^"]*)"/)?.[1];
       const summary = attrs.match(/\bsummary="([^"]*)"/)?.[1];
-      return title ? `\n**${title}.**${summary ? ` ${summary}` : ''}\n` : '';
+      return title ? `\n**${title}.**${summary ? ` ${summary}` : ""}\n` : "";
     })
-    .replace(/<\/([A-Z][A-Za-z0-9]*)\s*>/g, '')
-    .replace(/\n{3,}/g, '\n\n')
+    .replace(/<\/([A-Z][A-Za-z0-9]*)\s*>/g, "")
+    .replace(/\n{3,}/g, "\n\n")
     .trim();
 
-  const tags = entry.data.tags?.length ? `\nTags: ${entry.data.tags.join(', ')}` : '';
-  const updated = entry.data.updated.toISOString().split('T')[0];
+  const tags = entry.data.tags?.length
+    ? `\nTags: ${entry.data.tags.join(", ")}`
+    : "";
+  const updated = entry.data.updated.toISOString().split("T")[0];
 
   const header = [
     `# ${entry.data.title}`,
-    '',
+    "",
     `> ${entry.data.description}`,
-    '',
+    "",
     `Type: ${entry.data.type} | Level: ${entry.data.level} | Time: ${entry.data.time} | Since: ${entry.data.since} | Updated: ${updated}${tags}`,
     `Source: https://mcp-hangar.io/learn/${entry.id}`,
-    '',
-    '---',
-    '',
-  ].join('\n');
+    "",
+    "---",
+    "",
+  ].join("\n");
 
   return new Response(`${header}${body}\n`, {
     headers: {
-      'Content-Type': 'text/markdown; charset=utf-8',
-      'Cache-Control': 'public, max-age=3600',
+      "Content-Type": "text/markdown; charset=utf-8",
+      "Cache-Control": "public, max-age=3600",
     },
   });
 };

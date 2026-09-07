@@ -1,0 +1,15 @@
+node_modules
+**/dist
+**/.astro
+pnpm-lock.yaml
+# Content and presentation are intentionally outside this maintenance pass.
+**/*.md
+**/*.mdx
+**/*.astro
+**/*.css
+public
+packages/site/public
+
+.pnpm-store
+**/playwright-report
+**/test-results

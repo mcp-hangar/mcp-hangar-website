@@ -9,12 +9,12 @@
  * could say "1.6.0" or "2.0.0" and nothing else, so every release after those
  * two either went unlabelled or meant editing the mapping in all four.
  */
-import { VERSION } from '../config';
+import { VERSION } from "../config";
 
 /** The three numbers, and whether anything followed them. */
 function parts(version: string): { numbers: number[]; prerelease: boolean } {
   const [core, ...rest] = version.split(/[-+]/);
-  const numbers = core.split('.').map(part => parseInt(part, 10) || 0);
+  const numbers = core.split(".").map((part) => parseInt(part, 10) || 0);
   // "2.5.0rc1" spells its candidate without a separator; "2.5.0-rc.1" with one.
   const glued = /\d+[a-z]/i.test(core);
   return { numbers, prerelease: rest.length > 0 || glued };
@@ -48,5 +48,7 @@ export function sinceLabel(since: string, released: string = VERSION): string {
 
 /** Newest first — the order the facet chips are offered in. */
 export function sortVersionsDescending(versions: string[]): string[] {
-  return [...versions].sort((x, y) => (x === y ? 0 : isUpcoming(x, y) ? -1 : 1));
+  return [...versions].sort((x, y) =>
+    x === y ? 0 : isUpcoming(x, y) ? -1 : 1
+  );
 }

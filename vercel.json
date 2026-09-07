@@ -1,7 +1,7 @@
 {
-  "buildCommand": "pnpm install && pnpm --filter site build",
+  "buildCommand": "pnpm build",
   "outputDirectory": "packages/site/dist",
-  "installCommand": "pnpm install",
+  "installCommand": "pnpm install --frozen-lockfile",
   "framework": null,
   "cleanUrls": true,
   "trailingSlash": false,
@@ -70,7 +70,12 @@
   "redirects": [
     {
       "source": "/:path*",
-      "has": [{ "type": "host", "value": "www.mcp-hangar.io" }],
+      "has": [
+        {
+          "type": "host",
+          "value": "www.mcp-hangar.io"
+        }
+      ],
       "destination": "https://mcp-hangar.io/:path*",
       "permanent": true
     },

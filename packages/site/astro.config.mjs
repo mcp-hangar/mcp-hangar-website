@@ -1,16 +1,16 @@
-import { defineConfig } from 'astro/config';
-import react from '@astrojs/react';
-import mdx from '@astrojs/mdx';
-import sitemap from '@astrojs/sitemap';
-import tailwindcss from '@tailwindcss/vite';
-import ogGate from './integrations/og-gate.mjs';
-import rehypeMermaidPre from './src/lib/rehype-mermaid-pre.ts';
+import { defineConfig } from "astro/config";
+import react from "@astrojs/react";
+import mdx from "@astrojs/mdx";
+import sitemap from "@astrojs/sitemap";
+import tailwindcss from "@tailwindcss/vite";
+import ogGate from "./integrations/og-gate.mjs";
+import rehypeMermaidPre from "./src/lib/rehype-mermaid-pre.ts";
 
-const SITE_URL = 'https://mcp-hangar.io';
+const SITE_URL = "https://mcp-hangar.io";
 
 export default defineConfig({
   site: SITE_URL,
-  output: 'static',
+  output: "static",
   integrations: [
     react(),
     mdx(),
@@ -26,9 +26,9 @@ export default defineConfig({
       // The OG contact sheet is a build artefact for humans reviewing cards,
       // not content. It is noindex'd too; this keeps it out of the sitemap so
       // the two surfaces don't contradict each other.
-      filter: (page) => !page.startsWith(SITE_URL + '/og-preview'),
+      filter: (page) => !page.startsWith(SITE_URL + "/og-preview"),
       serialize(item) {
-        if (item.url !== SITE_URL + '/') item.url = item.url.replace(/\/$/, '');
+        if (item.url !== SITE_URL + "/") item.url = item.url.replace(/\/$/, "");
         return item;
       },
     }),
@@ -36,13 +36,13 @@ export default defineConfig({
   ],
   markdown: {
     shikiConfig: {
-      theme: 'github-dark',
+      theme: "github-dark",
     },
     // Blog and Learn (.mdx). The docs collection has its own unified pipeline
     // and wires the same plugin itself — see content/loaders/oss-docs.ts.
     rehypePlugins: [rehypeMermaidPre],
   },
   vite: {
-    plugins: [tailwindcss()]
-  }
+    plugins: [tailwindcss()],
+  },
 });

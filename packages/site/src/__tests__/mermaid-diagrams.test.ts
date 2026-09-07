@@ -1,7 +1,7 @@
-import { describe, it, expect, beforeAll } from 'vitest';
-import fs from 'fs';
-import path from 'path';
-import mermaid from 'mermaid';
+import { describe, it, expect, beforeAll } from "vitest";
+import fs from "fs";
+import path from "path";
+import mermaid from "mermaid";
 
 /**
  * Every diagram on the site, parsed by the same library that draws it.
@@ -16,13 +16,13 @@ import mermaid from 'mermaid';
  * browser as diagram containers, and each one must parse.
  */
 
-const DIST = path.join(process.cwd(), 'dist');
+const DIST = path.join(process.cwd(), "dist");
 
 function* htmlFiles(dir: string): Generator<string> {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     const full = path.join(dir, entry.name);
     if (entry.isDirectory()) yield* htmlFiles(full);
-    else if (entry.name.endsWith('.html')) yield full;
+    else if (entry.name.endsWith(".html")) yield full;
   }
 }
 
@@ -37,8 +37,8 @@ const unrendered: string[] = [];
 
 beforeAll(() => {
   for (const file of htmlFiles(DIST)) {
-    const html = fs.readFileSync(file, 'utf-8');
-    if (!html.includes('mermaid')) continue;
+    const html = fs.readFileSync(file, "utf-8");
+    if (!html.includes("mermaid")) continue;
 
     const page = path.relative(DIST, file);
 
@@ -46,21 +46,25 @@ beforeAll(() => {
     // suite exists to catch. Shiki tags the language on the `pre`.
     if (html.includes('data-language="mermaid"')) unrendered.push(page);
 
-    const doc = new DOMParser().parseFromString(html, 'text/html');
-    for (const pre of doc.querySelectorAll('pre.mermaid')) {
-      diagrams.push({ page, source: pre.textContent ?? '' });
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    for (const pre of doc.querySelectorAll("pre.mermaid")) {
+      diagrams.push({ page, source: pre.textContent ?? "" });
     }
   }
 
-  mermaid.initialize({ startOnLoad: false, theme: 'base', securityLevel: 'strict' });
+  mermaid.initialize({
+    startOnLoad: false,
+    theme: "base",
+    securityLevel: "strict",
+  });
 });
 
-describe('Mermaid diagrams', () => {
-  it('reach the browser as diagram containers, never as code blocks', () => {
+describe("Mermaid diagrams", () => {
+  it("reach the browser as diagram containers, never as code blocks", () => {
     expect(unrendered).toEqual([]);
   });
 
-  it('are present on the pages that author them', () => {
+  it("are present on the pages that author them", () => {
     // A floor, not an inventory: the point is that the pipeline is wired at
     // all, so this fails loudly if a plugin gets dropped from either markdown
     // pipeline rather than tracking every page that gains a diagram.
@@ -73,11 +77,11 @@ describe('Mermaid diagrams', () => {
     expect(pages.size).toBeGreaterThanOrEqual(5);
 
     // Both pipelines: the docs collection has its own, separate from Astro's.
-    expect([...pages].some((p) => p.startsWith('docs/'))).toBe(true);
-    expect([...pages].some((p) => p.startsWith('blog/'))).toBe(true);
+    expect([...pages].some((p) => p.startsWith("docs/"))).toBe(true);
+    expect([...pages].some((p) => p.startsWith("blog/"))).toBe(true);
   });
 
-  it('every diagram parses', async () => {
+  it("every diagram parses", async () => {
     const failures: string[] = [];
 
     for (const { page, source } of diagrams) {
