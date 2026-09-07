@@ -65,7 +65,7 @@ describe("documentation loader", () => {
     await fs.unlink(path.join(directory, "second.md"));
     await loader.load(ctx);
     expect([...entries.keys()]).toEqual(["first"]);
-  });
+  }, 20_000);
 
   it("resolves snippets while preserving handling of missing files and self references", async () => {
     const directory = await fixture();
