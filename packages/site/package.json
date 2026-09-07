@@ -10,20 +10,23 @@
     "astro": "astro",
     "check": "astro check",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "test:unit": "vitest run --exclude \"**/build-output.test.ts\" --exclude \"**/blog-jsonld.test.ts\" --exclude \"**/og-cards.test.ts\" --exclude \"**/mermaid-diagrams.test.ts\" --exclude \"**/learn-track.test.ts\"",
+    "test:build": "vitest run src/__tests__/build-output.test.ts src/__tests__/blog-jsonld.test.ts src/__tests__/og-cards.test.ts src/__tests__/mermaid-diagrams.test.ts src/__tests__/learn-track.test.ts",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
-    "@astrojs/mdx": "^7.0.4",
-    "@astrojs/react": "^6.0.1",
+    "@astrojs/mdx": "^7.0.8",
+    "@astrojs/react": "^6.0.5",
     "@astrojs/rss": "^4.0.19",
-    "@astrojs/sitemap": "^3.7.3",
+    "@astrojs/sitemap": "^3.7.4",
     "@fontsource-variable/jetbrains-mono": "^5.3.0",
     "@fontsource-variable/space-grotesk": "^5.3.0",
     "@mcp-hangar/docs": "github:mcp-hangar/docs#main",
     "@shikijs/rehype": "^4.3.1",
     "@tailwindcss/typography": "^0.5.20",
     "@tailwindcss/vite": "^4.3.3",
-    "astro": "^7.1.4",
+    "astro": "^7.3.1",
     "gray-matter": "^4.0.3",
     "mermaid": "^11.15.0",
     "react": "^19.2.8",
@@ -48,6 +51,8 @@
     "fast-glob": "^3.3.3",
     "jsdom": "^30.0.0",
     "satori": "^0.29.0",
-    "vitest": "^4.1.10"
-  }
+    "vitest": "^4.1.10",
+    "@playwright/test": "^1.63.0"
+  },
+  "type": "module"
 }

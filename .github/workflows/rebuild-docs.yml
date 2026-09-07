@@ -28,9 +28,13 @@ on:
 
   # Daily catch-up for docs changes
   schedule:
-    - cron: '0 4 * * *'
+    - cron: "0 4 * * *"
 
-  workflow_dispatch:
+  workflow_dispatch: {}
+
+concurrency:
+  group: update-docs
+  cancel-in-progress: false
 
 permissions:
   contents: write
@@ -44,9 +48,10 @@ env:
 jobs:
   bump-docs:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     steps:
-      - uses: actions/create-github-app-token@v3
+      - uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3
         id: app-token
         if: ${{ env.RELEASE_BOT_APP_ID != '' }}
         with:
@@ -54,19 +59,20 @@ jobs:
           private-key: ${{ secrets.RELEASE_BOT_PRIVATE_KEY }}
 
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           token: ${{ steps.app-token.outputs.token || secrets.GITHUB_TOKEN }}
 
-      - uses: pnpm/action-setup@v6.0.10
-        with:
-          version: 11
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
 
       - name: Use Node.js 22
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
-          node-version: '22'
-          cache: 'pnpm'
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
       # `pnpm update` does NOT re-resolve a github:owner/repo#branch dependency:
       # it treats the existing lockfile entry as satisfying the specifier and
@@ -88,7 +94,7 @@ jobs:
           grep -m1 -A2 "'@mcp-hangar/docs':" pnpm-lock.yaml
 
       - name: Open PR if the docs pin moved
-        uses: peter-evans/create-pull-request@v8
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8
         with:
           token: ${{ steps.app-token.outputs.token || secrets.GITHUB_TOKEN }}
           branch: chore/rebuild-docs-pin

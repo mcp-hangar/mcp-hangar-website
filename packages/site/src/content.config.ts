@@ -1,9 +1,10 @@
-import { defineCollection, z } from 'astro:content';
-import { glob } from 'astro/loaders';
-import { ossDocsLoader } from './content/loaders/oss-docs';
+import { defineCollection } from "astro:content";
+import { z } from "astro/zod";
+import { glob } from "astro/loaders";
+import { ossDocsLoader } from "./content/loaders/oss-docs";
 
 const blog = defineCollection({
-  loader: glob({ pattern: '**/*.mdx', base: './src/content/blog' }),
+  loader: glob({ pattern: "**/*.mdx", base: "./src/content/blog" }),
   schema: z.object({
     title: z.string(),
     description: z.string(),
@@ -27,7 +28,7 @@ const blog = defineCollection({
 });
 
 const learn = defineCollection({
-  loader: glob({ pattern: '**/*.mdx', base: './src/content/learn' }),
+  loader: glob({ pattern: "**/*.mdx", base: "./src/content/learn" }),
   schema: z.object({
     title: z.string(),
     description: z.string(),
@@ -35,10 +36,10 @@ const learn = defineCollection({
     updated: z.coerce.date(),
     tags: z.array(z.string()).optional(),
     // Discovery-first hub facets (see /learn hub).
-    type: z.enum(['Concept', 'Tutorial', 'Why', 'Visual']),
-    level: z.enum(['Intro', 'Core', 'Deep']),
+    type: z.enum(["Concept", "Tutorial", "Why", "Visual"]),
+    level: z.enum(["Intro", "Core", "Deep"]),
     time: z.string(),
-    theme: z.enum(['foundations', 'enforcement', 'async', 'observability']),
+    theme: z.enum(["foundations", "enforcement", "async", "observability"]),
     // The release this page's subject became true in. A version, not a state:
     // whether it reads as "Since" or "Landing in" is decided against the
     // advertised VERSION at render time (see lib/version-badge).
@@ -61,7 +62,7 @@ const learn = defineCollection({
 // reference, so they carry no reading-time, level, or `since` facets. `order`
 // is the listing order on /security, nothing more.
 const security = defineCollection({
-  loader: glob({ pattern: '**/*.mdx', base: './src/content/security' }),
+  loader: glob({ pattern: "**/*.mdx", base: "./src/content/security" }),
   schema: z.object({
     title: z.string(),
     description: z.string(),
@@ -75,10 +76,12 @@ const oss = defineCollection({
   schema: z.object({
     title: z.string(),
     description: z.string().optional(),
-    sidebar: z.object({
-      label: z.string(),
-      order: z.number(),
-    }).optional(),
+    sidebar: z
+      .object({
+        label: z.string(),
+        order: z.number(),
+      })
+      .optional(),
   }),
 });
 

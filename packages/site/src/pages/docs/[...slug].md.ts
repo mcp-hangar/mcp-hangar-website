@@ -1,34 +1,37 @@
-import type { APIRoute, GetStaticPaths } from 'astro';
-import { getCollection } from 'astro:content';
-import { stripSvg } from '../../lib/strip-svg';
+import type { APIRoute, GetStaticPaths } from "astro";
+import { getCollection } from "astro:content";
+import { stripSvg } from "../../lib/strip-svg";
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const docs = await getCollection('oss');
-  return docs.map(doc => ({
+  const docs = await getCollection("oss");
+  return docs.map((doc) => ({
     params: { slug: doc.id },
     props: { doc },
   }));
 };
 
 export const GET: APIRoute = ({ props }) => {
-  const { doc } = props as { doc: { id: string; data: { title: string; description?: string }; body?: string } };
+  const { doc } = props as {
+    doc: {
+      id: string;
+      data: { title: string; description?: string };
+      body?: string;
+    };
+  };
 
   // Strip leading h1 (already captured in data.title) and any inline SVG.
-  const rawBody = stripSvg((doc.body || '').replace(/^#\s+.+\n*/, '').trim());
+  const rawBody = stripSvg((doc.body || "").replace(/^#\s+.+\n*/, "").trim());
 
-  const lines: string[] = [
-    `# ${doc.data.title}`,
-    '',
-  ];
+  const lines: string[] = [`# ${doc.data.title}`, ""];
   if (doc.data.description) {
-    lines.push(`> ${doc.data.description}`, '');
+    lines.push(`> ${doc.data.description}`, "");
   }
-  lines.push(`Source: https://mcp-hangar.io/docs/${doc.id}`, '', '---', '');
+  lines.push(`Source: https://mcp-hangar.io/docs/${doc.id}`, "", "---", "");
 
-  return new Response(lines.join('\n') + rawBody + '\n', {
+  return new Response(lines.join("\n") + rawBody + "\n", {
     headers: {
-      'Content-Type': 'text/markdown; charset=utf-8',
-      'Cache-Control': 'public, max-age=3600',
+      "Content-Type": "text/markdown; charset=utf-8",
+      "Cache-Control": "public, max-age=3600",
     },
   });
 };
