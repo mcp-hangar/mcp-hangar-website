@@ -44,7 +44,7 @@ const articleJsonLd = toJsonLd(
   description={post.data.description} 
   path={`/blog/${post.id}`}
 >
-  <script type="application/ld+json" set:html={articleJsonLd} />
+  <script is:inline type="application/ld+json" set:html={articleJsonLd} />
 
   <main class="max-w-3xl mx-auto px-6 py-16">
     <!-- Back link -->

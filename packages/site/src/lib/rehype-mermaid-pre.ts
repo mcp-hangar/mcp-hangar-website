@@ -42,18 +42,18 @@ interface HastNode {
 function classes(node: HastNode): string[] {
   const raw = node.properties?.className;
   if (Array.isArray(raw)) return raw.map(String);
-  if (typeof raw === 'string') return raw.split(/\s+/);
+  if (typeof raw === "string") return raw.split(/\s+/);
   return [];
 }
 
 function isMermaidCode(code: HastNode): boolean {
-  return classes(code).includes('language-mermaid');
+  return classes(code).includes("language-mermaid");
 }
 
 /** Concatenated text of a subtree. */
 function textOf(node: HastNode): string {
-  if (node.type === 'text') return node.value ?? '';
-  return (node.children ?? []).map(textOf).join('');
+  if (node.type === "text") return node.value ?? "";
+  return (node.children ?? []).map(textOf).join("");
 }
 
 /**
@@ -68,17 +68,17 @@ function textOf(node: HastNode): string {
  */
 function sourceOf(code: HastNode): string {
   const lines = (code.children ?? []).filter(
-    (child) => child.type === 'element' && classes(child).includes('line'),
+    (child) => child.type === "element" && classes(child).includes("line")
   );
-  if (lines.length > 0) return lines.map(textOf).join('\n');
+  if (lines.length > 0) return lines.map(textOf).join("\n");
   return textOf(code);
 }
 
 /** The mermaid `<code>` child of a `<pre>`, if this is a mermaid fence. */
 function mermaidCodeChild(pre: HastNode): HastNode | null {
-  const highlighted = pre.properties?.['dataLanguage'] === 'mermaid';
+  const highlighted = pre.properties?.["dataLanguage"] === "mermaid";
   for (const child of pre.children ?? []) {
-    if (child.type !== 'element' || child.tagName !== 'code') continue;
+    if (child.type !== "element" || child.tagName !== "code") continue;
     if (highlighted || isMermaidCode(child)) return child;
   }
   return null;
@@ -88,13 +88,13 @@ export default function rehypeMermaidPre() {
   return (tree: HastNode) => {
     const visit = (node: HastNode) => {
       for (const child of node.children ?? []) {
-        if (child.type === 'element' && child.tagName === 'pre') {
+        if (child.type === "element" && child.tagName === "pre") {
           const code = mermaidCodeChild(child);
           if (code) {
             // Drop the highlighter's inline background/colour styling with it:
             // the element is about to hold an SVG, not text.
-            child.properties = { className: ['mermaid'] };
-            child.children = [{ type: 'text', value: sourceOf(code) }];
+            child.properties = { className: ["mermaid"] };
+            child.children = [{ type: "text", value: sourceOf(code) }];
             continue; // nothing left inside worth walking
           }
         }

@@ -13,20 +13,14 @@ test("landing, documentation and blog load without browser errors", async ({
   expect(errors).toEqual([]);
 });
 
-test("hydrated code block copies the complete code", async ({
-  page,
-  context,
-}) => {
+test("install command copies the complete code", async ({ page, context }) => {
   await context.grantPermissions(["clipboard-read", "clipboard-write"]);
   await page.goto("/");
-  const block = page
-    .locator("astro-island")
-    .filter({ has: page.getByRole("button", { name: "Copy to clipboard" }) })
-    .first();
-  await expect(block).not.toHaveAttribute("ssr");
-  const code = await block.locator("code").innerText();
-  await block.hover();
-  await block.getByRole("button", { name: "Copy to clipboard" }).click();
+  const button = page.getByRole("button", {
+    name: "Copy pip install command to clipboard",
+  });
+  const code = await button.locator(".start-copy-text").innerText();
+  await button.click();
   await expect
     .poll(() => page.evaluate(() => navigator.clipboard.readText()))
     .toBe(code);

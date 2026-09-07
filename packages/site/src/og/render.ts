@@ -20,19 +20,46 @@ let fonts: SatoriOptions["fonts"] | null = null;
 
 /** Loaded once per build, not once per card. */
 function loadFonts(): SatoriOptions["fonts"] {
-    if (fonts) return fonts;
-    fonts = [
-        { name: "Space Grotesk", data: read("SpaceGrotesk_500Medium.ttf"), weight: 500, style: "normal" },
-        { name: "Space Grotesk", data: read("SpaceGrotesk_700Bold.ttf"), weight: 700, style: "normal" },
-        { name: "JetBrains Mono", data: read("JetBrainsMono_400Regular.ttf"), weight: 400, style: "normal" },
-        { name: "JetBrains Mono", data: read("JetBrainsMono_600SemiBold.ttf"), weight: 600, style: "normal" },
-    ];
-    return fonts;
+  if (fonts) return fonts;
+  fonts = [
+    {
+      name: "Space Grotesk",
+      data: read("SpaceGrotesk_500Medium.ttf"),
+      weight: 500,
+      style: "normal",
+    },
+    {
+      name: "Space Grotesk",
+      data: read("SpaceGrotesk_700Bold.ttf"),
+      weight: 700,
+      style: "normal",
+    },
+    {
+      name: "JetBrains Mono",
+      data: read("JetBrainsMono_400Regular.ttf"),
+      weight: 400,
+      style: "normal",
+    },
+    {
+      name: "JetBrains Mono",
+      data: read("JetBrainsMono_600SemiBold.ttf"),
+      weight: 600,
+      style: "normal",
+    },
+  ];
+  return fonts;
 }
 
 /** Minimal element factory — satori takes React-shaped nodes, and this avoids a JSX runtime. */
-export function h(type: string, style: Record<string, unknown>, ...children: unknown[]): unknown {
-    return { type, props: { style, children: children.length === 1 ? children[0] : children } };
+export function h(
+  type: string,
+  style: Record<string, unknown>,
+  ...children: unknown[]
+): unknown {
+  return {
+    type,
+    props: { style, children: children.length === 1 ? children[0] : children },
+  };
 }
 
 /**
@@ -43,16 +70,16 @@ export function h(type: string, style: Record<string, unknown>, ...children: unk
  * nothing downstream will ever notice it.
  */
 export async function renderCard(tree: unknown): Promise<Buffer> {
-    const svg = await satori(tree as Parameters<typeof satori>[0], {
-        width: CARD.width,
-        height: CARD.height,
-        fonts: loadFonts(),
-    });
-    return new Resvg(svg, {
-        fitTo: { mode: "width", value: CARD.width * CARD.scale },
-    })
-        .render()
-        .asPng();
+  const svg = await satori(tree as Parameters<typeof satori>[0], {
+    width: CARD.width,
+    height: CARD.height,
+    fonts: loadFonts(),
+  });
+  return new Resvg(svg, {
+    fitTo: { mode: "width", value: CARD.width * CARD.scale },
+  })
+    .render()
+    .asPng();
 }
 
 /**
@@ -66,24 +93,24 @@ export async function renderCard(tree: unknown): Promise<Buffer> {
  * titles in docs. Anything past the last tier is truncated at a word boundary.
  */
 const TIERS = [
-    { max: 44, fontSize: 72, lineHeight: 1.1 },
-    { max: 82, fontSize: 58, lineHeight: 1.15 },
-    { max: 105, fontSize: 46, lineHeight: 1.15 },
+  { max: 44, fontSize: 72, lineHeight: 1.1 },
+  { max: 82, fontSize: 58, lineHeight: 1.15 },
+  { max: 105, fontSize: 46, lineHeight: 1.15 },
 ] as const;
 
 /** Cut to `max`, preferring a word boundary, and mark the cut. */
 function truncate(s: string, max: number): string {
-    const cut = s.slice(0, max - 1);
-    const space = cut.lastIndexOf(" ");
-    const kept = space > max * 0.6 ? cut.slice(0, space) : cut;
-    return kept.replace(/[\s,.;:—-]+$/, "") + "…";
+  const cut = s.slice(0, max - 1);
+  const space = cut.lastIndexOf(" ");
+  const kept = space > max * 0.6 ? cut.slice(0, space) : cut;
+  return kept.replace(/[\s,.;:—-]+$/, "") + "…";
 }
 
 export function fitTitle(title: string) {
-    const text = title.trim();
-    for (const tier of TIERS) {
-        if (text.length <= tier.max) return { ...tier, text, truncated: false };
-    }
-    const last = TIERS[TIERS.length - 1];
-    return { ...last, text: truncate(text, last.max), truncated: true };
+  const text = title.trim();
+  for (const tier of TIERS) {
+    if (text.length <= tier.max) return { ...tier, text, truncated: false };
+  }
+  const last = TIERS[TIERS.length - 1];
+  return { ...last, text: truncate(text, last.max), truncated: true };
 }

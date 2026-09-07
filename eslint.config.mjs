@@ -21,10 +21,17 @@ export default tseslint.config(
   ...astro.configs.recommended,
   ...yml.configs["flat/recommended"],
   {
+    files: ["**/*.test.{ts,tsx}"],
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off",
+    },
+  },
+  {
     files: ["**/*.{js,mjs,ts,tsx,astro}"],
     languageOptions: {
       globals: {
         process: "readonly",
+        Buffer: "readonly",
         console: "readonly",
         document: "readonly",
         window: "readonly",
@@ -37,6 +44,10 @@ export default tseslint.config(
       },
     },
     rules: {
+      "@typescript-eslint/no-unused-expressions": [
+        "error",
+        { allowShortCircuit: true, allowTernary: true },
+      ],
       "@typescript-eslint/no-unused-vars": [
         "error",
         { argsIgnorePattern: "^_", caughtErrorsIgnorePattern: "^_" },
