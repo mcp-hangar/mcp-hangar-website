@@ -1,5 +1,5 @@
 ---
-import HangarLogoMark from "./icons/HangarLogoMark.astro";
+import Gate from "./icons/Gate.astro";
 import { LINKS } from "../config";
 
 // Cilium and OPA Gatekeeper do not have a Features tab, and neither do we: the
@@ -25,9 +25,7 @@ const navLinks = [
   >
     <!-- Logo -->
     <a href="/" class="flex items-center gap-2.5 shrink-0">
-      <span class="text-zinc-300">
-        <HangarLogoMark size={24} />
-      </span>
+      <Gate size={24} class="text-zinc-300" />
       <span class="font-semibold text-zinc-100 text-[15px]">mcp-hangar</span>
     </a>
 
