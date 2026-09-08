@@ -1,0 +1,24 @@
+---
+/**
+ * A subject tag on a blog card. One treatment, because a tag on the featured
+ * post and a tag on a grid card are the same object.
+ *
+ * They were two: the featured card drew `text-xs` zinc-500 chips with a border
+ * and a `rounded-md`, the grid drew `text-[11px]` zinc-600 chips with neither.
+ * Both were under the contrast floor on their zinc-800 fill -- about 3.4:1 and
+ * 2.1:1 against a 4.5:1 requirement -- so the second-loudest thing on the card
+ * was also the least readable. Zinc-400 clears it at 6.4:1 and still sits well
+ * below the title and the description in the hierarchy.
+ */
+interface Props {
+    class?: string;
+}
+
+const { class: className = "" } = Astro.props;
+---
+
+<span
+    class={`px-2 py-0.5 text-[11px] rounded-md border border-zinc-700/50 bg-zinc-800/70 text-zinc-400 ${className}`}
+>
+    <slot />
+</span>

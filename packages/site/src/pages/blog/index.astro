@@ -1,6 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import BlogByline from '../../components/BlogByline.astro';
+import Tag from '../../components/Tag.astro';
 import { getCollection } from 'astro:content';
 
 const posts = await getCollection('blog');
@@ -34,9 +35,7 @@ const [featured, ...rest] = sortedPosts;
             {featured.data.tags && (
               <div class="flex flex-wrap gap-2 mt-4">
                 {featured.data.tags.map(tag => (
-                  <span class="px-2 py-0.5 text-xs rounded-md bg-zinc-800/70 text-zinc-500 border border-zinc-700/50">
-                    {tag}
-                  </span>
+                  <Tag>{tag}</Tag>
                 ))}
               </div>
             )}
@@ -64,9 +63,7 @@ const [featured, ...rest] = sortedPosts;
               {post.data.tags && (
                 <div class="flex flex-wrap gap-1.5 mt-3">
                   {post.data.tags.map(tag => (
-                    <span class="px-1.5 py-0.5 text-[11px] rounded bg-zinc-800/70 text-zinc-600">
-                      {tag}
-                    </span>
+                    <Tag>{tag}</Tag>
                   ))}
                 </div>
               )}
