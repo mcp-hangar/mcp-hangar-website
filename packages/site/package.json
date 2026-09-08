@@ -8,6 +8,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
+    "brand:sync": "node scripts/brand-sync.mjs",
     "check": "astro check",
     "test": "vitest run",
     "test:watch": "vitest",
