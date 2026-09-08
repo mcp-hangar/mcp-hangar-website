@@ -106,7 +106,7 @@ It is also designed to compose with the rest of the enforcement plane. An [egres
 can carry a per-tenant tool-schema pin reference (`match.toolSchemaDigestRef`), the
 intent being that "which upstreams, which tool calls" and "which exact tool contract"
 line up at the same chokepoint. Today that field is defined on the CRD, but the L7
-evaluator does not yet consume it -- the pin enforced at invoke is resolved from the
+evaluator does not yet consume it — the pin enforced at invoke is resolved from the
 tool-projection registry, not the egress policy. The pin is not a bolt-on; it is one
 of the fingerprints the deny-by-default seam checks before a call is allowed out.
 

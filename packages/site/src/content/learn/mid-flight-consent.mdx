@@ -1,6 +1,6 @@
 ---
 title: "Mid-flight consent for async tools"
-description: "Governing an input_required task on the SEP-2663 wire -- gated on the client's own tasks/update, recorded and fail-closed."
+description: "Governing an input_required task on the SEP-2663 wire — gated on the client's own tasks/update, recorded and fail-closed."
 type: Concept
 level: Core
 time: "7 min"
@@ -19,19 +19,19 @@ import Callout from '../../components/Callout.astro';
   is the per-deployment rollback.
 
   **This page changed on 2026-07-28.** The gate used to be an interactive
-  elicitation -- Hangar asked your client a question mid-poll. On the SEP-2663
+  elicitation — Hangar asked your client a question mid-poll. On the SEP-2663
   wire it no longer does. See "What changed" below.
 </Callout>
 
 Most governance in Hangar is a verdict, not a conversation. Identity is checked,
-a digest is matched, an egress rule fires -- and the call either proceeds or it
+a digest is matched, an egress rule fires — and the call either proceeds or it
 does not. Nothing waits for a person. That is deliberate: a proxy that pauses to
 find a human on every hard call is a proxy that stops being fast, and stops being
 predictable.
 
 There is exactly one place where that changes. An async task can pause
-*mid-flight* and ask for something -- a confirmation, a missing parameter, a
-yes-or-no before it touches production -- and surface that pause to the client as
+*mid-flight* and ask for something — a confirmation, a missing parameter, a
+yes-or-no before it touches production — and surface that pause to the client as
 an `input_required` status. This is the one spot in the whole stack where
 governance stops enforcing and starts *asking*. The mid-flight consent gate is how
 it asks without ever guessing.
@@ -44,11 +44,11 @@ else, because the contrast is the whole point.
 **Synchronous L7 `requireApproval` fails closed.** When the enforcement plane
 decides a synchronous `tools/call` needs approval, the call is *blocked*. There is
 no guaranteed back-channel at the invocation instant to go find a human, so the
-verdict is a hard, fail-closed deny -- not a hold. It is a gate, not an approval
+verdict is a hard, fail-closed deny — not a hold. It is a gate, not an approval
 queue: nothing prompts a person and waits for them to click yes. The call stops.
 
 **The async gate is different, because the task tells you what it wants.** A task
-in `input_required` is suspended and waiting -- and on the SEP-2663 wire its
+in `input_required` is suspended and waiting — and on the SEP-2663 wire its
 snapshot carries an `inputRequests` map naming exactly what is needed. The client
 answers by driving an inbound `tasks/update` keyed on those names. **That update
 is the consent.** Hangar does not ask; it governs an answer you volunteer.
@@ -65,8 +65,8 @@ worth being precise about it rather than quietly editing it away.
 Hangar used to resolve a pause **interactively**: when `tasks/get` observed
 `input_required` on a `2025-11-25` session, it elicited the downstream client for
 consent over `ctx.session` and opened the gate only on an explicit `accept`.
-Every other branch -- decline, cancel, no elicitation capability, any elicitation
-error -- was a terminal fail-closed denial. That was, genuinely, the only
+Every other branch — decline, cancel, no elicitation capability, any elicitation
+error — was a terminal fail-closed denial. That was, genuinely, the only
 interactive consent flow in the stack.
 
 It belonged to the 2025-11-25 wire, and Hangar no longer serves `tasks/*` on that
@@ -82,7 +82,7 @@ Nothing about the *governance* weakened. What was lost is the prompt.
 The primitive underneath is a presence gate, and the rule is an ordering:
 
 1. The tenant is authorized **first**, structurally above the gate. A foreign
-   tenant is refused before anything opens or relays -- and refused
+   tenant is refused before anything opens or relays — and refused
    indistinguishably from a task that does not exist.
 2. The gate opens **before** your answer reaches the upstream.
 3. The single-use consent is **consumed only after a confirmed relay**.
@@ -97,7 +97,7 @@ An evicted consent slot still fails closed: under TTL pressure the binding is
 failed (`TaskFailed('consent_unavailable')`), because an expired or missing
 consent must never read as an implicit yes.
 
-The acknowledgement to `tasks/update` is **empty** -- `{"resultType":
+The acknowledgement to `tasks/update` is **empty** — `{"resultType":
 "complete"}`. It changes nothing observable by itself; you poll `tasks/get` for
 the state that resulted. Answers naming an input request that was never issued
 are ignored rather than rejected, per the SEP.
@@ -105,8 +105,8 @@ are ignored rather than rejected, per the SEP.
 ## Concurrency, without a double answer
 
 A task under real load is polled more than once. The gate derives a deterministic
-`input_key` from the upstream's pending input request(s) -- stable across
-concurrent polls -- so two clients answering the same pause map to the same gate
+`input_key` from the upstream's pending input request(s) — stable across
+concurrent polls — so two clients answering the same pause map to the same gate
 key and the consent is consumed once. One pause, one recorded decision.
 
 ## Every decision is a recorded line in the chain
@@ -114,7 +114,7 @@ key and the consent is consumed once. One pause, one recorded decision.
 Whichever way it goes, the outcome is written down. Each accept or deny becomes a
 `TaskConsentDecided` event on the task's provenance chain, keyed by `task_id`,
 carrying the `input_key` and attributing the `principal_id` that was prompted. The
-gate itself stays deliberately minimal -- it decides *presence*; the ledger owns
+gate itself stays deliberately minimal — it decides *presence*; the ledger owns
 the event bus and writes the record. Because consent is an *additive* layer (the
 relay is correct without it), it could be built and left dormant, then wired in the
 moment the relay seam went live.
@@ -122,11 +122,11 @@ moment the relay seam went live.
 That is the shape of the whole gate: a decision is taken first, the gate opens
 only on an explicit yes, and every path that isn't an explicit yes terminates the
 task in the safe direction and leaves an attributed governance event behind it. It is
-the one place in Hangar where governance stops and *asks* -- and even there, it
+the one place in Hangar where governance stops and *asks* — and even there, it
 refuses to guess.
 
 ---
 
 *Grounded in [ADR-014](/docs/adr/ADR-014-tasks-relay-with-governance) (relay-with-governance)
 and the mid-flight consent gate. Hangar relays and governs the task an
-upstream owns -- it never runs it. Everything is MIT and self-hosted -- no SaaS.*
+upstream owns — it never runs it. Everything is MIT and self-hosted — no SaaS.*

@@ -1,5 +1,5 @@
 ---
-title: "MCP Hangar v1.1 -- Cost Attribution, Compliance Export, and End-to-End Caller Identity"
+title: "MCP Hangar v1.1 — Cost Attribution, Compliance Export, and End-to-End Caller Identity"
 date: 2026-05-10
 author: MCP Hangar Team
 description: "v1.1 adds per-tool-call cost tracking, SIEM-ready compliance export (Splunk, Datadog, Sentinel), and end-to-end caller identity in every OTEL span."
@@ -7,7 +7,7 @@ description: "v1.1 adds per-tool-call cost tracking, SIEM-ready compliance expor
 
 v1.0 gave you governance. v1.1 gives you the numbers to back it up.
 
-This release closes the observability loop: every tool call now carries cost data, caller identity, and compliance-ready export -- all the way from the agent request to your SIEM dashboard. Here is what shipped and how to use it.
+This release closes the observability loop: every tool call now carries cost data, caller identity, and compliance-ready export — all the way from the agent request to your SIEM dashboard. Here is what shipped and how to use it.
 
 ## Cost attribution: know what each tool call costs
 
@@ -26,7 +26,7 @@ The `DefaultCostAttributor` supports four models:
 | `fixed` | Flat-fee APIs (geocoding, translation) | $0.005 / call |
 | `composite` | Tools that combine multiple cost sources | Token cost + fixed base fee |
 
-Rules match by `mcp_server_id` and `tool_name` with specificity-based precedence -- a rule for `math-server:multiply` overrides a catch-all rule for `math-server:*`.
+Rules match by `mcp_server_id` and `tool_name` with specificity-based precedence — a rule for `math-server:multiply` overrides a catch-all rule for `math-server:*`.
 
 ### Prometheus metrics
 
@@ -63,7 +63,7 @@ When `OTEL_EXPORTER_OTLP_ENDPOINT` is set, cost data flows into every audit span
 | `mcp.cost.output_tokens` | int | Output tokens produced (LLM tools) |
 | `mcp.cost.currency` | string | ISO 4217 code (default: `USD`) |
 
-This means your existing Grafana, OpenLIT, or Datadog setup picks up cost data automatically -- no new integrations needed.
+This means your existing Grafana, OpenLIT, or Datadog setup picks up cost data automatically — no new integrations needed.
 
 Full attribute reference: [OpenTelemetry Integrations](/docs/observability/otel-integrations).
 
@@ -71,7 +71,7 @@ Full attribute reference: [OpenTelemetry Integrations](/docs/observability/otel-
 
 v1.1 ships three compliance exporters in the open-source agent: JSON-lines, LEEF 2.0 (IBM QRadar), and Syslog (RFC 5424). Previously, compliance export was limited to CEF in the enterprise module.
 
-Every `ToolInvocationCompleted`, `ToolInvocationFailed`, and `McpServerStateChanged` event is forwarded to the chosen format in real time. The exporter runs independently of the OTLP audit pipeline -- you can run both in parallel.
+Every `ToolInvocationCompleted`, `ToolInvocationFailed`, and `McpServerStateChanged` event is forwarded to the chosen format in real time. The exporter runs independently of the OTLP audit pipeline — you can run both in parallel.
 
 ### Setup
 
@@ -131,7 +131,7 @@ Three new span attributes carry caller context:
 | `mcp.caller.id` | string | `alice`, `ci-bot-7`, `api-key-prod-3` |
 | `mcp.caller.roles` | string | `admin,mcp_servers:read` |
 
-These are extracted from the event's `identity_context` -- the same data that drives RBAC enforcement -- and attached to every `ToolInvocationCompleted` audit log record exported via OTLP.
+These are extracted from the event's `identity_context` -- the same data that drives RBAC enforcement — and attached to every `ToolInvocationCompleted` audit log record exported via OTLP.
 
 Combined with cost attribution, this means you can answer questions like:
 

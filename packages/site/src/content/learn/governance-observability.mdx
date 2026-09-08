@@ -12,7 +12,7 @@ tags: [observability, opentelemetry, audit, tracing, governance]
 
 A gateway that decides whether a tool call is allowed has to answer a second
 question the moment after: *how do you know it decided that?* An enforcement
-plane you cannot see through is not an enforcement plane -- it is a claim. So
+plane you cannot see through is not an enforcement plane — it is a claim. So
 Hangar treats observability as part of the governance surface, not a bolt-on.
 Every governed call leaves two traces: a live OpenTelemetry span you watch in
 real time, and an audit record attributed to the identity that made the call,
@@ -20,14 +20,14 @@ exported to your telemetry and SIEM backends rather than kept only for the
 lifetime of a trace.
 
 The two surfaces answer different questions. The span answers *what is
-happening right now* -- latency, errors, which upstream, which verdict. The
+happening right now* — latency, errors, which upstream, which verdict. The
 audit record answers *what happened, who did it, and under which contract* --
 the forensic record. They share one spine: the same identity that authorizes
 the call names the span and signs the audit line.
 
 ## Telemetry any OTel backend already understands
 
-Before 1.6.0, Hangar emitted its own `mcp.tool.*` attributes -- correct, but
+Before 1.6.0, Hangar emitted its own `mcp.tool.*` attributes — correct, but
 Hangar-specific, so a GenAI-aware backend needed custom mapping to read them.
 1.6.0 puts tool-invocation telemetry on the OpenTelemetry GenAI/MCP semantic
 conventions. The span is `execute_tool {tool}`, the tool name is
@@ -40,7 +40,7 @@ What semconv has no word for, Hangar keeps in its own namespaces, unchanged and
 deliberate: `mcp.enforcement.*`, `mcp.risk.*`, `mcp.audit.*`, and
 `mcp.session.id`. Governance attributes are set in one pass by
 `set_governance_attributes()`, and `None` values are omitted rather than
-written as empty strings -- so an unattributed call does not pollute the backend
+written as empty strings — so an unattributed call does not pollute the backend
 with blank identity fields. The verdict itself rides the span: `policy_result`
 and `enforcement_action` make every allow, deny, or approval-gated block a
 first-class, queryable attribute.
@@ -107,14 +107,14 @@ environment-variable reference and the exporter wiring for each format.
 ## Deterministic by design
 
 One thing you will not find on a Hangar span or in its audit record is an
-anomaly score. Enforcement is deterministic -- glob-matched tool rules,
-named secret-pattern groups, size limits, digest pins -- so an
+anomaly score. Enforcement is deterministic — glob-matched tool rules,
+named secret-pattern groups, size limits, digest pins — so an
 `enforcement_action` in a trace maps to a rule you can read, and a denied call
 in the audit record says *which* rule denied it. Egress policy is
 audit-by-default, so you watch violations accumulate on the governance
 dashboard before you flip a policy to `Enforce` and it begins to block. And
 because every deterministic verdict fails closed, the record of a block is not
-an alert you have to interpret -- it is a fact you can hand to an auditor.
+an alert you have to interpret — it is a fact you can hand to an auditor.
 
 That is the whole shape of it. The span shows you the call as it happens; the
 audit record names who made it and under what rule; both speak conventions
@@ -125,4 +125,4 @@ worth having.
 
 *Grounded in the 1.6.0 observability release and
 [ADR-013](/docs/adr/ADR-013-egress-policy-enforcement-model) (the egress-policy
-enforcement model). Everything is MIT and self-hosted -- no SaaS.*
+enforcement model). Everything is MIT and self-hosted — no SaaS.*

@@ -1,12 +1,12 @@
 ---
-title: "MCP Hangar v1.5 -- Front-Door Auth End-to-End, Interceptor Invocation, and Task Governance"
+title: "MCP Hangar v1.5 — Front-Door Auth End-to-End, Interceptor Invocation, and Task Governance"
 date: 2026-07-16
 author: MCP Hangar Team
 description: "v1.5 makes OIDC front-door auth work end-to-end over the HTTP server, adds a one-time admin bootstrap, a phase-aware interceptor invocation surface, and task-lifecycle audit events."
 tags: [mcp, mcp-hangar, security, governance, auth, open-source]
 ---
 
-v1.4 shipped the front door -- multi-issuer OIDC trust, resource-bound audiences, per-tenant tool projection. v1.5 makes sure the right callers actually get through it, and gives you two new places to govern the call path: interceptor invocation and task lifecycle.
+v1.4 shipped the front door — multi-issuer OIDC trust, resource-bound audiences, per-tenant tool projection. v1.5 makes sure the right callers actually get through it, and gives you two new places to govern the call path: interceptor invocation and task lifecycle.
 
 Upgrade is drop-in -- `pip install --upgrade mcp-hangar`. Here is what changed.
 
@@ -14,7 +14,7 @@ Upgrade is drop-in -- `pip install --upgrade mcp-hangar`. Here is what changed.
 
 If you enabled `auth.oidc` on the HTTP server before, you may have hit a wall: a valid token still came back `401`, `auth_method: none`. The JWT authenticator matched the `Authorization` header case-sensitively while the HTTP layer normalizes header names to lowercase, so every bearer request fell through the authenticator without ever being evaluated.
 
-v1.5 fixes that. Existing `auth.oidc` config now authenticates bearer tokens over `serve --http` exactly as advertised -- no config change needed. The front door that v1.4 built is now open to the tokens it was designed to accept.
+v1.5 fixes that. Existing `auth.oidc` config now authenticates bearer tokens over `serve --http` exactly as advertised — no config change needed. The front door that v1.4 built is now open to the tokens it was designed to accept.
 
 ```yaml
 auth:
@@ -28,7 +28,7 @@ auth:
         groups_claim: groups
 ```
 
-Unauthenticated calls are denied, tokens from untrusted issuers are rejected, and the Protected Resource Metadata endpoint (RFC 9728) advertises your trusted issuers -- all verified end-to-end against a real identity provider in the release suite.
+Unauthenticated calls are denied, tokens from untrusted issuers are rejected, and the Protected Resource Metadata endpoint (RFC 9728) advertises your trusted issuers — all verified end-to-end against a real identity provider in the release suite.
 
 ## Bootstrap the first administrator
 
@@ -38,7 +38,7 @@ A fresh durable auth store with anonymous access disabled had a chicken-and-egg 
 mcp-hangar auth bootstrap-admin --config config.yaml --principal user:alice@example.com
 ```
 
-It grants the one-time global `admin` role to an existing external (OIDC) principal, using the server's own durable backend -- never an in-memory store. It fails closed when auth is disabled, anonymous access is allowed, or the store is non-durable, and a second run is refused without touching storage. No secret is printed; the grant is a role for an identity you already own, and it is auditable.
+It grants the one-time global `admin` role to an existing external (OIDC) principal, using the server's own durable backend — never an in-memory store. It fails closed when auth is disabled, anonymous access is allowed, or the store is non-durable, and a second run is refused without touching storage. No secret is printed; the grant is a role for an identity you already own, and it is auditable.
 
 ## Interceptor invocation with phase-aware hooks
 
@@ -50,7 +50,7 @@ Long-running work is part of the call path too. v1.5 emits task-lifecycle audit 
 
 ## Smaller, but you will feel them
 
-- **A tool `isError` result is a failure.** A backend MCP result with `isError: true` now counts as a tool failure across per-call results, batch `succeeded`/`failed` counts, health, and `ToolInvocationFailed` events -- so your failure metrics reflect reality instead of counting error payloads as successes.
+- **A tool `isError` result is a failure.** A backend MCP result with `isError: true` now counts as a tool failure across per-call results, batch `succeeded`/`failed` counts, health, and `ToolInvocationFailed` events — so your failure metrics reflect reality instead of counting error payloads as successes.
 - **The SQLite event store fails fast.** If a durable event store cannot initialize, Hangar refuses to start instead of silently degrading to an in-memory store and dropping your audit trail. Opt into the fallback explicitly with `event_store.allow_memory_fallback: true`; `/health/ready` returns 503 if it degraded while a durable driver was configured.
 - **The group circuit breaker stopped over-tripping.** A breaker open on one group member no longer blocks a healthy remaining member from serving.
 - **The command-bus rate limit is configurable** from `config.yaml` instead of a fixed value.
