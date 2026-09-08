@@ -1,0 +1,9 @@
+{
+  "repo": "mcp-hangar/brand",
+  "commit": "5a537aed014bdb16109fbd82bbebe4111e295f64",
+  "vendorDir": "brand",
+  "files": ["generators/hangar_brand/geometry.py", "marks/favicon.svg"],
+  "serves": {
+    "marks/favicon.svg": "public/favicon.svg"
+  }
+}

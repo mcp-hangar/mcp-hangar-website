@@ -27,9 +27,12 @@
     --color-verdict-allow: #10b981;
     --color-verdict-allow-soft: #6ee7b7;
 
-    /* deny — rose-500/300. New to the codebase: there was no red anywhere. */
-    --color-verdict-deny: #f43f5e;
-    --color-verdict-deny-soft: #fda4af;
+    /* deny — the brand's red (#ef4444, `DENY` in the brand repo's geometry.py),
+     * with red-300 beside it so the pair is one hue. It used to be rose-500/300,
+     * which put a second red on screen the moment a page sat next to a generated
+     * brand asset: every status wall closes its gates in #ef4444. */
+    --color-verdict-deny: #ef4444;
+    --color-verdict-deny-soft: #fca5a5;
 
     /* not on by default — opt-in, off, or preview. Amber survives only here. */
     --color-state-optin: #f59e0b;

@@ -19,6 +19,7 @@
     "build": "pnpm --filter site build",
     "preview": "pnpm --filter site preview",
     "check": "pnpm --filter site check",
+    "brand:sync": "pnpm --filter site brand:sync",
     "test": "pnpm --filter site test",
     "test:unit": "pnpm --filter site test:unit",
     "test:build": "pnpm --filter site test:build",

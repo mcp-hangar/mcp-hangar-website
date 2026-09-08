@@ -1,0 +1,96 @@
+---
+/**
+ * The gate, drawn from the brand's own geometry.
+ *
+ * Every number here comes from `mcp-hangar/brand` — `generators/hangar_brand/
+ * geometry.py`, documented in BRAND.md: a 64-unit grid, the arch
+ * `M14 26a18 10 0 0 1 36 0`, pillars from y=26 to y=48, a base from x=14 to
+ * x=50. This file is the site's only copy of those numbers, and it is a copy
+ * on purpose: an inline SVG can inherit `currentColor` and a token, which a
+ * `<img>` pointing at the brand repo cannot.
+ *
+ * The crossbar is the hangar's sliding doors, and it carries meaning: open
+ * doors are neutral or allow, closed doors are deny. That is not decoration.
+ * The mark this component replaces drew a full crossbar on a 24-unit grid of
+ * its own, so the wordmark in the nav and in the footer was a closed gate —
+ * the brand's sign for a refusal — sitting next to the product name.
+ *
+ * Two rules from BRAND.md are enforced here rather than written down and
+ * hoped for:
+ *
+ *   - A green gate is open and a red gate is closed. The other two
+ *     combinations are on the brand's Don'ts list, so they throw at build
+ *     time instead of shipping.
+ *   - At or below 24px the mark switches to the `gate-16` cut: a wider door
+ *     gap (`M14 37h10 M40 37h10`) on a 5.5-unit stroke. That cut is what
+ *     leaves at least two background device pixels in the gap at 16px —
+ *     without it the doors close into a smudge and the mark reads as deny
+ *     again, at the one size where nobody can tell.
+ *
+ * Clear space is 25% of the mark width. This component cannot enforce it: the
+ * space belongs to whatever renders the mark.
+ */
+interface Props {
+    /** Rendered width and height in px. 16 is the brand minimum. */
+    size?: number;
+    /** Neutral marks take `currentColor`; a verdict takes its own token. */
+    tone?: "current" | "allow" | "deny";
+    /** Defaults to the tone: neutral and allow are open, deny is closed. */
+    state?: "open" | "closed";
+    /**
+     * Accessible name. Omit — and the mark is hidden from assistive tech —
+     * when it sits beside a wordmark that already says the same thing.
+     */
+    label?: string;
+    class?: string;
+}
+
+const { size = 24, tone = "current", state, label, class: className } = Astro.props;
+
+const resolved = state ?? (tone === "deny" ? "closed" : "open");
+
+if (tone === "allow" && resolved === "closed") {
+    throw new Error("Gate: a closed green gate is a brand Don't — allow means open doors.");
+}
+if (tone === "deny" && resolved === "open") {
+    throw new Error("Gate: an open red gate is a brand Don't — deny means closed doors.");
+}
+
+/** BRAND.md: use the gate-16 cut at 24px and below, base geometry above it. */
+const small = size <= 24;
+
+const DOORS = {
+    open: small ? "M14 37h10 M40 37h10" : "M14 37h12 M38 37h12",
+    closed: "M14 37h36",
+};
+
+const stroke = small ? 5.5 : 5;
+
+const color = {
+    current: "currentColor",
+    allow: "var(--color-verdict-allow)",
+    deny: "var(--color-verdict-deny)",
+}[tone];
+---
+
+<svg
+    width={size}
+    height={size}
+    viewBox="0 0 64 64"
+    class={className}
+    {...(label ? { role: "img" } : { "aria-hidden": "true" })}
+>
+    {label && <title>{label}</title>}
+    <g
+        fill="none"
+        stroke={color}
+        stroke-width={stroke}
+        stroke-linecap="round"
+        stroke-linejoin="round"
+    >
+        <path d="M14 26a18 10 0 0 1 36 0" />
+        <path d="M14 26v22 M50 26v22" />
+        <path d="M14 48h36" />
+        <path d={DOORS[resolved]} />
+    </g>
+</svg>

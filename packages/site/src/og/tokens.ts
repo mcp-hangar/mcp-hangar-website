@@ -14,8 +14,8 @@
 export const VERDICT = {
   allow: "#10b981",
   allowSoft: "#6ee7b7",
-  deny: "#f43f5e",
-  denySoft: "#fda4af",
+  deny: "#ef4444",
+  denySoft: "#fca5a5",
   optin: "#f59e0b",
   optinSoft: "#fcd34d",
 } as const;
