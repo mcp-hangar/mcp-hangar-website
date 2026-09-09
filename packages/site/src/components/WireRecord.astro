@@ -24,7 +24,9 @@ interface Props {
 const { time, caller, method, target, verdict, code, class: className = "" } = Astro.props;
 ---
 
-<div class={`overflow-x-auto ${className}`}>
+<!-- `min-w-0` so the scroll container can actually be narrower than the record
+     inside it when this sits in a flex or grid cell. See PolicySnippet. -->
+<div class={`min-w-0 overflow-x-auto ${className}`}>
     <div
         class="inline-flex min-w-full items-center gap-3 whitespace-nowrap rounded-lg border border-zinc-800 bg-zinc-950/60 px-4 py-3 font-mono text-sm"
     >

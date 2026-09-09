@@ -49,7 +49,7 @@ import SectionHeader from "../SectionHeader.astro";
 
   <div class="grid gap-5 md:grid-cols-2">
     <!-- 1 · authz + approvals -->
-    <article class="rounded-3xl border border-zinc-800/60 bg-zinc-900/30 p-7 md:p-8 flex flex-col">
+    <article class="min-w-0 rounded-3xl border border-zinc-800/60 bg-zinc-900/30 p-7 md:p-8 flex flex-col">
       <h3 class="text-xl font-bold text-zinc-100 mb-2">Govern who calls what</h3>
       <p class="text-zinc-400 mb-5">
         Expose only the tools a caller should see, and hold the dangerous ones for a
@@ -57,7 +57,10 @@ import SectionHeader from "../SectionHeader.astro";
         against the identity that triggered them.
       </p>
       <PolicySnippet filename="config.yaml" code={toolAccess} class="mb-5" />
-      <div class="mt-auto flex items-center justify-between gap-4 pt-2">
+      <!-- `flex-wrap`: the gate strip and the link do not fit side by side on a
+           narrow phone, and the link is `whitespace-nowrap`, so without this the
+           card grew past the viewport and took the page with it. -->
+      <div class="mt-auto flex flex-wrap items-center justify-between gap-4 pt-2">
         <PipelineMotif size="mini" gates={["a", "f"]} />
         <a href="/learn/what-is-a-policy-enforcement-plane" class="text-sm font-semibold text-zinc-300 hover:text-zinc-100 transition-colors whitespace-nowrap">
           The gates &rarr;
@@ -66,7 +69,7 @@ import SectionHeader from "../SectionHeader.astro";
     </article>
 
     <!-- 2 · tool-schema digest pinning -->
-    <article class="rounded-3xl border border-zinc-800/60 bg-zinc-900/30 p-7 md:p-8 flex flex-col">
+    <article class="min-w-0 rounded-3xl border border-zinc-800/60 bg-zinc-900/30 p-7 md:p-8 flex flex-col">
       <h3 class="text-xl font-bold text-zinc-100 mb-2">Pin what tools claim to be</h3>
       <p class="text-zinc-400 mb-5">
         A tool's <em>schema</em> — its name, description and input/output shape — is
@@ -79,7 +82,10 @@ import SectionHeader from "../SectionHeader.astro";
         Distinct from container <em>image</em> digest pinning, which the operator does
         separately at admission time.
       </p>
-      <div class="mt-auto flex items-center justify-between gap-4 pt-2">
+      <!-- `flex-wrap`: the gate strip and the link do not fit side by side on a
+           narrow phone, and the link is `whitespace-nowrap`, so without this the
+           card grew past the viewport and took the page with it. -->
+      <div class="mt-auto flex flex-wrap items-center justify-between gap-4 pt-2">
         <PipelineMotif size="mini" gates={["c"]} />
         <a href="/learn/digest-pinning" class="text-sm font-semibold text-zinc-300 hover:text-zinc-100 transition-colors whitespace-nowrap">
           How pinning works &rarr;
@@ -88,8 +94,8 @@ import SectionHeader from "../SectionHeader.astro";
     </article>
 
     <!-- 3 · L7 egress — the flagship, given the width -->
-    <article class="md:col-span-2 rounded-3xl border border-zinc-700/60 bg-zinc-900/50 p-7 md:p-9">
-      <div class="grid gap-7 md:grid-cols-[1.1fr_1fr] md:items-start">
+    <article class="min-w-0 md:col-span-2 rounded-3xl border border-zinc-700/60 bg-zinc-900/50 p-7 md:p-9">
+      <div class="grid gap-7 md:grid-cols-[1.1fr_1fr] md:items-start [&>*]:min-w-0">
         <div>
           <h3 class="text-2xl font-bold text-zinc-100 mb-3">Control where data goes</h3>
           <p class="text-lg text-zinc-400 mb-5">
@@ -115,8 +121,8 @@ import SectionHeader from "../SectionHeader.astro";
     </article>
 
     <!-- 4 · audit -->
-    <article class="md:col-span-2 rounded-3xl border border-zinc-800/60 bg-zinc-900/30 p-7 md:p-8">
-      <div class="grid gap-7 md:grid-cols-[1fr_1.2fr] md:items-center">
+    <article class="min-w-0 md:col-span-2 rounded-3xl border border-zinc-800/60 bg-zinc-900/30 p-7 md:p-8">
+      <div class="grid gap-7 md:grid-cols-[1fr_1.2fr] md:items-center [&>*]:min-w-0">
         <div>
           <h3 class="text-xl font-bold text-zinc-100 mb-2">Prove what happened</h3>
           <p class="text-zinc-400 mb-4">

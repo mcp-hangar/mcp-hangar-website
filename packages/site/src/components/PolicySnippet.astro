@@ -23,7 +23,12 @@ interface Props {
 const { filename, code, lang = "yaml", class: className = "" } = Astro.props;
 ---
 
-<figure class={`rounded-xl border border-zinc-800 bg-zinc-950/60 overflow-hidden ${className}`}>
+<!-- `min-w-0` is not cosmetic. A flex or grid child defaults to
+     `min-width: auto`, which means it refuses to shrink below its content's
+     intrinsic width -- so a snippet dropped into a card made the card as wide
+     as the longest line of YAML, and the page scrolled sideways on a phone
+     while the snippet's own `overflow-x-auto` sat there unused. -->
+<figure class={`min-w-0 rounded-xl border border-zinc-800 bg-zinc-950/60 overflow-hidden ${className}`}>
     <figcaption
         class="flex items-center gap-2 border-b border-zinc-800 px-4 py-2 font-mono text-xs text-zinc-500"
     >
