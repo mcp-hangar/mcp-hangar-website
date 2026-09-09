@@ -27,7 +27,9 @@ import { LINKS, VERSION_TAG } from "../../config";
  * on screen; repeating it costs a word and buys nothing.
  *
  * Under it sits the proof rather than a screenshot of a dashboard: a policy,
- * a call, and the verdict with the code that actually goes on the wire.
+ * a call, and the verdict as the wire carries it. Then the same verdict on a
+ * laptop -- a recording of a real run, not a transcript composed to look like
+ * one, because the page's whole claim is that the verdict is reproducible.
  */
 const policy = `apiVersion: mcp-hangar.io/v1alpha2
 kind: MCPEgressPolicy
@@ -91,7 +93,7 @@ spec:
         method="tools/call"
         target="github.create_issue"
         verdict="deny"
-        code="-32021"
+        code="isError: true"
       />
     </div>
     <p class="text-sm text-zinc-500 text-center mt-5">

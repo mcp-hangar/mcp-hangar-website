@@ -9,7 +9,16 @@
  */
 interface Props {
     verdict: "allow" | "deny";
-    /** The wire code that carries the refusal, e.g. `-32021`. */
+    /**
+     * What the wire actually carries beside the verdict, e.g. `isError: true`.
+     *
+     * Not a JSON-RPC error code: a policy denial does not have one.
+     * `EgressPolicyDeniedError` carries no code, and the flat path answers a
+     * refused call with `CallToolResult(isError=True)` plus the reason as text.
+     * This said `-32021` for a while, which is a real code belonging to
+     * something else entirely -- the Tasks extension's
+     * MISSING_REQUIRED_CLIENT_CAPABILITY.
+     */
     code?: string;
     size?: "sm" | "md";
     class?: string;
