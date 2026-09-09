@@ -17,7 +17,19 @@ jobs:
   add:
     runs-on: ubuntu-latest
     steps:
+      # Minted per run from the release-bot App, not read from a stored
+      # PROJECT_AUTOMATION_TOKEN. The stored one here resolves to empty, and a
+      # stored token is the wrong shape anyway: an installation token lives an
+      # hour, so it cannot be a durable secret. sync-core-version.yml beside
+      # this already mints the same way, with the same org-level secrets.
+      - uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        id: app-token
+        with:
+          app-id: ${{ secrets.RELEASE_BOT_APP_ID }}
+          private-key: ${{ secrets.RELEASE_BOT_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+
       - uses: actions/add-to-project@5afcf98fcd03f1c2f92c3c83f58ae24323cc57fd # v2
         with:
           project-url: https://github.com/orgs/mcp-hangar/projects/${{ vars.PROJECT_NUMBER }}
-          github-token: ${{ secrets.PROJECT_AUTOMATION_TOKEN }}
+          github-token: ${{ steps.app-token.outputs.token }}
