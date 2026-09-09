@@ -10,8 +10,18 @@ overrides:
   yaml: ">=2.8.3 <3"
   # Security overrides for transitive deps (GHSA advisories).
   # Pinned within their existing major to avoid pulling unintended majors.
+  #
+  # Each floor is the first patched version named by the advisory, not the
+  # version that happened to be resolved when the entry was written. The
+  # js-yaml floors here were 3.15.0 and 4.2.0 -- both below the patch, so the
+  # lockfile satisfied the override and stayed vulnerable. An override that
+  # admits the vulnerable version looks like protection and is not.
   undici: ">=7.28.0 <8"
   dompurify: ">=3.4.11 <4"
   "@babel/core": ">=7.29.6 <8"
-  "js-yaml@3": ">=3.15.0 <4"
-  "js-yaml@4": ">=4.2.0 <5"
+  "js-yaml@3": ">=3.15.2 <4"
+  "js-yaml@4": ">=4.3.2 <5"
+  fast-uri: ">=3.1.6 <4"
+  svgo: ">=4.1.0 <5"
+  fflate: ">=0.7.5 <0.9"
+  nanoid: ">=3.3.18 <4"
