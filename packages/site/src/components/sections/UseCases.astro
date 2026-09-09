@@ -39,17 +39,13 @@ spec:
   tools:
     allow: ["payments.get_*"]
     deny: ["payments.refund"]`;
+import SectionHeader from "../SectionHeader.astro";
 ---
 
-<section id="features" class="max-w-6xl mx-auto px-6 pb-32">
-  <div class="max-w-3xl mx-auto text-center mb-14">
-    <h2 class="font-mono text-sm font-semibold text-zinc-500 uppercase tracking-[0.16em] mb-4">
-      What you do with it
-    </h2>
-    <p class="text-4xl font-bold tracking-tight text-zinc-100 text-balance">
-      Four decisions, taken before the call leaves
-    </p>
-  </div>
+<section id="features" class="max-w-6xl mx-auto px-6 pb-24">
+  <SectionHeader eyebrow="What you do with it">
+    Four decisions, taken before the call leaves
+  </SectionHeader>
 
   <div class="grid gap-5 md:grid-cols-2">
     <!-- 1 · authz + approvals -->

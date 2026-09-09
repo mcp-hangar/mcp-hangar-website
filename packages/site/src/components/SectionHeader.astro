@@ -1,0 +1,45 @@
+---
+/**
+ * The header every homepage section opens with: an optional mono eyebrow, the
+ * heading, and an optional lead.
+ *
+ * It is /security's header shape, which is the best-reading page on this site
+ * and the only one that was not centred. Six centred eyebrow/heading/lead
+ * stacks in a row give the eye six starting points for text that then lands in
+ * left-aligned cards underneath, and the measure drifts with every heading's
+ * length. One left edge and a fixed measure is the whole change.
+ *
+ * It also fixes what the hand-rolled versions got wrong. Six sections carried
+ * four different header treatments, and in two of them the semantics were
+ * inverted: `UseCases` marked "What you do with it" as the `<h2>` and
+ * "Four decisions, taken before the call leaves" as a `<p>`, and `Fleet` did
+ * the same with "Since 2.5.0". A screen reader's outline of the homepage
+ * therefore listed the labels and not the headings.
+ *
+ * The lead is a slot rather than a prop because two sections need emphasis
+ * inside it, and one needs two paragraphs. Pass `<p slot="lead">`.
+ */
+interface Props {
+    /** The mono label above the heading. Omit where the heading stands alone. */
+    eyebrow?: string;
+    class?: string;
+}
+
+const { eyebrow, class: className = "" } = Astro.props;
+---
+
+<header class={`max-w-2xl mb-12 ${className}`}>
+    {eyebrow && (
+        <p class="font-mono text-xs font-semibold text-zinc-500 uppercase tracking-[0.16em] mb-3">
+            {eyebrow}
+        </p>
+    )}
+    <h2 class="text-3xl md:text-4xl font-bold tracking-tight text-zinc-100 text-balance">
+        <slot />
+    </h2>
+    {Astro.slots.has("lead") && (
+        <div class="mt-5 space-y-4 text-lg text-zinc-400 leading-relaxed">
+            <slot name="lead" />
+        </div>
+    )}
+</header>

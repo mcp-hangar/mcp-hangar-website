@@ -9,22 +9,18 @@
  * lease-holder, a commit-ordered log. No multi-region, no autoscaling, no
  * zero-downtime promise.
  */
+import SectionHeader from "../SectionHeader.astro";
 ---
 
-<section class="max-w-6xl mx-auto px-6 pb-32">
-  <div class="max-w-3xl mx-auto text-center mb-12">
-    <h2 class="font-mono text-sm font-semibold text-zinc-500 uppercase tracking-[0.16em] mb-4">
-      Since 2.5.0
-    </h2>
-    <p class="text-4xl font-bold tracking-tight text-zinc-100 mb-5 text-balance">
-      Runs as a fleet
-    </p>
-    <p class="text-xl text-zinc-400">
+<section class="max-w-6xl mx-auto px-6 pb-24">
+  <SectionHeader eyebrow="Since 2.5.0">
+    Runs as a fleet
+    <p slot="lead">
       Until 2.5.0 the honest answer to <em>can I run two of them</em> was no — run one
       and make its restart fast. Now a replica set shares one PostgreSQL and agrees
       with itself.
     </p>
-  </div>
+  </SectionHeader>
 
   <div class="grid gap-5 md:grid-cols-3">
     <div class="rounded-2xl border border-zinc-800/60 bg-zinc-900/30 p-6">
