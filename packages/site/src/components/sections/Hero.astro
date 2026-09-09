@@ -46,8 +46,16 @@ metadata:
   name: gh-readonly
 spec:
   mode: Enforce
-  tools:
-    allow: ["github.get_*", "github.list_*"]`;
+  targetRef:
+    kind: MCPServer
+    name: github
+  defaultAction: Deny
+  upstreams:
+    - name: github
+      match:
+        host: api.github.com
+      tools:
+        allow: ["get_*", "list_*"]`;
 ---
 
 <section class="max-w-6xl mx-auto px-6 pt-16 pb-24">

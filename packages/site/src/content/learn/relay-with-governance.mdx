@@ -152,7 +152,7 @@ authorization model — it reused the one that was already load-bearing.
 
 ## The three serving handlers
 
-On 2.0.0, a client follows up on a relayed task through four native
+A client follows up on a relayed task through three native
 `tasks/*` handlers, each fail-closed and upstream-truthful:
 
 | Handler | What it does | The governance in it |
@@ -223,16 +223,26 @@ else. The primitive is a presence gate with a strict rule: it is opened *only*
 after a confirmed downstream `accept`, so there is no pre-decision race in which
 the answer relays ahead of the human's yes.
 
-Every other outcome is terminal and fail-closed. Walk the branches:
+Everything that is not a confirmed answer leaves the gate shut. Walk the
+branches of the inbound `tasks/update`:
 
-- **No elicitation capability negotiated.** There is no back-channel to ask, so
-  the decision is a fail-closed denial before any prompt is shown.
-- **The client declines or cancels.** A real *no* — the task is failed.
-- **The elicitation raises for any reason.** Any error at all is caught and
-  treated as a denial. Ambiguity resolves closed, never open.
+- **The caller never declared the Tasks extension**, or does not own the task.
+  Refused before the gate is touched — an unattributed caller is fail-closed by
+  the same ownership rule the other two handlers use.
+- **The client says nothing.** There is no prompt to decline, because Hangar
+  never asks. A task left in `input_required` stays there; silence is not
+  consent and never becomes one.
+- **The relay of the answer fails upstream.** The gate is discarded *without*
+  being consumed and the call raises `task update relay failed; retry`. This one
+  is deliberately **recoverable**, not terminal: a retry re-drives the same
+  update rather than burning the consent.
 - **The consent entry was evicted** (its bounded, TTL'd slot popped under
   pressure or on expiry). The binding fails closed — an expired or missing
   consent is never read as an implicit yes.
+
+The ordering is the point: the gate opens *before* the payload is relayed and is
+consumed only once the upstream confirms, so there is no window in which the
+answer reaches the upstream without a recorded decision behind it.
 
 "Fail closed" here means one concrete thing: the task is moved to `failed` (a
 best-effort `tasks/cancel` is relayed upstream), and the now-`failed` snapshot is
