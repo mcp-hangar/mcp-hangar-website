@@ -174,7 +174,7 @@ export function homeCard() {
       eyebrow("Policy enforcement plane for MCP on Kubernetes", ZINC[500]),
       title("Every MCP tool call ends in a verdict."),
     ],
-    chip("deny", "-32021")
+    chip("deny", "isError: true")
   );
 }
 

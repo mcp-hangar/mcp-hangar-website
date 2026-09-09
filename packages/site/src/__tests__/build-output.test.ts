@@ -92,7 +92,7 @@ describe("Build Output", () => {
     const html = readDistFile("index.html");
     expect(html).toContain("MCPEgressPolicy"); // the policy
     expect(html).toContain("github.create_issue"); // the call it refuses
-    expect(html).toContain("-32021"); // the code on the wire
+    expect(html).toContain("isError: true"); // what a refused call actually carries
     expect(html).toContain("team-research@corp"); // attributed to a caller
   });
 

@@ -27,19 +27,10 @@ import { LINKS, VERSION_TAG } from "../../config";
  * on screen; repeating it costs a word and buys nothing.
  *
  * Under it sits the proof rather than a screenshot of a dashboard: a policy,
- * a call, and the verdict with the code that actually goes on the wire.
+ * a call, and the verdict as the wire carries it. Then the same verdict on a
+ * laptop -- a recording of a real run, not a transcript composed to look like
+ * one, because the page's whole claim is that the verdict is reproducible.
  */
-/** The same verdict without a cluster: what a laptop prints (#1194). */
-const localDeny = `$ mcp-hangar pin --write          # pin what your servers serve today
-$ # ...the upstream ships a new tool description...
-$ mcp-hangar pin --check
-drift demo.echo
-  pinned:   2970199253016cbceb...
-  serving:  cac088cafdfe089cce...
-
-# and the same call your client already made:
-Tool 'echo' schema does not match its pinned digest`;
-
 const policy = `apiVersion: mcp-hangar.io/v1alpha2
 kind: MCPEgressPolicy
 metadata:
@@ -102,7 +93,7 @@ spec:
         method="tools/call"
         target="github.create_issue"
         verdict="deny"
-        code="-32021"
+        code="isError: true"
       />
     </div>
     <p class="text-sm text-zinc-500 text-center mt-5">
@@ -119,7 +110,22 @@ spec:
     <p class="font-mono text-xs font-semibold text-zinc-500 uppercase tracking-[0.16em] text-center mb-5">
       The same verdict, on a laptop
     </p>
-    <PolicySnippet filename="a tool changed underneath you" code={localDeny} lang="bash" />
+    <figure class="deny-recording rounded-lg border border-zinc-800 overflow-hidden bg-zinc-950">
+      <img
+        class="motion"
+        src="/demo/governed-deny.gif"
+        alt="A terminal: a pinned tool call answers ALLOWED, the server rewrites its tool's description, and the identical call comes back DENIED — Tool 'echo' schema does not match its pinned digest."
+        width="1160"
+        height="300"
+      />
+      <img
+        class="still"
+        src="/demo/governed-deny.png"
+        alt="The same terminal transcript, as a still: the pinned call is allowed, the description changes, the identical call is denied against its pinned digest."
+        width="1160"
+        height="300"
+      />
+    </figure>
     <p class="text-sm text-zinc-500 text-center mt-5">
       No cluster, no operator. A pin is the fingerprint of the tool you approved; when the
       description changes, the call stops —
@@ -129,3 +135,29 @@ spec:
     </p>
   </div>
 </section>
+
+<style>
+  /* The recording runs 20 seconds and loops, which is exactly the moving
+     content WCAG 2.2.2 is about. A reader who has asked for reduced motion
+     gets the last frame instead -- and loses nothing, because the last frame
+     holds the whole transcript. */
+  .deny-recording img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .deny-recording .still {
+    display: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .deny-recording .motion {
+      display: none;
+    }
+
+    .deny-recording .still {
+      display: block;
+    }
+  }
+</style>
