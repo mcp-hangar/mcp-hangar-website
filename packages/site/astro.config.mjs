@@ -5,6 +5,7 @@ import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
 import ogGate from "./integrations/og-gate.mjs";
 import rehypeMermaidPre from "./src/lib/rehype-mermaid-pre.ts";
+import { codeTheme } from "./src/lib/code-theme.ts";
 
 const SITE_URL = "https://mcp-hangar.io";
 
@@ -36,7 +37,7 @@ export default defineConfig({
   ],
   markdown: {
     shikiConfig: {
-      theme: "github-dark",
+      theme: codeTheme,
     },
     // Blog and Learn (.mdx). The docs collection has its own unified pipeline
     // and wires the same plugin itself — see content/loaders/oss-docs.ts.

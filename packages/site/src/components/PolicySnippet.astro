@@ -1,14 +1,14 @@
 ---
 import { Code } from "astro:components";
+import { codeTheme } from "../lib/code-theme";
 
 /**
  * A short policy, shown as a file rather than as a code sample: the filename
  * tab is the point — this is a thing you put in a repo, not a snippet you
  * paste into a console.
  *
- * Highlighting goes through Astro's Shiki with the same `github-dark` theme the
- * docs use (`astro.config.mjs`), so a policy looks identical wherever it
- * appears. Keep these tight — around a dozen lines. If a snippet needs more, it
+ * Highlighting goes through Astro's Shiki with the site's own theme, the same
+ * one the docs use, so a policy looks identical wherever it appears. Keep these tight — around a dozen lines. If a snippet needs more, it
  * is a cookbook recipe, not a card illustration.
  */
 interface Props {
@@ -31,7 +31,7 @@ const { filename, code, lang = "yaml", class: className = "" } = Astro.props;
         {filename}
     </figcaption>
     <div class="policy-snippet overflow-x-auto px-4 py-3 text-sm">
-        <Code code={code.trim()} lang={lang} theme="github-dark" />
+        <Code code={code.trim()} lang={lang} theme={codeTheme} />
     </div>
 </figure>
 

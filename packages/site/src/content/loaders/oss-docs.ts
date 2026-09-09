@@ -14,6 +14,7 @@ import rehypeShiki from "@shikijs/rehype";
 import rehypeStringify from "rehype-stringify";
 import rehypeDocLinks from "../../lib/rehype-doc-links";
 import rehypeMermaidPre from "../../lib/rehype-mermaid-pre";
+import { codeTheme } from "../../lib/code-theme";
 
 async function createMarkdownProcessor(validIds: Set<string>) {
   return unified()
@@ -24,7 +25,7 @@ async function createMarkdownProcessor(validIds: Set<string>) {
     .use(rehypeDocLinks, { validIds })
     .use(rehypeMermaidPre)
     .use(rehypeShiki, {
-      theme: "github-dark",
+      theme: codeTheme,
     })
     .use(rehypeStringify);
 }
