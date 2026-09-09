@@ -1,9 +1,13 @@
 name: Rebuild on Docs Update
 
-# Re-pins the @mcp-hangar/docs lockfile entry to the latest docs commit so a
-# Vercel rebuild ships current docs. pnpm-lock.yaml pins the docs tarball to a
-# specific commit, so a plain empty commit is not enough -- the lockfile itself
-# must move.
+# Re-pins @mcp-hangar/docs to the latest docs commit so a Vercel rebuild ships
+# current docs.
+#
+# The pin lives in packages/site/package.json as an explicit commit SHA, not as
+# `#main`. That is deliberate on both counts. It says which docs commit the site
+# is built against somewhere a person can read it, rather than hiding it in a
+# lockfile entry -- and it is what makes this job work at all, because pnpm
+# re-resolves a github: dependency when its specifier changes and not otherwise.
 #
 # This runs as a PULL REQUEST, not a direct push. `main` is protected (PRs
 # required, `build-and-test` must pass), so the old `git push` to main was
@@ -74,22 +78,39 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # `pnpm update` does NOT re-resolve a github:owner/repo#branch dependency:
-      # it treats the existing lockfile entry as satisfying the specifier and
-      # reports "Already up to date". Dropping the resolved entry first forces a
-      # real resolve, so the `git diff` gate below means what it says.
+      # Nothing here touches pnpm-lock.yaml by hand. The previous version of
+      # this step deleted the resolved entry with two regexes and trusted
+      # `pnpm install --lockfile-only` to put it back; under pnpm 11 that
+      # command answers "Already up to date" and writes nothing, even with
+      # --force, so every run produced a lockfile missing a dependency that
+      # package.json still declared. CI then failed the PR with
+      # ERR_PNPM_OUTDATED_LOCKFILE, which is how #228 sat broken.
+      #
+      # Moving the specifier is what makes pnpm resolve. So the specifier is
+      # what moves.
       - name: Bump @mcp-hangar/docs to latest commit
         run: |
-          python3 - <<'EOF'
-          import re, pathlib
-          p = pathlib.Path("pnpm-lock.yaml")
-          t = p.read_text()
-          t = re.sub(r"\n  '@mcp-hangar/docs@[^\n]*':\n(?:    [^\n]*\n)+", "\n", t)
-          t = re.sub(
-              r"(      '@mcp-hangar/docs':\n        specifier: [^\n]*\n)        version: [^\n]*\n",
-              r"\1", t)
-          p.write_text(t)
-          EOF
+          set -euo pipefail
+          latest=$(git ls-remote https://github.com/mcp-hangar/docs.git main | cut -f1)
+          [ -n "$latest" ] || { echo "could not read docs main"; exit 1; }
+
+          current=$(node -p "require('./packages/site/package.json').dependencies['@mcp-hangar/docs']")
+          echo "current: $current"
+          echo "latest:  github:mcp-hangar/docs#$latest"
+
+          if [ "$current" = "github:mcp-hangar/docs#$latest" ]; then
+            echo "Docs pin is already current."
+            exit 0
+          fi
+
+          node -e "
+            const fs = require('fs');
+            const file = 'packages/site/package.json';
+            const pkg = JSON.parse(fs.readFileSync(file, 'utf8'));
+            pkg.dependencies['@mcp-hangar/docs'] = 'github:mcp-hangar/docs#' + process.argv[1];
+            fs.writeFileSync(file, JSON.stringify(pkg, null, 2) + '\n');
+          " "$latest"
+
           pnpm install --lockfile-only
           grep -m1 -A2 "'@mcp-hangar/docs':" pnpm-lock.yaml
 
@@ -99,12 +120,15 @@ jobs:
           token: ${{ steps.app-token.outputs.token || secrets.GITHUB_TOKEN }}
           branch: chore/rebuild-docs-pin
           delete-branch: true
-          add-paths: pnpm-lock.yaml
+          add-paths: |
+            pnpm-lock.yaml
+            packages/site/package.json
           commit-message: "chore(site): bump docs pin to latest"
           title: "chore(site): bump docs pin to latest"
           body: |
-            Automated by `rebuild-docs` -- re-pins `@mcp-hangar/docs` in `pnpm-lock.yaml`
-            to the latest docs `main` so the deployed site serves current documentation.
+            Automated by `rebuild-docs` -- re-pins `@mcp-hangar/docs` to the latest docs
+            `main` so the deployed site serves current documentation. The pin is the
+            commit SHA in `packages/site/package.json`; `pnpm-lock.yaml` follows it.
 
-            Merging this triggers a Vercel rebuild with the new docs. If `pnpm-lock.yaml`
-            is unchanged the pin was already current and no PR is opened.
+            Merging this triggers a Vercel rebuild with the new docs. If the pin was
+            already current, nothing changes and no PR is opened.
