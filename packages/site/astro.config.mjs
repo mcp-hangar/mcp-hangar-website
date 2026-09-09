@@ -1,5 +1,4 @@
 import { defineConfig } from "astro/config";
-import react from "@astrojs/react";
 import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
@@ -13,7 +12,6 @@ export default defineConfig({
   site: SITE_URL,
   output: "static",
   integrations: [
-    react(),
     mdx(),
     // Strip the trailing slash the sitemap would otherwise emit. This is not
     // cosmetic: vercel.json sets `trailingSlash: false`, so every canonical
