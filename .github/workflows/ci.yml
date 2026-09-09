@@ -47,3 +47,50 @@ jobs:
           path: packages/site/dist/
           retention-days: 7
           if-no-files-found: error
+
+  # The site publishes Kubernetes manifests as copyable examples, and until
+  # 2026-09-09 nothing checked them: both homepage MCPEgressPolicy snippets had
+  # drifted into something `kubectl apply` rejects, while every manifest in the
+  # docs repo stayed correct -- because that repo has had this gate for months
+  # and this one had no gate of the class at all.
+  #
+  # The checker lives in the docs repo beside its siblings rather than being
+  # copied here, and the CRD schema is read from the operator repository. A
+  # copied schema drifts, and a drifted schema approves the wrong thing.
+  manifests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout site
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          path: site
+          persist-credentials: false
+
+      - name: Checkout docs (the checker)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          repository: mcp-hangar/docs
+          path: docs
+          persist-credentials: false
+
+      - name: Checkout operator (the CRD schema)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          repository: mcp-hangar/mcp-hangar-operator
+          path: operator
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: "3.11"
+
+      - name: Check the site's manifests against the operator CRDs
+        run: |
+          pip install --quiet pyyaml
+          python docs/scripts/check_manifests.py \
+            --docs site/packages/site/src \
+            --ext astro,mdx,ts \
+            --operator operator
