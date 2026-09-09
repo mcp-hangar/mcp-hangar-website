@@ -1,14 +1,18 @@
 ---
 import Base from './Base.astro';
 import DocsSidebar from '../components/DocsSidebar.astro';
+import DocsToc from '../components/DocsToc.astro';
+import type { MarkdownHeading } from 'astro';
 
 interface Props {
   title: string;
   description: string;
   path: string;
+  /** Absent on the docs index, which is a listing rather than an article. */
+  headings?: MarkdownHeading[];
 }
 
-const { title, description, path } = Astro.props;
+const { title, description, path, headings } = Astro.props;
 ---
 
 <Base title={title} description={description} path={path}>
@@ -19,7 +23,7 @@ const { title, description, path } = Astro.props;
       <!-- Mobile nav toggle -->
       <button
         id="docs-mobile-toggle"
-        class="lg:hidden fixed bottom-6 right-6 z-50 bg-zinc-700 text-zinc-950 p-3 rounded-full shadow-lg hover:bg-zinc-300 transition-colors"
+        class="lg:hidden fixed bottom-6 right-6 z-50 bg-zinc-100 text-zinc-950 p-3 rounded-full shadow-lg hover:bg-white transition-colors"
         aria-label="Toggle documentation navigation"
       >
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -39,6 +43,8 @@ const { title, description, path } = Astro.props;
       <main class="min-w-0 flex-1 max-w-4xl">
         <slot />
       </main>
+
+      {headings && <DocsToc headings={headings} />}
     </div>
   </div>
 

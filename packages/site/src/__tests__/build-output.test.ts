@@ -414,3 +414,38 @@ describe("Sitemap route integrity", () => {
     expect(missing.map((url) => url.pathname)).toEqual([]);
   });
 });
+
+describe("Documentation section anchors", () => {
+  /** Every built docs article, minus the listing page and the .md mirrors. */
+  const docsPages = [...htmlFiles(path.join(DIST, "docs"))].filter(
+    (file) => path.dirname(file) !== path.join(DIST, "docs")
+  );
+
+  it("builds a meaningful number of docs pages", () => {
+    expect(docsPages.length).toBeGreaterThan(50);
+  });
+
+  // The docs collection runs its own unified pipeline rather than Astro's, and
+  // for a long time that pipeline had no slugger: not one heading across the
+  // documentation carried an `id`, so no section of it could be linked to. The
+  // failure is silent -- the pages build, they read fine, and every deep link
+  // anyone had ever shared pointed at the top of the page.
+  it("gives every docs heading an id", () => {
+    const naked: string[] = [];
+    for (const file of docsPages) {
+      const html = fs.readFileSync(file, "utf-8");
+      const headings = html.match(/<h[23](?![\w-])[^>]*>/g) ?? [];
+      if (headings.some((h) => !/\sid="/.test(h))) {
+        naked.push(path.relative(DIST, file));
+      }
+    }
+    expect(naked).toEqual([]);
+  });
+
+  it("renders a contents rail on pages with sections", () => {
+    const withToc = docsPages.filter((file) =>
+      fs.readFileSync(file, "utf-8").includes("docs-toc")
+    );
+    expect(withToc.length).toBeGreaterThan(docsPages.length * 0.8);
+  });
+});
