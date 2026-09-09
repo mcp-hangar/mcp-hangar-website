@@ -78,6 +78,27 @@ describe("the verdict palette comes from the brand", () => {
   });
 });
 
+describe("the OG card carries the brand's mark", () => {
+  // The card used to draw a green rounded square where the mark goes -- a shape
+  // this brand does not have, on the one asset that represents the site
+  // everywhere a link to it is shared.
+  const templates = read("src/og/templates.ts");
+  const gate = read(lock.vendorDir, "marks/gate-brand.svg");
+
+  it("embeds the vendored mark rather than drawing one", () => {
+    expect(templates).toContain("brand/marks/gate-brand.svg");
+  });
+
+  it("uses the mark the brand painted", () => {
+    expect(gate).toContain(`stroke="${brandConst("BRAND")}"`);
+  });
+
+  it("spells the display lockup at the brand's tracking", () => {
+    // BRAND.md: display tracking is 0.14em.
+    expect(templates).toContain("0.14");
+  });
+});
+
 describe("served brand assets", () => {
   it.each(Object.entries(lock.serves as Record<string, string>))(
     "%s is served byte-for-byte",
