@@ -1,11 +1,14 @@
 ---
+import Button from "./Button.astro";
 import Gate from "./icons/Gate.astro";
 import { LINKS } from "../config";
 ---
 
 <footer class="border-t border-zinc-800/50">
     <div class="max-w-6xl mx-auto px-6 py-16">
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
+        <!-- Three cells, not four: dropping the Product column left the grid a
+             column short, and a 4-column track with 3 things in it is a gap. -->
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-8 mb-12">
             <!-- Brand -->
             <div class="col-span-2 md:col-span-1">
                 <div class="flex items-center gap-2 mb-4">
@@ -15,22 +18,19 @@ import { LINKS } from "../config";
                 <p class="text-sm text-zinc-500 leading-relaxed mb-4">
                     Open-source MCP policy enforcement plane.
                 </p>
-                <a
-                    href={LINKS.ossQuickstart}
-                    class="inline-flex items-center gap-2 px-4 py-2 bg-zinc-700 hover:bg-zinc-300 text-zinc-950 font-semibold rounded-lg transition-all duration-300 hover:-translate-y-0.5 text-sm"
-                >
+                <!-- The shared button, not a fourth hand-rolled one. This was
+                     zinc-950 text on a zinc-700 fill -- black on dark grey, about
+                     2:1 -- and its hover state was the light fill the resting
+                     state should have had. -->
+                <Button href={LINKS.ossQuickstart} variant="secondary" size="sm">
                     Install
-                </a>
+                </Button>
             </div>
 
-            <!-- Product -->
-            <div>
-                <h4 class="text-sm font-semibold text-zinc-300 mb-4">Product</h4>
-                <ul class="space-y-2 text-sm">
-                    <li><a href="/#features" class="text-zinc-500 hover:text-zinc-300 transition-colors duration-300">Features</a></li>
-                </ul>
-            </div>
-
+            <!-- No Product column. It held one link, to the /#features anchor,
+                 which is the reason the nav does not carry a Features tab either:
+                 the nav names places, and "what it does" is the page you are
+                 already on. A heading over a single anchor is not a place. -->
             <!-- Documentation -->
             <div>
                 <h4 class="text-sm font-semibold text-zinc-300 mb-4">Documentation</h4>
@@ -58,7 +58,7 @@ import { LINKS } from "../config";
             </div>
         </div>
 
-        <div class="pt-8 border-t border-zinc-800/50 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-zinc-600">
+        <div class="pt-8 border-t border-zinc-800/50 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-zinc-500">
             <span>&copy; 2026 MCP Hangar. Released under the MIT License.</span>
             <div class="flex items-center gap-4">
                 <a href="/privacy" class="hover:text-zinc-400 transition-colors">Privacy Policy</a>

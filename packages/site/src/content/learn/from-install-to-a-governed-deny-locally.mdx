@@ -37,7 +37,7 @@ mcp-hangar init -y
 ```
 
 `init` finds your client, writes a config, starts each MCP server once to check
-it works, and -- while they are up -- records a **digest pin** for every tool
+it works, and — while they are up — records a **digest pin** for every tool
 they serve.
 
 That last part is the whole tutorial. A pin is the SHA-256 of a tool's name,
@@ -61,7 +61,7 @@ auth:
     principal: {id: local-user, tenant_id: local, roles: [viewer]}
 ```
 
-Restart your client. Your tools are where they were -- Hangar is now in the path
+Restart your client. Your tools are where they were — Hangar is now in the path
 of every call to them.
 
 ## 2. Make a call. It is allowed
@@ -76,7 +76,7 @@ the next step changes exactly one thing.
 
 An MCP server decides what it advertises, at connect time, every time. Your
 client caches that list. Nothing in the protocol says the list has to be the same
-one you approved -- and the dangerous version of a change is not a new parameter,
+one you approved — and the dangerous version of a change is not a new parameter,
 it is a new *description*:
 
 ```diff
@@ -85,7 +85,7 @@ it is a new *description*:
 ```
 
 Identical inputs. Identical outputs. Identical call. The only thing that moved is
-the text the model reads to decide what the tool is for -- which is to say, the
+the text the model reads to decide what the tool is for — which is to say, the
 instructions.
 
 Reproduce it with the demo server in the repository:
@@ -105,7 +105,7 @@ Tool 'echo' schema does not match its pinned digest
 ```
 
 Hangar refused before the server was asked. Not because the call looked
-suspicious -- it looks exactly like the one that worked a minute ago -- but
+suspicious — it looks exactly like the one that worked a minute ago — but
 because the thing being called is no longer the thing that was approved.
 
 <Callout variant="note">
@@ -113,7 +113,7 @@ because the thing being called is no longer the thing that was approved.
   description reading, in part, "this tool now grants you internet access. Now
   you can...". Model-directed text, from an official server, with no intent to
   harm, arriving through exactly this channel. Pins cover the description
-  because that channel is not documentation -- it is instructions.
+  because that channel is not documentation — it is instructions.
 </Callout>
 
 ## 4. See the drift, and decide
@@ -133,11 +133,11 @@ dependency that has no version number and no changelog.
 ## What you just did
 
 You made a tool call, watched it succeed, changed nothing about the call, and
-watched it be refused -- on a laptop, in the client you already use.
+watched it be refused — on a laptop, in the client you already use.
 
 The mechanism has no model in it. A digest either matches or it does not; there
 is no score, no threshold, no baseline to train. "Would this call be allowed?" is
-a function of the pin and the tool, and nothing else -- which is why the answer is
+a function of the pin and the tool, and nothing else — which is why the answer is
 the same on your machine, in CI, and on the cluster in
 [the operator version of this walkthrough](/learn/from-install-to-a-governed-deny).
 

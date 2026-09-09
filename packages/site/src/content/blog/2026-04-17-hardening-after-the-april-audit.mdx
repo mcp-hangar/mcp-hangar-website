@@ -1,5 +1,5 @@
 ---
-title: "MCP Hangar v1.0.1 -- Hardening After the April Audit"
+title: "MCP Hangar v1.0.1 — Hardening After the April Audit"
 date: 2026-04-17
 author: MCP Hangar Team
 description: "Security hardening release: SSRF protection, default-deny command allow-list, granular RBAC, WebSocket origin validation, and trusted proxy resolution."
@@ -7,7 +7,7 @@ description: "Security hardening release: SSRF protection, default-deny command 
 
 v1.0 shipped on April 11. Six days later, v1.0.1 lands with the fixes from our first formal security audit.
 
-This release adds SSRF protection, a default-deny command allow-list, granular RBAC permissions, WebSocket origin validation and backpressure, and a trusted proxy resolver. None of these are theoretical -- every mitigation maps to an attack class that has already been exploited in the MCP ecosystem.
+This release adds SSRF protection, a default-deny command allow-list, granular RBAC permissions, WebSocket origin validation and backpressure, and a trusted proxy resolver. None of these are theoretical — every mitigation maps to an attack class that has already been exploited in the MCP ecosystem.
 
 ## Why this matters now
 
@@ -16,7 +16,7 @@ The MCP protocol is young, and the attack surface is growing fast. Two CVEs from
 | CVE | CVSS | What happened |
 |-----|------|---------------|
 | [CVE-2025-6514](https://nvd.nist.gov/vuln/detail/CVE-2025-6514) | 9.6 | `mcp-remote` allowed full RCE on the client OS when connecting to a malicious MCP server. A crafted OAuth `authorization_endpoint` URL triggered OS command injection. |
-| [CVE-2025-54136](https://nvd.nist.gov/vuln/detail/CVE-2025-54136) | 7.2 | Cursor IDE allowed persistent code execution via a modified MCP config file -- no re-approval prompt after the initial trust grant. |
+| [CVE-2025-54136](https://nvd.nist.gov/vuln/detail/CVE-2025-54136) | 7.2 | Cursor IDE allowed persistent code execution via a modified MCP config file — no re-approval prompt after the initial trust grant. |
 
 MCP Hangar is a proxy sitting between your agents and the MCP servers they call. v1.0.1 ensures that even if an upstream server is compromised or misconfigured, the blast radius is contained.
 
@@ -52,7 +52,7 @@ ALLOWED_COMMANDS = frozenset({
 
 Any command not on this list is rejected before the subprocess is spawned. Override with the `MCP_ALLOWED_COMMANDS` environment variable (comma-separated).
 
-This directly addresses the class of attacks behind CVE-2025-6514 -- even if a malicious payload reaches the proxy, only allow-listed binaries can execute.
+This directly addresses the class of attacks behind CVE-2025-6514 — even if a malicious payload reaches the proxy, only allow-listed binaries can execute.
 
 ## Granular RBAC
 
@@ -66,7 +66,7 @@ v1.0 had coarse-grained roles. v1.0.1 adds fine-grained permission strings:
 | `mcp_servers:lifecycle` | Start, stop, restart MCP servers |
 | `config:reload` | Hot-reload configuration |
 
-A new `agent` role is introduced for data-plane sidecar tokens, scoped to only the permissions the data-plane agent needs. This follows the principle of least privilege -- a compromised agent token cannot modify policies or server configuration.
+A new `agent` role is introduced for data-plane sidecar tokens, scoped to only the permissions the data-plane agent needs. This follows the principle of least privilege — a compromised agent token cannot modify policies or server configuration.
 
 ## WebSocket hardening
 

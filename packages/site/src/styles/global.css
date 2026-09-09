@@ -85,6 +85,17 @@
   margin-bottom: 0.5rem;
 }
 
+/* @tailwindcss/typography wraps every inline `<code>` in literal backtick
+ * characters via `code::before` and `code::after`. That is its default, and it
+ * is meant for prose that has no other way to mark code — but this site gives
+ * inline code a bordered chip right below, so every docs, learn, security and
+ * blog page was rendering `npx` inside a box, backticks and all. The markup
+ * never showed it: the backticks exist only in CSS. */
+.docs-article code:not(pre code)::before,
+.docs-article code:not(pre code)::after {
+  content: none;
+}
+
 .docs-article code:not(pre code) {
   background: rgba(39, 39, 42, 0.7);
   border: 1px solid rgba(63, 63, 70, 0.4);

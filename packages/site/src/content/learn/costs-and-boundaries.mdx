@@ -79,7 +79,7 @@ these is a decision, not a gap waiting to be filled:
 | an **executor** | It relays the calls and tasks the upstream owns and never runs them — no scheduler, no result store. Governance stays trustworthy because it stays [thin](/learn/relay-with-governance). |
 | an **anomaly detector** | The verdict is deterministic — no ML, no learned baseline, no score to threshold. Behavioural anomaly detection is the one thing still held back from the roadmap, on purpose. |
 | a **DLP engine** | Argument scanning is configured secret patterns plus a payload-size ceiling — not probabilistic content classification. Full DLP is an explicit non-goal. |
-| an **interactive approval queue** | Sync `requireApproval` fails closed -- the call is blocked. The async [mid-flight consent](/learn/mid-flight-consent) gate is fail-closed too, on a decision the client volunteers via `tasks/update`. Nothing in Hangar prompts a person and waits. |
+| an **interactive approval queue** | Sync `requireApproval` fails closed — the call is blocked. The async [mid-flight consent](/learn/mid-flight-consent) gate is fail-closed too, on a decision the client volunteers via `tasks/update`. Nothing in Hangar prompts a person and waits. |
 | a **SaaS** | MIT, self-hosted, no managed tier — ever. There is no hosted Hangar to buy and no account to create. |
 
 Two honest edges belong here too. The interceptor validators and mutators are

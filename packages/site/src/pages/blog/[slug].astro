@@ -1,6 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import BlogByline from '../../components/BlogByline.astro';
+import Tag from '../../components/Tag.astro';
 import { getCollection, render } from 'astro:content';
 import { blogPostingSchema, toJsonLd } from '../../lib/article-jsonld';
 
@@ -58,9 +59,7 @@ const articleJsonLd = toJsonLd(
         {post.data.tags && (
           <div class="flex flex-wrap gap-2 mb-4">
             {post.data.tags.map(tag => (
-              <span class="px-2 py-0.5 text-xs rounded-md bg-zinc-800/40 text-zinc-300 border border-zinc-700/50">
-                {tag}
-              </span>
+              <Tag>{tag}</Tag>
             ))}
           </div>
         )}

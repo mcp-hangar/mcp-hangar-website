@@ -1,6 +1,6 @@
 ---
 title: "Governed async tasks: relay-with-governance, not an executor"
-description: "An MCP task hands the caller a promise the work will finish later. Most gateways either drop that promise on the floor or grow a job runner to keep it. Hangar does neither -- it relays the task and governs its lifecycle at the proxy seam, so every async task_id is a first-class governed object without Hangar ever running a job."
+description: "An MCP task hands the caller a promise the work will finish later. Most gateways either drop that promise on the floor or grow a job runner to keep it. Hangar does neither — it relays the task and governs its lifecycle at the proxy seam, so every async task_id is a first-class governed object without Hangar ever running a job."
 updated: 2026-07-23
 section: concepts
 tags: [concepts, tasks, governance, architecture, async, mcp, adr-014]
@@ -20,19 +20,19 @@ import Callout from '../../components/Callout.astro';
 </Callout>
 
 A synchronous tool call is easy to reason about: the request goes in, the result
-comes back, and every layer that governed the call -- identity, digest pin,
-egress policy, audit -- got its turn on the way through. The call path *is* the
+comes back, and every layer that governed the call — identity, digest pin,
+egress policy, audit — got its turn on the way through. The call path *is* the
 governance path.
 
 An MCP task breaks that. A `tools/call` returns almost immediately, but instead of
 a result the upstream answers it with a *promise*: a `CreateTaskResult` carrying a
-`task_id` and the assurance that the real work -- a long report, a multi-minute
-crawl, a job that needs a human to say yes halfway through -- will finish later. The
+`task_id` and the assurance that the real work — a long report, a multi-minute
+crawl, a job that needs a human to say yes halfway through — will finish later. The
 result arrives on a `tasks/get` you poll minutes or hours after the call that
 started it.
 
 That gap is where a gateway has to make a decision. It is, in our view, the most
-consequential design decision in the whole tasks feature -- and the one it is
+consequential design decision in the whole tasks feature — and the one it is
 easiest to get wrong by reflex. This page is about why Hangar answers it the way
 it does.
 
@@ -53,7 +53,7 @@ promise. A clean refusal beats a dishonest relay.
 **Become the executor.** The maximalist answer: the gateway creates tasks, owns
 a scheduler, stores results, runs a TTL garbage collector, arbitrates
 cancellation races, and bridges a worker thread back onto the main event loop.
-Now the gateway *can* govern everything -- because it is now a job runner, with
+Now the gateway *can* govern everything — because it is now a job runner, with
 every job runner's failure modes, and none of them are governance. This is a
 change of *species*. A proxy that runs your jobs is not a proxy; it is a job
 runner wearing a proxy's name.
@@ -66,7 +66,7 @@ create tasks. It runs no scheduler, holds no results, crosses no worker →
 main-loop bridge.
 
 The distinction is not a hedge. It is the whole thesis. Governance is worth
-having precisely because it is *thin* -- it binds at the call path and nowhere
+having precisely because it is *thin* — it binds at the call path and nowhere
 else. The moment the gateway grows an execution engine, the governance it offers
 becomes contingent on that engine being correct, and "our audit trail is
 trustworthy as long as our job runner has no bugs" is not a claim worth making.
@@ -79,14 +79,14 @@ The instant Hangar relays an upstream `CreateTaskResult`, and *before* the handl
 reaches the client, it does two things atomically: it writes a `GovernedTaskStore`
 entry keyed on the composite `(target_server_id, task_id)`, and it emits a
 `TaskCreated` event onto the provenance chain. Registration and the provenance
-head happen in a single lock-held critical section -- if the event publish fails,
+head happen in a single lock-held critical section — if the event publish fails,
 the whole registration rolls back and *zero* governed state survives. There is no
 window in which a governed task exists without a provenance head, and none in
 which a handle is live but untracked.
 
 The consequence is structural, not defensive. A relayed `task_id` is *always*
-locally known. The dead-handle failure -- client holds a `task_id`, follow-up
-`tasks/get` finds nothing, returns a misleading "not found" -- **cannot recur**,
+locally known. The dead-handle failure — client holds a `task_id`, follow-up
+`tasks/get` finds nothing, returns a misleading "not found" — **cannot recur**,
 because the rejection path that used to guard against it is replaced by a tracked
 record. We do not test our way to this property. We removed the state in which it
 could exist.
@@ -108,14 +108,14 @@ sequenceDiagram
     H-->>C: governed snapshot
 ```
 
-## What the ledger holds -- and what it refuses to hold
+## What the ledger holds — and what it refuses to hold
 
 `GovernedTaskStore` is called a store, but the module's own first sentence is a
 disclaimer: *Hangar does not run tasks and never holds their results.* It is a
 **governance ledger**, and the line it will not cross is the reason the executor
 question stays closed. Per relayed task it records exactly three things:
 
-- the owning identity -- tenant plus principal -- bound at relay time;
+- the owning identity — tenant plus principal — bound at relay time;
 - the tool **digest** pinned on the synchronous invoke path that spawned the task;
 - an upstream-truth `Task` *snapshot*: status and timestamps copied **verbatim**
   from the upstream, plus Hangar's own local relay provenance.
@@ -134,8 +134,8 @@ governance precisely because it is authoritative about nothing else.
 
 ## Authorization is one chokepoint, and it does not leak
 
-Because `task_id` is unique only per upstream -- two upstreams may legitimately
-mint the same one -- every entry is keyed on the composite `(target_server_id,
+Because `task_id` is unique only per upstream — two upstreams may legitimately
+mint the same one — every entry is keyed on the composite `(target_server_id,
 task_id)`. But a client only ever sends a bare `task_id`. Resolving that to a
 composite key runs through `find_owned_key`, and it is fail-closed in a specific,
 deliberate way: **a `task_id` you do not own is indistinguishable from one that
@@ -143,12 +143,12 @@ does not exist.** Both return `None`; both surface as the same `INVALID_PARAMS`
 "Task not found." Denial never confirms existence, so the ledger is not a
 side channel for enumerating other tenants' tasks.
 
-Every public path -- read or mutate -- runs `authorize` *first*, through a single
+Every public path — read or mutate — runs `authorize` *first*, through a single
 chokepoint that delegates to the ownership registry. An unattributed caller
 (no bound identity) collapses to `TaskOwner(None, None)` and can only ever reach
 unattributed entries; it can never reach a task owned by a real tenant. This is
 the same shape the synchronous path uses. The async surface did not invent a new
-authorization model -- it reused the one that was already load-bearing.
+authorization model — it reused the one that was already load-bearing.
 
 ## The three serving handlers
 
@@ -159,7 +159,7 @@ On 2.0.0, a client follows up on a relayed task through four native
 | --- | --- | --- |
 | `tasks/get` | Poll status, outcome inlined | Authorize owner, relay to upstream, sync from **verbatim** upstream truth. Re-verify the **pinned tool digest** fail-closed before handing any payload over. |
 | `tasks/update` | Answer a mid-flight input request | The governed consent seam (below): gate before the answer reaches the upstream, consume only on a confirmed relay. |
-| `tasks/cancel` | Best-effort cancel | Retire the entry **only** on a confirmed upstream cancel; otherwise keep it with its true status. Acknowledges **empty** -- cancellation is cooperative, so the ack must not claim an outcome. |
+| `tasks/cancel` | Best-effort cancel | Retire the entry **only** on a confirmed upstream cancel; otherwise keep it with its true status. Acknowledges **empty** — cancellation is cooperative, so the ack must not claim an outcome. |
 
 `tasks/result` and `tasks/list` are **not served**: SEP-2663 removes both and
 Hangar answers `-32601`. The payload arrives inlined on the poll instead, and if
@@ -176,25 +176,25 @@ call across minutes. Between the `tools/call` that mints the task and the poll t
 returns its outcome, the upstream tool can be redeployed, its schema can drift, and
 the async result can come back shaped by a contract the caller never saw.
 
-So `tasks/get` re-verifies. Before any payload is handed over -- inlined by a modern
+So `tasks/get` re-verifies. Before any payload is handed over — inlined by a modern
 upstream, or fetched from an older one -- `_verify_pinned_digest` recomputes the
 tool's *current* digest and compares it to the one pinned when the task was born.
 The check guarded `tasks/result` until SEP-2663 removed that method; it moved with
 the payload rather than retiring alongside it, because `tasks/get` is now the only
-path by which a result reaches a caller. On drift -- **or** when the current schema simply cannot be verified
-(the safe default is to treat unverifiable as drifted) -- the task is failed, a
+path by which a result reaches a caller. On drift — **or** when the current schema simply cannot be verified
+(the safe default is to treat unverifiable as drifted) — the task is failed, a
 `DigestMismatchInTask` provenance event is emitted, and an `McpError` propagates.
 The result is never handed over.
 
 This closes what the prior ADR called the *zombie*: a task that completes against
 a tool contract nobody authorized, then hands back a result that can never be
-trusted and never quite dies. Digest drift **fails the task** -- it does not merely
+trusted and never quite dies. Digest drift **fails the task** — it does not merely
 refuse this one result. A permanently-unavailable-because-untrustworthy result is
 worse than an honest failure, so we make it an honest failure.
 
 ## Consent: governing an answer, not asking a question
 
-Some tasks pause mid-flight and ask for something -- a confirmation, a missing
+Some tasks pause mid-flight and ask for something — a confirmation, a missing
 parameter, a yes-or-no before they touch production. In MCP that surfaces as an
 `input_required` status. This is where async governance does something the
 synchronous path structurally *cannot*, and the distinction is worth stating
@@ -202,12 +202,12 @@ precisely.
 
 **Synchronous L7 `requireApproval` fails closed.** When the enforcement plane
 decides a synchronous tool call needs approval, there is no guaranteed
-back-channel at the invocation instant to go find a human -- so the verdict is a
+back-channel at the invocation instant to go find a human — so the verdict is a
 fail-closed *deny*, not a hold. It is enforcement, not a queue. The call does not
 hang waiting for someone to click yes; it stops.
 
 **The async consent gate is different, because the task is already paused.** A
-task in `input_required` is, by definition, suspended and waiting -- and the
+task in `input_required` is, by definition, suspended and waiting — and the
 client that is polling it is right there on a live session with a negotiated
 `inputRequests` map naming exactly what it needs. The client answers by driving
 an inbound `tasks/update` keyed on those names, and **that update is the
@@ -216,9 +216,9 @@ consent.** Hangar does not ask; it governs an answer you volunteer.
 Until the SEP-2663 realignment this was interactive: `tasks/get` elicited the
 downstream client over `ctx.session` and opened the gate only on an explicit
 `accept`. That belonged to the 2025-11-25 wire, which Hangar no longer serves.
-The governance did not weaken -- the prompt is what went.
+The governance did not weaken — the prompt is what went.
 
-Consent is obtained **before** the gate opens -- and the gate opens on nothing
+Consent is obtained **before** the gate opens — and the gate opens on nothing
 else. The primitive is a presence gate with a strict rule: it is opened *only*
 after a confirmed downstream `accept`, so there is no pre-decision race in which
 the answer relays ahead of the human's yes.
@@ -227,11 +227,11 @@ Every other outcome is terminal and fail-closed. Walk the branches:
 
 - **No elicitation capability negotiated.** There is no back-channel to ask, so
   the decision is a fail-closed denial before any prompt is shown.
-- **The client declines or cancels.** A real *no* -- the task is failed.
+- **The client declines or cancels.** A real *no* — the task is failed.
 - **The elicitation raises for any reason.** Any error at all is caught and
   treated as a denial. Ambiguity resolves closed, never open.
 - **The consent entry was evicted** (its bounded, TTL'd slot popped under
-  pressure or on expiry). The binding fails closed -- an expired or missing
+  pressure or on expiry). The binding fails closed — an expired or missing
   consent is never read as an implicit yes.
 
 "Fail closed" here means one concrete thing: the task is moved to `failed` (a
@@ -243,18 +243,18 @@ already-accepted answer discards the gate **without** consuming the single-use
 consent, so a retry re-elicits and completes rather than burning the task on a
 blip.
 
-And every decision -- accept or deny -- is recorded as a `TaskConsentDecided`
+And every decision — accept or deny — is recorded as a `TaskConsentDecided`
 event on the task's provenance chain, keyed by `task_id` and attributing the
 `principal_id` that was prompted. The consent gate itself stays deliberately
 minimal: it decides *presence*, the ledger owns the event bus and writes the
-record. Because consent is an *additive* layer -- the relay is correct without it
+record. Because consent is an *additive* layer — the relay is correct without it
 -- it could be built and left dormant, then wired in the moment the relay seam
 went live.
 
 That is the shape of the whole gate: a decision is taken first, the gate opens
 only on an explicit yes, and every path that isn't an explicit yes terminates the
 task in the safe direction and leaves an attributed line in the provenance record. It
-is the one place in Hangar where governance stops and *asks* -- and even there, it
+is the one place in Hangar where governance stops and *asks* — and even there, it
 refuses to guess.
 
 ## The provenance chain closes over async
@@ -274,14 +274,14 @@ DigestMismatchInTask # the async supply-chain event
 
 Six events, and the code path emits exactly these six. ADR-014's Decision 3 also
 names a `TaskInputRequired` transition in the lifecycle set, but on 2.0.0
-that event is defined and metered, not emitted -- an `input_required` status is
+that event is defined and metered, not emitted — an `input_required` status is
 handled inline by the consent gate above, and the decision it produces is what
 lands on the chain as `TaskConsentDecided`. Every *emitted* transition of a
-relayed task is on that stream, so its governed lifecycle -- who invoked it, under
-which pinned contract, and how each decision resolved -- is reconstructable from
+relayed task is on that stream, so its governed lifecycle — who invoked it, under
+which pinned contract, and how each decision resolved — is reconstructable from
 the chain. This is the same forensic non-repudiation the synchronous call path
 already gives you
--- who invoked what, under which pinned contract, with what verdict -- now
+-- who invoked what, under which pinned contract, with what verdict — now
 extended to the one call-shape that used to be a blind spot. Async tasks were the
 last governed call-shape that was dark. Relay-with-governance is what turns them
 into a queryable provenance record without turning Hangar into the thing that runs
@@ -321,7 +321,7 @@ This page used to describe that as forward-compatibility: handlers registered
 only while the SDK defined their types, so the served surface would track the
 negotiated protocol on its own. That mechanism does not work. The probes watch
 `mcp_types`, which carries the **SEP-1686** generation 2026-07-28 removed from
-the core spec -- a deliberately frozen region of a file otherwise under active
+the core spec — a deliberately frozen region of a file otherwise under active
 edit. They were latches that could never trip: `tasks/list` was always served
 and `tasks/update` never was.
 

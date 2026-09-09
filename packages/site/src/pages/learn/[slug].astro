@@ -1,5 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
+import Tag from '../../components/Tag.astro';
 import { getCollection, render } from 'astro:content';
 import { isUpcoming, sinceLabel } from '../../lib/version-badge';
 import { trackPosition } from '../../lib/learn-track';
@@ -82,9 +83,7 @@ const titleOf = new Map(allEntries.map(e => [e.id, e.data.title]));
         {entry.data.tags && (
           <div class="flex flex-wrap items-center gap-2 mb-4">
             {entry.data.tags.map(tag => (
-              <span class="px-2 py-0.5 text-xs rounded-md bg-zinc-800/70 text-zinc-500 border border-zinc-700/50">
-                {tag}
-              </span>
+              <Tag>{tag}</Tag>
             ))}
           </div>
         )}

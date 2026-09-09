@@ -5,7 +5,7 @@ author: MCP Hangar Team
 description: "v1.2 implements SEP-1763 P1: hook-based event model, wildcard subscriptions, IMutator contract with priority-ordered pipeline, and interceptors/list endpoint."
 ---
 
-v1.1 gave you audit logs. v1.2 turns the agent into a spec-compliant interceptor that can validate, mutate, and observe MCP traffic -- with the contracts to prove it.
+v1.1 gave you audit logs. v1.2 turns the agent into a spec-compliant interceptor that can validate, mutate, and observe MCP traffic — with the contracts to prove it.
 
 This release implements the P1 surface of SEP-1763: hook-based event delivery, wildcard event subscriptions, a mutator pipeline with priority ordering, and an `interceptors/list` discovery endpoint. Here is what shipped and how it maps to the spec.
 
@@ -13,7 +13,7 @@ This release implements the P1 surface of SEP-1763: hook-based event delivery, w
 
 SEP-1763 proposes a standardized interceptor framework for MCP. Originally filed as [issue 1763](https://github.com/modelcontextprotocol/modelcontextprotocol/issues/1763), the proposal was refined in [PR 2624](https://github.com/modelcontextprotocol/modelcontextprotocol/pull/2624) with a formal working group chartered in April 2026. An [experimental multi-language SDK](https://github.com/modelcontextprotocol/experimental-ext-interceptors) is under active development.
 
-The spec evolved from a 3-type model (validation / mutation / observability) to a 2-type model: Validators and Mutators, with audit mode available on both. This is the right call -- the original three-way split was orthogonal to the actual trust boundary. Observability collapses cleanly into audit mode on the other two types, and the resulting surface is simpler to implement and reason about. The trust-boundary execution ordering is: Mutate -> Validate -> Send for outbound requests, and Validate -> Mutate -> Process for inbound responses.
+The spec evolved from a 3-type model (validation / mutation / observability) to a 2-type model: Validators and Mutators, with audit mode available on both. This is the right call — the original three-way split was orthogonal to the actual trust boundary. Observability collapses cleanly into audit mode on the other two types, and the resulting surface is simpler to implement and reason about. The trust-boundary execution ordering is: Mutate -> Validate -> Send for outbound requests, and Validate -> Mutate -> Process for inbound responses.
 
 ```mermaid
 flowchart LR
@@ -70,7 +70,7 @@ class IHookSubscriber(Protocol):
     def on_hook(self, hook: Hook) -> None: ...
 ```
 
-The `EventBus` fans out `Hook` objects to registered subscribers. Existing flat-event handlers continue to work -- the hook layer is additive, not a replacement.
+The `EventBus` fans out `Hook` objects to registered subscribers. Existing flat-event handlers continue to work — the hook layer is additive, not a replacement.
 
 ## Wildcard Event Subscriptions
 
