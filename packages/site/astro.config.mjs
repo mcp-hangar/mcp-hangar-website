@@ -1,4 +1,5 @@
 import { defineConfig } from "astro/config";
+import { unified } from "@astrojs/markdown-remark";
 import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
@@ -37,9 +38,16 @@ export default defineConfig({
     shikiConfig: {
       theme: codeTheme,
     },
+    // Astro 7 made Sätteri the default Markdown processor, and the top-level
+    // `remarkPlugins` / `rehypePlugins` / `remarkRehype` keys became the legacy
+    // shim for the remark/rehype one — deprecated, and warned about on every
+    // build. Naming the processor is the same pipeline, said out loud.
+    //
     // Blog and Learn (.mdx). The docs collection has its own unified pipeline
     // and wires the same plugin itself — see content/loaders/oss-docs.ts.
-    rehypePlugins: [rehypeMermaidPre],
+    processor: unified({
+      rehypePlugins: [rehypeMermaidPre],
+    }),
   },
   vite: {
     plugins: [tailwindcss()],
