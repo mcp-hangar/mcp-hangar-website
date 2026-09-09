@@ -48,7 +48,7 @@
     "fast-glob": "^3.3.3",
     "jsdom": "^30.0.1",
     "satori": "^0.29.0",
-    "vitest": "^4.1.10"
+    "vitest": "^4.1.11"
   },
   "type": "module"
 }
