@@ -62,6 +62,11 @@ export function h(
   };
 }
 
+/** An image node. `h` carries only a style, and an `<img>` needs a `src`. */
+export function img(src: string, style: Record<string, unknown>): unknown {
+  return { type: "img", props: { src, style } };
+}
+
 /**
  * Render a satori tree to PNG bytes.
  *

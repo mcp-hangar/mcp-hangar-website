@@ -1,5 +1,21 @@
-import { fitTitle, h } from "./render";
+import fs from "node:fs";
+import path from "node:path";
+
+import { fitTitle, h, img } from "./render";
 import { VERDICT, ZINC, FONT, CARD } from "./tokens";
+
+/**
+ * The gate, read from the vendored brand mark rather than drawn here.
+ *
+ * The card used to put a green rounded square where the mark goes -- a shape
+ * this brand does not have, on the one asset that represents the site
+ * everywhere it is shared. Satori takes an `<img>`, so the mark travels as a
+ * data URI: no re-drawing, no second copy of the geometry, and `brand.test.ts`
+ * keeps it equal to what `pnpm brand:sync` pulled.
+ */
+const GATE_URI = `data:image/svg+xml;base64,${fs
+  .readFileSync(path.join(process.cwd(), "brand/marks/gate-brand.svg"))
+  .toString("base64")}`;
 
 /**
  * One skeleton, five variants. Every card is flat zinc-950 — no gradient, no
@@ -94,13 +110,7 @@ function shell(children: unknown[], foot?: unknown) {
     h(
       "div",
       { display: "flex", alignItems: "center", gap: 16 },
-      h("div", {
-        display: "flex",
-        width: 22,
-        height: 22,
-        borderRadius: 6,
-        backgroundColor: VERDICT.allow,
-      }),
+      img(GATE_URI, { display: "flex", width: 30, height: 30 }),
       h(
         "div",
         {
@@ -108,7 +118,9 @@ function shell(children: unknown[], foot?: unknown) {
           fontFamily: FONT.mono,
           fontSize: 22,
           fontWeight: 600,
-          letterSpacing: 5,
+          // BRAND.md: display tracking is 0.14em. It was a flat 5px here,
+          // which is 0.23em -- the display lockup, spelled wrong.
+          letterSpacing: 22 * 0.14,
           color: ZINC[300],
         },
         "MCP HANGAR"
