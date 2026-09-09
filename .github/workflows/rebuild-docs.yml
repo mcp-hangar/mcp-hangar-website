@@ -126,9 +126,14 @@ jobs:
           commit-message: "chore(site): bump docs pin to latest"
           title: "chore(site): bump docs pin to latest"
           body: |
+            ## Why
+
             Automated by `rebuild-docs` -- re-pins `@mcp-hangar/docs` to the latest docs
             `main` so the deployed site serves current documentation. The pin is the
             commit SHA in `packages/site/package.json`; `pnpm-lock.yaml` follows it.
 
+            ## How tested
+
+            Nothing to run: the job re-pins the dependency and refreshes the lockfile.
             Merging this triggers a Vercel rebuild with the new docs. If the pin was
             already current, nothing changes and no PR is opened.

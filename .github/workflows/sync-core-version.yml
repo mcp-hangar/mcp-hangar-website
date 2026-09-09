@@ -73,11 +73,15 @@ jobs:
           token: ${{ steps.app-token.outputs.token || secrets.GITHUB_TOKEN }}
           branch: chore/sync-core-version
           delete-branch: true
-          commit-message: "site: bump advertised version to ${{ steps.v.outputs.core }}"
-          title: "site: bump advertised version to ${{ steps.v.outputs.core }}"
+          commit-message: "chore(site): bump advertised version to ${{ steps.v.outputs.core }}"
+          title: "chore(site): bump advertised version to ${{ steps.v.outputs.core }}"
           body: |
+            ## Why
+
             Automated by `sync-core-version` — the site's `config.ts` VERSION lagged the latest published core release.
 
             Core released **${{ steps.v.outputs.core }}**; the site still advertised **${{ steps.v.outputs.cur }}** (hero badge, footer, quickstart). Bumps the single source (`VERSION`, which `VERSION_TAG` derives from).
 
-            Review the deploy preview before merging.
+            ## How tested
+
+            Nothing to run: the job compares `repos/mcp-hangar/mcp-hangar/releases/latest` against the one `VERSION` constant and rewrites it. Review the deploy preview before merging.
