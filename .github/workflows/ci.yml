@@ -34,8 +34,19 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # No --with-deps. That flag runs apt-get against Google's package
+      # repository on every build, which made an upstream index inconsistency
+      # (`Hash Sum mismatch` on dl.google.com, 2026-09-09) fail every build in
+      # this repo, on pull requests and on main alike -- verified by re-running
+      # a commit that had passed twenty minutes earlier.
+      #
+      # The ubuntu-24.04 runner image already carries the shared libraries
+      # headless Chromium needs, and playwright.config.ts declares chromium as
+      # its only project. If that stops being true the smoke tests fail on
+      # launch, which is a failure this repo should see rather than one it
+      # papers over by reinstalling the system on every run.
       - name: Install browser for smoke tests
-        run: pnpm --filter site exec playwright install --with-deps chromium
+        run: pnpm --filter site exec playwright install chromium
 
       - name: Verify
         run: pnpm verify
