@@ -64,6 +64,26 @@
   line-height: 1.8;
 }
 
+/* A readable measure for prose, and full width for everything that needs it.
+ *
+ * The article column is 896px, and `prose` runs here with `max-w-none` -- so
+ * body text ran to about 110 characters a line, roughly half again the length
+ * a reader tracks comfortably. Typography's own 65ch cap was removed for a
+ * good reason: a code block, a table or a diagram wants the whole column. So
+ * the cap goes on the prose elements rather than on the container, and the
+ * wide children opt out. */
+.docs-article > * {
+  max-width: 72ch;
+}
+
+.docs-article > pre,
+.docs-article > table,
+.docs-article > figure,
+.docs-article > img,
+.docs-article > .table-wrap {
+  max-width: none;
+}
+
 .docs-article h1 {
   font-size: 2rem;
   margin-bottom: 1rem;

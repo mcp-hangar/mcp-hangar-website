@@ -4,22 +4,20 @@
  * argument is at /learn/relay-with-governance, and one claim plus a text link is
  * the honest amount of it to put on the way in.
  */
+import SectionHeader from "../SectionHeader.astro";
 ---
 
-<section class="max-w-6xl mx-auto px-6 pb-32">
-    <div class="max-w-3xl mx-auto text-center">
-        <span class="font-mono text-sm font-semibold text-zinc-300 uppercase tracking-[0.16em]">
-            Governed async tasks
-        </span>
-        <h2 class="text-3xl md:text-4xl font-bold tracking-tight text-zinc-100 mt-4 mb-6 text-balance">
+<section class="max-w-6xl mx-auto px-6 pb-24">
+    <div>
+        <SectionHeader eyebrow="Governed async tasks" class="mb-8">
             Your longest-running operations were the least governed ones
-        </h2>
-        <p class="text-xl text-zinc-400 mb-8">
-            The export, the migration, the bulk write — everything expensive and hard to
-            undo hands back a handle in milliseconds and does the real work later. Hangar
-            governs the relay of that task, and the moment it pauses for input, without
-            ever becoming the executor.
-        </p>
+            <p slot="lead">
+                The export, the migration, the bulk write — everything expensive and hard to
+                undo hands back a handle in milliseconds and does the real work later. Hangar
+                governs the relay of that task, and the moment it pauses for input, without
+                ever becoming the executor.
+            </p>
+        </SectionHeader>
         <a
             href="/learn/relay-with-governance"
             class="group inline-flex items-center gap-2 text-base font-semibold text-zinc-300 hover:text-zinc-100 transition-colors"

@@ -12,7 +12,7 @@ export async function getStaticPaths() {
 }
 
 const { doc } = Astro.props;
-const { Content } = await render(doc);
+const { Content, headings } = await render(doc);
 const currentPath = `/docs/${doc.id}`;
 
 // Derive a description from the body when the frontmatter has none. Without
@@ -45,6 +45,7 @@ const description =
   title={`${doc.data.title} | Docs | MCP Hangar`}
   description={description}
   path={currentPath}
+  headings={headings}
 >
   <article class="prose prose-invert max-w-none docs-article">
     <h1>{doc.data.title}</h1>

@@ -12,23 +12,24 @@ import VerdictChip from "../VerdictChip.astro";
  * detector hands you on the left, what a verdict hands you on the right. The
  * header is centred; the two panels stay left-aligned inside, because lists do.
  */
+import SectionHeader from "../SectionHeader.astro";
 ---
 
-<section class="max-w-6xl mx-auto px-6 pb-32">
-    <div class="max-w-3xl mx-auto text-center mb-14">
-        <h2 class="text-4xl font-bold tracking-tight text-zinc-100 mb-5 text-balance">
-            Why enforcement, not detection
-        </h2>
-        <p class="text-xl text-zinc-300 mb-5 text-balance">
-            MCP is getting a registry, tasks, and interceptors. Nothing in the protocol
-            enforces anything. That's not a bug — it's a layering decision. Hangar is
-            the layer.
-        </p>
-        <p class="text-lg text-zinc-500">
-            No anomaly scores to tune, no baseline to train. If your platform team can
-            review a NetworkPolicy, they can review a Hangar policy.
-        </p>
-    </div>
+<section class="max-w-6xl mx-auto px-6 pb-24">
+    <SectionHeader>
+        Why enforcement, not detection
+        <Fragment slot="lead">
+            <p>
+                MCP is getting a registry, tasks, and interceptors. Nothing in the protocol
+                enforces anything. That's not a bug — it's a layering decision. Hangar is
+                the layer.
+            </p>
+            <p>
+                No anomaly scores to tune, no baseline to train. If your platform team can
+                review a NetworkPolicy, they can review a Hangar policy.
+            </p>
+        </Fragment>
+    </SectionHeader>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-px bg-zinc-800/60 rounded-3xl overflow-hidden border border-zinc-800/60">
         <!-- Detection -->

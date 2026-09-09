@@ -11,23 +11,32 @@ import remarkGfm from "remark-gfm";
 import remarkRehype from "remark-rehype";
 import rehypeRaw from "rehype-raw";
 import rehypeShiki from "@shikijs/rehype";
+import rehypeSlug from "rehype-slug";
 import rehypeStringify from "rehype-stringify";
 import rehypeDocLinks from "../../lib/rehype-doc-links";
 import rehypeMermaidPre from "../../lib/rehype-mermaid-pre";
+import rehypeCollectHeadings from "../../lib/rehype-collect-headings";
+import type { CollectedHeading } from "../../lib/rehype-collect-headings";
 import { codeTheme } from "../../lib/code-theme";
 
 async function createMarkdownProcessor(validIds: Set<string>) {
-  return unified()
-    .use(remarkParse)
-    .use(remarkGfm)
-    .use(remarkRehype, { allowDangerousHtml: true })
-    .use(rehypeRaw)
-    .use(rehypeDocLinks, { validIds })
-    .use(rehypeMermaidPre)
-    .use(rehypeShiki, {
-      theme: codeTheme,
-    })
-    .use(rehypeStringify);
+  return (
+    unified()
+      .use(remarkParse)
+      .use(remarkGfm)
+      .use(remarkRehype, { allowDangerousHtml: true })
+      .use(rehypeRaw)
+      .use(rehypeDocLinks, { validIds })
+      // Section anchors, with the same slugger Astro uses for every other
+      // collection, then the headings a contents rail is built from.
+      .use(rehypeSlug)
+      .use(rehypeCollectHeadings)
+      .use(rehypeMermaidPre)
+      .use(rehypeShiki, {
+        theme: codeTheme,
+      })
+      .use(rehypeStringify)
+  );
 }
 
 function assertWithinDirectory(directory: string, file: string): void {
@@ -143,12 +152,15 @@ export function ossDocsLoader(
           data: { docId: id },
         });
         const html = String(rendered);
+        const headings = (rendered.data.headings ?? []) as CollectedHeading[];
 
         entries.push({
           id,
           data: parsedData,
           body: resolvedBody,
-          rendered: { html },
+          // `metadata.headings` is where Astro's own markdown puts them, so
+          // `render(doc)` hands them back exactly as it does for blog and learn.
+          rendered: { html, metadata: { headings } },
         });
       }
       const currentIds = new Set(entries.map((entry) => entry.id));
