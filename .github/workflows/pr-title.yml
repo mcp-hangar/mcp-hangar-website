@@ -1,0 +1,38 @@
+# Thin caller -- logic lives in mcp-hangar/.github (reusable). Only the repo's
+# scope list is local. Edit the reusable there to change behavior everywhere.
+name: pr-title
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, ready_for_review, reopened]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+# `pull-requests: read` is not optional padding: the reusable workflow this
+# calls declares it, and a called workflow cannot be granted more than its
+# caller. Granting only `contents: read` makes the request exceed the cap and
+# the run fails to start at all -- no job, no log, just `startup_failure`.
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  pr-title:
+    uses: mcp-hangar/.github/.github/workflows/pr-title.yml@3fa20458d5ce8f7faffd9d900f6599aaa8e06e2a # main
+    with:
+      # Read off this repo's own history and layout: `site` carries the bulk of
+      # it, `learn`/`blog`/`security` are the content collections under
+      # packages/site/src/content, the rest are the org-wide ones.
+      scopes: |
+        site
+        learn
+        blog
+        security
+        docs
+        ci
+        deps
+        deps-dev
+        infra
+        repo
