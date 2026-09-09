@@ -1,137 +1,87 @@
 # MCP Hangar Website
 
-Production-grade landing page for [MCP Hangar](https://github.com/mcp-hangar/mcp-hangar) — infrastructure for Model Context Protocol.
+The site behind [mcp-hangar.io](https://mcp-hangar.io) — the marketing pages, the
+Learn and Security sections, the blog, and the rendered documentation for
+[MCP Hangar](https://github.com/mcp-hangar/mcp-hangar).
 
-## Overview
+## Stack
 
-This is the official website for MCP Hangar, showcasing features, documentation links, and providing installation instructions for the MCP Hangar infrastructure tool.
+- **Astro 7**, static output. No client framework: nothing on this site is
+  hydrated, and there is no `client:*` directive anywhere.
+- **Tailwind CSS 4**, configured in CSS rather than in a config file — the
+  `@theme` block at the top of `src/styles/global.css` is the whole palette.
+- **pnpm 11** workspace, **Node 22** (`.nvmrc`). The root lockfile covers every
+  package; there is no second one.
+- **Vercel**, building `packages/site/dist` from `main`.
 
-## Tech Stack
-
-- **React 19** - UI library
-- **TypeScript** - Type safety
-- **Vite** - Build tool and dev server
-- **Tailwind CSS** - Styling
-- **VitePress** - Documentation site generator
-- **Vercel** - Deployment platform
-
-## Prerequisites
-
-- Node.js 18+ and npm
-- Git
-
-## Getting Started
-
-### Installation
+## Getting started
 
 ```bash
-# Clone the repository
-git clone https://github.com/mcp-hangar/mcp-hangar-website.git
-cd mcp-hangar-website
-
-# Install dependencies
-npm install
+pnpm install
+pnpm dev          # http://localhost:4321
 ```
 
-### Development
-
-```bash
-# Start development server
-npm run dev
-
-# Open http://localhost:5173 in your browser
-```
-
-### Building
-
-```bash
-# Create production build
-npm run build
-
-# Preview production build locally
-npm run preview
-```
-
-### Code Quality
-
-```bash
-# Run linter
-npm run lint
-
-# Format code
-npx prettier --write .
-
-# Run tests
-npm test
-```
-
-## Project Structure
+`pnpm verify` is the gate everything has to pass, and it is what CI runs:
 
 ```
-mcp-hangar-website/
-├── public/           # Static assets (favicon, install.sh, robots.txt)
-├── src/
-│   ├── components/   # React components
-│   ├── __tests__/    # Component tests
-│   ├── App.tsx       # Main application component
-│   ├── main.tsx      # Application entry point
-│   └── index.css     # Global styles
-├── docs/             # VitePress documentation site
-│   ├── .vitepress/   # VitePress config and theme
-│   └── index.md      # Docs landing page
-├── scripts/          # Build scripts (sync-docs.mjs)
-├── dist/             # Production build output
-├── index.html        # HTML template
-└── vercel.json       # Vercel deployment config
+pnpm lint          eslint, including the workflow YAML
+pnpm format:check  prettier
+pnpm check         astro check
+pnpm test:unit     vitest, no build required
+pnpm build         157 pages and 156 OG cards
+pnpm test:build    vitest against dist/
+pnpm test:e2e      playwright, chromium
 ```
 
-## Deployment
+## Layout
 
-This project is deployed to Vercel. The deployment automatically triggers on pushes to the `main` branch.
+```
+packages/site/
+├── brand/            vendored from mcp-hangar/brand, pinned in brand.lock.json
+├── e2e/              playwright specs
+├── integrations/     og-gate.mjs — fails the build on a missing OG card
+├── public/           favicon, install.sh, robots.txt
+├── scripts/          brand-sync.mjs
+└── src/
+    ├── components/   .astro components; sections/ holds the homepage
+    ├── content/      blog, learn and security as MDX; loaders/ for the docs
+    ├── og/           satori + resvg card templates, rendered at build
+    ├── pages/        routes
+    └── __tests__/    vitest
+```
 
-### Custom Domains
+## Content
 
-- **mcp-hangar.io** - Main website
-- **docs.mcp-hangar.io** - Documentation (rewrite to /docs/)
-- **mcp-hangar.io/install.sh** - Install script
+Blog, Learn and Security live in this repo as MDX under `src/content`.
 
-## Features
+The documentation does not. It comes from [`mcp-hangar/docs`](https://github.com/mcp-hangar/docs),
+pinned to a commit SHA in `packages/site/package.json` and rendered through the
+loader in `src/content/loaders/oss-docs.ts`. A nightly workflow moves that pin
+and opens a PR; merging it redeploys with current docs.
 
-- Responsive design for all screen sizes
-- Animated terminal demo
-- Clipboard integration for install command
-- SEO optimized with Open Graph tags
-- Dark mode design with emerald accent colors
-- Performance optimized with Vite
-- Integrated documentation with VitePress
+## Brand
+
+Marks and palette come from [`mcp-hangar/brand`](https://github.com/mcp-hangar/brand)
+rather than being redrawn here. `brand.lock.json` pins the commit,
+`pnpm brand:sync` pulls it, and `src/__tests__/brand.test.ts` fails the build if
+the site drifts from it — the gate's geometry, the verdict colours, and the
+served favicon are all checked against the vendored source.
+
+## Colour
+
+Two colours carry meaning, because the product is a binary verdict: green for
+allow, rose for deny, and amber for the one state that is neither — a control
+that exists but is off by default. Everything else is zinc. A hue on something
+that is not a verdict is a bug, not a preference; `src/styles/global.css` says
+so at greater length, and the code theme in `src/lib/code-theme.ts` is built
+from lightness alone for the same reason.
 
 ## Contributing
 
-Contributions are welcome! Please follow these steps:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Make your changes
-4. Run linting and formatting (`npm run lint`)
-5. Run tests (`npm test`)
-6. Commit your changes (`git commit -m 'Add amazing feature'`)
-7. Push to the branch (`git push origin feature/amazing-feature`)
-8. Open a Pull Request
-
-## Related Projects
-
-- [MCP Hangar](https://github.com/mcp-hangar/mcp-hangar) - Main infrastructure project
-- [MCP Hangar Docs](https://mcp-hangar.io/docs/) - Documentation
+Branch, open a PR against `main`, and make sure `pnpm verify` passes — `main` is
+protected and CI runs the same command. Commit messages follow Conventional
+Commits.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Support
-
-- GitHub Issues: [Report a bug or request a feature](https://github.com/mcp-hangar/mcp-hangar-website/issues)
-- Documentation: [https://mcp-hangar.io/docs/](https://mcp-hangar.io/docs/)
-
----
-
-Made with ♥ for the MCP community
+MIT. See [LICENSE](LICENSE).
