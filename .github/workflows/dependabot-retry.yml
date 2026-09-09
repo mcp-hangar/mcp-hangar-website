@@ -1,0 +1,64 @@
+# pnpm quarantines freshly published packages: `pnpm install --frozen-lockfile`
+# refuses a lockfile containing anything published within minimumReleaseAge (24h).
+# Dependabot regularly resolves a transitive dependency that is hours old, so CI
+# goes red on a lockfile that would install cleanly the next morning -- and
+# nothing ever re-runs it, so the PR stays red forever on a problem that has
+# already expired. `cooldown` in dependabot.yml does not help: it covers direct
+# dependencies, and these are transitive.
+#
+# This re-runs those, and only those. A run that failed for any other reason is
+# left alone and reported, because a red PR that failed for a real reason should
+# stay red.
+name: Dependabot CI retry
+
+on:
+  schedule:
+    # Every six hours, so a package caught by the cutoff waits hours rather than
+    # until the next daily pass.
+    - cron: "23 */6 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  actions: write
+  pull-requests: read
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  retry:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Re-run CI runs that failed the release-age quarantine
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+
+          prs=$(gh pr list --author 'app/dependabot' --state open --json number,headRefName --jq '.[] | "\(.number) \(.headRefName)"')
+          if [ -z "$prs" ]; then
+            echo "No open Dependabot PRs."
+            exit 0
+          fi
+
+          while read -r number branch; do
+            [ -n "$number" ] || continue
+
+            run=$(gh run list --branch "$branch" --workflow CI --status failure \
+                    --limit 1 --json databaseId --jq '.[0].databaseId // empty') || run=""
+            if [ -z "$run" ]; then
+              echo "PR #$number: no failed CI run."
+              continue
+            fi
+
+            if gh run view "$run" --log-failed 2>/dev/null | grep -q ERR_PNPM_MINIMUM_RELEASE_AGE_VIOLATION; then
+              echo "PR #$number: run $run hit the release-age quarantine, re-running."
+              gh run rerun "$run" --failed || echo "PR #$number: re-run refused (already running?)."
+            else
+              echo "PR #$number: run $run failed for another reason. Leaving it."
+            fi
+          done <<< "$prs"
