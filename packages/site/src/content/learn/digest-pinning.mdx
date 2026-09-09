@@ -87,6 +87,12 @@ without blocking, so you can watch a fleet and capture the real digests before y
 turn on enforcement. But audit is the on-ramp, not the destination. The point of
 the feature is the **block** posture, where a mutated contract fails the call.
 
+Capturing those digests is a command, not a transcription job: `mcp-hangar pin`
+prints what your servers serve right now, `pin --write` adopts it into the
+config, and `pin --check` exits non-zero when what is served has drifted from
+what is pinned — which is why it belongs in CI or a pre-commit hook rather than
+in someone's memory.
+
 Every one of these decisions is **deterministic**. There is no drift score, no
 model guessing whether a change looks malicious. Two hashes are equal or they are
 not. That is what makes the verdict something you can put in an audit trail and

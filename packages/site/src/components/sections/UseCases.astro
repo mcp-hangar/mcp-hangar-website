@@ -36,9 +36,17 @@ metadata:
   name: payments-egress
 spec:
   mode: Enforce
-  tools:
-    allow: ["payments.get_*"]
-    deny: ["payments.refund"]`;
+  targetRef:
+    kind: MCPServer
+    name: payments
+  defaultAction: Deny
+  upstreams:
+    - name: payments
+      match:
+        host: api.payments.internal
+      tools:
+        allow: ["get_*"]
+        deny: ["refund"]`;
 import SectionHeader from "../SectionHeader.astro";
 ---
 
