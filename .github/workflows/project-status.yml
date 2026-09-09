@@ -27,8 +27,12 @@ permissions:
 
 jobs:
   project-status:
-    uses: mcp-hangar/.github/.github/workflows/project-status.yml@5768cd78cde519ffb97ec8d40fd5f5da9b8c716d # main
+    uses: mcp-hangar/.github/.github/workflows/project-status.yml@4db947ebe15e3f4e069a380a8ec9bed48896a645 # main
     with:
       project_number: ${{ vars.PROJECT_NUMBER }}
     secrets:
-      PROJECT_TOKEN: ${{ secrets.PROJECT_AUTOMATION_TOKEN }}
+      # Not PROJECT_AUTOMATION_TOKEN: the copy stored in this repo resolves to
+      # empty. The App mints a working token per run, from the org-level
+      # secrets sync-core-version.yml already uses here.
+      APP_ID: ${{ secrets.RELEASE_BOT_APP_ID }}
+      APP_PRIVATE_KEY: ${{ secrets.RELEASE_BOT_PRIVATE_KEY }}
