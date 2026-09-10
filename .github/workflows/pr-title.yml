@@ -20,7 +20,7 @@ permissions:
 
 jobs:
   pr-title:
-    uses: mcp-hangar/.github/.github/workflows/pr-title.yml@3fa20458d5ce8f7faffd9d900f6599aaa8e06e2a # main
+    uses: mcp-hangar/.github/.github/workflows/pr-title.yml@2ca382cad799aba046b435917ae322cb770db373 # main
     with:
       # Read off this repo's own history and layout: `site` carries the bulk of
       # it, `learn`/`blog`/`security` are the content collections under
