@@ -23,7 +23,7 @@
     "@astrojs/sitemap": "^3.7.4",
     "@fontsource-variable/jetbrains-mono": "^5.3.0",
     "@fontsource-variable/space-grotesk": "^5.3.0",
-    "@mcp-hangar/docs": "github:mcp-hangar/docs#585bb0f20c51316d8de659af2115d513d1cab61b",
+    "@mcp-hangar/docs": "github:mcp-hangar/docs#0398442b4e345aefcc894bfc7f63beb40f33fbd2",
     "@shikijs/rehype": "^4.4.3",
     "@tailwindcss/typography": "^0.5.20",
     "@tailwindcss/vite": "^4.3.3",
