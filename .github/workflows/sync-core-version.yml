@@ -7,9 +7,10 @@
 # The same PR also re-pins @mcp-hangar/docs to docs `main`. The version and the
 # docs used to move in separate jobs on separate schedules, so the site could
 # advertise a release while serving docs from before it: it said 2.24.0 while
-# /docs/upgrade still started at 2.23.0. Moving both in one PR means the version
-# never lands ahead of the docs written for it. rebuild-docs.yml still moves the
-# docs pin on its own between releases.
+# /docs/upgrade still started at 2.23.0. Moving both in one PR means a new
+# version ships with docs at least as new as docs `main` when the release was
+# picked up -- release notes written later still arrive through rebuild-docs.yml,
+# which keeps moving the docs pin on its own between releases.
 name: sync-core-version
 
 on:
@@ -87,8 +88,8 @@ jobs:
         if: steps.v.outputs.behind == 'true'
         run: pnpm install --frozen-lockfile
 
-      # In the same PR as the version, so the release is never advertised ahead
-      # of the docs written for it. Shared with rebuild-docs.yml.
+      # In the same PR as the version, so a release is not advertised against
+      # docs older than docs `main`. Shared with rebuild-docs.yml.
       - name: Bump @mcp-hangar/docs to latest commit
         if: steps.v.outputs.behind == 'true'
         run: .github/scripts/bump-docs-pin.sh
