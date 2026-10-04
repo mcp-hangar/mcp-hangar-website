@@ -1,6 +1,7 @@
 import type { APIRoute } from "astro";
 import { getCollection } from "astro:content";
 import { stripSvg } from "../lib/strip-svg";
+import { AUDIT_EXPORT_FACT, PLATFORM_FACT } from "../lib/product-facts";
 
 const SITE = "https://mcp-hangar.io";
 
@@ -180,6 +181,8 @@ export const GET: APIRoute = async () => {
 - Enforcement plane: each tool call passes a single deterministic allow/deny path (admission, tool-access authz, tool-schema digest pinning, L7 MCPEgressPolicy)
 - Kubernetes-native: an operator applies deploy-time admission webhooks and default-deny egress in labelled namespaces
 - Deterministic by design: explicit policy decisions, no anomaly detection
+- Audit export: ${AUDIT_EXPORT_FACT}
+- ${PLATFORM_FACT}
 - Task relay-with-governance (ADR-014) shipped in 2.0.0; it is not in the 1.6.x line
 - GitHub: https://github.com/mcp-hangar/mcp-hangar
 - Website: ${SITE}

@@ -4,6 +4,7 @@ import SiteNav from '../components/SiteNav.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import MermaidRuntime from '../components/MermaidRuntime.astro';
 import { VERSION } from '../config';
+import { OPERATING_SYSTEMS, SIEM_FORMATS } from '../lib/product-facts';
 
 import { ogPathFor } from '../og/resolve';
 
@@ -62,9 +63,9 @@ const defaultKeywords = "MCP, Model Context Protocol, policy enforcement, admiss
       "@type": "SoftwareApplication",
       "name": "MCP Hangar",
       "applicationCategory": "DeveloperApplication",
-      "operatingSystem": "Linux, macOS, Windows",
+      "operatingSystem": OPERATING_SYSTEMS,
       "url": siteUrl,
-      "description": "Kubernetes-native policy enforcement plane for Model Context Protocol (MCP). Deterministic admission and egress policy, attributable audit with identity, and SIEM export (LEEF 2.0, RFC 5424 syslog, OTLP). MIT-licensed and self-hosted.",
+      "description": `Kubernetes-native policy enforcement plane for Model Context Protocol (MCP). Deterministic admission and egress policy, attributable audit with identity, and SIEM export (${SIEM_FORMATS.join(", ")}). MIT-licensed and self-hosted.`,
       "license": "https://opensource.org/licenses/MIT",
       "softwareVersion": VERSION,
       "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
