@@ -15,6 +15,12 @@ describe("config", () => {
     expect(LINKS.pypi).toContain("pypi.org");
   });
 
+  it("links the changelog to core's releases, not the docs repo's changelog", () => {
+    expect(LINKS.changelog).toBe(
+      "https://github.com/mcp-hangar/mcp-hangar/releases"
+    );
+  });
+
   it("LINKS are all strings", () => {
     for (const [, value] of Object.entries(LINKS)) {
       expect(typeof value).toBe("string");
