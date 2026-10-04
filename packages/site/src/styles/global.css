@@ -62,6 +62,9 @@
 /* Documentation article styling */
 .docs-article {
   line-height: 1.8;
+  /* A long unbroken word -- a file name used as link text, a URL -- breaks
+   * rather than pushing a phone-width page sideways. */
+  overflow-wrap: break-word;
 }
 
 /* A readable measure for prose, and full width for everything that needs it.
@@ -82,6 +85,21 @@
 .docs-article > img,
 .docs-article > .table-wrap {
   max-width: none;
+}
+
+/* Every rendered table sits in one of these (src/lib/rehype-table-wrap.ts), so
+ * a wide table scrolls inside the column instead of widening the page. On a
+ * phone that was the difference between a readable page and one the browser
+ * zoomed out to fit. */
+.docs-article .table-wrap {
+  overflow-x: auto;
+  margin-top: 2em;
+  margin-bottom: 2em;
+}
+
+.docs-article .table-wrap > table {
+  margin-top: 0;
+  margin-bottom: 0;
 }
 
 .docs-article h1 {
@@ -124,6 +142,9 @@
   font-size: 0.875em;
   font-family: 'JetBrains Mono', 'Fira Code', monospace;
   color: #e4e4e7;
+  /* A long identifier or path has no break opportunity of its own, so on a
+   * phone it pushed the page sideways. Code blocks keep scrolling instead. */
+  overflow-wrap: anywhere;
 }
 
 .docs-article pre {

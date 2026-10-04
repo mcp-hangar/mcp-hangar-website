@@ -14,6 +14,7 @@ import rehypeShiki from "@shikijs/rehype";
 import rehypeSlug from "rehype-slug";
 import rehypeStringify from "rehype-stringify";
 import rehypeDocLinks from "../../lib/rehype-doc-links";
+import rehypeTableWrap from "../../lib/rehype-table-wrap";
 import rehypeMermaidPre from "../../lib/rehype-mermaid-pre";
 import rehypeCollectHeadings from "../../lib/rehype-collect-headings";
 import rehypeFocusablePre from "../../lib/rehype-focusable-pre";
@@ -27,6 +28,8 @@ async function createMarkdownProcessor(validIds: Set<string>) {
       .use(remarkGfm)
       .use(remarkRehype, { allowDangerousHtml: true })
       .use(rehypeRaw)
+      // Before anything else reads the tree, so raw-HTML tables are wrapped too.
+      .use(rehypeTableWrap)
       .use(rehypeDocLinks, { validIds })
       // Section anchors, with the same slugger Astro uses for every other
       // collection, then the headings a contents rail is built from.
