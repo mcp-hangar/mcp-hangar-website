@@ -16,6 +16,31 @@ export const VERSION = "2.24.0";
 /** Version prefixed with a leading "v", e.g. "v1.4.0". */
 export const VERSION_TAG = `v${VERSION}`;
 
+/**
+ * How long the laptop quick start takes, install to the first governed deny.
+ * One number, stated everywhere the site gives a duration for that journey:
+ * the hero, the Learn tutorial's title and card, and the /docs index. It used
+ * to be four (60 seconds, 5 min, "under 2 minutes", ten minutes).
+ *
+ * Measured 2026-10-04 against mcp-hangar 2.24.0 on macOS, cold: a fresh venv,
+ * an empty HOME (so no npx/uvx cache), `pip install mcp-hangar==2.24.0`, then
+ * the quick start as written -- `init -y` (starts and pins three servers),
+ * `git clone`, `pin --write`, one allowed `echo`, the description change, and
+ * the refused `echo` ("schema does not match its pinned digest"). Machine time
+ * was 33 seconds; the rest is a person typing six commands, writing demo.yaml,
+ * pointing a client at it and restarting the client twice. Five minutes
+ * covers that with room, and is a promise a first-time reader can keep.
+ *
+ * Frontmatter cannot import this, so the Learn entry repeats it literally and
+ * a unit test (time-to-value.test.ts) holds the two together.
+ */
+export const TIME_TO_VALUE = {
+  /** In a sentence: "in five minutes". */
+  words: "five minutes",
+  /** On a card or a meta line. */
+  short: "5 min",
+} as const;
+
 /** Base URL for the docs. */
 export const DOCS_BASE = "/docs";
 

@@ -553,3 +553,24 @@ describe("Security advisories", () => {
     expect(md).not.toContain("<AdvisoryList");
   });
 });
+
+// One duration for install -> first governed deny (config TIME_TO_VALUE),
+// everywhere the site states one. It used to be four.
+describe("Time to value", () => {
+  it("states the same duration on the home page, /docs and the Learn tutorial", () => {
+    const pages = {
+      home: readDistFile("index.html"),
+      docs: readDistFile("docs/index.html"),
+      learn: readDistFile("learn/index.html"),
+      tutorial: readDistFile(
+        "learn/from-install-to-a-governed-deny-locally/index.html"
+      ),
+    };
+    expect(pages.home).toContain("five minutes, start to refusal");
+    expect(pages.docs).toContain("in about five minutes");
+    expect(pages.tutorial).toContain("in five minutes (no cluster)");
+    for (const [name, html] of Object.entries(pages)) {
+      expect(html, name).not.toMatch(/in 60 seconds|under 2 minutes/);
+    }
+  });
+});
