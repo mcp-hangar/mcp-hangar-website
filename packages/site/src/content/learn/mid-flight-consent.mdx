@@ -41,11 +41,11 @@ it asks without ever guessing.
 It is worth stating precisely why mid-flight consent is possible here and nowhere
 else, because the contrast is the whole point.
 
-**Synchronous L7 `requireApproval` fails closed.** When the enforcement plane
-decides a synchronous `tools/call` needs approval, the call is *blocked*. There is
-no guaranteed back-channel at the invocation instant to go find a human, so the
-verdict is a hard, fail-closed deny — not a hold. It is a gate, not an approval
-queue: nothing prompts a person and waits for them to click yes. The call stops.
+**Synchronous L7 `requireApproval` holds, or fails closed.** When the enforcement
+plane decides a synchronous `tools/call` needs approval, the approval gate holds
+the call until a person approves or denies it; a timeout is a refusal. With no
+approval gate configured there is nobody to ask, and the verdict is a hard,
+fail-closed deny. Either way, silence never lets the call through.
 
 **The async gate is different, because the task tells you what it wants.** A task
 in `input_required` is suspended and waiting — and on the SEP-2663 wire its
@@ -53,8 +53,9 @@ snapshot carries an `inputRequests` map naming exactly what is needed. The clien
 answers by driving an inbound `tasks/update` keyed on those names. **That update
 is the consent.** Hangar does not ask; it governs an answer you volunteer.
 
-So neither gate prompts a person. The synchronous one blocks; this one binds
-governance to a decision the client brought. What makes it a gate rather than a
+So the two gates wait on different parties. The synchronous one holds the call for
+the approval gate's decision; this one binds governance to a decision the client
+brought. What makes it a gate rather than a
 pass-through is the ordering.
 
 ## What changed on 2026-07-28

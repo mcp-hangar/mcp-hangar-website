@@ -137,10 +137,41 @@ describe("Build Output", () => {
     expect(html).toContain("team-research@corp"); // attributed to a caller
   });
 
-  it("should keep the egress version qualifier wherever egress is promised", () => {
+  // The egress card used to carry "core v1.6.0+ and operator v0.14.0+". On a
+  // home page advertising 2.24 a floor that old reads as history, not as a
+  // requirement (redesign audit C15), so the card names what ships instead.
+  it("should say where egress policy comes from, without stale version floors", () => {
     const html = readDistFile("index.html");
-    expect(html).toContain("v1.6.0+");
-    expect(html).toContain("v0.14.0+");
+    expect(html).toContain("the operator ships the");
+    expect(html).not.toMatch(/v1\.6\.0\+|v0\.14\.0\+/);
+  });
+
+  // Copy that the redesign audit found wrong, against core v2.24.0.
+  it("should not repeat the claims the audit corrected", () => {
+    const home = readDistFile("index.html");
+    // C7: a threshold-counting security handler does run; it never decides.
+    expect(home).not.toContain("No anomaly scores to tune");
+    expect(home).toContain("Nothing on the verdict path is scored or learned.");
+    // C21: the connect-time SSRF re-check covers API-registered remote servers
+    // only; config-file endpoints stay outside the policy (ADR-021).
+    expect(home).toMatch(
+      /SSRF refused when a remote server is registered\s+through the API/
+    );
+    // C35: the approval gate does hold a call for a person.
+    for (const page of [
+      "costs-and-boundaries",
+      "mid-flight-consent",
+      "relay-with-governance",
+      "govern-an-async-task-end-to-end",
+      "enforcement-plane-vs-api-gateway",
+    ]) {
+      const html = readDistFile(`learn/${page}/index.html`);
+      expect(html, page).not.toMatch(/prompts a person\s+and waits|not a hold/);
+    }
+    // Per-node release stamps on the /learn map read as legacy.
+    expect(readDistFile("learn/index.html")).not.toMatch(
+      /operator v0\.13\.0|· v1\.6\.0|1\.6\.x line/
+    );
   });
 
   it("should render features with icons", () => {

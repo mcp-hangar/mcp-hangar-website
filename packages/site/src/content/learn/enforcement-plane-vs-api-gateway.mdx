@@ -83,8 +83,9 @@ call whose payload carries a known secret pattern (an AWS key, a JWT, a GitHub
 token) or exceeds a byte ceiling, and it does so *even when the tool itself is
 allowed* — deny always wins. No ML, no scores, no threshold to tune. The same
 inputs always produce the same verdict, and you can read the rule that produced
-it. When `requireApproval` matches, the call **fails closed** — it is blocked, a
-hard gate, not a hold that hangs waiting for someone to click yes.
+it. When `requireApproval` matches, the approval gate holds the call until a person
+decides, and a timeout or a missing gate is a refusal — it **fails closed**,
+never open.
 
 **It closes the outbound door the gateway never saw.** Because the verdict binds
 on the call path, Hangar governs what the server *reaches out to do*, not just who

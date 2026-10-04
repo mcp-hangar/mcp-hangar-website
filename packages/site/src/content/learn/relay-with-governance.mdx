@@ -200,11 +200,11 @@ parameter, a yes-or-no before they touch production. In MCP that surfaces as an
 synchronous path structurally *cannot*, and the distinction is worth stating
 precisely.
 
-**Synchronous L7 `requireApproval` fails closed.** When the enforcement plane
-decides a synchronous tool call needs approval, there is no guaranteed
-back-channel at the invocation instant to go find a human — so the verdict is a
-fail-closed *deny*, not a hold. It is enforcement, not a queue. The call does not
-hang waiting for someone to click yes; it stops.
+**Synchronous L7 `requireApproval` holds, or fails closed.** When the enforcement
+plane decides a synchronous tool call needs approval, the approval gate holds the
+call until a person approves or denies it, and a timeout is a refusal. With no
+approval gate configured there is nobody to ask, so the verdict is a fail-closed
+*deny*. Silence never lets the call through.
 
 **The async consent gate is different, because the task is already paused.** A
 task in `input_required` is, by definition, suspended and waiting — and the
