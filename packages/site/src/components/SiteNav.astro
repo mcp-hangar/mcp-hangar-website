@@ -1,6 +1,6 @@
 ---
 import Gate from "./icons/Gate.astro";
-import { LINKS } from "../config";
+import { BRAND, LINKS } from "../config";
 
 // Cilium and OPA Gatekeeper do not have a Features tab, and neither do we: the
 // nav names places, and "what it does" is the page you are already on. There is
@@ -26,7 +26,7 @@ const navLinks = [
     <!-- Logo -->
     <a href="/" class="flex items-center gap-2.5 shrink-0">
       <Gate size={24} class="text-zinc-300" />
-      <span class="font-semibold text-zinc-100 text-[15px]">mcp-hangar</span>
+      <span class="font-semibold text-zinc-100 text-[15px]">{BRAND}</span>
     </a>
 
     <!-- Desktop links -->

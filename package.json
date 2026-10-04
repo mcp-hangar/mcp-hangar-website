@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "Official website for MCP Hangar - The MCP Control Plane",
+  "description": "The website for MCP Hangar, the runtime security and governance layer between your agents and your MCP servers",
   "repository": {
     "type": "git",
     "url": "https://github.com/mcp-hangar/mcp-hangar-website.git"

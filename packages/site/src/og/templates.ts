@@ -3,6 +3,7 @@ import path from "node:path";
 
 import { fitTitle, h, img } from "./render";
 import { VERDICT, ZINC, FONT, CARD } from "./tokens";
+import { CATEGORY, HEADLINE } from "../config";
 
 /**
  * The gate, read from the vendored brand mark rather than drawn here.
@@ -171,8 +172,8 @@ export function homeCard() {
     [
       // The card is the hero as a shared link, so it carries the same
       // spine word — and the DENY chip below turns it into an example.
-      eyebrow("Policy enforcement plane for MCP on Kubernetes", ZINC[500]),
-      title("Every MCP tool call ends in a verdict."),
+      eyebrow(CATEGORY, ZINC[500]),
+      title(HEADLINE),
     ],
     chip("deny", "isError: true")
   );

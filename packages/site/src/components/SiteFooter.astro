@@ -1,7 +1,7 @@
 ---
 import Button from "./Button.astro";
 import Gate from "./icons/Gate.astro";
-import { LINKS } from "../config";
+import { BRAND, CATEGORY, LINKS } from "../config";
 ---
 
 <footer class="border-t border-zinc-800/50">
@@ -13,10 +13,10 @@ import { LINKS } from "../config";
             <div class="col-span-2 md:col-span-1">
                 <div class="flex items-center gap-2 mb-4">
                     <Gate size={22} class="text-zinc-300" />
-                    <span class="font-semibold text-zinc-100">mcp-hangar</span>
+                    <span class="font-semibold text-zinc-100">{BRAND}</span>
                 </div>
                 <p class="text-sm text-zinc-400 leading-relaxed mb-4">
-                    Open-source MCP policy enforcement plane.
+                    {CATEGORY}. Open source, MIT.
                 </p>
                 <!-- The shared button, not a fourth hand-rolled one. This was
                      zinc-950 text on a zinc-700 fill -- black on dark grey, about

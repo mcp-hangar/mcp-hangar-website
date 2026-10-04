@@ -27,3 +27,23 @@ export const AUDIT_EXPORT_FACT = `SIEM export in ${SIEM_FORMATS.slice(0, -1).joi
 
 export const PLATFORM_FACT =
   "Platforms: Linux and macOS; Windows only through WSL";
+
+/**
+ * The positioning facts llms.txt and llms-full.txt lead with. Shared so the
+ * two files cannot say different things, and worded from what core v2.24.0
+ * ships rather than from the Kubernetes operator alone:
+ * - deployment: stdio on a laptop, HTTP on a VM, or Kubernetes via the operator;
+ * - the verdict path: identity and tool-access authorization, digest pins, the
+ *   approval gate, egress policy (server/tools/batch/executor.py gates);
+ * - "nothing on the verdict path is scored or learned" rather than "no anomaly
+ *   detection": a threshold-counting security handler does run and emits
+ *   signals, but it never decides a call.
+ */
+export const VERDICT_PATH_FACT =
+  "Verdict path: each tool call passes one deterministic allow/deny path (caller identity, tool-access authorization, tool-schema digest pinning, the approval gate, egress policy)";
+
+export const DEPLOYMENT_FACT =
+  "Deployment: a laptop over stdio, a VM over HTTP, or Kubernetes; on Kubernetes an operator adds deploy-time admission webhooks and default-deny egress in labelled namespaces";
+
+export const DETERMINISM_FACT =
+  "Deterministic by design: explicit policy decides every call; nothing on the verdict path is scored or learned";

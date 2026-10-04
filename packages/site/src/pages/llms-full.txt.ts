@@ -1,7 +1,14 @@
 import type { APIRoute } from "astro";
 import { getCollection } from "astro:content";
 import { stripSvg } from "../lib/strip-svg";
-import { AUDIT_EXPORT_FACT, PLATFORM_FACT } from "../lib/product-facts";
+import {
+  AUDIT_EXPORT_FACT,
+  DEPLOYMENT_FACT,
+  DETERMINISM_FACT,
+  PLATFORM_FACT,
+  VERDICT_PATH_FACT,
+} from "../lib/product-facts";
+import { DESCRIPTION } from "../config";
 
 const SITE = "https://mcp-hangar.io";
 
@@ -172,15 +179,15 @@ export const GET: APIRoute = async () => {
 
   const body = `# MCP Hangar
 
-> MCP Hangar is the Kubernetes-native policy enforcement plane for Model Context Protocol (MCP). Every MCP tool call runs one deterministic allow/deny path — deploy-time admission, per-server egress control, tool-schema digest pinning, and the L7 MCPEgressPolicy language. MIT-licensed, self-hosted, no SaaS tier. Enforcement is deterministic: explicit policy, no anomaly scores or learned baselines.
+> ${DESCRIPTION} MCP is the Model Context Protocol. MIT-licensed, self-hosted, no SaaS tier.
 
 ## Key facts
 
 - Language: Python (pip install mcp-hangar)
 - License: MIT — self-hosted, no SaaS/managed tier
-- Enforcement plane: each tool call passes a single deterministic allow/deny path (admission, tool-access authz, tool-schema digest pinning, L7 MCPEgressPolicy)
-- Kubernetes-native: an operator applies deploy-time admission webhooks and default-deny egress in labelled namespaces
-- Deterministic by design: explicit policy decisions, no anomaly detection
+- ${VERDICT_PATH_FACT}
+- ${DEPLOYMENT_FACT}
+- ${DETERMINISM_FACT}
 - Audit export: ${AUDIT_EXPORT_FACT}
 - ${PLATFORM_FACT}
 - Task relay-with-governance (ADR-014) shipped in 2.0.0; it is not in the 1.6.x line
