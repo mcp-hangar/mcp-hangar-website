@@ -3,6 +3,13 @@
 # published core (mcp-hangar) release, so the landing page never promotes a stale
 # version by hand. Pull-based (reads a public release); runs daily and on demand,
 # and opens a PR when the site is behind.
+#
+# The same PR also re-pins @mcp-hangar/docs to docs `main`. The version and the
+# docs used to move in separate jobs on separate schedules, so the site could
+# advertise a release while serving docs from before it: it said 2.24.0 while
+# /docs/upgrade still started at 2.23.0. Moving both in one PR means the version
+# never lands ahead of the docs written for it. rebuild-docs.yml still moves the
+# docs pin on its own between releases.
 name: sync-core-version
 
 on:
@@ -66,6 +73,26 @@ jobs:
           sed -i "s/export const VERSION = \"[^\"]*\";/export const VERSION = \"${{ steps.v.outputs.core }}\";/" packages/site/src/config.ts
           grep -n 'export const VERSION' packages/site/src/config.ts
 
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        if: steps.v.outputs.behind == 'true'
+
+      - name: Use Node.js 22
+        if: steps.v.outputs.behind == 'true'
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        if: steps.v.outputs.behind == 'true'
+        run: pnpm install --frozen-lockfile
+
+      # In the same PR as the version, so the release is never advertised ahead
+      # of the docs written for it. Shared with rebuild-docs.yml.
+      - name: Bump @mcp-hangar/docs to latest commit
+        if: steps.v.outputs.behind == 'true'
+        run: .github/scripts/bump-docs-pin.sh
+
       - name: Open PR
         if: steps.v.outputs.behind == 'true'
         uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
@@ -73,8 +100,12 @@ jobs:
           token: ${{ steps.app-token.outputs.token || secrets.GITHUB_TOKEN }}
           branch: chore/sync-core-version
           delete-branch: true
-          commit-message: "chore(site): bump advertised version to ${{ steps.v.outputs.core }}"
-          title: "chore(site): bump advertised version to ${{ steps.v.outputs.core }}"
+          add-paths: |
+            packages/site/src/config.ts
+            packages/site/package.json
+            pnpm-lock.yaml
+          commit-message: "chore(site): bump advertised version to ${{ steps.v.outputs.core }} and docs pin to latest"
+          title: "chore(site): bump advertised version to ${{ steps.v.outputs.core }} and docs pin to latest"
           body: |
             ## Why
 
@@ -82,6 +113,8 @@ jobs:
 
             Core released **${{ steps.v.outputs.core }}**; the site still advertised **${{ steps.v.outputs.cur }}** (hero badge, footer, quickstart). Bumps the single source (`VERSION`, which `VERSION_TAG` derives from).
 
+            The same PR re-pins `@mcp-hangar/docs` to docs `main` (unless it is already current), so the site never advertises a release while serving docs from before it.
+
             ## How tested
 
-            Nothing to run: the job compares `repos/mcp-hangar/mcp-hangar/releases/latest` against the one `VERSION` constant and rewrites it. Review the deploy preview before merging.
+            Nothing to run: the job compares `repos/mcp-hangar/mcp-hangar/releases/latest` against the one `VERSION` constant and rewrites it, then moves the docs pin and refreshes `pnpm-lock.yaml`. CI builds the site against the new docs. Review the deploy preview before merging.
