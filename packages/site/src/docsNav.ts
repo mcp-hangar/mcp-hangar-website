@@ -71,7 +71,6 @@ const SECTIONS: SectionDef[] = [
       "runbooks",
       "security",
       "upgrade",
-      "changelog",
     ],
   },
   { title: "ADRs", prefixes: ["adr"] },
@@ -82,17 +81,12 @@ const SECTIONS: SectionDef[] = [
 const HIDDEN_IDS = new Set<string>([
   "code-of-conduct",
   "CONTRIBUTING", // root duplicate of development/CONTRIBUTING
-  // Guards the pinned docs tarball, which still carries both changelog files:
-  // uppercase `CHANGELOG.md` is release-please's target and the current one,
-  // lowercase `changelog` a frozen copy. Both are built and both stay reachable
-  // by URL either way — as above, hiding is nav-only. All this entry decides is
-  // which of the two the sidebar and the pager point at, and today it points at
-  // the stale copy at /docs/changelog. Wrong, but the alternative is two
-  // changelog links in the nav, one of them stale. The fix belongs in the docs
-  // repo, which is dropping the duplicate `CHANGELOG.md` and pointing
-  // release-please at the lowercase path; once the pin moves past that commit,
-  // this entry matches nothing and can go with it.
-  "CHANGELOG",
+  // The docs repo's own release notes (docs v1.2.x, compare links into
+  // mcp-hangar/docs) -- not the product's. In the nav, beside the Upgrade
+  // Guide, it read as the product changelog, and the footer linked it as one.
+  // The product's notes are core's GitHub releases (LINKS.changelog). Hiding
+  // is nav-only: the page still builds and stays reachable by URL.
+  "changelog",
 ]);
 
 /**
@@ -138,7 +132,6 @@ const EXPLICIT_ORDER: string[] = [
   "security",
   "security/AUTH_SECURITY_AUDIT",
   "upgrade",
-  "changelog",
   // Development
   "development/CONTRIBUTING",
   "development/GIT_FLOW",
@@ -183,7 +176,6 @@ const LABEL_OVERRIDES: Record<string, string> = {
   security: "Security Policy",
   "security/AUTH_SECURITY_AUDIT": "Auth Security Audit",
   upgrade: "Upgrade Guide",
-  changelog: "Changelog",
   "adr/ADR-001-cqrs": "ADR-001 CQRS",
   "adr/ADR-002-event-sourcing": "ADR-002 Event Sourcing",
   "adr/ADR-003-sagas": "ADR-003 Sagas",

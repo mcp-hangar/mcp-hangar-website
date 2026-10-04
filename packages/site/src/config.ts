@@ -26,7 +26,9 @@ export const LINKS = {
   ossQuickstart: `${DOCS_BASE}/getting-started/quickstart`,
   ossDocs: `${DOCS_BASE}/`,
   blog: `${DOCS_BASE}/blog/`,
-  changelog: `${DOCS_BASE}/changelog`,
+  /** The product's release notes. Not `/docs/changelog`: that page is the
+   *  docs repo's own changelog, versioned separately from core. */
+  changelog: "https://github.com/mcp-hangar/mcp-hangar/releases",
 } as const;
 
 /** The install command shown in the landing page. */
