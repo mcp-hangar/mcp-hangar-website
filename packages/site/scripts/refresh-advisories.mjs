@@ -81,7 +81,13 @@ async function fetchAll() {
   const records = [];
   let url = `${API}?state=published&per_page=100`;
   while (url) {
-    const res = await globalThis.fetch(url, { headers });
+    let res = await globalThis.fetch(url, { headers });
+    // A token scoped to another repository can be refused here; the published
+    // advisories of a public repository are readable without one.
+    if ([401, 403, 404].includes(res.status) && headers.Authorization) {
+      delete headers.Authorization;
+      res = await globalThis.fetch(url, { headers });
+    }
     if (!res.ok) {
       throw new Error(`${url}: ${res.status} ${await res.text()}`);
     }
