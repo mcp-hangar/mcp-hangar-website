@@ -4,7 +4,13 @@ import Button from "../Button.astro";
 import GithubIcon from "../icons/GithubIcon.astro";
 import PolicySnippet from "../PolicySnippet.astro";
 import WireRecord from "../WireRecord.astro";
-import { HEADLINE, HERO_SUB, LINKS, VERSION_TAG } from "../../config";
+import {
+  HEADLINE,
+  HERO_SUB,
+  LINKS,
+  TIME_TO_VALUE,
+  VERSION_TAG,
+} from "../../config";
 
 /**
  * The hero orients; it does not argue. One word carries the whole page —
@@ -99,7 +105,7 @@ spec:
 
   <!-- The same mechanism with nothing to install but a wheel. The cluster proof
        above is the product at scale; this is the one a reader can reproduce in
-       the next five minutes, which is a different and equally load-bearing
+       the next TIME_TO_VALUE, which is a different and equally load-bearing
        claim. -->
   <div class="max-w-3xl mx-auto mt-12">
     <p class="font-mono text-xs font-semibold text-zinc-400 uppercase tracking-[0.16em] text-center mb-5">
@@ -125,7 +131,7 @@ spec:
       No cluster, no operator. A pin is the fingerprint of the tool you approved; when the
       description changes, the call stops —
       <a href="/learn/from-install-to-a-governed-deny-locally" class="text-zinc-400 underline underline-offset-4 hover:text-zinc-200">
-        five minutes, start to refusal
+        {TIME_TO_VALUE.words}, start to refusal
       </a>.
     </p>
   </div>

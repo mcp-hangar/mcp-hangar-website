@@ -2,6 +2,7 @@
 import DocsLayout from '../../layouts/DocsLayout.astro';
 import { getCollection } from 'astro:content';
 import { countCookbookRecipes, DECISIONS_INDEX, isDecision } from '../../docsNav';
+import { TIME_TO_VALUE } from '../../config';
 
 const docs = await getCollection('oss');
 const recipeCount = countCookbookRecipes(docs);
@@ -14,7 +15,7 @@ const pageCount = docs.length - decisionCount;
 const sections = [
   {
     title: 'Start',
-    description: 'Install MCP Hangar and watch it refuse a call.',
+    description: `Install MCP Hangar and watch it refuse a call, in about ${TIME_TO_VALUE.words}.`,
     links: [
       { href: '/docs/getting-started/quickstart', label: 'Quick Start' },
       { href: '/docs/getting-started/installation', label: 'Installation' },
