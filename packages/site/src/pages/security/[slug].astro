@@ -28,19 +28,19 @@ const siblings = (await getCollection('security'))
   path={`/security/${entry.id}`}
 >
   <main class="max-w-3xl mx-auto px-6 py-16">
-    <a href="/security" class="inline-flex items-center gap-1.5 text-sm text-zinc-500 hover:text-zinc-300 transition-colors mb-8 group">
+    <a href="/security" class="inline-flex items-center gap-1.5 text-sm text-zinc-400 hover:text-zinc-300 transition-colors mb-8 group">
       <span class="group-hover:-translate-x-0.5 transition-transform">&larr;</span>
       Security
     </a>
 
     <article class="prose prose-invert max-w-none docs-article">
       <header class="not-prose mb-10">
-        <div class="font-mono text-xs font-semibold text-zinc-500 uppercase tracking-[0.16em] mb-3">
+        <div class="font-mono text-xs font-semibold text-zinc-400 uppercase tracking-[0.16em] mb-3">
           Security posture
         </div>
         <h1 class="text-3xl md:text-4xl font-bold text-zinc-50 mb-4 leading-tight">{entry.data.title}</h1>
         <p class="text-base text-zinc-400 mb-4 text-balance">{entry.data.description}</p>
-        <p class="text-sm text-zinc-500">Updated {fmtDate(entry.data.updated)}</p>
+        <p class="text-sm text-zinc-400">Updated {fmtDate(entry.data.updated)}</p>
       </header>
 
       <div class="mt-8 blog-content">
@@ -50,10 +50,10 @@ const siblings = (await getCollection('security'))
 
     <footer class="mt-16 pt-10 border-t border-zinc-800/60">
       <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
-        <span class="font-mono text-xs text-zinc-500 uppercase tracking-wider">
+        <span class="font-mono text-xs text-zinc-400 uppercase tracking-wider">
           Also in Security
         </span>
-        <a href="/security" class="text-sm text-zinc-500 hover:text-zinc-300 transition-colors">
+        <a href="/security" class="text-sm text-zinc-400 hover:text-zinc-300 transition-colors">
           All security pages
         </a>
       </div>

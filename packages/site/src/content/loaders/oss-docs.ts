@@ -16,6 +16,7 @@ import rehypeStringify from "rehype-stringify";
 import rehypeDocLinks from "../../lib/rehype-doc-links";
 import rehypeMermaidPre from "../../lib/rehype-mermaid-pre";
 import rehypeCollectHeadings from "../../lib/rehype-collect-headings";
+import rehypeFocusablePre from "../../lib/rehype-focusable-pre";
 import type { CollectedHeading } from "../../lib/rehype-collect-headings";
 import { codeTheme } from "../../lib/code-theme";
 
@@ -35,6 +36,8 @@ async function createMarkdownProcessor(validIds: Set<string>) {
       .use(rehypeShiki, {
         theme: codeTheme,
       })
+      // After Shiki: only the blocks it did not highlight still lack a tabindex.
+      .use(rehypeFocusablePre)
       .use(rehypeStringify)
   );
 }
