@@ -78,41 +78,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # Nothing here touches pnpm-lock.yaml by hand. The previous version of
-      # this step deleted the resolved entry with two regexes and trusted
-      # `pnpm install --lockfile-only` to put it back; under pnpm 11 that
-      # command answers "Already up to date" and writes nothing, even with
-      # --force, so every run produced a lockfile missing a dependency that
-      # package.json still declared. CI then failed the PR with
-      # ERR_PNPM_OUTDATED_LOCKFILE, which is how #228 sat broken.
-      #
-      # Moving the specifier is what makes pnpm resolve. So the specifier is
-      # what moves.
+      # The bump itself is shared with sync-core-version.yml, which moves this
+      # pin together with the advertised version on a release.
       - name: Bump @mcp-hangar/docs to latest commit
-        run: |
-          set -euo pipefail
-          latest=$(git ls-remote https://github.com/mcp-hangar/docs.git main | cut -f1)
-          [ -n "$latest" ] || { echo "could not read docs main"; exit 1; }
-
-          current=$(node -p "require('./packages/site/package.json').dependencies['@mcp-hangar/docs']")
-          echo "current: $current"
-          echo "latest:  github:mcp-hangar/docs#$latest"
-
-          if [ "$current" = "github:mcp-hangar/docs#$latest" ]; then
-            echo "Docs pin is already current."
-            exit 0
-          fi
-
-          node -e "
-            const fs = require('fs');
-            const file = 'packages/site/package.json';
-            const pkg = JSON.parse(fs.readFileSync(file, 'utf8'));
-            pkg.dependencies['@mcp-hangar/docs'] = 'github:mcp-hangar/docs#' + process.argv[1];
-            fs.writeFileSync(file, JSON.stringify(pkg, null, 2) + '\n');
-          " "$latest"
-
-          pnpm install --lockfile-only
-          grep -m1 -A2 "'@mcp-hangar/docs':" pnpm-lock.yaml
+        run: .github/scripts/bump-docs-pin.sh
 
       - name: Open PR if the docs pin moved
         uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8
