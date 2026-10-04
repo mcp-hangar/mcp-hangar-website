@@ -304,6 +304,31 @@ describe("Build Output", () => {
       expect(html).toContain("SoftwareApplication");
     });
 
+    // The product block is read by machines only, so nothing else catches a
+    // claim in it drifting from what core ships. OTLP is a trace and audit-span
+    // export, not a SIEM format, and there is no native Windows install.
+    it("should state only the SIEM formats and platforms that ship", () => {
+      const html = readDistFile("index.html");
+      const blocks = [
+        ...html.matchAll(
+          /<script type="application\/ld\+json">([\s\S]*?)<\/script>/g
+        ),
+      ].map((m) => JSON.parse(m[1]));
+      const app = blocks.find((b) => b["@type"] === "SoftwareApplication");
+      expect(app).toBeDefined();
+      const siem = /SIEM export \(([^)]*)\)/.exec(app.description)?.[1];
+      expect(siem).toBe("CEF, LEEF 2.0, JSON lines, RFC 5424 syslog");
+      expect(app.operatingSystem).not.toMatch(/windows/i);
+
+      for (const file of ["llms.txt", "llms-full.txt"]) {
+        const content = readDistFile(file);
+        expect(content, file).toMatch(
+          /^- Audit export: SIEM export in CEF, LEEF 2\.0, JSON lines and RFC 5424 syslog; OTLP is a separate/m
+        );
+        expect(content, file).toContain("Windows only through WSL");
+      }
+    });
+
     // The /security section is a content collection precisely so it gets the
     // same machine surface as every other content page: a `.md` twin at the
     // same path and a line in llms.txt. These assert that, not the prose.

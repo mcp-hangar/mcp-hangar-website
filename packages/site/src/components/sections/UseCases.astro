@@ -2,6 +2,7 @@
 import PolicySnippet from "../PolicySnippet.astro";
 import PipelineMotif from "../PipelineMotif.astro";
 import WireRecord from "../WireRecord.astro";
+import { TOOL_ACCESS_SNIPPET } from "../../lib/home-snippets";
 
 /**
  * Four things you do with it, replacing a sixteen-tile capability grid.
@@ -19,11 +20,7 @@ import WireRecord from "../WireRecord.astro";
  * a landing page inventing plausible YAML is worse than one showing none.
  */
 
-const toolAccess = `mcp_servers:
-  github:
-    tools:
-      allow_list: ["github.get_*", "github.list_*"]
-      approval_list: ["github.create_issue"]`;
+const toolAccess = TOOL_ACCESS_SNIPPET;
 
 const digestPin = `mcp_servers:
   payments:
