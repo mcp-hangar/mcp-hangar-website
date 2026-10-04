@@ -346,7 +346,7 @@ pre.mermaid svg {
     --ink: #fafafa;          /* zinc-50 */
     --ink-2: #d4d4d8;        /* zinc-300 */
     --muted: #a1a1aa;        /* zinc-400 */
-    --faint: #a1a1aa;        /* zinc-400: zinc-500 is 3.6:1 on --panel, under AA */
+    --faint: #71717a;        /* zinc-500: rules and swatches only. Text uses --muted: zinc-500 is 3.6:1 on --panel, under AA */
     --line: #27272a;         /* zinc-800 */
     --line-2: #3f3f46;       /* zinc-700 */
     --brand: #d4d4d8;        /* zinc-300 — accents are neutral */
