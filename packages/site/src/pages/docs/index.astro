@@ -1,77 +1,75 @@
 ---
 import DocsLayout from '../../layouts/DocsLayout.astro';
 import { getCollection } from 'astro:content';
-import { countCookbookRecipes } from '../../docsNav';
+import { countCookbookRecipes, DECISIONS_INDEX, isDecision } from '../../docsNav';
 import { TIME_TO_VALUE } from '../../config';
 
 const docs = await getCollection('oss');
 const recipeCount = countCookbookRecipes(docs);
 
+const decisionCount = docs.filter((d) => isDecision(d.id)).length;
+const pageCount = docs.length - decisionCount;
+
+// The same six sections as the sidebar (docsNav SECTIONS), each with the few
+// pages a first visit wants; the sidebar has the rest.
 const sections = [
   {
-    title: 'Getting Started',
+    title: 'Start',
     description: `Install MCP Hangar and watch it refuse a call, in about ${TIME_TO_VALUE.words}.`,
-    icon: '&#9889;',
     links: [
       { href: '/docs/getting-started/quickstart', label: 'Quick Start' },
       { href: '/docs/getting-started/installation', label: 'Installation' },
+      { href: '/docs/getting-started/releases', label: 'Releases' },
     ],
   },
   {
     title: 'Guides',
-    description: 'In-depth guides for specific features and use cases.',
-    icon: '&#128218;',
+    description: 'One feature or deployment at a time.',
     links: [
       { href: '/docs/guides/HTTP_TRANSPORT', label: 'HTTP Transport' },
       { href: '/docs/guides/AUTHENTICATION', label: 'Authentication & RBAC' },
+      { href: '/docs/guides/FRONT_DOOR', label: 'Front-Door Mode' },
+      { href: '/docs/guides/EGRESS_POLICY', label: 'Egress Policy' },
       { href: '/docs/guides/KUBERNETES', label: 'Kubernetes' },
-      { href: '/docs/guides/OBSERVABILITY', label: 'Observability' },
-      { href: '/docs/guides/MCP_SERVER_GROUPS', label: 'Server Groups' },
-      { href: '/docs/guides/REST_API', label: 'REST API' },
     ],
   },
   {
     title: 'Cookbook',
     description: `${recipeCount} recipes from zero to production.`,
-    icon: '&#127859;',
     links: [
       { href: '/docs/cookbook/index', label: 'All Recipes' },
       { href: '/docs/cookbook/01-http-gateway', label: 'HTTP Gateway' },
-      { href: '/docs/cookbook/03-circuit-breaker', label: 'Circuit Breaker' },
       { href: '/docs/cookbook/12-auth-rbac', label: 'Auth & RBAC' },
       { href: '/docs/cookbook/13-production-checklist', label: 'Production Checklist' },
     ],
   },
   {
     title: 'Reference',
-    description: 'Configuration, CLI, API, and tools reference.',
-    icon: '&#128196;',
+    description: 'Configuration, CLI, API, tools and architecture.',
     links: [
       { href: '/docs/reference/configuration', label: 'Configuration' },
       { href: '/docs/reference/cli', label: 'CLI' },
       { href: '/docs/reference/rest-api', label: 'REST API' },
-      { href: '/docs/reference/tools', label: 'MCP Tools' },
+      { href: '/docs/architecture/OVERVIEW', label: 'Architecture Overview' },
     ],
   },
   {
-    title: 'Architecture',
-    description: 'Design decisions and internal architecture.',
-    icon: '&#127959;',
+    title: 'Operate',
+    description: 'Upgrades, compliance export, telemetry and runbooks.',
     links: [
-      { href: '/docs/architecture/OVERVIEW', label: 'Overview' },
-      { href: '/docs/architecture/EVENT_SOURCING', label: 'Event Sourcing' },
-      { href: '/docs/architecture/INTERCEPTOR_FRAMEWORK', label: 'Interceptor Framework' },
-    ],
-  },
-  {
-    title: 'Operations',
-    description: 'Running MCP Hangar in production.',
-    icon: '&#9881;',
-    links: [
+      { href: '/docs/upgrade', label: 'Upgrade Guide' },
       { href: '/docs/operations/COMPLIANCE', label: 'Compliance Export' },
       { href: '/docs/observability/otel-integrations', label: 'OpenTelemetry' },
-      { href: '/docs/runbooks/RELEASE', label: 'Release Runbook' },
-      { href: '/docs/upgrade', label: 'Upgrade Guide' },
+      { href: '/docs/runbooks/not-responding', label: 'Runbook: Not Responding' },
+    ],
+  },
+  {
+    title: 'Security',
+    description: 'What a verdict guarantees, and where it stops.',
+    links: [
+      { href: '/docs/security', label: 'Security Policy' },
+      { href: '/docs/security/VERDICT_LIMITS', label: 'Verdict Limits' },
+      { href: '/docs/security/OWASP_MCP_TOP_10_COVERAGE', label: 'OWASP MCP Top 10' },
     ],
   },
 ];
@@ -79,7 +77,7 @@ const sections = [
 
 <DocsLayout
   title="Documentation | MCP Hangar"
-  description="Complete documentation for MCP Hangar — the open-source MCP policy enforcement plane."
+  description="Documentation for MCP Hangar: install it, configure it, run it in production, and know what its verdicts guarantee."
   path="/docs"
 >
   <div class="space-y-10">
@@ -96,16 +94,13 @@ const sections = [
     <div class="grid grid-cols-1 md:grid-cols-2 gap-5 stagger-grid">
       {sections.map((section) => (
         <div class="group p-5 rounded-xl bg-zinc-900/40 border border-zinc-800/60 hover:border-zinc-700/80 transition-all duration-300">
-          <div class="flex items-start gap-3 mb-3">
-            <span class="text-lg" set:html={section.icon} />
-            <div>
-              <h2 class="text-base font-semibold text-zinc-100 group-hover:text-zinc-300 transition-colors">
-                {section.title}
-              </h2>
-              <p class="text-sm text-zinc-400 mt-0.5">{section.description}</p>
-            </div>
+          <div class="mb-3">
+            <h2 class="text-base font-semibold text-zinc-100 group-hover:text-zinc-300 transition-colors">
+              {section.title}
+            </h2>
+            <p class="text-sm text-zinc-400 mt-0.5">{section.description}</p>
           </div>
-          <ul class="space-y-1 ml-7">
+          <ul class="space-y-1">
             {section.links.map((link) => (
               <li>
                 <a
@@ -124,7 +119,9 @@ const sections = [
     <!-- Footer note -->
     <div class="pt-6 border-t border-zinc-800/50">
       <p class="text-sm text-zinc-400">
-        {docs.length} pages in the documentation.
+        {pageCount} pages in the documentation, and{' '}
+        <a href={DECISIONS_INDEX} class="text-zinc-300 underline underline-offset-2 decoration-zinc-500 hover:text-zinc-100 hover:decoration-zinc-300 transition-colors">{decisionCount} decision records</a>{' '}
+        under Decisions.{' '}
         <a href="https://github.com/mcp-hangar/mcp-hangar" class="text-zinc-300 underline underline-offset-2 decoration-zinc-500 hover:text-zinc-100 hover:decoration-zinc-300 transition-colors">View source on GitHub</a>
       </p>
     </div>

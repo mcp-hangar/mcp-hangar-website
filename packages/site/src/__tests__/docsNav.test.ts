@@ -1,5 +1,15 @@
 import { describe, it, expect } from "vitest";
-import { buildDocsNav, countCookbookRecipes, type DocEntry } from "../docsNav";
+import fg from "fast-glob";
+import path from "node:path";
+import { createRequire } from "node:module";
+import {
+  buildDecisionsNav,
+  buildDocsNav,
+  countCookbookRecipes,
+  parseDecision,
+  type DocEntry,
+} from "../docsNav";
+import { isPublished } from "../lib/docs-publication";
 
 /** Minimal collection-entry factory. */
 function doc(
@@ -63,27 +73,20 @@ describe("buildDocsNav", () => {
     const withHidden = [
       ...BASE,
       doc("code-of-conduct", "Code of Conduct"),
-      doc("CONTRIBUTING", "Contributing"),
       // The docs repo's changelog, not the product's (see HIDDEN_IDS).
       doc("changelog", "Changelog"),
     ];
     const { flat } = buildDocsNav(withHidden);
     const hrefs = flat.map((l) => l.href);
     expect(hrefs).not.toContain("/docs/code-of-conduct");
-    expect(hrefs).not.toContain("/docs/CONTRIBUTING");
     expect(hrefs).not.toContain("/docs/changelog");
   });
 
   it("renders sections in the configured order", () => {
     const { sections } = buildDocsNav(BASE);
     const titles = sections.map((s) => s.title);
-    expect(titles).toEqual([
-      "Getting Started",
-      "Guides",
-      "Cookbook",
-      "Reference",
-      "ADRs",
-    ]);
+    // ADRs are not a docs section any more: they are Decisions (D3).
+    expect(titles).toEqual(["Start", "Guides", "Cookbook", "Reference"]);
   });
 
   it("routes an unknown top-level directory into a fallback section, never dropping it", () => {
@@ -137,20 +140,141 @@ describe("buildDocsNav", () => {
     expect(countCookbookRecipes(docs)).toBe(3);
   });
 
-  it("groups the mixed Operations directories under one section", () => {
+  it("groups operating material under Operate and the security pages under Security", () => {
     const opsDocs = [
       doc("operations/COMPLIANCE", "Compliance"),
       doc("observability/otel-integrations", "OTel"),
+      doc("runbooks/not-responding", "Not responding"),
+      doc("upgrade", "Upgrade"),
       doc("security", "Security Policy"),
       doc("security/AUTH_SECURITY_AUDIT", "Audit"),
+      doc("architecture/OVERVIEW", "Overview"),
     ];
     const { sections } = buildDocsNav(opsDocs);
-    const ops = sections.find((s) => s.title === "Operations")!;
-    expect(ops.links.map((l) => l.href)).toEqual([
+    const hrefs = (title: string) =>
+      sections.find((s) => s.title === title)!.links.map((l) => l.href);
+    expect(hrefs("Operate")).toEqual([
+      "/docs/upgrade",
       "/docs/operations/COMPLIANCE",
       "/docs/observability/otel-integrations",
+      "/docs/runbooks/not-responding",
+    ]);
+    expect(hrefs("Security")).toEqual([
       "/docs/security",
       "/docs/security/AUTH_SECURITY_AUDIT",
     ]);
+    expect(hrefs("Reference")).toEqual(["/docs/architecture/OVERVIEW"]);
+  });
+
+  it("keeps ADRs out of the docs sidebar and pager, and pages them on their own", () => {
+    const docs = [
+      ...BASE,
+      doc(
+        "adr/ADR-010-retire-agent-cloud-tier",
+        "ADR-010: Retire the Agent -- why"
+      ),
+      doc("adr/ADR-002-event-sourcing", "ADR-002: Event Sourcing"),
+    ];
+    const { flat } = buildDocsNav(docs);
+    expect(flat.some((l) => l.href.startsWith("/docs/adr/"))).toBe(false);
+    expect(buildDecisionsNav(docs)).toEqual([
+      { href: "/docs/adr/ADR-001-cqrs", label: "ADR-001 CQRS" },
+      {
+        href: "/docs/adr/ADR-002-event-sourcing",
+        label: "ADR-002 Event Sourcing",
+      },
+      {
+        href: "/docs/adr/ADR-010-retire-agent-cloud-tier",
+        label: "ADR-010 Retire the Agent",
+      },
+    ]);
+  });
+});
+
+describe("parseDecision", () => {
+  const adr = (title: string, status: string) => ({
+    id: "adr/ADR-004-x",
+    data: { title },
+    body: `# ${title}\n\n**Status:** ${status}\n\n## Context\n`,
+  });
+
+  it("reads number, title and the first word of the status line", () => {
+    expect(
+      parseDecision(adr("ADR-004: Digest Pinning -- and more", "Accepted"))
+    ).toEqual({
+      href: "/docs/adr/ADR-004-x",
+      number: "ADR-004",
+      title: "Digest Pinning",
+      status: "Accepted",
+      partlySuperseded: false,
+    });
+  });
+
+  it("flags a record a later ADR partly replaced", () => {
+    const d = parseDecision(
+      adr(
+        "ADR-004: X",
+        "Accepted — partially superseded by [ADR-010](ADR-010.md)"
+      )
+    );
+    expect(d.status).toBe("Accepted");
+    expect(d.partlySuperseded).toBe(true);
+    const gone = parseDecision(adr("ADR-004: X", "Superseded by ADR-018"));
+    expect(gone.status).toBe("Superseded");
+    expect(gone.partlySuperseded).toBe(false);
+    expect(parseDecision(adr("ADR-004: X", "Proposed")).status).toBe(
+      "Proposed"
+    );
+  });
+
+  it("fails rather than print an unknown status", () => {
+    expect(() => parseDecision(adr("ADR-004: X", "Pondering"))).toThrow(
+      /Status/
+    );
+    expect(() =>
+      parseDecision({
+        id: "adr/ADR-004-x",
+        data: { title: "ADR-004: X" },
+        body: "",
+      })
+    ).toThrow(/Status/);
+  });
+});
+
+// Against the docs actually pinned, not a fixture: every published page lands
+// in one of the curated sections (no fallback section named after a folder),
+// and every ADR has a status the Decisions index can print.
+describe("the pinned docs", () => {
+  const require = createRequire(import.meta.url);
+  const dir = path.dirname(require.resolve("@mcp-hangar/docs/package.json"));
+  const ids = fg
+    .sync("**/*.md", { cwd: dir })
+    .map((f) => f.replace(/\.md$/, ""))
+    .filter(isPublished);
+
+  it("fall into the curated sections, with nothing in a fallback", () => {
+    const { sections } = buildDocsNav(ids.map((id) => doc(id)));
+    expect(sections.map((s) => s.title)).toEqual([
+      "Start",
+      "Guides",
+      "Cookbook",
+      "Reference",
+      "Operate",
+      "Security",
+    ]);
+  });
+
+  it("give every ADR a status", async () => {
+    const fs = await import("node:fs/promises");
+    const adrs = ids.filter((id) => id.startsWith("adr/"));
+    expect(adrs.length).toBeGreaterThan(20);
+    for (const id of adrs) {
+      const body = await fs.readFile(path.join(dir, `${id}.md`), "utf8");
+      const title = /^#\s+(.+)$/m.exec(body)![1];
+      expect(
+        () => parseDecision({ id, data: { title }, body }),
+        id
+      ).not.toThrow();
+    }
   });
 });
