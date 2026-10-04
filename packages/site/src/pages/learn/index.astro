@@ -76,17 +76,17 @@ const versions = sortVersionsDescending([...new Set(entries.map(e => e.data.sinc
             <button type="button" class="ctl pbox" data-theme="enforcement" data-filter="what-is-a-policy-enforcement-plane" data-active="false">
               <span class="acc"></span>
               <span class="ph">Pod-registration + CR validation</span>
-              <span class="pd">admission webhook · operator v0.13.0</span>
+              <span class="pd">admission webhook</span>
             </button>
             <button type="button" class="ctl pbox" data-theme="enforcement" data-filter="digest-pinning" data-active="false">
               <span class="acc"></span>
               <span class="ph">Image-digest pinning</span>
-              <span class="pd">admission webhook · operator v0.13.0</span>
+              <span class="pd">admission webhook</span>
             </button>
             <button type="button" class="ctl pbox" data-theme="enforcement" data-filter="the-l7-mcpegresspolicy-language write-your-first-mcpegresspolicy" data-active="false">
               <span class="acc"></span>
               <span class="ph">Default-deny egress + L3/L4 backstop</span>
-              <span class="pd">network policy · operator v0.13.0</span>
+              <span class="pd">network policy</span>
             </button>
           </div>
           <div class="planenote">
@@ -119,7 +119,7 @@ const versions = sortVersionsDescending([...new Set(entries.map(e => e.data.sinc
             <span class="acc"></span>
             <span class="nt">Auth</span>
             <span class="nh">Identity + auth middleware</span>
-            <span class="nd">binds the authenticated caller + tenant · ASGI middleware · v1.6.0</span>
+            <span class="nd">binds the authenticated caller + tenant · ASGI middleware</span>
             <span class="naside">Mcp-Method / Mcp-Name header routing is a non-security aside — it does not bind identity.</span>
           </button>
 
@@ -152,7 +152,7 @@ const versions = sortVersionsDescending([...new Set(entries.map(e => e.data.sinc
             <button type="button" class="ctl rbox" data-theme="enforcement" data-filter="the-request-path" data-active="false">
               <span class="acc"></span>
               <span class="rh">Response truncation</span>
-              <span class="rd">size cap · v1.6.0</span>
+              <span class="rd">size cap</span>
             </button>
           </div>
         </div>
@@ -164,25 +164,25 @@ const versions = sortVersionsDescending([...new Set(entries.map(e => e.data.sinc
           <div class="asyncrow">
             <button type="button" class="ctl abox" data-theme="async" data-filter="relay-with-governance the-governed-task-relay-flow govern-an-async-task-end-to-end tasks-on-the-v2-sdk" data-active="false">
               <span class="acc"></span>
-              <span class="ah">Task relay <span class="tag v2">2.0.0</span></span>
+              <span class="ah">Task relay</span>
               <span class="ad">GovernedTaskStore: ownership + digest re-verify</span>
             </button>
             <span class="conn" aria-hidden="true"></span>
             <button type="button" class="ctl abox" data-theme="async" data-filter="mid-flight-consent govern-an-async-task-end-to-end" data-active="false">
               <span class="acc"></span>
-              <span class="ah">Consent gate <span class="tag v2">2.0.0</span></span>
+              <span class="ah">Consent gate</span>
               <span class="ad">mid-flight input_required · fail-closed</span>
             </button>
           </div>
           <div class="asyncnote">
-            ADR-014 · shipped in 2.0.0, not in the 1.6.x line · relay off → clean <code>TaskRelayNotSupported</code>.
+            ADR-014 · relay off → clean <code>TaskRelayNotSupported</code>.
           </div>
         </div>
 
         <!-- cross-cutting audit band, spanning under the per-request path -->
         <button type="button" class="ctl auditband" data-theme="observability" data-filter="governance-observability" data-active="false">
           <span class="ab-l">Audit &amp; observability</span>
-          <span class="ab-r">cross-cutting under the per-request path — domain events + OTel spans at every governed step · v1.6.0 (relay task events in 2.0.0)</span>
+          <span class="ab-r">cross-cutting under the per-request path — domain events + OTel spans at every governed step, relay task events included</span>
         </button>
       </section>
 
@@ -389,7 +389,6 @@ const versions = sortVersionsDescending([...new Set(entries.map(e => e.data.sinc
   .learn-hub .tag { font-size: 9.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; padding: 2px 6px; border-radius: 5px; white-space: nowrap; }
   .learn-hub .tag.opt { background: var(--raise); color: var(--muted); }
   .learn-hub .tag.off { background: transparent; color: var(--muted); border: 1px dashed var(--line-2); }
-  .learn-hub .tag.v2 { background: var(--preview-bg); color: var(--preview); }
 
   /* horizontal connector — used only inside the async row (left → right) */
   .learn-hub .conn { align-self: center; flex: 0 0 18px; height: 2px; background: var(--line-2); position: relative; }

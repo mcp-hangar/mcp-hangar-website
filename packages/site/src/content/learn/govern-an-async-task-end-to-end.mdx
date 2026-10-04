@@ -112,12 +112,12 @@ a literal IP/CIDR instead, or the hostname is **failed closed** (denied, never
 opened to "any destination") and surfaced as
 `Degraded/FQDNUpstreamsUnenforceable`.
 
-Note what `requireApproval` does *not* do on the synchronous L7 path: it
-[fails closed](/learn/what-is-a-policy-enforcement-plane) — a gated `tools/call`
-is *blocked* pending an out-of-band approval, not queued for a live click. The
-async gate in step 5 is a different mechanism, but it is not a live click either:
-it governs an answer the client volunteers. Nothing in Hangar prompts a person
-and waits.
+Note what `requireApproval` does on the synchronous L7 path: the approval gate
+holds the `tools/call` until a person approves or denies it, a timeout is a
+refusal, and with no approval gate configured it
+[fails closed](/learn/what-is-a-policy-enforcement-plane). The async gate in
+step 5 is a different mechanism: it does not ask anyone, it governs an answer the
+client volunteers.
 
 ## Step 3 — Mint the task
 
