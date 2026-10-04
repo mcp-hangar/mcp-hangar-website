@@ -103,6 +103,106 @@
       "source": "/waitlist",
       "destination": "/",
       "permanent": true
+    },
+    {
+      "source": "/docs/development/BRANCH_PROTECTION",
+      "destination": "https://github.com/mcp-hangar/docs/blob/main/development/BRANCH_PROTECTION.md",
+      "permanent": true
+    },
+    {
+      "source": "/docs/development/BRANCH_PROTECTION.md",
+      "destination": "https://github.com/mcp-hangar/docs/blob/main/development/BRANCH_PROTECTION.md",
+      "permanent": true
+    },
+    {
+      "source": "/docs/development/CONTRIBUTING",
+      "destination": "https://github.com/mcp-hangar/docs/blob/main/development/CONTRIBUTING.md",
+      "permanent": true
+    },
+    {
+      "source": "/docs/development/CONTRIBUTING.md",
+      "destination": "https://github.com/mcp-hangar/docs/blob/main/development/CONTRIBUTING.md",
+      "permanent": true
+    },
+    {
+      "source": "/docs/development/DOCS_VALIDATION",
+      "destination": "https://github.com/mcp-hangar/docs/blob/main/development/DOCS_VALIDATION.md",
+      "permanent": true
+    },
+    {
+      "source": "/docs/development/DOCS_VALIDATION.md",
+      "destination": "https://github.com/mcp-hangar/docs/blob/main/development/DOCS_VALIDATION.md",
+      "permanent": true
+    },
+    {
+      "source": "/docs/development/EPIC_PLAYBOOK",
+      "destination": "https://github.com/mcp-hangar/docs/blob/main/development/EPIC_PLAYBOOK.md",
+      "permanent": true
+    },
+    {
+      "source": "/docs/development/EPIC_PLAYBOOK.md",
+      "destination": "https://github.com/mcp-hangar/docs/blob/main/development/EPIC_PLAYBOOK.md",
+      "permanent": true
+    },
+    {
+      "source": "/docs/development/GIT_FLOW",
+      "destination": "https://github.com/mcp-hangar/docs/blob/main/development/GIT_FLOW.md",
+      "permanent": true
+    },
+    {
+      "source": "/docs/development/GIT_FLOW.md",
+      "destination": "https://github.com/mcp-hangar/docs/blob/main/development/GIT_FLOW.md",
+      "permanent": true
+    },
+    {
+      "source": "/docs/development/HOTFIX_RUNBOOK",
+      "destination": "https://github.com/mcp-hangar/docs/blob/main/development/HOTFIX_RUNBOOK.md",
+      "permanent": true
+    },
+    {
+      "source": "/docs/development/HOTFIX_RUNBOOK.md",
+      "destination": "https://github.com/mcp-hangar/docs/blob/main/development/HOTFIX_RUNBOOK.md",
+      "permanent": true
+    },
+    {
+      "source": "/docs/development/PROJECT_BOARD",
+      "destination": "https://github.com/mcp-hangar/docs/blob/main/development/PROJECT_BOARD.md",
+      "permanent": true
+    },
+    {
+      "source": "/docs/development/PROJECT_BOARD.md",
+      "destination": "https://github.com/mcp-hangar/docs/blob/main/development/PROJECT_BOARD.md",
+      "permanent": true
+    },
+    {
+      "source": "/docs/runbooks/RELEASE",
+      "destination": "https://github.com/mcp-hangar/docs/blob/main/runbooks/RELEASE.md",
+      "permanent": true
+    },
+    {
+      "source": "/docs/runbooks/RELEASE.md",
+      "destination": "https://github.com/mcp-hangar/docs/blob/main/runbooks/RELEASE.md",
+      "permanent": true
+    },
+    {
+      "source": "/docs/testing/approval-gate-manual-testing",
+      "destination": "https://github.com/mcp-hangar/docs/blob/main/testing/approval-gate-manual-testing.md",
+      "permanent": true
+    },
+    {
+      "source": "/docs/testing/approval-gate-manual-testing.md",
+      "destination": "https://github.com/mcp-hangar/docs/blob/main/testing/approval-gate-manual-testing.md",
+      "permanent": true
+    },
+    {
+      "source": "/docs/CONTRIBUTING",
+      "destination": "https://github.com/mcp-hangar/docs/blob/main/CONTRIBUTING.md",
+      "permanent": true
+    },
+    {
+      "source": "/docs/CONTRIBUTING.md",
+      "destination": "https://github.com/mcp-hangar/docs/blob/main/CONTRIBUTING.md",
+      "permanent": true
     }
   ],
   "rewrites": [

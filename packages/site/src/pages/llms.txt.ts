@@ -46,9 +46,9 @@ export const GET: APIRoute = async () => {
       .map((d) => `- [${d.data.title}](${SITE}/docs/${d.id}.md)`),
   ].join("\n");
   const adr = categorize("adr/");
-  const development = categorize("development/");
+  // development/ and testing/ are not published (lib/docs-publication), so
+  // they have no section here.
   const integrations = categorize("integrations/");
-  const testing = categorize("testing/");
 
   const learnEntries = learn
     .map(
@@ -135,21 +135,13 @@ ${operations}
 
 ${security}
 
-## Architecture Decision Records
+## Decisions (architecture decision records)
 
 ${adr}
 
 ## Integrations
 
 ${integrations}
-
-## Development
-
-${development}
-
-## Testing
-
-${testing}
 
 ## Other
 

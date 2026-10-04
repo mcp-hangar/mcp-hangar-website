@@ -1,6 +1,7 @@
 import type { APIRoute } from "astro";
 import { getCollection } from "astro:content";
 import { stripSvg } from "../lib/strip-svg";
+import { isPublished, offSiteTarget } from "../lib/docs-publication";
 import { AUDIT_EXPORT_FACT, PLATFORM_FACT } from "../lib/product-facts";
 
 const SITE = "https://mcp-hangar.io";
@@ -38,7 +39,14 @@ function absolutise(body: string, docId: string): string {
       const looksLikeDoc =
         target.endsWith(".md") || !/\.[a-z0-9]+$/i.test(target);
       if (!looksLikeDoc) return whole;
-      return `](${SITE}/docs/${resolve(target).replace(/\.md$/, "")}.md${hash})`;
+      const id = resolve(target).replace(/\.md$/, "");
+      // A page the site does not publish (lib/docs-publication) is linked
+      // where it lives, as the HTML pages link it.
+      if (!isPublished(id)) {
+        const off = offSiteTarget(id, hash);
+        return `](${off.startsWith("/") ? SITE + off : off})`;
+      }
+      return `](${SITE}/docs/${id}.md${hash})`;
     }
   );
 }

@@ -29,6 +29,10 @@ export const LINKS = {
   /** The product's release notes. Not `/docs/changelog`: that page is the
    *  docs repo's own changelog, versioned separately from core. */
   changelog: "https://github.com/mcp-hangar/mcp-hangar/releases",
+  /** How to contribute. On GitHub, not on the site: contributor and process
+   *  pages are not product docs (see lib/docs-publication). */
+  contributing:
+    "https://github.com/mcp-hangar/mcp-hangar/blob/main/CONTRIBUTING.md",
 } as const;
 
 /** The install command shown in the landing page. */
