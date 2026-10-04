@@ -1,0 +1,106 @@
+{
+  "repository": "mcp-hangar/mcp-hangar",
+  "state": "published",
+  "advisories": [
+    {
+      "ghsaId": "GHSA-3vqv-89q2-8m26",
+      "cveId": null,
+      "severity": "low",
+      "summary": "A silent stdio upstream that fails tools/list blocks the starting gateway thread indefinitely",
+      "publishedAt": "2026-09-15",
+      "affectedVersions": ">= 0.2.3, <= 2.19.1",
+      "patchedVersions": "2.20.0",
+      "url": "https://github.com/mcp-hangar/mcp-hangar/security/advisories/GHSA-3vqv-89q2-8m26"
+    },
+    {
+      "ghsaId": "GHSA-4wc3-66v8-968j",
+      "cveId": null,
+      "severity": "medium",
+      "summary": "Concurrent appends drop a tool call's events, audit records included, report a successful call as failed, and fail auth-store role and key revocations",
+      "publishedAt": "2026-09-15",
+      "affectedVersions": ">= 1.2.2, <= 2.19.1",
+      "patchedVersions": "2.20.0",
+      "url": "https://github.com/mcp-hangar/mcp-hangar/security/advisories/GHSA-4wc3-66v8-968j"
+    },
+    {
+      "ghsaId": "GHSA-5gq2-5qfw-23p6",
+      "cveId": null,
+      "severity": "medium",
+      "summary": "SSRF policy bypassed by an IPv4-mapped IPv6 literal endpoint",
+      "publishedAt": "2026-09-15",
+      "affectedVersions": "<= 2.5.1",
+      "patchedVersions": null,
+      "url": "https://github.com/mcp-hangar/mcp-hangar/security/advisories/GHSA-5gq2-5qfw-23p6"
+    },
+    {
+      "ghsaId": "GHSA-6fp8-g5qw-73g7",
+      "cveId": null,
+      "severity": "medium",
+      "summary": "A failed or repeated upstream start leaks the transport client and its child process or connection",
+      "publishedAt": "2026-09-15",
+      "affectedVersions": "<= 2.19.1",
+      "patchedVersions": "2.20.0",
+      "url": "https://github.com/mcp-hangar/mcp-hangar/security/advisories/GHSA-6fp8-g5qw-73g7"
+    },
+    {
+      "ghsaId": "GHSA-9mfg-mfwg-7cvr",
+      "cveId": null,
+      "severity": "high",
+      "summary": "Tool calls skip group- and tenant-scoped governance: member-direct calls bypass group policy, approval lists are not enforced, and a withdrawal during an approval hold is not re-checked",
+      "publishedAt": "2026-09-15",
+      "affectedVersions": ">= 1.3.0, <= 2.19.1",
+      "patchedVersions": "2.20.0",
+      "url": "https://github.com/mcp-hangar/mcp-hangar/security/advisories/GHSA-9mfg-mfwg-7cvr"
+    },
+    {
+      "ghsaId": "GHSA-j393-8j4v-v73r",
+      "cveId": null,
+      "severity": "high",
+      "summary": "Capability enforcement in block and quarantine modes does not stop a drifting server, so undeclared upstream tools still run",
+      "publishedAt": "2026-09-15",
+      "affectedVersions": ">= 1.0.0, <= 2.19.1",
+      "patchedVersions": "2.20.0",
+      "url": "https://github.com/mcp-hangar/mcp-hangar/security/advisories/GHSA-j393-8j4v-v73r"
+    },
+    {
+      "ghsaId": "GHSA-pfrp-gjcw-mxq3",
+      "cveId": null,
+      "severity": "medium",
+      "summary": "Truncated-result continuations are fetchable across tenants, and their ids are logged at INFO",
+      "publishedAt": "2026-09-15",
+      "affectedVersions": ">= 0.6.3, <= 2.19.1",
+      "patchedVersions": "2.20.0",
+      "url": "https://github.com/mcp-hangar/mcp-hangar/security/advisories/GHSA-pfrp-gjcw-mxq3"
+    },
+    {
+      "ghsaId": "GHSA-48jg-9vqq-gmqv",
+      "cveId": null,
+      "severity": "high",
+      "summary": "Tenant-scoped role grants apply fleet-wide: cross-tenant event and history reads, and cross-tenant or global tool withdrawal",
+      "publishedAt": "2026-09-12",
+      "affectedVersions": "<= 2.18.2",
+      "patchedVersions": "2.19.0",
+      "url": "https://github.com/mcp-hangar/mcp-hangar/security/advisories/GHSA-48jg-9vqq-gmqv"
+    },
+    {
+      "ghsaId": "GHSA-fhwh-fmq2-7m5c",
+      "cveId": null,
+      "severity": "medium",
+      "summary": "Session suspension is never enforced: a suspended session keeps invoking tools",
+      "publishedAt": "2026-09-12",
+      "affectedVersions": ">= 1.0.1, <= 2.19.0",
+      "patchedVersions": "2.19.1",
+      "url": "https://github.com/mcp-hangar/mcp-hangar/security/advisories/GHSA-fhwh-fmq2-7m5c"
+    },
+    {
+      "ghsaId": "GHSA-qwq2-7g49-jxc6",
+      "cveId": null,
+      "severity": "medium",
+      "summary": "Tool error text exported in trace status; baggage scrubber trusts a caller-forgeable prefix and is skipped on stdio",
+      "publishedAt": "2026-09-12",
+      "affectedVersions": "<= 2.19.0",
+      "patchedVersions": "2.19.1",
+      "url": "https://github.com/mcp-hangar/mcp-hangar/security/advisories/GHSA-qwq2-7g49-jxc6"
+    }
+  ]
+}

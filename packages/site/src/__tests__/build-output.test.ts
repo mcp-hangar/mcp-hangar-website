@@ -304,6 +304,31 @@ describe("Build Output", () => {
       expect(html).toContain("SoftwareApplication");
     });
 
+    // The product block is read by machines only, so nothing else catches a
+    // claim in it drifting from what core ships. OTLP is a trace and audit-span
+    // export, not a SIEM format, and there is no native Windows install.
+    it("should state only the SIEM formats and platforms that ship", () => {
+      const html = readDistFile("index.html");
+      const blocks = [
+        ...html.matchAll(
+          /<script type="application\/ld\+json">([\s\S]*?)<\/script>/g
+        ),
+      ].map((m) => JSON.parse(m[1]));
+      const app = blocks.find((b) => b["@type"] === "SoftwareApplication");
+      expect(app).toBeDefined();
+      const siem = /SIEM export \(([^)]*)\)/.exec(app.description)?.[1];
+      expect(siem).toBe("CEF, LEEF 2.0, JSON lines, RFC 5424 syslog");
+      expect(app.operatingSystem).not.toMatch(/windows/i);
+
+      for (const file of ["llms.txt", "llms-full.txt"]) {
+        const content = readDistFile(file);
+        expect(content, file).toMatch(
+          /^- Audit export: SIEM export in CEF, LEEF 2\.0, JSON lines and RFC 5424 syslog; OTLP is a separate/m
+        );
+        expect(content, file).toContain("Windows only through WSL");
+      }
+    });
+
     // The /security section is a content collection precisely so it gets the
     // same machine surface as every other content page: a `.md` twin at the
     // same path and a line in llms.txt. These assert that, not the prose.
@@ -446,5 +471,44 @@ describe("Documentation section anchors", () => {
       fs.readFileSync(file, "utf-8").includes("docs-toc")
     );
     expect(withToc.length).toBeGreaterThan(docsPages.length * 0.8);
+  });
+});
+
+// /security and the CVE ledger list core's published GitHub advisories from
+// src/data/security-advisories.json. Before that, a hand-kept list said "every
+// advisory is published in full on the blog" and showed one, after ten had
+// been published on GitHub.
+describe("Security advisories", () => {
+  const { advisories } = JSON.parse(
+    fs.readFileSync(
+      path.join(process.cwd(), "src/data/security-advisories.json"),
+      "utf-8"
+    )
+  ) as { advisories: { ghsaId: string; url: string }[] };
+
+  it("lists every published advisory on /security and on the CVE ledger", () => {
+    for (const page of [
+      "security/index.html",
+      "security/cve-ledger/index.html",
+    ]) {
+      const html = readDistFile(page);
+      for (const a of advisories) {
+        expect(html, `${page} ${a.ghsaId}`).toContain(`href="${a.url}"`);
+      }
+    }
+  });
+
+  it("keeps the blog write-ups and drops the claim that the blog holds them all", () => {
+    const html = readDistFile("security/index.html");
+    expect(html).toContain("/blog/2026-07-16-security-advisory-cve-2026-59950");
+    expect(html).not.toContain(
+      "Every advisory is published in full on the blog"
+    );
+  });
+
+  it("gives machines the list as markdown in the ledger's .md twin", () => {
+    const md = readDistFile("security/cve-ledger.md");
+    for (const a of advisories) expect(md).toContain(`[${a.ghsaId}](${a.url})`);
+    expect(md).not.toContain("<AdvisoryList");
   });
 });

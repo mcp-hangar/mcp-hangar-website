@@ -3,6 +3,7 @@ import { getCollection } from "astro:content";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { stripSvg } from "../../lib/strip-svg";
+import advisoryData from "../../data/security-advisories.json";
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const entries = await getCollection("security");
@@ -44,6 +45,20 @@ export const GET: APIRoute = async ({ props }) => {
   }
   // Machines get prose, not diagrams.
   body = stripSvg(body);
+
+  // The advisory list is data, not prose, so the generic rule below would
+  // drop it. Machines get it as a markdown list instead.
+  body = body.replace(/<AdvisoryList\s*\/>/g, () =>
+    advisoryData.advisories
+      .map(
+        (a) =>
+          `- [${a.ghsaId}](${a.url}) (${a.severity}, ${a.publishedAt}): ${a.summary}. ` +
+          (a.patchedVersions
+            ? `Fixed in ${a.patchedVersions}.`
+            : `Affects ${a.affectedVersions ?? "see advisory"}.`)
+      )
+      .join("\n")
+  );
 
   // Unwrap MDX components — same rule as the learn mirror: opening and closing
   // tags of capitalised components go, their children stay; self-closing

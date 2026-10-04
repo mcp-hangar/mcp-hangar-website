@@ -64,11 +64,14 @@ describe("buildDocsNav", () => {
       ...BASE,
       doc("code-of-conduct", "Code of Conduct"),
       doc("CONTRIBUTING", "Contributing"),
+      // The docs repo's changelog, not the product's (see HIDDEN_IDS).
+      doc("changelog", "Changelog"),
     ];
     const { flat } = buildDocsNav(withHidden);
     const hrefs = flat.map((l) => l.href);
     expect(hrefs).not.toContain("/docs/code-of-conduct");
     expect(hrefs).not.toContain("/docs/CONTRIBUTING");
+    expect(hrefs).not.toContain("/docs/changelog");
   });
 
   it("renders sections in the configured order", () => {
@@ -140,7 +143,6 @@ describe("buildDocsNav", () => {
       doc("observability/otel-integrations", "OTel"),
       doc("security", "Security Policy"),
       doc("security/AUTH_SECURITY_AUDIT", "Audit"),
-      doc("changelog", "Changelog"),
     ];
     const { sections } = buildDocsNav(opsDocs);
     const ops = sections.find((s) => s.title === "Operations")!;
@@ -149,7 +151,6 @@ describe("buildDocsNav", () => {
       "/docs/observability/otel-integrations",
       "/docs/security",
       "/docs/security/AUTH_SECURITY_AUDIT",
-      "/docs/changelog",
     ]);
   });
 });
