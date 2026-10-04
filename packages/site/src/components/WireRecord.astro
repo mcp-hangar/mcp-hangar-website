@@ -26,15 +26,22 @@ const { time, caller, method, target, verdict, code, class: className = "" } = A
 
 <!-- `min-w-0` so the scroll container can actually be narrower than the record
      inside it when this sits in a flex or grid cell. See PolicySnippet. -->
-<div class={`min-w-0 overflow-x-auto ${className}`}>
+<!-- Focusable and named: a scroll container a keyboard cannot reach fails
+     WCAG (axe `scrollable-region-focusable`). -->
+<div
+    class={`min-w-0 overflow-x-auto ${className}`}
+    tabindex="0"
+    role="region"
+    aria-label={`Audit record: ${caller} ${method}${target ? ` ${target}` : ""}, ${verdict}`}
+>
     <div
         class="inline-flex min-w-full items-center gap-3 whitespace-nowrap rounded-lg border border-zinc-800 bg-zinc-950/60 px-4 py-3 font-mono text-sm"
     >
-        {time && <span class="text-zinc-600 tabular-nums">{time}</span>}
+        {time && <span class="text-zinc-400 tabular-nums">{time}</span>}
         <span class="text-zinc-300">{caller}</span>
         <span class="text-zinc-600" aria-hidden="true">&rarr;</span>
         <span class="text-zinc-100">{method}</span>
-        {target && <span class="text-zinc-500">{target}</span>}
+        {target && <span class="text-zinc-400">{target}</span>}
         <span class="ml-auto pl-4"><VerdictChip verdict={verdict} code={code} size="sm" /></span>
     </div>
 </div>
