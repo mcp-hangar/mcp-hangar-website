@@ -1,0 +1,80 @@
+# Keeps /security and the CVE ledger listing every published GitHub security
+# advisory on core (mcp-hangar/mcp-hangar).
+#
+# The pages read packages/site/src/data/security-advisories.json, which is
+# committed, so a build never needs the network or GitHub's rate limit. This
+# job refreshes that file with scripts/refresh-advisories.mjs and opens a PR
+# when the list changed. The script asks the API for published advisories and
+# re-checks each record's state, so a draft or a report in triage never reaches
+# the file, whatever the token can see.
+name: refresh-advisories
+
+on:
+  schedule:
+    - cron: "41 5 * * *" # daily; manual trigger covers "just published"
+  workflow_dispatch: {}
+
+concurrency:
+  group: refresh-advisories
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+env:
+  # If an App-token secret is configured, open the PR with it so its checks run;
+  # otherwise fall back to GITHUB_TOKEN (the PR still opens, for a human to merge).
+  RELEASE_BOT_APP_ID: ${{ secrets.RELEASE_BOT_APP_ID }}
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3
+        id: app-token
+        if: ${{ env.RELEASE_BOT_APP_ID != '' }}
+        with:
+          app-id: ${{ secrets.RELEASE_BOT_APP_ID }}
+          private-key: ${{ secrets.RELEASE_BOT_PRIVATE_KEY }}
+
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          token: ${{ steps.app-token.outputs.token || secrets.GITHUB_TOKEN }}
+
+      - name: Use Node.js 22
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version-file: ".nvmrc"
+
+      # No install: the script uses only Node's own fetch and fs.
+      - name: Refresh the advisory snapshot
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token || secrets.GITHUB_TOKEN }}
+        run: node packages/site/scripts/refresh-advisories.mjs
+
+      - name: Open PR if the list changed
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8
+        with:
+          token: ${{ steps.app-token.outputs.token || secrets.GITHUB_TOKEN }}
+          branch: chore/refresh-advisories
+          delete-branch: true
+          add-paths: |
+            packages/site/src/data/security-advisories.json
+          commit-message: "chore(security): refresh published advisories"
+          title: "chore(security): refresh published advisories"
+          body: |
+            ## Why
+
+            Automated by `refresh-advisories`: the published GitHub security
+            advisories on `mcp-hangar/mcp-hangar` changed, and /security and the
+            CVE ledger list them from `packages/site/src/data/security-advisories.json`.
+
+            ## How tested
+
+            Nothing to run: the job rewrites the snapshot from the advisories API
+            (published records only). Review the diff and the deploy preview
+            before merging. If nothing changed, no PR is opened.

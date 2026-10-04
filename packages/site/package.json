@@ -9,6 +9,7 @@
     "preview": "astro preview",
     "astro": "astro",
     "brand:sync": "node scripts/brand-sync.mjs",
+    "advisories:refresh": "node scripts/refresh-advisories.mjs",
     "check": "astro check",
     "test": "vitest run",
     "test:watch": "vitest",
