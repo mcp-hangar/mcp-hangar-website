@@ -70,6 +70,11 @@ export async function ogCards(): Promise<Card[]> {
       props: { kind: "docs", title: "Documentation" },
     },
     {
+      slug: "docs/adr",
+      page: "/docs/adr",
+      props: { kind: "docs", title: "Decisions", subpath: "adr" },
+    },
+    {
       slug: "privacy",
       page: "/privacy",
       props: { kind: "docs", title: "Privacy policy" },

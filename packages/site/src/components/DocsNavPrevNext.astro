@@ -5,17 +5,20 @@
  * sync by construction and cover every doc in the collection.
  */
 import { getCollection } from 'astro:content';
-import { buildDocsNav } from '../docsNav';
+import { buildDecisionsNav, buildDocsNav, isDecision } from '../docsNav';
 
 interface Props {
   currentPath: string;
 }
 
 const docs = await getCollection('oss');
-const { flat: allPages } = buildDocsNav(docs);
-
 const { currentPath } = Astro.props;
 const normalized = currentPath.replace(/\/$/, '');
+
+// An ADR pages on through the decision record, not into the product docs.
+const allPages = isDecision(normalized.replace(/^\/docs\//, ''))
+  ? buildDecisionsNav(docs)
+  : buildDocsNav(docs).flat;
 
 const currentIndex = allPages.findIndex(p => p.href === normalized);
 const prev = currentIndex > 0 ? allPages[currentIndex - 1] : null;

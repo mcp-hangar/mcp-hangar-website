@@ -14,6 +14,7 @@ import rehypeShiki from "@shikijs/rehype";
 import rehypeSlug from "rehype-slug";
 import rehypeStringify from "rehype-stringify";
 import rehypeDocLinks from "../../lib/rehype-doc-links";
+import { isPublished } from "../../lib/docs-publication";
 import rehypeTableWrap from "../../lib/rehype-table-wrap";
 import rehypeMermaidPre from "../../lib/rehype-mermaid-pre";
 import rehypeCollectHeadings from "../../lib/rehype-collect-headings";
@@ -21,7 +22,10 @@ import rehypeFocusablePre from "../../lib/rehype-focusable-pre";
 import type { CollectedHeading } from "../../lib/rehype-collect-headings";
 import { codeTheme } from "../../lib/code-theme";
 
-async function createMarkdownProcessor(validIds: Set<string>) {
+async function createMarkdownProcessor(
+  validIds: Set<string>,
+  repoIds: Set<string>
+) {
   return (
     unified()
       .use(remarkParse)
@@ -30,7 +34,7 @@ async function createMarkdownProcessor(validIds: Set<string>) {
       .use(rehypeRaw)
       // Before anything else reads the tree, so raw-HTML tables are wrapped too.
       .use(rehypeTableWrap)
-      .use(rehypeDocLinks, { validIds })
+      .use(rehypeDocLinks, { validIds, repoIds })
       // Section anchors, with the same slugger Astro uses for every other
       // collection, then the headings a contents rail is built from.
       .use(rehypeSlug)
@@ -90,11 +94,16 @@ export function ossDocsLoader(
       // Use canonical paths so symlinks cannot escape the selected source.
       docsDir = await fs.realpath(docsDir);
       logger.info(`Docs dir is: ${docsDir}`);
-      const files = await fg("**/*.md", {
+      // Every markdown file in the repo, so a link to one the site does not
+      // publish (a README, a contributor page) can be sent to GitHub instead
+      // of failing; then only the published ones become pages.
+      // See lib/docs-publication for what stays on GitHub, and why.
+      const repoFiles = await fg("**/*.md", {
         cwd: docsDir,
-        ignore: ["**/README.md", "index.md"],
         followSymbolicLinks: false,
       });
+      const toId = (file: string) => file.replace(/\.md$/, "");
+      const files = repoFiles.filter((file) => isPublished(toId(file)));
       if (files.length === 0) {
         throw new Error(`No documentation Markdown files found at ${docsDir}`);
       }
@@ -103,8 +112,12 @@ export function ossDocsLoader(
 
       logger.info(`Found ${files.length} files`);
 
-      const validIds = new Set(files.map((file) => file.replace(/\.md$/, "")));
-      const markdownProcessor = await createMarkdownProcessor(validIds);
+      const validIds = new Set(files.map(toId));
+      const repoIds = new Set(repoFiles.map(toId));
+      const markdownProcessor = await createMarkdownProcessor(
+        validIds,
+        repoIds
+      );
 
       for (const file of files) {
         const filePath = await fs.realpath(path.join(docsDir, file));

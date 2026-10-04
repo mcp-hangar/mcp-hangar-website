@@ -1,4 +1,5 @@
 import path from "node:path";
+import { offSiteTarget } from "./docs-publication";
 
 /**
  * rehype plugin: rewrite relative `.md` links in docs content into site routes.
@@ -10,8 +11,23 @@ import path from "node:path";
  * document's id (route slug) and rewrites it to `/docs/<resolved-id><#anchor>`.
  *
  * The current document id is read from `file.data.docId`, which the docs loader
- * sets per file. A set of valid ids (`validIds`) is used so links that cannot be
- * resolved to a real doc are left untouched rather than pointing at a wrong URL.
+ * sets per file. A resolved target is one of three things:
+ *
+ * - a published page (`validIds`): rewritten to `/docs/<id>`;
+ * - a file the docs repo has but the site does not publish (`repoIds` minus
+ *   `validIds`: contributor pages, READMEs): rewritten to where it lives --
+ *   the file on GitHub, or the site's own index for the ADR and root READMEs
+ *   (see lib/docs-publication);
+ * - anything else: the build FAILS. A relative `.md` link that names no file
+ *   in the docs repo is broken, and passing it through used to ship it as a
+ *   404 (`/docs/adr/README.md`, found by the 2026-10 link audit).
+ *
+ * `repoIds` is the loader's own file list, compared as exact strings: the
+ * check must agree on a case-sensitive CI filesystem and a case-insensitive
+ * laptop, so it never asks the filesystem.
+ *
+ * Without `validIds` (unit tests of the plain rewrite) every resolved link is
+ * rewritten and nothing is checked.
  *
  * Only relative links ending in `.md` (optionally with a `#anchor`) are touched.
  * Absolute links (`http:`, `https:`, `mailto:`, protocol-relative `//`,
@@ -28,15 +44,21 @@ interface HastNode {
 export interface RehypeDocLinksOptions {
   /** Set of valid doc ids (route slugs, e.g. `guides/EGRESS_POLICY`). */
   validIds?: Set<string>;
+  /** Every markdown file in the docs repo, by id, published or not. Defaults
+   *  to `validIds`, so an unpublished target is then an unknown one. */
+  repoIds?: Set<string>;
 }
+
+export class UnknownDocLinkError extends Error {}
 
 // Matches a leading URI scheme (http:, https:, mailto:, etc.).
 const HAS_SCHEME = /^[a-z][a-z0-9+.-]*:/i;
 
 function rewriteHref(
   href: string,
-  currentDir: string,
-  validIds?: Set<string>
+  currentId: string,
+  validIds?: Set<string>,
+  repoIds?: Set<string>
 ): string | null {
   if (!href) return null;
   // Skip absolute / protocol-relative / root-relative / pure-anchor links.
@@ -55,32 +77,37 @@ function rewriteHref(
 
   // Resolve the relative path against the current document's directory.
   // path.posix.join collapses `./`, `../` and same-dir forms.
+  const currentDir = path.posix.dirname(currentId); // 'x' -> '.', 'guides/X' -> 'guides'
   const withoutExt = pathPart.replace(/\.md$/i, "");
   const resolvedId = path.posix.join(currentDir, withoutExt);
 
-  // Guard: never emit a path that escapes the docs root.
-  if (resolvedId.startsWith("..")) return null;
-
-  // If we have the id set and the target isn't a known doc, leave it unchanged.
-  if (validIds && !validIds.has(resolvedId)) return null;
-
-  return `/docs/${resolvedId}${anchor}`;
+  if (!validIds) {
+    // Plain rewrite, no checking: never emit a path that escapes the root.
+    return resolvedId.startsWith("..") ? null : `/docs/${resolvedId}${anchor}`;
+  }
+  if (validIds.has(resolvedId)) return `/docs/${resolvedId}${anchor}`;
+  if ((repoIds ?? validIds).has(resolvedId)) {
+    return offSiteTarget(resolvedId, anchor);
+  }
+  throw new UnknownDocLinkError(
+    `Docs page "${currentId}" links to "${href}", which resolves to ` +
+      `"${resolvedId}.md" -- no such file in the docs repository. ` +
+      `Fix the link in mcp-hangar/docs.`
+  );
 }
 
 export default function rehypeDocLinks(options: RehypeDocLinksOptions = {}) {
-  const { validIds } = options;
+  const { validIds, repoIds } = options;
 
   return (tree: HastNode, file: { data?: Record<string, unknown> }) => {
     const currentId = file?.data?.docId;
     if (typeof currentId !== "string" || !currentId) return; // can't resolve — leave everything
 
-    const currentDir = path.posix.dirname(currentId); // '' -> '.', 'guides/X' -> 'guides'
-
     const visit = (node: HastNode) => {
       if (node.tagName === "a" && node.properties) {
         const href = node.properties.href;
         if (typeof href === "string") {
-          const next = rewriteHref(href, currentDir, validIds);
+          const next = rewriteHref(href, currentId, validIds, repoIds);
           if (next !== null) {
             node.properties.href = next;
           }
