@@ -5,6 +5,7 @@ import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
 import ogGate from "./integrations/og-gate.mjs";
 import rehypeMermaidPre from "./src/lib/rehype-mermaid-pre.ts";
+import rehypeTableWrap from "./src/lib/rehype-table-wrap.ts";
 import { codeTheme } from "./src/lib/code-theme.ts";
 
 const SITE_URL = "https://mcp-hangar.io";
@@ -46,7 +47,7 @@ export default defineConfig({
     // Blog and Learn (.mdx). The docs collection has its own unified pipeline
     // and wires the same plugin itself — see content/loaders/oss-docs.ts.
     processor: unified({
-      rehypePlugins: [rehypeMermaidPre],
+      rehypePlugins: [rehypeMermaidPre, rehypeTableWrap],
     }),
   },
   vite: {
