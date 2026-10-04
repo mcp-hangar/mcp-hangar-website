@@ -4,7 +4,7 @@ import Button from "../Button.astro";
 import GithubIcon from "../icons/GithubIcon.astro";
 import PolicySnippet from "../PolicySnippet.astro";
 import WireRecord from "../WireRecord.astro";
-import { LINKS, VERSION_TAG } from "../../config";
+import { HEADLINE, HERO_SUB, LINKS, VERSION_TAG } from "../../config";
 
 /**
  * The hero orients; it does not argue. One word carries the whole page —
@@ -17,10 +17,10 @@ import { LINKS, VERSION_TAG } from "../../config";
  * category to someone who already knows what they are looking at. A reader who
  * has not been told what this is yet cannot be argued with.
  *
- * The subhead is cut for scanning, not reading: the category and the audience
- * filter ("on Kubernetes") land in the first sentence, then one mechanism per
- * sentence, then the two constraints. Three mechanisms wedged between commas
- * is a paragraph nobody finishes.
+ * The subhead is the product's one self-description (HERO_SUB in config.ts,
+ * shared with the meta, JSON-LD, llms.txt and the footer): the category, what
+ * it governs, then where it runs. Kubernetes is one of three places, not the
+ * premise -- core is a Python package, and the operator is one deployment path.
  *
  * It says "Hangar", not "MCP Hangar": MCP appears once per sentence at most,
  * and the wordmark sits in the nav thirty pixels above. The brand is already
@@ -54,16 +54,11 @@ spec:
     <Badge class="animate-fade-in mb-8">{VERSION_TAG} — Open Source — MIT License</Badge>
 
     <h1 class="animate-slide-up text-5xl md:text-6xl font-bold tracking-tight leading-[1.05] mb-6 text-balance">
-      Every MCP tool call ends in a verdict.
+      {HEADLINE}
     </h1>
 
-    <p class="text-2xl text-zinc-300 mb-5 text-balance">
-      Hangar is a policy enforcement plane for MCP on Kubernetes.
-    </p>
-
-    <p class="text-lg text-zinc-400 max-w-xl mx-auto mb-3">
-      Admission policy per server. Egress rules per tool call. An audit trail that
-      names who did what.
+    <p class="text-xl md:text-2xl text-zinc-300 mb-5 text-balance">
+      {HERO_SUB}
     </p>
 
     <p class="text-lg text-zinc-400 max-w-xl mx-auto mb-10">

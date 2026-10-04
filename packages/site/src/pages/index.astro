@@ -1,5 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
+import { BRAND, CATEGORY, DESCRIPTION } from '../config';
 
 import Hero from '../components/sections/Hero.astro';
 import WhyEnforcement from '../components/sections/WhyEnforcement.astro';
@@ -11,7 +12,7 @@ import HardeningNote from '../components/sections/HardeningNote.astro';
 import ThreeDoors from '../components/sections/ThreeDoors.astro';
 ---
 
-<Base title="MCP Hangar | Policy Enforcement Plane for MCP" description="The Kubernetes-native policy enforcement plane for MCP. Deterministic admission and egress policy, attributable audit, and SIEM export — MIT, self-hosted, no SaaS." path="/">
+<Base title={`${BRAND} | ${CATEGORY}`} description={DESCRIPTION} path="/">
     <!-- Background effects -->
     <div class="fixed inset-0 z-[-1]">
         <div class="absolute inset-0 bg-zinc-950"/>
