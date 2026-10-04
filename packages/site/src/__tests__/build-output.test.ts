@@ -69,7 +69,48 @@ describe("Build Output", () => {
   it("should lead with the verdict and say what the product is", () => {
     const html = readDistFile("index.html");
     expect(html).toContain("Every MCP tool call ends in a verdict.");
-    expect(html).toContain("policy enforcement plane for MCP on Kubernetes");
+    expect(html).toContain(
+      "Hangar is the runtime security and governance layer between your agents and your MCP servers"
+    );
+    // Kubernetes is one place it runs, not the premise (redesign D2).
+    expect(html).toContain("Runs on a laptop, a VM, or Kubernetes.");
+    expect(html).not.toContain("on Kubernetes.</p>");
+    expect(html).not.toMatch(/Kubernetes-native/);
+  });
+
+  // One self-description everywhere a machine or a link preview reads it.
+  it("should describe the product the same way in meta, OG, JSON-LD and llms.txt", () => {
+    const html = readDistFile("index.html");
+    const lead =
+      "MCP Hangar is the runtime security and governance layer between your agents and your MCP servers";
+    expect(html).toMatch(
+      new RegExp(`<meta name="description" content="${lead}`)
+    );
+    expect(html).toMatch(
+      new RegExp(`<meta property="og:description" content="${lead}`)
+    );
+    expect(html).toContain(
+      "<title>MCP Hangar | Runtime security and governance for MCP</title>"
+    );
+    const ld = [
+      ...html.matchAll(
+        /<script type="application\/ld\+json">([\s\S]*?)<\/script>/g
+      ),
+    ].map((m) => JSON.parse(m[1]));
+    expect(
+      ld.find((b) => b["@type"] === "SoftwareApplication")?.description
+    ).toContain(lead);
+    for (const file of ["llms.txt", "llms-full.txt"]) {
+      const content = readDistFile(file);
+      expect(content, file).toContain(`> ${lead}`);
+      // Only the summary and key facts: llms-full.txt inlines the docs after them.
+      const factsAt = content.indexOf("## Key facts");
+      const head = content.slice(0, content.indexOf("\n## ", factsAt + 1));
+      expect(head, file).not.toMatch(
+        /Kubernetes-native|no anomaly detection|control plane/i
+      );
+    }
+    expect(html).not.toMatch(/policy enforcement plane for MCP on Kubernetes/);
   });
 
   // The ecosystem thesis is an argument, so it opens the argument section --

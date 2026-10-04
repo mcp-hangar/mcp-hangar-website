@@ -3,7 +3,7 @@ import '../styles/global.css';
 import SiteNav from '../components/SiteNav.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import MermaidRuntime from '../components/MermaidRuntime.astro';
-import { VERSION } from '../config';
+import { DESCRIPTION, VERSION } from '../config';
 import { OPERATING_SYSTEMS, SIEM_FORMATS } from '../lib/product-facts';
 
 import { ogPathFor } from '../og/resolve';
@@ -25,7 +25,7 @@ const { title, description, path, keywords, noindex } = Astro.props;
 const ogImage = ogPathFor(path);
 const siteUrl = 'https://mcp-hangar.io';
 const url = `${siteUrl}${path}`;
-const defaultKeywords = "MCP, Model Context Protocol, policy enforcement, admission control, Kubernetes, egress policy, governance, audit, SIEM";
+const defaultKeywords = "MCP, Model Context Protocol, runtime security, governance, policy enforcement, approvals, audit, identity, egress policy, Kubernetes, SIEM";
 ---
 
 <!DOCTYPE html>
@@ -65,7 +65,7 @@ const defaultKeywords = "MCP, Model Context Protocol, policy enforcement, admiss
       "applicationCategory": "DeveloperApplication",
       "operatingSystem": OPERATING_SYSTEMS,
       "url": siteUrl,
-      "description": `Kubernetes-native policy enforcement plane for Model Context Protocol (MCP). Deterministic admission and egress policy, attributable audit with identity, and SIEM export (${SIEM_FORMATS.join(", ")}). MIT-licensed and self-hosted.`,
+      "description": `${DESCRIPTION} Deterministic policy on the verdict path, attributable audit with identity, and SIEM export (${SIEM_FORMATS.join(", ")}). MIT-licensed and self-hosted.`,
       "license": "https://opensource.org/licenses/MIT",
       "softwareVersion": VERSION,
       "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
