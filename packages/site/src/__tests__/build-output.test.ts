@@ -584,3 +584,114 @@ describe("Security advisories", () => {
     expect(md).not.toContain("<AdvisoryList");
   });
 });
+
+// Redesign D3: the docs site publishes product docs. Contributor and process
+// pages stay on GitHub (lib/docs-publication), and ADRs are a separate
+// Decisions section rather than 29 entries in the docs sidebar.
+describe("Docs curation", () => {
+  const exists = (p: string) => fs.existsSync(path.join(DIST, p));
+
+  it("builds no page, .md twin or OG card for a contributor page", () => {
+    for (const id of [
+      "development/GIT_FLOW",
+      "development/EPIC_PLAYBOOK",
+      "development/CONTRIBUTING",
+      "runbooks/RELEASE",
+      "testing/approval-gate-manual-testing",
+      "CONTRIBUTING",
+    ]) {
+      expect(exists(`docs/${id}/index.html`), id).toBe(false);
+      expect(exists(`docs/${id}.md`), `${id}.md`).toBe(false);
+      expect(exists(`og/docs/${id}.png`), `og ${id}`).toBe(false);
+    }
+    expect(exists("docs/development")).toBe(false);
+    for (const file of ["llms.txt", "llms-full.txt", "sitemap-0.xml"]) {
+      expect(readDistFile(file), file).not.toMatch(
+        /\/docs\/(development\/|runbooks\/RELEASE|testing\/|CONTRIBUTING)/
+      );
+    }
+  });
+
+  it("lists every ADR with its number and status on the Decisions index", () => {
+    const html = readDistFile("docs/adr/index.html");
+    const adrs = fs
+      .readdirSync(path.join(DIST, "docs/adr"), { withFileTypes: true })
+      .filter((e) => e.isDirectory() && e.name.startsWith("ADR-"))
+      .map((e) => e.name);
+    expect(adrs.length).toBeGreaterThan(20);
+    for (const id of adrs) {
+      expect(html, id).toContain(`href="/docs/adr/${id}"`);
+      expect(html, id).toContain(id.slice(0, 7)); // "ADR-014"
+    }
+    expect(html).toMatch(/>\s*Accepted/);
+    expect(html).toMatch(/>\s*Superseded/);
+    expect(html).not.toContain("Unknown");
+  });
+
+  it("keeps ADRs out of the docs sections and in their own Decisions group", () => {
+    const html = readDistFile("docs/getting-started/quickstart/index.html");
+    const sidebar = html.slice(
+      html.indexOf('aria-label="Documentation"'),
+      html.indexOf("</aside>")
+    );
+    const decisionsAt = sidebar.search(/<span[^>]*>Decisions<\/span>/);
+    expect(decisionsAt).toBeGreaterThan(-1);
+    // Every ADR link sits after the Decisions heading.
+    expect(sidebar.indexOf('href="/docs/adr/')).toBeGreaterThan(decisionsAt);
+    for (const title of [
+      "Start",
+      "Guides",
+      "Cookbook",
+      "Reference",
+      "Operate",
+      "Security",
+    ]) {
+      expect(sidebar, title).toMatch(new RegExp(`<span[^>]*>${title}</span>`));
+    }
+    expect(sidebar).not.toMatch(/<span[^>]*>(Development|ADRs)<\/span>/);
+  });
+
+  it("curates the /docs index into the sidebar's sections, with no emoji", () => {
+    const html = readDistFile("docs/index.html");
+    for (const title of [
+      "Start",
+      "Guides",
+      "Cookbook",
+      "Reference",
+      "Operate",
+      "Security",
+    ]) {
+      expect(html, title).toMatch(new RegExp(`>\\s*${title}\\s*</h2>`));
+    }
+    expect(html).toContain('href="/docs/adr"');
+    expect(html).not.toMatch(/\p{Extended_Pictographic}/u);
+    // Every link the index offers is a page that was built.
+    const main = html.slice(html.indexOf("<main"), html.indexOf("</main>"));
+    for (const [, href] of main.matchAll(/href="(\/docs[^"#]*)"/g)) {
+      const file =
+        href === "/docs" ? "docs/index.html" : `${href.slice(1)}/index.html`;
+      expect(exists(file), href).toBe(true);
+    }
+  });
+
+  it("links Contributing to GitHub, not to a docs page", () => {
+    const html = readDistFile("index.html");
+    expect(html).toContain(
+      'href="https://github.com/mcp-hangar/mcp-hangar/blob/main/CONTRIBUTING.md"'
+    );
+    expect(html).not.toContain('href="/docs/development/CONTRIBUTING"');
+  });
+
+  it("leaves no relative .md link in any built docs page", () => {
+    const offenders: string[] = [];
+    for (const file of htmlFiles(path.join(DIST, "docs"))) {
+      const html = fs.readFileSync(file, "utf-8");
+      for (const [, href] of html.matchAll(/<a [^>]*href="([^"]+)"/g)) {
+        if (/^(?!https?:|mailto:)[^#]*\.md(#|$)/.test(href)) {
+          offenders.push(`${path.relative(DIST, file)} -> ${href}`);
+        }
+      }
+    }
+    expect(offenders).toEqual([]);
+  });
+});
