@@ -54,33 +54,40 @@ interface SectionDef {
 
 /**
  * Section order and prefix ownership. Sections render top-to-bottom in this
- * order. `Operations` intentionally gathers several sibling directories.
+ * order, and are the reader's questions rather than the docs repo's folders:
+ * how do I start, how do I do X, a worked recipe, what does key Y mean, how do
+ * I run it, what does it guarantee. Architecture is reference material; the
+ * remaining runbooks, the upgrade guide and the release matrix are operating.
+ *
+ * ADRs are not here. They are the project's decision record, with their own
+ * index at /docs/adr and their own nav group (see DECISIONS_PREFIX), so the
+ * product docs stop reading as a 29-entry design archive.
  */
 const SECTIONS: SectionDef[] = [
-  { title: "Getting Started", prefixes: ["getting-started"] },
+  { title: "Start", prefixes: ["getting-started"] },
   { title: "Guides", prefixes: ["guides"] },
   { title: "Cookbook", prefixes: ["cookbook"] },
-  { title: "Reference", prefixes: ["reference"] },
-  { title: "Architecture", prefixes: ["architecture"] },
+  { title: "Reference", prefixes: ["reference", "architecture"] },
   {
-    title: "Operations",
+    title: "Operate",
     prefixes: [
       "operations",
       "observability",
       "integrations",
       "runbooks",
-      "security",
       "upgrade",
     ],
   },
-  { title: "ADRs", prefixes: ["adr"] },
-  { title: "Development", prefixes: ["development", "testing"] },
+  { title: "Security", prefixes: ["security"] },
 ];
+
+/** ADRs: their own section, out of the docs sidebar and pager. */
+export const DECISIONS_PREFIX = "adr";
+export const DECISIONS_INDEX = "/docs/adr";
 
 /** Pages that are built and reachable by URL but deliberately kept out of the nav. */
 const HIDDEN_IDS = new Set<string>([
   "code-of-conduct",
-  "CONTRIBUTING", // root duplicate of development/CONTRIBUTING
   // The docs repo's own release notes (docs v1.2.x, compare links into
   // mcp-hangar/docs) -- not the product's. In the nav, beside the Upgrade
   // Guide, it read as the product changelog, and the footer linked it as one.
@@ -97,6 +104,7 @@ const EXPLICIT_ORDER: string[] = [
   // Getting Started
   "getting-started/quickstart",
   "getting-started/installation",
+  "getting-started/releases",
   // Guides
   "guides/HTTP_TRANSPORT",
   "guides/AUTHENTICATION",
@@ -120,26 +128,20 @@ const EXPLICIT_ORDER: string[] = [
   "reference/rest-api",
   "reference/tools",
   "reference/hot-reload",
-  // Architecture
+  // Reference: architecture after the lookup pages
   "architecture/OVERVIEW",
   "architecture/EVENT_SOURCING",
   "architecture/INTERCEPTOR_FRAMEWORK",
-  // Operations
+  // Operate
+  "upgrade",
   "operations/COMPLIANCE",
   "observability/otel-integrations",
   "integrations/openlit-otlp",
-  "runbooks/RELEASE",
+  // Security
   "security",
+  "security/VERDICT_LIMITS",
+  "security/OWASP_MCP_TOP_10_COVERAGE",
   "security/AUTH_SECURITY_AUDIT",
-  "upgrade",
-  // Development
-  "development/CONTRIBUTING",
-  "development/GIT_FLOW",
-  "development/BRANCH_PROTECTION",
-  "development/PROJECT_BOARD",
-  "development/EPIC_PLAYBOOK",
-  "development/HOTFIX_RUNBOOK",
-  "testing/approval-gate-manual-testing",
 ];
 
 /** Short, curated sidebar labels. Falls back to `sidebar.label` then title. */
@@ -166,34 +168,15 @@ const LABEL_OVERRIDES: Record<string, string> = {
   "reference/rest-api": "REST API",
   "reference/tools": "MCP Tools",
   "reference/hot-reload": "Hot Reload",
-  "architecture/OVERVIEW": "Overview",
+  "architecture/OVERVIEW": "Architecture Overview",
   "architecture/EVENT_SOURCING": "Event Sourcing",
   "architecture/INTERCEPTOR_FRAMEWORK": "Interceptor Framework",
   "operations/COMPLIANCE": "Compliance Export",
   "observability/otel-integrations": "OpenTelemetry",
   "integrations/openlit-otlp": "OpenLIT OTLP",
-  "runbooks/RELEASE": "Release Runbook",
   security: "Security Policy",
   "security/AUTH_SECURITY_AUDIT": "Auth Security Audit",
   upgrade: "Upgrade Guide",
-  "adr/ADR-001-cqrs": "ADR-001 CQRS",
-  "adr/ADR-002-event-sourcing": "ADR-002 Event Sourcing",
-  "adr/ADR-003-sagas": "ADR-003 Sagas",
-  "adr/ADR-004-sep-1766-digest-pinning": "ADR-004 Digest Pinning",
-  "adr/ADR-005-sep-1763-interceptor-compliance":
-    "ADR-005 Interceptor Compliance",
-  "adr/ADR-006-tetragon": "ADR-006 Tetragon",
-  "adr/ADR-007-langfuse-integration": "ADR-007 Langfuse",
-  "adr/ADR-008-tasks-relay-only": "ADR-008 Tasks Relay-Only",
-  "adr/ADR-009-independent-release-topology": "ADR-009 Release Topology",
-  "adr/ADR-010-retire-agent-cloud-tier": "ADR-010 Retire Agent/Cloud",
-  "development/CONTRIBUTING": "Contributing",
-  "development/GIT_FLOW": "Git Flow",
-  "development/BRANCH_PROTECTION": "Branch Protection",
-  "development/PROJECT_BOARD": "Project Board",
-  "development/EPIC_PLAYBOOK": "Epic Playbook",
-  "development/HOTFIX_RUNBOOK": "Hotfix Runbook",
-  "testing/approval-gate-manual-testing": "Approval Gate Testing",
 };
 
 const ORDER_INDEX = new Map(EXPLICIT_ORDER.map((id, i) => [id, i]));
@@ -273,7 +256,9 @@ function sortDocs(docs: DocEntry[]): DocEntry[] {
  * Deterministic and pure — safe to unit test and to call from Astro components.
  */
 export function buildDocsNav(docs: DocEntry[]): DocsNav {
-  const visible = docs.filter((d) => !HIDDEN_IDS.has(d.id));
+  const visible = docs.filter(
+    (d) => !HIDDEN_IDS.has(d.id) && !isDecision(d.id)
+  );
 
   // Bucket docs into their configured section; unmatched ids fall back to a
   // section named after their top-level directory so nothing is ever dropped.
@@ -309,6 +294,87 @@ export function buildDocsNav(docs: DocEntry[]): DocsNav {
 
   const flat = sections.flatMap((s) => s.links);
   return { sections, flat };
+}
+
+export function isDecision(id: string): boolean {
+  return matchesPrefix(id, DECISIONS_PREFIX);
+}
+
+/**
+ * The Decisions nav: every ADR in number order (natural id order, which is
+ * number order for `adr/ADR-NNN-*`). Its own sidebar group and its own pager,
+ * so reading ADR-014 pages on to ADR-015 rather than into the quick start.
+ */
+export function buildDecisionsNav(docs: DocEntry[]): NavLink[] {
+  return docs
+    .filter((d) => isDecision(d.id))
+    .sort((a, b) => naturalCompare(a.id, b.id))
+    .map((d) => ({ href: `/docs/${d.id}`, label: adrLabel(d.data.title) }));
+}
+
+/** `ADR-014: Tasks are Relayed With Governance -- …` -> `ADR-014 Tasks are Relayed With Governance`. */
+function adrLabel(title: string): string {
+  return cleanLabel(title)
+    .replace(/^(ADR-\d+):\s*/, "$1 ")
+    .replace(/`/g, "");
+}
+
+export interface DecisionRecord {
+  href: string;
+  /** "ADR-014" */
+  number: string;
+  /** The title without the number or a `--` subtitle. */
+  title: string;
+  /** Proposed, Accepted, Superseded, Deprecated or Rejected. */
+  status: string;
+  /** True when the status line says a later ADR replaced part of it. */
+  partlySuperseded: boolean;
+}
+
+const STATUS_WORDS = [
+  "Proposed",
+  "Accepted",
+  "Superseded",
+  "Deprecated",
+  "Rejected",
+] as const;
+
+/**
+ * Reads an ADR's number, title and status. The status comes from the
+ * `**Status:**` line every ADR in mcp-hangar/docs carries; its first word is
+ * the status and the rest is commentary ("Accepted -- partially superseded by
+ * ADR-010 (…)"). An ADR without a recognisable status throws: an index that
+ * prints "Unknown" for a decision's standing is worse than a failed build.
+ */
+export function parseDecision(doc: {
+  id: string;
+  data: { title: string };
+  body?: string;
+}): DecisionRecord {
+  const number =
+    /^(ADR-\d+)/.exec(doc.data.title)?.[1] ?? /(ADR-\d+)/.exec(doc.id)?.[1];
+  if (!number) throw new Error(`Decision "${doc.id}" has no ADR number`);
+  const line = /^\s*\*\*Status:?\*\*:?\s*(.+)$/im.exec(doc.body ?? "")?.[1];
+  const status = STATUS_WORDS.find((w) =>
+    new RegExp(`^${w}\\b`, "i").test(line?.trim() ?? "")
+  );
+  if (!line || !status) {
+    throw new Error(
+      `Decision "${doc.id}" has no recognisable **Status:** line ` +
+        `(expected one of ${STATUS_WORDS.join(", ")})`
+    );
+  }
+  // Backticks are markdown, and this is a plain-text title.
+  const title = cleanLabel(doc.data.title)
+    .replace(/^ADR-\d+:\s*/, "")
+    .replace(/`/g, "");
+  return {
+    href: `/docs/${doc.id}`,
+    number,
+    title,
+    status,
+    partlySuperseded: status !== "Superseded" && /superseded/i.test(line),
+  };
 }
 
 /**

@@ -131,4 +131,36 @@ describe("documentation loader", () => {
     await expect(loader.load(ctx)).rejects.toThrow();
     expect(entries.get("a")?.body).toContain("Original");
   });
+
+  it("publishes no contributor pages, and sends links to them to GitHub", async () => {
+    const directory = await fixture();
+    await fs.mkdir(path.join(directory, "development"));
+    await fs.mkdir(path.join(directory, "guides"));
+    await fs.writeFile(
+      path.join(directory, "development", "GIT_FLOW.md"),
+      "# Git flow\n\nBranches."
+    );
+    await fs.writeFile(path.join(directory, "README.md"), "# Readme");
+    await fs.writeFile(
+      path.join(directory, "guides", "A.md"),
+      "# A\n\nSee [flow](../development/GIT_FLOW.md) and [readme](../README.md)."
+    );
+    const { ctx, entries } = context();
+    await ossDocsLoader({ directory }).load(ctx);
+    expect([...entries.keys()]).toEqual(["guides/A"]);
+    const html = entries.get("guides/A")!.rendered.html;
+    expect(html).toContain(
+      'href="https://github.com/mcp-hangar/docs/blob/main/development/GIT_FLOW.md"'
+    );
+    expect(html).toContain('href="/docs"');
+  });
+
+  it("fails the build on a link to a markdown file the docs repo does not have", async () => {
+    const directory = await fixture();
+    await fs.writeFile(path.join(directory, "a.md"), "# A\n\n[gone](GONE.md)");
+    const { ctx } = context();
+    await expect(ossDocsLoader({ directory }).load(ctx)).rejects.toThrow(
+      /no such file in the docs repository/
+    );
+  });
 });
