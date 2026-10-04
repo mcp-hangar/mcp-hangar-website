@@ -2,6 +2,7 @@
 import PolicySnippet from "../PolicySnippet.astro";
 import PipelineMotif from "../PipelineMotif.astro";
 import WireRecord from "../WireRecord.astro";
+import { TOOL_ACCESS_SNIPPET } from "../../lib/home-snippets";
 
 /**
  * Four things you do with it, replacing a sixteen-tile capability grid.
@@ -19,11 +20,7 @@ import WireRecord from "../WireRecord.astro";
  * a landing page inventing plausible YAML is worse than one showing none.
  */
 
-const toolAccess = `mcp_servers:
-  github:
-    tools:
-      allow_list: ["github.get_*", "github.list_*"]
-      approval_list: ["github.create_issue"]`;
+const toolAccess = TOOL_ACCESS_SNIPPET;
 
 const digestPin = `mcp_servers:
   payments:
@@ -86,7 +83,7 @@ import SectionHeader from "../SectionHeader.astro";
         against the new shape.
       </p>
       <PolicySnippet filename="config.yaml" code={digestPin} class="mb-5" />
-      <p class="text-sm text-zinc-500 mb-5">
+      <p class="text-sm text-zinc-400 mb-5">
         Distinct from container <em>image</em> digest pinning, which the operator does
         separately at admission time.
       </p>
@@ -112,7 +109,7 @@ import SectionHeader from "../SectionHeader.astro";
             and it is evaluated inside the tool invocation, immediately before any
             outbound I/O happens.
           </p>
-          <p class="text-sm text-zinc-500 mb-6">
+          <p class="text-sm text-zinc-400 mb-6">
             End-to-end enforcement needs core <span class="font-mono">v1.6.0+</span> and
             operator <span class="font-mono">v0.14.0+</span>; the operator ships the
             <span class="font-mono"> MCPEgressPolicy</span> CRD and its controller.
@@ -138,7 +135,7 @@ import SectionHeader from "../SectionHeader.astro";
             alike. A verdict nobody can attribute proves nothing, so identity travels
             with the record rather than being reconstructed afterwards.
           </p>
-          <p class="text-sm text-zinc-500">
+          <p class="text-sm text-zinc-400">
             Exportable as CEF, LEEF, JSONL and RFC 5424 syslog. OTLP is a separate
             trace and audit-span path, not a SIEM format.
           </p>

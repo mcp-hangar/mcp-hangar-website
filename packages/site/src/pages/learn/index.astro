@@ -297,7 +297,7 @@ const versions = sortVersionsDescending([...new Set(entries.map(e => e.data.sinc
   }
   .learn-hub .archhead { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
   .learn-hub .archtitle { font-size: 12.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
-  .learn-hub .archhint { font-size: 12.5px; color: var(--faint); }
+  .learn-hub .archhint { font-size: 12.5px; color: var(--muted); }
   .learn-hub .clearmap { color: var(--brand); cursor: pointer; font-weight: 600; margin-left: 4px; }
   .learn-hub .clearmap:hover { text-decoration: underline; }
 
@@ -319,12 +319,12 @@ const versions = sortVersionsDescending([...new Set(entries.map(e => e.data.sinc
     font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .09em; color: var(--muted);
     border: 1px solid var(--line-2); border-radius: 999px; padding: 2px 9px;
   }
-  .learn-hub .planewhen { font-size: 12.5px; color: var(--faint); }
+  .learn-hub .planewhen { font-size: 12.5px; color: var(--muted); }
   .learn-hub .planerow { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
   .learn-hub .pbox { padding: 12px 14px; display: flex; flex-direction: column; }
   .learn-hub .pbox .ph { font-weight: 700; font-size: 13.5px; color: var(--ink); }
   .learn-hub .pbox .pd { font-size: 12px; color: var(--muted); margin-top: 2px; }
-  .learn-hub .planenote { font-size: 12px; color: var(--faint); margin-top: 9px; }
+  .learn-hub .planenote { font-size: 12px; color: var(--muted); margin-top: 9px; }
   .learn-hub .planenote code, .learn-hub .asyncnote code, .learn-hub .naside code {
     font-family: var(--font-mono, ui-monospace, monospace); font-size: .92em; color: var(--ink-2);
   }
@@ -332,7 +332,7 @@ const versions = sortVersionsDescending([...new Set(entries.map(e => e.data.sinc
   /* the seam between the two planes — signals a change of plane + moment */
   .learn-hub .planegap { display: flex; align-items: center; gap: 12px; margin: 20px 2px 20px; }
   .learn-hub .planegap .gapline { flex: 1; height: 1px; background: var(--line); }
-  .learn-hub .planegap .gaptext { font-size: 10.5px; text-transform: uppercase; letter-spacing: .08em; color: var(--faint); font-weight: 700; }
+  .learn-hub .planegap .gaptext { font-size: 10.5px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 700; }
 
   /* ONE vertical spine — every stage centred on the same axis, top → bottom is
      request order. Endpoints (client / auth / upstream / response) are full-width
@@ -345,10 +345,10 @@ const versions = sortVersionsDescending([...new Set(entries.map(e => e.data.sinc
     padding: 14px 16px; display: flex; flex-direction: column;
     border-style: dashed; border-color: var(--line-2);
   }
-  .learn-hub .node .nt { font-size: 11.5px; text-transform: uppercase; letter-spacing: .08em; color: var(--faint); font-weight: 700; }
+  .learn-hub .node .nt { font-size: 11.5px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 700; }
   .learn-hub .node .nh { font-weight: 700; font-size: 16px; margin: 4px 0 3px; color: var(--ink); }
   .learn-hub .node .nd { font-size: 13px; color: var(--muted); }
-  .learn-hub .node .naside { font-size: 11.5px; color: var(--faint); margin-top: 6px; padding-top: 6px; border-top: 1px dotted var(--line-2); }
+  .learn-hub .node .naside { font-size: 11.5px; color: var(--muted); margin-top: 6px; padding-top: 6px; border-top: 1px dotted var(--line-2); }
 
   /* the enforcement seam — the dense, ORDERED pipeline: the tall centrepiece */
 
@@ -365,12 +365,12 @@ const versions = sortVersionsDescending([...new Set(entries.map(e => e.data.sinc
     border: 1px dashed var(--line-2); border-radius: 12px; background: var(--panel-2); padding: 10px 12px 12px;
   }
   .learn-hub .respside .resphead { display: flex; align-items: baseline; gap: 8px; margin-bottom: 2px; }
-  .learn-hub .respside .resphead .nt { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--faint); font-weight: 700; }
+  .learn-hub .respside .resphead .nt { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 700; }
   .learn-hub .respside .respmeta { font-size: 11px; color: var(--muted); }
   .learn-hub .rbox { padding: 9px 11px; display: flex; flex-direction: column; }
   .learn-hub .rbox .rh { font-weight: 700; font-size: 12px; color: var(--ink); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
   .learn-hub .rbox .rd { font-size: 11px; color: var(--muted); margin-top: 1px; }
-  .learn-hub .rbox.is-off { border-style: dashed; opacity: .62; }
+  .learn-hub .rbox.is-off { border-style: dashed; opacity: .8; }
   .learn-hub .rbox.is-off .rh { color: var(--muted); font-weight: 600; }
 
   /* async branch — hangs off the upstream RESPONSE (not a client-chosen lane) */
@@ -383,12 +383,12 @@ const versions = sortVersionsDescending([...new Set(entries.map(e => e.data.sinc
   .learn-hub .abox { flex: 1 1 220px; min-width: 200px; padding: 11px 12px; display: flex; flex-direction: column; }
   .learn-hub .abox .ah { font-weight: 700; font-size: 13px; color: var(--ink); display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
   .learn-hub .abox .ad { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
-  .learn-hub .asyncnote { font-size: 11px; color: var(--faint); margin-top: 9px; }
+  .learn-hub .asyncnote { font-size: 11px; color: var(--muted); margin-top: 9px; }
 
   /* inline tags — neutral, except the meaningful amber v2 status badge */
   .learn-hub .tag { font-size: 9.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; padding: 2px 6px; border-radius: 5px; white-space: nowrap; }
   .learn-hub .tag.opt { background: var(--raise); color: var(--muted); }
-  .learn-hub .tag.off { background: transparent; color: var(--faint); border: 1px dashed var(--line-2); }
+  .learn-hub .tag.off { background: transparent; color: var(--muted); border: 1px dashed var(--line-2); }
   .learn-hub .tag.v2 { background: var(--preview-bg); color: var(--preview); }
 
   /* horizontal connector — used only inside the async row (left → right) */
@@ -400,7 +400,7 @@ const versions = sortVersionsDescending([...new Set(entries.map(e => e.data.sinc
   .learn-hub .dconn::after { content: ""; position: absolute; bottom: -1px; left: -3px; border: 4px solid transparent; border-top-color: var(--line-2); }
   .learn-hub .dconn .wirenote {
     position: absolute; left: 12px; top: 50%; transform: translateY(-50%); white-space: nowrap;
-    font-size: 9.5px; text-transform: uppercase; letter-spacing: .06em; font-weight: 700; color: var(--faint);
+    font-size: 9.5px; text-transform: uppercase; letter-spacing: .06em; font-weight: 700; color: var(--muted);
   }
   /* L7 → upstream: the emphasised hop across the wire (brand-tinted, roomy label) */
   .learn-hub .dconn.wire { height: 40px; width: 2px; background: color-mix(in srgb, var(--brand) 55%, var(--line-2)); }
@@ -431,7 +431,7 @@ const versions = sortVersionsDescending([...new Set(entries.map(e => e.data.sinc
     background: var(--panel); border: 1px solid var(--line); border-radius: 12px; position: sticky; top: 12px; z-index: 10;
   }
   .learn-hub .fgroup { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-  .learn-hub .fgroup .lbl { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--faint); font-weight: 700; margin-right: 2px; }
+  .learn-hub .fgroup .lbl { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 700; margin-right: 2px; }
   .learn-hub .chip {
     appearance: none; border: 1px solid var(--line); background: var(--panel-2); color: var(--ink-2); font: inherit; font-size: 12.5px; font-weight: 600;
     padding: 5px 11px; border-radius: 999px; cursor: pointer; transition: all .12s; display: inline-flex; align-items: center; gap: 6px;
@@ -439,7 +439,7 @@ const versions = sortVersionsDescending([...new Set(entries.map(e => e.data.sinc
   .learn-hub .chip:hover { border-color: var(--muted); }
   .learn-hub .chip[aria-pressed="true"] { background: var(--brand-dim); border-color: color-mix(in srgb, var(--brand) 55%, transparent); color: var(--brand); }
   .learn-hub .chip .sw { width: 8px; height: 8px; border-radius: 3px; }
-  .learn-hub .count { margin-left: auto; font-size: 12.5px; color: var(--faint); }
+  .learn-hub .count { margin-left: auto; font-size: 12.5px; color: var(--muted); }
   .learn-hub .count b { color: var(--ink); }
 
   /* card grid */
@@ -478,9 +478,9 @@ const versions = sortVersionsDescending([...new Set(entries.map(e => e.data.sinc
   /* Amber: the release named is ahead of the one this site advertises. */
   .learn-hub .pill.preview { background: var(--preview-bg); color: var(--preview); }
   .learn-hub .card.hidden { display: none; }
-  .learn-hub .empty { grid-column: 1 / -1; text-align: center; color: var(--faint); padding: 40px; font-size: 14px; }
+  .learn-hub .empty { grid-column: 1 / -1; text-align: center; color: var(--muted); padding: 40px; font-size: 14px; }
 
-  .learn-hub .foot { border-top: 1px solid var(--line); color: var(--faint); font-size: 12.5px; padding: 22px 0 50px; text-align: center; }
+  .learn-hub .foot { border-top: 1px solid var(--line); color: var(--muted); font-size: 12.5px; padding: 22px 0 50px; text-align: center; }
 </style>
 
 <script>

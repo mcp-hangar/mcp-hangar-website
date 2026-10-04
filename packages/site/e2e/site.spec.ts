@@ -57,17 +57,23 @@ test("mobile navigation and documentation drawer open and close", async ({
 // its content -- so the card's own `overflow-x-auto` never got a chance, and
 // the whole homepage was 154px wider than a 390px viewport. Nothing in the
 // desktop layout showed it.
+//
+// Every page in the sitemap, not a sample: the second time this broke it was
+// 85 pages at once -- markdown tables and long inline code in the docs, blog
+// and security content, none of which a five-page sample happened to hold.
 test("no page scrolls sideways at phone width", async ({ page }) => {
+  test.setTimeout(180_000);
   await page.setViewportSize({ width: 390, height: 800 });
+  const sitemap = await (await page.request.get("/sitemap-0.xml")).text();
+  const routes = [
+    ...sitemap.matchAll(/<loc>https:\/\/mcp-hangar\.io([^<]*)<\/loc>/g),
+  ].map((m) => m[1] || "/");
+  expect(routes.length).toBeGreaterThan(100);
   const offenders: string[] = [];
-  for (const route of [
-    "/",
-    "/docs/getting-started/quickstart",
-    "/learn",
-    "/blog",
-    "/security",
-  ]) {
-    await page.goto(route);
+  for (const route of routes) {
+    // A 404 page is narrow too; make sure the page measured is the real one.
+    const response = await page.goto(route);
+    expect(response?.ok(), route).toBe(true);
     const overflow = await page.evaluate(
       () =>
         document.documentElement.scrollWidth -

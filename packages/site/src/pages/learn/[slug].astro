@@ -52,7 +52,7 @@ const titleOf = new Map(allEntries.map(e => [e.id, e.data.title]));
 >
   <main class="max-w-3xl mx-auto px-6 py-16">
     <!-- Back link -->
-    <a href="/learn" class="inline-flex items-center gap-1.5 text-sm text-zinc-500 hover:text-zinc-300 transition-colors mb-8 group">
+    <a href="/learn" class="inline-flex items-center gap-1.5 text-sm text-zinc-400 hover:text-zinc-300 transition-colors mb-8 group">
       <span class="group-hover:-translate-x-0.5 transition-transform">&larr;</span>
       All concepts
     </a>
@@ -88,7 +88,7 @@ const titleOf = new Map(allEntries.map(e => [e.id, e.data.title]));
           </div>
         )}
         <h1 class="text-3xl md:text-4xl font-bold text-zinc-50 mb-4 leading-tight">{entry.data.title}</h1>
-        <p class="text-sm text-zinc-500">Updated {fmtDate(entry.data.updated)}</p>
+        <p class="text-sm text-zinc-400">Updated {fmtDate(entry.data.updated)}</p>
       </header>
 
       <div class="mt-8 blog-content">
@@ -121,10 +121,10 @@ const titleOf = new Map(allEntries.map(e => [e.id, e.data.title]));
       {track.index !== null && (
         <nav aria-label="Learn track">
           <div class="flex items-center justify-between gap-4 mb-5">
-            <span class="font-mono text-xs text-zinc-500 uppercase tracking-wider">
+            <span class="font-mono text-xs text-zinc-400 uppercase tracking-wider">
               Step {track.index} of {track.total} &middot; Learn track
             </span>
-            <a href="/learn" class="text-sm text-zinc-500 hover:text-zinc-300 transition-colors">
+            <a href="/learn" class="text-sm text-zinc-400 hover:text-zinc-300 transition-colors">
               All concepts
             </a>
           </div>
@@ -135,7 +135,7 @@ const titleOf = new Map(allEntries.map(e => [e.id, e.data.title]));
                 href={`/learn/${track.prev}`}
                 class="group rounded-xl bg-zinc-900/40 border border-zinc-800/60 hover:border-zinc-600/60 hover:bg-zinc-900/60 px-5 py-4 transition-colors"
               >
-                <span class="flex items-center gap-1.5 text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-1.5">
+                <span class="flex items-center gap-1.5 text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1.5">
                   <span class="group-hover:-translate-x-0.5 transition-transform" aria-hidden="true">&larr;</span>
                   Previous
                 </span>
@@ -149,7 +149,7 @@ const titleOf = new Map(allEntries.map(e => [e.id, e.data.title]));
                 href={`/learn/${track.next}`}
                 class={`group rounded-xl bg-zinc-900/40 border border-zinc-800/60 hover:border-zinc-600/60 hover:bg-zinc-900/60 px-5 py-4 transition-colors sm:text-right ${track.prev ? '' : 'sm:col-start-2'}`}
               >
-                <span class="flex items-center gap-1.5 text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-1.5 sm:justify-end">
+                <span class="flex items-center gap-1.5 text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1.5 sm:justify-end">
                   Next
                   <span class="group-hover:translate-x-0.5 transition-transform" aria-hidden="true">&rarr;</span>
                 </span>
