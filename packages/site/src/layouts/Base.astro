@@ -7,6 +7,10 @@ import { DESCRIPTION, VERSION } from '../config';
 import { OPERATING_SYSTEMS, SIEM_FORMATS } from '../lib/product-facts';
 
 import { ogPathFor } from '../og/resolve';
+// The two faces every page sets text in, preloaded so `font-display: optional`
+// finds them ready at first paint (see the @font-face rules in global.css).
+import plexSans from '@fontsource/ibm-plex-sans/files/ibm-plex-sans-latin-400-normal.woff2?url';
+import schibsted from '@fontsource/schibsted-grotesk/files/schibsted-grotesk-latin-800-normal.woff2?url';
 
 interface Props {
     title: string;
@@ -64,6 +68,8 @@ const defaultKeywords = "MCP, Model Context Protocol, runtime security, governan
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={`${siteUrl}${ogImage}`} />
 
+    <link rel="preload" href={plexSans} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={schibsted} as="font" type="font/woff2" crossorigin />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <!-- The ground of each theme (tokens.css --c-ground). A meta cannot read a
          custom property, so these two are the only literals outside tokens.css. -->
