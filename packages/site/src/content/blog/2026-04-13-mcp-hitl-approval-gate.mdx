@@ -8,7 +8,7 @@ tags: [mcp, mcp-hangar, governance, security, llm, enterprise, human-in-the-loop
 
 ## The Core Idea
 
-> **Update (2026-10-05):** The config snippet in this section is the format of its time, and core 2.24.0 will not run it. A file with no `mcp_servers:` section is refused at startup, the per-server policy is now a `tools:` block rather than `tool_access_policy:`, and `dashboard` was never a channel core shipped (it ships `event_stream` and `noop`; leave `approval_channel` unset to use the deployment's `approvals.channel`). The same policy today, checked against a 2.24.0 gateway:
+> **Update (2026-10-05):** The config snippet in this section is the format of its time, and core 2.24.0 will not run it. A file with no `mcp_servers:` section is refused at startup, the per-server policy is now a `tools:` block rather than `tool_access_policy:`, and the `dashboard` channel it names is no longer shipped (2.24.0 ships `event_stream` and `noop`; leave `approval_channel` unset to use the deployment's `approvals.channel`). The same policy today, checked against a 2.24.0 gateway:
 >
 > ```yaml
 > mcp_servers:
