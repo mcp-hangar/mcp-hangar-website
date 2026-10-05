@@ -16,6 +16,7 @@ import rehypeStringify from "rehype-stringify";
 import rehypeDocLinks from "../../lib/rehype-doc-links";
 import { isPublished } from "../../lib/docs-publication";
 import rehypeTableWrap from "../../lib/rehype-table-wrap";
+import rehypeTaskListLabels from "../../lib/rehype-task-list-labels";
 import rehypeMermaidPre from "../../lib/rehype-mermaid-pre";
 import rehypeCollectHeadings from "../../lib/rehype-collect-headings";
 import rehypeFocusablePre from "../../lib/rehype-focusable-pre";
@@ -34,6 +35,8 @@ async function createMarkdownProcessor(
       .use(rehypeRaw)
       // Before anything else reads the tree, so raw-HTML tables are wrapped too.
       .use(rehypeTableWrap)
+      // After rehype-raw too, so a task list written as raw HTML is named.
+      .use(rehypeTaskListLabels)
       .use(rehypeDocLinks, { validIds, repoIds })
       // Section anchors, with the same slugger Astro uses for every other
       // collection, then the headings a contents rail is built from.

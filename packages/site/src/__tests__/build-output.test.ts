@@ -194,6 +194,26 @@ describe("Build Output", () => {
     expect(offenders).toEqual([]);
   });
 
+  // axe `label` (#304): a task-list checkbox is named by the plugin, not by
+  // the text beside it. Checked over dist so both pipelines are covered.
+  it("should give every task-list checkbox an accessible name", () => {
+    // Quoted attribute values may hold ">" (e.g. `mcp_servers.<id>`).
+    const INPUT = /<input\b(?:[^>"]|"[^"]*")*>/g;
+    let seen = 0;
+    const offenders = [...htmlFiles(DIST)].flatMap((file) =>
+      (fs.readFileSync(file, "utf-8").match(INPUT) ?? [])
+        .filter((tag) => /type="checkbox"/.test(tag))
+        .filter((tag) => {
+          seen += 1;
+          return !/aria-label="[^"]*\S[^"]*"/.test(tag);
+        })
+        .map((tag) => `${path.relative(DIST, file)}: ${tag}`)
+    );
+
+    expect(seen).toBeGreaterThan(0);
+    expect(offenders).toEqual([]);
+  });
+
   it("should generate privacy policy page", () => {
     const html = readDistFile("privacy/index.html");
     expect(html).toContain("Privacy Policy");

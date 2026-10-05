@@ -1,5 +1,6 @@
 import type { APIRoute } from "astro";
 import { getCollection } from "astro:content";
+import { publishedPosts } from "../lib/blog";
 import {
   AUDIT_EXPORT_FACT,
   DEPLOYMENT_FACT,
@@ -17,7 +18,7 @@ export const GET: APIRoute = async () => {
   const securityPages = (await getCollection("security")).sort(
     (a, b) => a.data.order - b.data.order
   );
-  const posts = (await getCollection("blog")).sort(
+  const posts = (await publishedPosts()).sort(
     (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
   );
 
