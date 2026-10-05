@@ -16,16 +16,27 @@ const css = read("src/styles/global.css");
 const astro = fg.sync(["src/**/*.astro"], { cwd: root });
 
 describe("fonts", () => {
-  it("self-hosts the three families and nothing else", () => {
-    const imports = [...css.matchAll(/@import "@fontsource[^"]*"/g)].map(
-      (m) => m[0]
+  it("self-hosts five faces of the three families, Latin only", () => {
+    const sources = [...css.matchAll(/url\('([^']+\.woff2)'\)/g)].map(
+      (m) => m[1]
     );
-    expect(imports.length).toBeGreaterThan(0);
-    for (const i of imports) {
-      expect(i).toMatch(
-        /@fontsource\/(schibsted-grotesk|ibm-plex-sans|ibm-plex-mono)\/latin-\d00(-italic)?\.css/
+    expect(sources).toHaveLength(5);
+    for (const src of sources) {
+      expect(src).toMatch(
+        /@fontsource\/(schibsted-grotesk|ibm-plex-sans|ibm-plex-mono)\/files\/[\w-]+-latin-\d00-(normal|italic)\.woff2$/
       );
     }
+    expect(css).not.toMatch(/@import "@fontsource/);
+  });
+
+  it("never reflows the page when a face arrives", () => {
+    const displays = [
+      ...css
+        .replace(/\/\*[\s\S]*?\*\//g, "")
+        .matchAll(/font-display:\s*(\w+)/g),
+    ].map((m) => m[1]);
+    expect(displays).toHaveLength(5);
+    expect(new Set(displays)).toEqual(new Set(["optional"]));
   });
 
   it("names them in the theme", () => {
