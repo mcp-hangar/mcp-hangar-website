@@ -8,6 +8,24 @@ tags: [mcp, mcp-hangar, governance, security, llm, enterprise, human-in-the-loop
 
 ## The Core Idea
 
+> **Update (2026-10-05):** The config snippet in this section is the format of its time, and core 2.24.0 will not run it. A file with no `mcp_servers:` section is refused at startup, the per-server policy is now a `tools:` block rather than `tool_access_policy:`, and the `dashboard` channel it names is no longer shipped (2.24.0 ships `event_stream` and `noop`; leave `approval_channel` unset to use the deployment's `approvals.channel`). The same policy today, checked against a 2.24.0 gateway:
+>
+> ```yaml
+> mcp_servers:
+>   grafana:
+>     mode: remote
+>     endpoint: https://grafana.example.com/mcp
+>     tools:
+>       deny_list:
+>         - "admin_*"           # blocked entirely
+>       approval_list:
+>         - "delete_*"          # held for human approval
+>         - "create_alert_rule"
+>       approval_timeout_seconds: 300
+> ```
+>
+> See [Holding a tool for a human](/docs/reference/configuration#holding-a-tool-for-a-human-approval_list) for every key.
+
 Your LLM just decided to delete a production alert rule. You didn't ask it to. You asked it to "clean up the old ones" and it made a judgment call.
 
 This is the problem with giving LLMs tool access without a pause point. The model is helpful, confident, and wrong — and by the time you notice, the action is done.

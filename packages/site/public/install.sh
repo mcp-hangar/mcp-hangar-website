@@ -19,7 +19,7 @@ set -euo pipefail
 # Constants
 # ------------------------------------------------------------------------------
 
-readonly INSTALLER_VERSION="1.1.0"
+readonly INSTALLER_VERSION="1.2.0"
 readonly DEFAULT_INSTALL_DIR="${HOME}/.mcp-hangar"
 readonly PACKAGE_NAME="mcp-hangar"
 readonly MIN_PYTHON_MAJOR=3
@@ -50,6 +50,9 @@ HAVE_UV=false
 CREATED_DIR=false
 ORIGINAL_ARGS=()
 SKIP_FAILURE_NOTICE=false
+# The shell profile that puts the bin dir on PATH for new shells, once
+# setup_path has written or found it. Empty means no new shell will have it.
+PATH_RC_FILE=""
 
 # ------------------------------------------------------------------------------
 # Terminal / Color support
@@ -230,12 +233,18 @@ get_shell_rc_file() {
     case "$shell" in
         bash)
             if [[ "$(detect_os)" == "macos" ]]; then
-                # macOS uses .bash_profile for login shells
-                if [[ -f "${HOME}/.bash_profile" ]]; then
-                    echo "${HOME}/.bash_profile"
-                else
-                    echo "${HOME}/.bashrc"
-                fi
+                # Terminal windows on macOS start bash as a login shell, which
+                # reads the first of these that exists and never ~/.bashrc.
+                # Writing ~/.bashrc there put the PATH line where no new shell
+                # would read it. With none of them present, create the first.
+                local profile
+                for profile in .bash_profile .bash_login .profile; do
+                    if [[ -f "${HOME}/${profile}" ]]; then
+                        echo "${HOME}/${profile}"
+                        return
+                    fi
+                done
+                echo "${HOME}/.bash_profile"
             else
                 echo "${HOME}/.bashrc"
             fi
@@ -543,9 +552,12 @@ setup_path() {
         return 0
     fi
 
-    # Check if rc file already has our path
-    if [[ -f "$rc_file" ]] && grep -q "MCP Hangar" "$rc_file" 2>/dev/null; then
+    # Check if rc file already puts this bin dir on PATH. Match the directory,
+    # not the "MCP Hangar" marker: the completions block carries the marker
+    # too, and a line for another --dir would not put this one on PATH.
+    if [[ -f "$rc_file" ]] && grep -F "$bin_dir" "$rc_file" 2>/dev/null | grep -q PATH; then
         log_debug "RC file already configured"
+        PATH_RC_FILE="$rc_file"
         return 0
     fi
 
@@ -572,6 +584,7 @@ setup_path() {
         echo "$path_line"
     } >> "$rc_file"
 
+    PATH_RC_FILE="$rc_file"
     log_success "PATH configured in $rc_file"
 }
 
@@ -918,6 +931,8 @@ EOF
 
 print_success() {
     local bin_dir="${INSTALL_DIR}/bin"
+    local cli="mcp-hangar"
+    local path_line
 
     if [[ "$QUIET" == "true" ]]; then
         echo "${bin_dir}/mcp-hangar"
@@ -931,20 +946,47 @@ print_success() {
     echo -e "${BOLD}Location:${NC}  ${INSTALL_DIR}"
     echo ""
 
-    # Check if PATH is configured
+    # This script runs in a child process (`curl ... | bash`), so nothing it
+    # does can change the PATH of the shell that started it. Until the user
+    # runs the line below or opens a new shell, a bare `mcp-hangar` in that
+    # shell exits 127 -- say so, and print commands that work as written.
     if [[ ":${PATH}:" != *":${bin_dir}:"* ]]; then
-        echo -e "${YELLOW}Note:${NC} Restart your shell or run:"
+        # Spell a directory under $HOME the short way: `~/` for a command and
+        # `$HOME/` inside the quotes of the PATH line, where `~` would not
+        # expand. Both are what the docs print, and both paste as written.
+        local shown_cli="${bin_dir}/mcp-hangar"
+        local shown_dir="$bin_dir"
+        if [[ "$bin_dir" == "${HOME}/"* ]]; then
+            # shellcheck disable=SC2088 # a literal ~ is the point: it is printed, not run
+            shown_cli="~/${bin_dir#"${HOME}/"}/mcp-hangar"
+            shown_dir="\$HOME/${bin_dir#"${HOME}/"}"
+        fi
+        cli="$shown_cli"
+        if [[ "$(detect_shell)" == "fish" ]]; then
+            path_line="set -gx PATH \"${shown_dir}\" \$PATH"
+        else
+            path_line="export PATH=\"${shown_dir}:\$PATH\""
+        fi
+
+        echo -e "${YELLOW}Note:${NC} mcp-hangar is not on this shell's PATH yet."
+        if [[ -n "$PATH_RC_FILE" ]]; then
+            echo "New shells get it from ${PATH_RC_FILE}. To use it in this shell, run:"
+        else
+            echo "No shell profile was changed. To use it in this shell, run:"
+        fi
         echo ""
-        echo -e "  ${CYAN}export PATH=\"${bin_dir}:\$PATH\"${NC}"
+        echo -e "  ${CYAN}${path_line}${NC}"
+        echo ""
+        echo "or call it by its full path, as below:"
         echo ""
     fi
 
     echo -e "${BOLD}Get started:${NC}"
     echo ""
-    echo -e "  ${CYAN}mcp-hangar init${NC}      # Initialize a new project"
-    echo -e "  ${CYAN}mcp-hangar add${NC}       # Add MCP providers"
-    echo -e "  ${CYAN}mcp-hangar serve${NC}     # Start the server"
-    echo -e "  ${CYAN}mcp-hangar --help${NC}    # Show all commands"
+    echo -e "  ${CYAN}${cli} init${NC}      # Initialize a new project"
+    echo -e "  ${CYAN}${cli} add${NC}       # Add MCP providers"
+    echo -e "  ${CYAN}${cli} serve${NC}     # Start the server"
+    echo -e "  ${CYAN}${cli} --help${NC}    # Show all commands"
     echo ""
     echo -e "${BOLD}Resources:${NC}"
     echo -e "  Documentation: ${CYAN}${DOCS_URL}${NC}"

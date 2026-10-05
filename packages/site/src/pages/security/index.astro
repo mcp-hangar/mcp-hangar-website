@@ -1,6 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import { getCollection } from 'astro:content';
+import { publishedPosts } from '../../lib/blog';
 import AdvisoryList from '../../components/AdvisoryList.astro';
 
 const ADVISORIES_URL = 'https://github.com/mcp-hangar/mcp-hangar/security/advisories';
@@ -16,7 +17,7 @@ const pages = (await getCollection('security')).sort(
 // subject and four posts wear it — rate limiting, the approval gate, the 1.5
 // release — so tag-matching filled a section headed "Advisories" with feature
 // announcements, on the one page that opens by promising an honest boundary.
-const writeUps = (await getCollection('blog'))
+const writeUps = (await publishedPosts())
   .filter(p => !p.data.draft && p.data.advisory)
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 
