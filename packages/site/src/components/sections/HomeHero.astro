@@ -1,0 +1,38 @@
+---
+import Button from "../Button.astro";
+import CopyCommand from "../CopyCommand.astro";
+import Record from "../Record.astro";
+import { HEADLINE, HERO_SUB, INSTALL_COMMAND, VERSION_TAG } from "../../config";
+import { HERO_RECORD } from "../../lib/home-records";
+
+/**
+ * The hero states the verdict and then shows one: the headline on the left,
+ * a record of four calls on the right -- one of each verdict, stopped at
+ * different places on the path. The record is the evidence, not decoration;
+ * every field in it is one core writes.
+ *
+ * There used to be a terminal recording under the fold. Its first frame was a
+ * shell preamble rather than the verdict, and the page downloaded both the GIF
+ * and its still (audit 4.5); a record says the same thing, faster, in text.
+ */
+---
+
+<section class="max-w-6xl mx-auto px-4 sm:px-6 pt-12 md:pt-20 pb-16 md:pb-24">
+  <div class="grid gap-10 lg:grid-cols-[1.05fr_1fr] lg:gap-14 lg:items-center [&>*]:min-w-0">
+    <div>
+      <p class="font-mono text-xs text-ink-3 mb-5">{VERSION_TAG} · open source · MIT</p>
+      <h1 class="text-display font-display text-ink mb-6">{HEADLINE}</h1>
+      <p class="text-lead text-ink-2 max-w-[38rem] mb-4">{HERO_SUB}</p>
+      <p class="text-sm text-ink-3 mb-8">Deterministic — no ML. Self-hosted — no SaaS. MIT.</p>
+      <div class="flex flex-wrap items-center gap-3">
+        <CopyCommand command={INSTALL_COMMAND} label="Copy pip install command to clipboard" />
+        <Button href="#how-a-call-is-decided" variant="secondary">Read a verdict</Button>
+      </div>
+    </div>
+
+    <Record rows={HERO_RECORD} label="Four calls and their verdicts" source="audit record">
+      Allowed, held for a person, refused by the tool policy, refused by the egress policy: each with the
+      gate and the code that decided it.
+    </Record>
+  </div>
+</section>

@@ -22,18 +22,14 @@ function* htmlFiles(dir: string): Generator<string> {
 describe("Build Output", () => {
   it("should generate index.html with correct content", () => {
     const html = readDistFile("index.html");
-
-    expect(html).toContain("mcp-hangar");
-
     expect(html).toContain('href="/docs"');
     expect(html).toContain('href="/blog"');
-
-    expect(html).toContain('id="features"');
+    expect(html).toContain('id="how-a-call-is-decided"');
   });
 
-  it("should display OSS badge on index page", () => {
+  it("should state the version and the licence on the index page", () => {
     const html = readDistFile("index.html");
-    expect(html).toContain("Open Source — MIT License");
+    expect(html).toMatch(/v\d+\.\d+\.\d+ · open source · MIT/);
   });
 
   it("should render the install command on index page", () => {
@@ -41,28 +37,24 @@ describe("Build Output", () => {
     expect(html).toContain("pip install mcp-hangar");
   });
 
-  it("should render key sections", () => {
+  // Four sections (redesign stage 2): the verdict, the path, the record, start.
+  it("should render the four home sections, in order", () => {
     const html = readDistFile("index.html");
-    expect(html).toContain("How it works");
-    expect(html).toContain("What you do with it");
-    expect(html).toContain("Runs as a fleet");
+    const at = [
+      "Every MCP tool call ends in a verdict.",
+      "How a call is decided",
+      "What you can prove afterwards",
+      "Install it, understand it, or look it up",
+    ].map((t) => html.indexOf(t));
+    for (const i of at) expect(i).toBeGreaterThan(-1);
+    expect([...at].sort((x, y) => x - y)).toEqual(at);
+    expect(html.match(/<h2[\s>]/g)).toHaveLength(3);
   });
 
   it("should render footer with copyright or open source text", () => {
     const html = readDistFile("index.html");
     expect(html).toContain("MCP Hangar");
     expect(html).toContain("MIT License");
-  });
-
-  // The sixteen-tile capability grid is gone; four use-case cards replace it.
-  it("should render the four use cases, not a capability grid", () => {
-    const html = readDistFile("index.html");
-    expect(html).toContain("Govern who calls what");
-    expect(html).toContain("Pin what tools claim to be");
-    expect(html).toContain("Control where data goes");
-    expect(html).toContain("Prove what happened");
-    // The anchor two nav surfaces still point at has to survive the swap.
-    expect(html).toContain('id="features"');
   });
 
   // The hero names the verdict and the category; it does not argue for either.
@@ -103,7 +95,6 @@ describe("Build Output", () => {
     for (const file of ["llms.txt", "llms-full.txt"]) {
       const content = readDistFile(file);
       expect(content, file).toContain(`> ${lead}`);
-      // Only the summary and key facts: llms-full.txt inlines the docs after them.
       const factsAt = content.indexOf("## Key facts");
       const head = content.slice(0, content.indexOf("\n## ", factsAt + 1));
       expect(head, file).not.toMatch(
@@ -113,37 +104,36 @@ describe("Build Output", () => {
     expect(html).not.toMatch(/policy enforcement plane for MCP on Kubernetes/);
   });
 
-  // The ecosystem thesis is an argument, so it opens the argument section --
-  // one below the hero. If it ever climbs back into the h1, this fails.
-  it("should argue the ecosystem thesis below the hero, not in it", () => {
+  // The proof is a record, not an illustration: real reason codes in the
+  // hero, the gate path drawn from core, and an exported line core wrote.
+  it("should lead with records rather than an illustration", () => {
     const html = readDistFile("index.html");
-    const verdict = html.indexOf("Every MCP tool call ends in a verdict.");
-    const thesis = html.indexOf("Nothing in the protocol");
-
-    expect(verdict).toBeGreaterThan(-1);
-    expect(thesis).toBeGreaterThan(verdict);
-    expect(html).toMatch(/Hangar is\s+the layer/);
-    // It has to sit inside "Why enforcement, not detection", not float above it.
-    expect(thesis).toBeGreaterThan(
-      html.indexOf("Why enforcement, not detection")
-    );
+    expect(html).toContain("tool_not_in_access_policy");
+    expect(html).toContain("gate=approval state=pending");
+    expect(html).toMatch(/l7_verdict=deny/);
+    expect(html).toContain("LEEF:2.0|MCP Hangar|");
+    expect(html).toContain("ToolInvocationDenied");
+    // One record per verdict word, never colour alone.
+    for (const v of ["allow", "hold", "deny"]) {
+      expect(html).toMatch(new RegExp(`class="verdict[^"]*"[^>]*>\\s*${v}`));
+    }
   });
 
-  it("should lead with a real denial rather than an illustration", () => {
+  it("should draw every gate core runs, the tenant budget and timeout included", () => {
     const html = readDistFile("index.html");
-    expect(html).toContain("MCPEgressPolicy"); // the policy
-    expect(html).toContain("github.create_issue"); // the call it refuses
-    expect(html).toContain("isError: true"); // what a refused call actually carries
-    expect(html).toContain("team-research@corp"); // attributed to a caller
+    for (const label of ["Tenant budget", "Timeout", "Approval", "Digest pin"])
+      expect(html).toContain(label);
+    for (const label of ["Rate limit", "Egress policy (L7)", "Response size"])
+      expect(html).toContain(label);
+    expect(html).toMatch(/Generated from <code[^>]*>_GATES<\/code> in core v/);
   });
 
-  // The egress card used to carry "core v1.6.0+ and operator v0.14.0+". On a
-  // home page advertising 2.24 a floor that old reads as history, not as a
-  // requirement (redesign audit C15), so the card names what ships instead.
-  it("should say where egress policy comes from, without stale version floors", () => {
+  // The recording is gone from home: a GIF whose first frame was setup noise,
+  // downloaded alongside its own still (audit 4.5).
+  it("should load no recording on the home page", () => {
     const html = readDistFile("index.html");
-    expect(html).toContain("the operator ships the");
-    expect(html).not.toMatch(/v1\.6\.0\+|v0\.14\.0\+/);
+    expect(html).not.toContain("governed-deny.gif");
+    expect(html).not.toContain("governed-deny.png");
   });
 
   // Copy that the redesign audit found wrong, against core v2.24.0.
@@ -152,11 +142,6 @@ describe("Build Output", () => {
     // C7: a threshold-counting security handler does run; it never decides.
     expect(home).not.toContain("No anomaly scores to tune");
     expect(home).toContain("Nothing on the verdict path is scored or learned.");
-    // C21: the connect-time SSRF re-check covers API-registered remote servers
-    // only; config-file endpoints stay outside the policy (ADR-021).
-    expect(home).toMatch(
-      /SSRF refused when a remote server is registered\s+through the API/
-    );
     // C35: the approval gate does hold a call for a person.
     for (const page of [
       "costs-and-boundaries",
@@ -174,43 +159,11 @@ describe("Build Output", () => {
     );
   });
 
-  it("should render features with icons", () => {
-    const html = readDistFile("index.html");
-    expect(html).toContain('viewBox="0 0 24 24"');
-  });
-
-  // The step-by-step operator tutorial that used to run inline here now lives at
-  // /learn/from-install-to-a-governed-deny. The landing page keeps the install
-  // command and points at the three doors instead.
   it("should offer the three doors out of the landing page", () => {
     const html = readDistFile("index.html");
-    expect(html).toContain("Where to go next");
     expect(html).toContain('href="/learn"');
-    expect(html).toContain('href="/docs/getting-started/quickstart"');
-  });
-
-  it("should render the install command in the start door", () => {
-    const html = readDistFile("index.html");
-    expect(html).toContain("pip install mcp-hangar");
-  });
-
-  it("should link the async governance teaser to its Learn page", () => {
-    const html = readDistFile("index.html");
-    expect(html).toContain('href="/learn/relay-with-governance"');
-  });
-
-  // Hardening was a full section, then a disclosure; it is one sentence now,
-  // and the detail lives at /security.
-  it("should reduce hardening to a sentence that points at /security", () => {
-    const html = readDistFile("index.html");
-    expect(html).toContain("OWASP MCP Top 10");
     expect(html).toContain('href="/security"');
-  });
-
-  it("should render icon SVGs correctly", () => {
-    const html = readDistFile("index.html");
-    expect(html).toContain("svg");
-    expect(html).toContain('stroke="currentColor"');
+    expect(html).toContain('href="/docs/getting-started/quickstart"');
   });
 
   /**

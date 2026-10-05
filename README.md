@@ -60,6 +60,21 @@ pinned to a commit SHA in `packages/site/package.json` and rendered through the
 loader in `src/content/loaders/oss-docs.ts`. A nightly workflow moves that pin
 and opens a PR; merging it redeploys with current docs.
 
+## Core data
+
+The home page draws core's gate path and quotes a record core's exporters
+wrote. Both live in `packages/site/src/data/core.json`, extracted from a clone
+of [`mcp-hangar`](https://github.com/mcp-hangar/mcp-hangar) at a release tag:
+
+```bash
+python3 packages/site/scripts/core-data.py ../mcp-hangar v2.24.0 \
+  --python ../mcp-hangar/.venv/bin/python
+```
+
+CI cannot run it (it has no clone of core), so re-run it by hand when a
+release changes the gates; `core-data.test.ts` fails if the page names a gate
+or a code that the file does not.
+
 ## Brand
 
 Marks and palette come from [`mcp-hangar/brand`](https://github.com/mcp-hangar/brand)
