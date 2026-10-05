@@ -49,6 +49,35 @@ describe("Record", () => {
   });
 });
 
+describe("Record fields", () => {
+  it("sets each key=value as its own unit, with the spaces kept", async () => {
+    const html = await render(Record, {
+      label: "One refusal",
+      rows: [
+        {
+          time: "15:15:07",
+          verdict: "deny",
+          call: "github.delete_repository",
+          reason: "gate=tool_access  reason=tool_not_in_access_policy",
+        },
+      ],
+    });
+    const units = [...html.matchAll(/class="record-unit[^"]*"[^>]*>([^<]*)</g)];
+    expect(units.map((m) => m[1])).toEqual([
+      "github.delete_repository",
+      "gate=tool_access",
+      "reason=tool_not_in_access_policy",
+    ]);
+    // Copied out of the page, the reason reads as one line of fields.
+    const reason = html.match(
+      /class="record-reason"[^>]*>([\s\S]*?)<\/td>/
+    )![1];
+    expect(reason.replace(/<[^>]+>/g, "").trim()).toBe(
+      "gate=tool_access reason=tool_not_in_access_policy"
+    );
+  });
+});
+
 describe("VerdictChip", () => {
   it.each(["allow", "deny", "hold"])("says %s in words", async (verdict) => {
     const html = await render(VerdictChip, { verdict });

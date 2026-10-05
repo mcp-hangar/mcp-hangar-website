@@ -11,8 +11,8 @@ import VerdictChip from "./VerdictChip.astro";
  * own logs finds it.
  *
  * A real `<table>`, so a screen reader announces it as one and a printout
- * keeps its columns. On a phone the reason drops under the call instead of
- * scrolling the page sideways.
+ * keeps its columns. On a phone the call and reason move to a line of their
+ * own under the time and verdict, instead of scrolling the page sideways.
  */
 export interface RecordRow {
     /** Wall clock, `HH:MM:SS`. */
@@ -34,30 +34,46 @@ interface Props {
 }
 
 const { rows, label, source, class: className = "" } = Astro.props;
+
+/**
+ * A reason is a run of `key=value` fields. Each one is set as its own unit so
+ * a narrow cell wraps between fields, never inside one: on a phone
+ * `reason=tool_not_in_access_policy` used to break as `…_acces` / `s_policy`.
+ * The spaces between units stay in the text, so a copied row is unchanged.
+ */
+const fields = (reason: string) => reason.split(/\s+/).filter(Boolean);
 ---
 
 <figure class={`record min-w-0 ${className}`}>
     <div class="record-frame" tabindex="0" role="region" aria-label={label}>
-        <table>
+        <!-- Explicit roles: on a phone the rows are laid out as grids, and some
+             engines drop a table's semantics once its display changes. -->
+        <table role="table">
             <caption class="sr-only">{label}</caption>
-            <thead>
-                <tr>
-                    <th scope="col">time</th>
-                    <th scope="col">verdict</th>
-                    <th scope="col">
+            <thead role="rowgroup">
+                <tr role="row">
+                    <th scope="col" role="columnheader">time</th>
+                    <th scope="col" role="columnheader">verdict</th>
+                    <th scope="col" role="columnheader">
                         call · reason
                         {source && <span class="record-source">{source}</span>}
                     </th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody role="rowgroup">
                 {rows.map((row) => (
-                    <tr>
-                        <td class="record-time">{row.time}</td>
-                        <td><VerdictChip verdict={row.verdict} size="sm" /></td>
-                        <td class="record-call">
-                            <span class="text-ink">{row.call}</span>
-                            {row.reason && <span class="record-reason">{row.reason}</span>}
+                    <tr role="row">
+                        <td class="record-time" role="cell">{row.time}</td>
+                        <td role="cell"><VerdictChip verdict={row.verdict} size="sm" /></td>
+                        <td class="record-call" role="cell">
+                            <span class="record-unit text-ink">{row.call}</span>
+                            {row.reason && (
+                                <span class="record-reason">
+                                    {fields(row.reason).map((field, i) => (
+                                        <Fragment>{i > 0 && " "}<span class="record-unit">{field}</span></Fragment>
+                                    ))}
+                                </span>
+                            )}
                         </td>
                     </tr>
                 ))}
@@ -123,25 +139,63 @@ const { rows, label, source, class: className = "" } = Astro.props;
         color: var(--c-ink-3);
         font-variant-numeric: tabular-nums;
     }
-    .record-call {
+    /* Wrap between units, not inside them. An inline-block moves to the next
+       line whole when it does not fit; only a single unit wider than the
+       whole cell (a long digest, say) breaks inside, as a last resort.
+       `anywhere`, not `break-word`: it also lowers the cell's min-content
+       width, so the table narrows instead of widening the frame. */
+    .record-unit {
+        display: inline-block;
+        max-width: 100%;
         overflow-wrap: anywhere;
     }
     .record-reason {
         color: var(--c-ink-3);
         margin-left: 0.6em;
     }
+    /* On a phone the call and its reason take a line of their own, under
+       the time and the verdict. Squeezed into the third column they had about
+       190px, and `reason=tool_not_in_access_policy` alone needs 250. The header
+       row stays for screen readers; on screen it would only repeat the order
+       the cells already show. */
     @media (max-width: 40rem) {
-        th,
+        table,
+        tbody {
+            display: block;
+        }
+        thead {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+            clip-path: inset(50%);
+            white-space: nowrap;
+        }
+        tbody tr {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            align-items: baseline;
+            border-bottom: 1px solid var(--c-rule);
+        }
+        tbody tr:last-child {
+            border-bottom: 0;
+        }
         td {
+            border-bottom: 0;
             padding-left: 0.5rem;
             padding-right: 0.5rem;
+        }
+        td:first-child,
+        td:nth-child(2) {
+            width: auto;
+        }
+        .record-call {
+            grid-column: 1 / -1;
+            padding-top: 0;
         }
         .record-reason {
             display: block;
             margin-left: 0;
-        }
-        .record-source {
-            display: none;
         }
     }
 </style>
