@@ -1,11 +1,11 @@
 import type { APIRoute, GetStaticPaths } from "astro";
-import { getCollection } from "astro:content";
+import { publishedPosts } from "../../lib/blog";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { stripSvg } from "../../lib/strip-svg";
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const posts = await getCollection("blog");
+  const posts = await publishedPosts();
   return posts.map((post) => ({
     params: { slug: post.id },
     props: { post },
