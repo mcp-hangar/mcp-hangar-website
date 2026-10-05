@@ -109,7 +109,10 @@ describe("Build Output", () => {
   it("should lead with records rather than an illustration", () => {
     const html = readDistFile("index.html");
     expect(html).toContain("tool_not_in_access_policy");
-    expect(html).toContain("gate=approval state=pending");
+    // As text: the record sets each field in its own element.
+    expect(html.replace(/<[^>]+>/g, "")).toContain(
+      "gate=approval state=pending"
+    );
     expect(html).toMatch(/l7_verdict=deny/);
     expect(html).toContain("LEEF:2.0|MCP Hangar|");
     expect(html).toContain("ToolInvocationDenied");
