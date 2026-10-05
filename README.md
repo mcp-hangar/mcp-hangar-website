@@ -42,7 +42,7 @@ packages/site/
 ├── e2e/              playwright specs
 ├── integrations/     og-gate.mjs — fails the build on a missing OG card
 ├── public/           favicon, install.sh, robots.txt
-├── scripts/          brand-sync.mjs
+├── scripts/          brand sync, advisories refresh, core data, release-post
 └── src/
     ├── components/   .astro components; sections/ holds the homepage
     ├── content/      blog, learn and security as MDX; loaders/ for the docs
@@ -59,6 +59,21 @@ The documentation does not. It comes from [`mcp-hangar/docs`](https://github.com
 pinned to a commit SHA in `packages/site/package.json` and rendered through the
 loader in `src/content/loaders/oss-docs.ts`. A nightly workflow moves that pin
 and opens a PR; merging it redeploys with current docs.
+
+## Release posts
+
+`pnpm release-post 2.24.0` drafts a blog post for a core release. It reads the
+release notes with `gh release view` and the version's section of core's
+`UPGRADE.md` at the tag (`--core <absolute path>` reads it from a local clone
+instead), and writes `src/content/blog/<date>-v2-24-0-release.mdx`.
+
+The draft is a starting point, not a post: it has `draft: true` and
+`TODO(editor)` markers for the title, the description and the opening. Rewrite
+it, check its claims against core's `CHANGELOG.md` at the tag, remove the
+markers, then set `draft: false` — that flip is what publishes it. Every page,
+feed and card reads posts through `publishedPosts()` in `src/lib/blog.ts`, so a
+draft is built by nothing, and `blog-drafts.test.ts` fails on a published post
+that still carries a marker.
 
 ## Core data
 

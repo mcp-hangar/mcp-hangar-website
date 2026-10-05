@@ -10,6 +10,7 @@
     "astro": "astro",
     "brand:sync": "node scripts/brand-sync.mjs",
     "advisories:refresh": "node scripts/refresh-advisories.mjs",
+    "release-post": "node scripts/release-post.mjs",
     "check": "astro check",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -45,6 +46,7 @@
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
     "@axe-core/playwright": "^4.13.0",
+    "@mdx-js/mdx": "^3.1.1",
     "@playwright/test": "^1.63.0",
     "@resvg/resvg-js": "^2.6.2",
     "@shikijs/types": "^4.4.3",

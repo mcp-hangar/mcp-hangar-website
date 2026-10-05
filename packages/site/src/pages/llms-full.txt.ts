@@ -1,5 +1,6 @@
 import type { APIRoute } from "astro";
 import { getCollection } from "astro:content";
+import { publishedPosts } from "../lib/blog";
 import { stripSvg } from "../lib/strip-svg";
 import { isPublished, offSiteTarget } from "../lib/docs-publication";
 import {
@@ -114,7 +115,7 @@ export const GET: APIRoute = async () => {
       data: { title: s.data.title, description: s.data.description },
       body: mdxToProse(s.body ?? ""),
     })) as DocEntry[];
-  const posts = (await getCollection("blog")).sort(
+  const posts = (await publishedPosts()).sort(
     (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
   );
 
