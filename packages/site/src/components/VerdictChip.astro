@@ -1,23 +1,24 @@
 ---
 /**
- * The product in one element: a policy produced an answer, and the answer is
- * binary.
+ * The product in one element: what a policy answered about one call.
  *
- * The label is never optional. Colour tells you the verdict faster, but it is
- * the second encoding, not the first — screen readers, printouts, and about
- * one man in twelve get the same information from the text (C11).
+ * Three answers, the only three hues on the site: `allow`, `deny`, and `hold`
+ * for a call that is neither yet (an approval pending). The word is never
+ * optional. Colour tells you the verdict faster, but it is the second
+ * encoding, not the first -- screen readers, printouts, and about one man in
+ * twelve get the same information from the text.
+ *
+ * Lowercase and in the data face, because this is the word the record carries,
+ * not a badge someone designed: `hangar.call.outcome=deny`.
  */
 interface Props {
-    verdict: "allow" | "deny";
+    verdict: "allow" | "deny" | "hold";
     /**
      * What the wire actually carries beside the verdict, e.g. `isError: true`.
      *
      * Not a JSON-RPC error code: a policy denial does not have one.
      * `EgressPolicyDeniedError` carries no code, and the flat path answers a
      * refused call with `CallToolResult(isError=True)` plus the reason as text.
-     * This said `-32021` for a while, which is a real code belonging to
-     * something else entirely -- the Tasks extension's
-     * MISSING_REQUIRED_CLIENT_CAPABILITY.
      */
     code?: string;
     size?: "sm" | "md";
@@ -27,19 +28,18 @@ interface Props {
 const { verdict, code, size = "md", class: className = "" } = Astro.props;
 
 const tone = {
-    allow: "border-allow/40 bg-allow-tint text-allow",
-    deny: "border-deny/40 bg-deny-tint text-deny",
+    allow: "bg-allow-tint text-allow",
+    deny: "bg-deny-tint text-deny",
+    hold: "bg-hold-tint text-hold",
 }[verdict];
 
 const dims = {
-    sm: "text-xs px-2 py-0.5 gap-1.5",
-    md: "text-xs px-2.5 py-1 gap-2",
+    sm: "text-xs px-1.5 py-px gap-1.5",
+    md: "text-sm px-2 py-0.5 gap-2",
 }[size];
 ---
 
-<span
-    class={`inline-flex items-center font-mono font-semibold uppercase tracking-[0.1em] rounded border ${tone} ${dims} ${className}`}
->
+<span class={`verdict inline-flex items-center font-mono font-medium rounded-sm ${tone} ${dims} ${className}`}>
     {verdict}
-    {code && <span class="font-medium tracking-normal normal-case">{code}</span>}
+    {code && <span class="font-normal">{code}</span>}
 </span>

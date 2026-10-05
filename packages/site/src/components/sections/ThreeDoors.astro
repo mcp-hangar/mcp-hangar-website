@@ -1,7 +1,6 @@
 ---
 import { getCollection } from "astro:content";
-import CopyIcon from "../icons/CopyIcon.astro";
-import CheckIcon from "../icons/CheckIcon.astro";
+import CopyCommand from "../CopyCommand.astro";
 import BookOpenIcon from "../icons/BookOpenIcon.astro";
 import FileTextIcon from "../icons/FileTextIcon.astro";
 import { countCookbookRecipes } from "../../docsNav";
@@ -36,20 +35,11 @@ import SectionHeader from "../SectionHeader.astro";
                 a call get denied on purpose.
             </p>
 
-            <div
-                id="start-copy-btn"
-                role="button"
-                tabindex={0}
-                aria-label="Copy pip install command to clipboard"
-                class="group flex items-center gap-3 bg-ground/60 border border-rule hover:border-rule-strong rounded-xl px-5 py-4 font-mono text-base cursor-pointer transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-rule-strong mb-6"
-            >
-                <span class="text-ink-3 select-none">$</span>
-                <span class="start-copy-text text-ink truncate">{INSTALL_COMMAND}</span>
-                <span class="text-ink-3 group-hover:text-ink-2 transition-colors ml-auto shrink-0">
-                    <span class="start-copy-idle"><CopyIcon /></span>
-                    <span class="start-copy-success hidden"><CheckIcon /></span>
-                </span>
-            </div>
+            <CopyCommand
+                command={INSTALL_COMMAND}
+                label="Copy pip install command to clipboard"
+                class="w-full mb-6"
+            />
 
             <a
                 href="/docs/getting-started/quickstart"
@@ -106,31 +96,3 @@ import SectionHeader from "../SectionHeader.astro";
         </div>
     </div>
 </section>
-
-<script>
-    const startBtn = document.getElementById("start-copy-btn");
-    if (startBtn) {
-        const copy = async () => {
-            const txtNode = startBtn.querySelector(".start-copy-text");
-            const command = txtNode ? (txtNode.textContent || "").trim() : "";
-            await navigator.clipboard.writeText(command);
-            const idle = startBtn.querySelector(".start-copy-idle");
-            const success = startBtn.querySelector(".start-copy-success");
-            if (idle && success) {
-                idle.classList.add("hidden");
-                success.classList.remove("hidden");
-                setTimeout(() => {
-                    idle.classList.remove("hidden");
-                    success.classList.add("hidden");
-                }, 2000);
-            }
-        };
-        startBtn.addEventListener("click", copy);
-        startBtn.addEventListener("keydown", (e) => {
-            if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                startBtn.click();
-            }
-        });
-    }
-</script>

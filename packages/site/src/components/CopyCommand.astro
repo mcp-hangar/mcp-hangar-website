@@ -1,0 +1,76 @@
+---
+import CopyIcon from "./icons/CopyIcon.astro";
+import CheckIcon from "./icons/CheckIcon.astro";
+
+/**
+ * A shell command with a copy button: the one thing most readers came for.
+ *
+ * A real `<button>`, so it is focusable and announced without extra wiring.
+ * The command text is the copied text, so what is on screen is what lands in
+ * the clipboard.
+ */
+interface Props {
+    command: string;
+    /** Accessible name, e.g. "Copy pip install command to clipboard". */
+    label: string;
+    class?: string;
+}
+
+const { command, label, class: className = "" } = Astro.props;
+---
+
+<button type="button" class={`copy-command group ${className}`} aria-label={label} data-copy>
+    <span class="text-ink-3 select-none" aria-hidden="true">$</span>
+    <span class="start-copy-text text-ink">{command}</span>
+    <span class="ml-auto shrink-0 text-ink-3 group-hover:text-ink">
+        <span class="copy-idle"><CopyIcon /></span>
+        <span class="copy-done hidden"><CheckIcon /></span>
+    </span>
+</button>
+
+<style>
+    .copy-command {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        min-width: 0;
+        max-width: 100%;
+        padding: 0.6rem 0.9rem;
+        font-family: var(--font-mono);
+        font-size: 0.9375rem;
+        background: var(--c-panel);
+        border: 1px solid var(--c-rule-strong);
+        border-radius: 4px;
+        cursor: pointer;
+        text-align: left;
+    }
+    .copy-command:hover {
+        border-color: var(--c-ink-3);
+    }
+    .copy-command:focus-visible {
+        outline: 2px solid var(--c-ink);
+        outline-offset: 2px;
+    }
+    .start-copy-text {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+</style>
+
+<script>
+    for (const button of document.querySelectorAll<HTMLButtonElement>("[data-copy]")) {
+        button.addEventListener("click", async () => {
+            const text = button.querySelector(".start-copy-text")?.textContent?.trim() ?? "";
+            await navigator.clipboard.writeText(text);
+            const idle = button.querySelector(".copy-idle");
+            const done = button.querySelector(".copy-done");
+            idle?.classList.add("hidden");
+            done?.classList.remove("hidden");
+            setTimeout(() => {
+                idle?.classList.remove("hidden");
+                done?.classList.add("hidden");
+            }, 2000);
+        });
+    }
+</script>
