@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import fs from "fs";
 import path from "path";
-import { VERDICT } from "../og/tokens";
+import { BRAND, INK, VERDICT } from "../og/tokens";
 import { ogPathFor, OG_FALLBACK } from "../og/resolve";
 import { fitTitle } from "../og/render";
 
@@ -19,14 +19,27 @@ const tokenValue = (name: string) =>
   css.match(new RegExp(`--${name}:\\s*([^;]+);`))?.[1].trim();
 
 describe("OG palette", () => {
-  // The card's marks are the brand's own hexes, as the site's are.
-  const pairs: [string, string][] = [
-    ["brand-allow", VERDICT.allow],
-    ["brand-deny", VERDICT.deny],
-    ["brand-amber", VERDICT.optin],
-  ];
+  // The cards are the light theme: every value mirrors tokens.css's :root.
+  const light = css.slice(
+    css.indexOf(":root {"),
+    css.indexOf("}", css.indexOf(":root {"))
+  );
+  const lightValue = (name: string) =>
+    light.match(new RegExp(`--c-${name}:\\s*([^;]+);`))?.[1].trim();
 
-  it.each(pairs)("--%s matches the satori token", (name, value) => {
+  it.each([...Object.entries(INK), ...Object.entries(VERDICT)])(
+    "--c-%s matches the satori token",
+    (name, value) => {
+      expect(lightValue(name)).toBe(value);
+    }
+  );
+
+  // The mark is painted in the brand's own hexes, as the site's is.
+  it.each([
+    ["brand-allow", BRAND.allow],
+    ["brand-deny", BRAND.deny],
+    ["brand-amber", BRAND.amber],
+  ])("--%s matches the satori token", (name, value) => {
     expect(tokenValue(name)).toBe(value);
   });
 });
@@ -85,5 +98,15 @@ describe("fitTitle", () => {
   it("leaves a title that fits completely alone", () => {
     const t = "Two Hangars, one verdict";
     expect(fitTitle(t)).toMatchObject({ text: t, truncated: false });
+  });
+});
+
+// Satori draws WOFF as empty boxes without an error, so a card can build,
+// pass the gate and still be unreadable. The vendored faces must be TTF.
+describe("OG fonts", () => {
+  const dir = path.join(process.cwd(), "src/og/fonts");
+  it.each(fs.readdirSync(dir))("%s is a TrueType font", (file) => {
+    const head = fs.readFileSync(path.join(dir, file)).subarray(0, 4);
+    expect(head.toString("hex")).toBe("00010000");
   });
 });

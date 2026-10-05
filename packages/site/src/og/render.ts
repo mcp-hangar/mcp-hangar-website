@@ -7,9 +7,11 @@ import { CARD } from "./tokens";
 /**
  * Satori + resvg, at build time.
  *
- * No browser and no network: the fonts are vendored next to this file because
- * satori reads TTF/OTF/WOFF and the site's webfonts are woff2, which it cannot
- * parse. Same frontmatter in, same pixels out — which is the point.
+ * No browser and no network. Satori parses TTF and OTF but renders WOFF as
+ * empty boxes, so the three faces the cards use are vendored next to this file
+ * as TTF, converted losslessly (fontTools, flavor removed) from the Latin
+ * `.woff` files of the same @fontsource packages the site serves. Same
+ * frontmatter in, same pixels out.
  */
 
 const FONT_DIR = path.resolve("src/og/fonts");
@@ -23,27 +25,21 @@ function loadFonts(): SatoriOptions["fonts"] {
   if (fonts) return fonts;
   fonts = [
     {
-      name: "Space Grotesk",
-      data: read("SpaceGrotesk_500Medium.ttf"),
-      weight: 500,
+      name: "Schibsted Grotesk",
+      data: read("SchibstedGrotesk_800ExtraBold.ttf"),
+      weight: 800,
       style: "normal",
     },
     {
-      name: "Space Grotesk",
-      data: read("SpaceGrotesk_700Bold.ttf"),
-      weight: 700,
-      style: "normal",
-    },
-    {
-      name: "JetBrains Mono",
-      data: read("JetBrainsMono_400Regular.ttf"),
+      name: "IBM Plex Mono",
+      data: read("IBMPlexMono_400Regular.ttf"),
       weight: 400,
       style: "normal",
     },
     {
-      name: "JetBrains Mono",
-      data: read("JetBrainsMono_600SemiBold.ttf"),
-      weight: 600,
+      name: "IBM Plex Mono",
+      data: read("IBMPlexMono_500Medium.ttf"),
+      weight: 500,
       style: "normal",
     },
   ];
@@ -98,9 +94,9 @@ export async function renderCard(tree: unknown): Promise<Buffer> {
  * titles in docs. Anything past the last tier is truncated at a word boundary.
  */
 const TIERS = [
-  { max: 44, fontSize: 72, lineHeight: 1.1 },
-  { max: 82, fontSize: 58, lineHeight: 1.15 },
-  { max: 105, fontSize: 46, lineHeight: 1.15 },
+  { max: 44, fontSize: 72, lineHeight: 1.04 },
+  { max: 82, fontSize: 56, lineHeight: 1.08 },
+  { max: 105, fontSize: 44, lineHeight: 1.12 },
 ] as const;
 
 /** Cut to `max`, preferring a word boundary, and mark the cut. */
