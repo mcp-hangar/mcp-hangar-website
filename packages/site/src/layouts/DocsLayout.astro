@@ -23,7 +23,7 @@ const { title, description, path, headings } = Astro.props;
       <!-- Mobile nav toggle -->
       <button
         id="docs-mobile-toggle"
-        class="lg:hidden fixed bottom-6 right-6 z-50 bg-zinc-100 text-zinc-950 p-3 rounded-full shadow-lg hover:bg-white transition-colors"
+        class="lg:hidden fixed bottom-6 right-6 z-50 bg-ink text-ground p-3 rounded-full shadow-lg hover:bg-ink-2 transition-colors"
         aria-label="Toggle documentation navigation"
       >
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -33,8 +33,8 @@ const { title, description, path, headings } = Astro.props;
 
       <!-- Mobile sidebar overlay -->
       <div id="docs-mobile-sidebar" class="hidden fixed inset-0 z-40 lg:hidden">
-        <div class="absolute inset-0 bg-zinc-950/80 backdrop-blur-sm" id="docs-mobile-backdrop"></div>
-        <div class="absolute left-0 top-0 bottom-0 w-72 bg-zinc-950 border-r border-zinc-800 p-6 overflow-y-auto">
+        <div class="absolute inset-0 bg-ground/80 backdrop-blur-sm" id="docs-mobile-backdrop"></div>
+        <div class="absolute left-0 top-0 bottom-0 w-72 bg-ground border-r border-rule p-6 overflow-y-auto">
           <DocsSidebar mobile />
         </div>
       </div>

@@ -26,13 +26,13 @@ import Base from '../layouts/Base.astro';
 >
   <link rel="stylesheet" href="/pagefind/pagefind-ui.css" />
   <main class="max-w-3xl mx-auto px-4 sm:px-6 py-16">
-    <h1 class="text-3xl font-bold text-zinc-100 mb-3">Search</h1>
-    <p class="text-zinc-400 mb-8">
+    <h1 class="text-3xl font-bold text-ink mb-3">Search</h1>
+    <p class="text-ink-3 mb-8">
       Documentation, Learn, the blog and the security pages.
     </p>
     <div id="search" class="site-search"></div>
     <noscript>
-      <p class="text-zinc-400">
+      <p class="text-ink-3">
         Search needs JavaScript. The <a href="/docs" class="underline">documentation index</a>
         lists every section.
       </p>
@@ -69,15 +69,15 @@ import Base from '../layouts/Base.astro';
 </Base>
 
 <style is:global>
-  /* Pagefind's default UI is a light theme. These are its own variables, set to
-     the site's zinc scale so the results pass WCAG AA on the dark page. */
+  /* Pagefind's default UI brings its own palette. These are its own variables,
+     set to the site's tokens so the results follow the theme and pass AA. */
   .site-search {
     --pagefind-ui-scale: 0.9;
-    --pagefind-ui-primary: #f4f4f5; /* zinc-100 */
-    --pagefind-ui-text: #d4d4d8; /* zinc-300 */
-    --pagefind-ui-background: #18181b; /* zinc-900 */
-    --pagefind-ui-border: #3f3f46; /* zinc-700 */
-    --pagefind-ui-tag: #27272a; /* zinc-800 */
+    --pagefind-ui-primary: var(--c-ink);
+    --pagefind-ui-text: var(--c-ink-2);
+    --pagefind-ui-background: var(--c-panel);
+    --pagefind-ui-border: var(--c-rule-strong);
+    --pagefind-ui-tag: var(--c-subtle);
     --pagefind-ui-border-width: 1px;
     --pagefind-ui-border-radius: 8px;
     --pagefind-ui-font: inherit;
@@ -86,11 +86,11 @@ import Base from '../layouts/Base.astro';
   .site-search .pagefind-ui__message,
   .site-search .pagefind-ui__filter-name,
   .site-search .pagefind-ui__filter-label {
-    color: #a1a1aa; /* zinc-400: 7.8:1 on zinc-950 */
+    color: var(--c-ink-3);
   }
   .site-search mark {
     background: transparent;
-    color: #f4f4f5;
+    color: var(--c-ink);
     font-weight: 600;
     text-decoration: underline;
   }

@@ -260,15 +260,15 @@ const versions = sortVersionsDescending([...new Set(entries.map(e => e.data.sinc
     /* Page type is carried by its icon and its label; it used to also get a
        hue, which made four more colours compete with the verdict palette for
        no extra information. All four resolve to the same neutral now. */
-    --concept: #a1a1aa;      /* zinc-400 */
-    --tutorial: #a1a1aa;
-    --why: #a1a1aa;
-    --visual: #a1a1aa;
-    --ship: #a1a1aa;         /* zinc-400 — shipped is the normal state, so no hue */
-    --ship-bg: #27272a;       /* zinc-800 */
-    --preview: #fbbf24;
-    --preview-bg: #2a230f;
-    --shadow: 0 1px 0 rgba(255, 255, 255, .02) inset, 0 8px 30px rgba(0, 0, 0, .45);
+    --concept: var(--c-ink-3);
+    --tutorial: var(--c-ink-3);
+    --why: var(--c-ink-3);
+    --visual: var(--c-ink-3);
+    --ship: var(--c-ink-3);      /* shipped is the normal state, so no hue */
+    --ship-bg: var(--c-subtle);
+    --preview: var(--c-hold);
+    --preview-bg: var(--c-hold-tint);
+    --shadow: none;
   }
   .learn-hub .mono { font-family: var(--font-mono, ui-monospace, monospace); }
   .learn-hub .wrap { max-width: 1140px; margin: 0 auto; padding: 0 22px; }
@@ -370,7 +370,7 @@ const versions = sortVersionsDescending([...new Set(entries.map(e => e.data.sinc
   .learn-hub .rbox { padding: 9px 11px; display: flex; flex-direction: column; }
   .learn-hub .rbox .rh { font-weight: 700; font-size: 12px; color: var(--ink); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
   .learn-hub .rbox .rd { font-size: 11px; color: var(--muted); margin-top: 1px; }
-  .learn-hub .rbox.is-off { border-style: dashed; opacity: .8; }
+  .learn-hub .rbox.is-off { border-style: dashed; }
   .learn-hub .rbox.is-off .rh { color: var(--muted); font-weight: 600; }
 
   /* async branch — hangs off the upstream RESPONSE (not a client-chosen lane) */

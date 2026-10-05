@@ -33,14 +33,24 @@ const defaultKeywords = "MCP, Model Context Protocol, runtime security, governan
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- The theme, before anything paints. A reader who chose one with the
+         toggle gets it back; one who has not follows the system through the
+         media query in tokens.css, so nothing is set here and there is no
+         flash of the wrong ground. Storage can throw (private windows, blocked
+         site data), and a page that cannot remember a choice still renders. -->
+    <script is:inline>
+      try {
+        const t = localStorage.getItem("theme");
+        if (t === "light" || t === "dark") document.documentElement.dataset.theme = t;
+      } catch {
+        // Storage is blocked: follow the system.
+      }
+    </script>
     <title>{title}</title>
     <meta name="description" content={description} />
     <meta name="keywords" content={keywords || defaultKeywords} />
     <link rel="canonical" href={url} />
     {noindex && <meta name="robots" content="noindex, nofollow" />}
-
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
     <meta property="og:type" content="website" />
     <meta property="og:url" content={url} />
@@ -55,7 +65,10 @@ const defaultKeywords = "MCP, Model Context Protocol, runtime security, governan
     <meta name="twitter:image" content={`${siteUrl}${ogImage}`} />
 
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="theme-color" content="#09090b" />
+    <!-- The ground of each theme (tokens.css --c-ground). A meta cannot read a
+         custom property, so these two are the only literals outside tokens.css. -->
+    <meta name="theme-color" content="#f7f8f5" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#111418" media="(prefers-color-scheme: dark)" />
 
     <!-- Structured data for AI/search -->
     <script is:inline type="application/ld+json" set:html={JSON.stringify({
@@ -72,7 +85,7 @@ const defaultKeywords = "MCP, Model Context Protocol, runtime security, governan
       "author": { "@type": "Organization", "name": "MCP Hangar", "url": siteUrl }
     })} />
 </head>
-<body class="bg-zinc-950 text-zinc-300 font-sans antialiased min-h-screen flex flex-col">
+<body class="bg-ground text-ink-2 font-sans antialiased min-h-screen flex flex-col">
     <SiteNav />
     <div class="flex-1">
         <slot />

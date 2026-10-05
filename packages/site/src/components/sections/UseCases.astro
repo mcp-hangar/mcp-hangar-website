@@ -54,9 +54,9 @@ import SectionHeader from "../SectionHeader.astro";
 
   <div class="grid gap-5 md:grid-cols-2">
     <!-- 1 · authz + approvals -->
-    <article class="min-w-0 rounded-3xl border border-zinc-800/60 bg-zinc-900/30 p-7 md:p-8 flex flex-col">
-      <h3 class="text-xl font-bold text-zinc-100 mb-2">Govern who calls what</h3>
-      <p class="text-zinc-400 mb-5">
+    <article class="min-w-0 rounded-3xl border border-rule bg-panel p-7 md:p-8 flex flex-col">
+      <h3 class="text-xl font-bold text-ink mb-2">Govern who calls what</h3>
+      <p class="text-ink-3 mb-5">
         Expose only the tools a caller should see, and hold the dangerous ones for a
         human. Both decisions are per server and per tool, and both are recorded
         against the identity that triggered them.
@@ -67,23 +67,23 @@ import SectionHeader from "../SectionHeader.astro";
            card grew past the viewport and took the page with it. -->
       <div class="mt-auto flex flex-wrap items-center justify-between gap-4 pt-2">
         <PipelineMotif size="mini" gates={["a", "f"]} />
-        <a href="/learn/what-is-a-policy-enforcement-plane" class="text-sm font-semibold text-zinc-300 hover:text-zinc-100 transition-colors whitespace-nowrap">
+        <a href="/learn/what-is-a-policy-enforcement-plane" class="text-sm font-semibold text-ink-2 hover:text-ink transition-colors whitespace-nowrap">
           The gates &rarr;
         </a>
       </div>
     </article>
 
     <!-- 2 · tool-schema digest pinning -->
-    <article class="min-w-0 rounded-3xl border border-zinc-800/60 bg-zinc-900/30 p-7 md:p-8 flex flex-col">
-      <h3 class="text-xl font-bold text-zinc-100 mb-2">Pin what tools claim to be</h3>
-      <p class="text-zinc-400 mb-5">
+    <article class="min-w-0 rounded-3xl border border-rule bg-panel p-7 md:p-8 flex flex-col">
+      <h3 class="text-xl font-bold text-ink mb-2">Pin what tools claim to be</h3>
+      <p class="text-ink-3 mb-5">
         A tool's <em>schema</em> — its name, description and input/output shape — is
         fingerprinted with SHA-256 over its canonical form (RFC 8785). If an upstream
         quietly changes what a tool accepts, the call fails closed instead of running
         against the new shape.
       </p>
       <PolicySnippet filename="config.yaml" code={digestPin} class="mb-5" />
-      <p class="text-sm text-zinc-400 mb-5">
+      <p class="text-sm text-ink-3 mb-5">
         Distinct from container <em>image</em> digest pinning, which the operator does
         separately at admission time.
       </p>
@@ -92,30 +92,30 @@ import SectionHeader from "../SectionHeader.astro";
            card grew past the viewport and took the page with it. -->
       <div class="mt-auto flex flex-wrap items-center justify-between gap-4 pt-2">
         <PipelineMotif size="mini" gates={["c"]} />
-        <a href="/learn/digest-pinning" class="text-sm font-semibold text-zinc-300 hover:text-zinc-100 transition-colors whitespace-nowrap">
+        <a href="/learn/digest-pinning" class="text-sm font-semibold text-ink-2 hover:text-ink transition-colors whitespace-nowrap">
           How pinning works &rarr;
         </a>
       </div>
     </article>
 
     <!-- 3 · L7 egress — the flagship, given the width -->
-    <article class="min-w-0 md:col-span-2 rounded-3xl border border-zinc-700/60 bg-zinc-900/50 p-7 md:p-9">
+    <article class="min-w-0 md:col-span-2 rounded-3xl border border-rule-strong bg-panel p-7 md:p-9">
       <div class="grid gap-7 md:grid-cols-[1.1fr_1fr] md:items-start [&>*]:min-w-0">
         <div>
-          <h3 class="text-2xl font-bold text-zinc-100 mb-3">Control where data goes</h3>
-          <p class="text-lg text-zinc-400 mb-5">
+          <h3 class="text-2xl font-bold text-ink mb-3">Control where data goes</h3>
+          <p class="text-lg text-ink-3 mb-5">
             The last gate before the wire. An egress policy decides which upstreams a
             server may reach and which tool calls it may make — down to the arguments —
             and it is evaluated inside the tool invocation, immediately before any
             outbound I/O happens.
           </p>
-          <p class="text-sm text-zinc-400 mb-6">
+          <p class="text-sm text-ink-3 mb-6">
             On Kubernetes, the operator ships the
             <span class="font-mono"> MCPEgressPolicy</span> CRD and its controller.
           </p>
           <div class="flex items-center gap-5">
             <PipelineMotif size="mini" gates={["i"]} />
-            <a href="/learn/the-l7-mcpegresspolicy-language" class="text-sm font-semibold text-zinc-300 hover:text-zinc-100 transition-colors">
+            <a href="/learn/the-l7-mcpegresspolicy-language" class="text-sm font-semibold text-ink-2 hover:text-ink transition-colors">
               The policy language &rarr;
             </a>
           </div>
@@ -125,16 +125,16 @@ import SectionHeader from "../SectionHeader.astro";
     </article>
 
     <!-- 4 · audit -->
-    <article class="min-w-0 md:col-span-2 rounded-3xl border border-zinc-800/60 bg-zinc-900/30 p-7 md:p-8">
+    <article class="min-w-0 md:col-span-2 rounded-3xl border border-rule bg-panel p-7 md:p-8">
       <div class="grid gap-7 md:grid-cols-[1fr_1.2fr] md:items-center [&>*]:min-w-0">
         <div>
-          <h3 class="text-xl font-bold text-zinc-100 mb-2">Prove what happened</h3>
-          <p class="text-zinc-400 mb-4">
+          <h3 class="text-xl font-bold text-ink mb-2">Prove what happened</h3>
+          <p class="text-ink-3 mb-4">
             Every call is written down with the caller attached — allowed and denied
             alike. A verdict nobody can attribute proves nothing, so identity travels
             with the record rather than being reconstructed afterwards.
           </p>
-          <p class="text-sm text-zinc-400">
+          <p class="text-sm text-ink-3">
             Exportable as CEF, LEEF, JSONL and RFC 5424 syslog. OTLP is a separate
             trace and audit-span path, not a SIEM format.
           </p>

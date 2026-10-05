@@ -1,62 +1,61 @@
 @import "@fontsource-variable/space-grotesk";
 @import "@fontsource-variable/jetbrains-mono";
 @import "tailwindcss";
+@import "./tokens.css";
 @plugin "@tailwindcss/typography";
 
+/* Tailwind's own palette is cleared, so a `text-zinc-300` left behind renders
+ * nothing rather than a colour from outside the system -- and tokens.test.ts
+ * fails the build on one. Every colour utility on the site comes from
+ * tokens.css through the names below. */
 @theme {
+    --color-*: initial;
     --font-sans: 'Space Grotesk', system-ui, sans-serif;
     --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
-
-    /* Colour is semantics, not decoration.
-     *
-     * The base is zinc. Exactly two colours carry meaning, because the product
-     * is a binary verdict: a policy either allows a call or it does not. A
-     * third marks the one state that is neither — a control that exists but is
-     * not on by default.
-     *
-     * Nothing else gets a hue. If a colour here shows up on something that is
-     * not a verdict or an opt-in state, that is a bug in the design, not a
-     * style preference.
-     *
-     * Colour is never the only encoding: every verdict also carries its text
-     * label (ALLOW / DENY). See VerdictChip.
-     */
-
-    /* allow — the existing brand green (#10b981 / #6ee7b7), deliberately
-     * unchanged, so the palette narrows without the brand shifting. */
-    --color-verdict-allow: #10b981;
-    --color-verdict-allow-soft: #6ee7b7;
-
-    /* deny — the brand's red (#ef4444, `DENY` in the brand repo's geometry.py),
-     * with red-300 beside it so the pair is one hue. It used to be rose-500/300,
-     * which put a second red on screen the moment a page sat next to a generated
-     * brand asset: every status wall closes its gates in #ef4444. */
-    --color-verdict-deny: #ef4444;
-    --color-verdict-deny-soft: #fca5a5;
-
-    /* not on by default — opt-in, off, or preview. Amber survives only here. */
-    --color-state-optin: #f59e0b;
-    --color-state-optin-soft: #fcd34d;
     --animate-pulse-slow: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
     --animate-fade-in: fade-in 0.6s ease-out both;
     --animate-slide-up: slide-up 0.5s ease-out both;
 }
 
-.prose-invert {
-  --tw-prose-body: #d4d4d8;
-  --tw-prose-headings: #fafafa;
-  --tw-prose-links: #f4f4f5;
-  --tw-prose-bold: #fafafa;
-  --tw-prose-code: #e4e4e7;
-  --tw-prose-pre-bg: #18181b;
-  --tw-prose-pre-code: #e4e4e7;
-  --tw-prose-counters: #71717a;
-  --tw-prose-bullets: #52525b;
-  --tw-prose-hr: #27272a;
-  --tw-prose-quotes: #a1a1aa;
-  --tw-prose-quote-borders: #52525b;
-  --tw-prose-th-borders: #3f3f46;
-  --tw-prose-td-borders: #27272a;
+/* `inline`, so a utility reads the token itself and follows the theme. */
+@theme inline {
+    --color-ground: var(--c-ground);
+    --color-panel: var(--c-panel);
+    --color-subtle: var(--c-subtle);
+    --color-ink: var(--c-ink);
+    --color-ink-2: var(--c-ink-2);
+    --color-ink-3: var(--c-ink-3);
+    --color-rule: var(--c-rule);
+    --color-rule-strong: var(--c-rule-strong);
+    --color-allow: var(--c-allow);
+    --color-allow-tint: var(--c-allow-tint);
+    --color-deny: var(--c-deny);
+    --color-deny-tint: var(--c-deny-tint);
+    --color-hold: var(--c-hold);
+    --color-hold-tint: var(--c-hold-tint);
+}
+
+/* Prose, in either theme. The typography plugin's colours are its own grey
+ * scale, and `prose-invert` hard-coded a dark one; both are replaced by the
+ * tokens, so an article follows the theme like everything else. */
+.prose {
+  --tw-prose-body: var(--c-ink-2);
+  --tw-prose-headings: var(--c-ink);
+  --tw-prose-lead: var(--c-ink-2);
+  --tw-prose-links: var(--c-ink);
+  --tw-prose-bold: var(--c-ink);
+  --tw-prose-counters: var(--c-ink-3);
+  --tw-prose-bullets: var(--c-rule-strong);
+  --tw-prose-hr: var(--c-rule);
+  --tw-prose-quotes: var(--c-ink-2);
+  --tw-prose-quote-borders: var(--c-rule-strong);
+  --tw-prose-captions: var(--c-ink-3);
+  --tw-prose-kbd: var(--c-ink);
+  --tw-prose-code: var(--c-ink);
+  --tw-prose-pre-code: var(--c-code-text);
+  --tw-prose-pre-bg: var(--c-code-bg);
+  --tw-prose-th-borders: var(--c-rule-strong);
+  --tw-prose-td-borders: var(--c-rule);
 }
 
 /* Documentation article styling */
@@ -106,7 +105,7 @@
   font-size: 2rem;
   margin-bottom: 1rem;
   padding-bottom: 0.75rem;
-  border-bottom: 1px solid #27272a;
+  border-bottom: 1px solid var(--c-rule);
 }
 
 .docs-article h2 {
@@ -114,7 +113,7 @@
   margin-top: 2.5rem;
   margin-bottom: 0.75rem;
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid #27272a40;
+  border-bottom: 1px solid var(--c-rule);
 }
 
 .docs-article h3 {
@@ -135,13 +134,13 @@
 }
 
 .docs-article code:not(pre code) {
-  background: rgba(39, 39, 42, 0.7);
-  border: 1px solid rgba(63, 63, 70, 0.4);
+  background: var(--c-subtle);
+  border: 1px solid var(--c-rule);
   padding: 0.15em 0.4em;
   border-radius: 0.3rem;
   font-size: 0.875em;
   font-family: 'JetBrains Mono', 'Fira Code', monospace;
-  color: #e4e4e7;
+  color: var(--c-ink);
   /* A long identifier or path has no break opportunity of its own, so on a
    * phone it pushed the page sideways. Code blocks keep scrolling instead. */
   overflow-wrap: anywhere;
@@ -149,9 +148,8 @@
 
 .docs-article pre {
   position: relative;
-  background: rgba(9, 9, 11, 0.7) !important;
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(63, 63, 70, 0.4);
+  background: var(--c-code-bg) !important;
+  border: 1px solid var(--c-rule);
   border-radius: 0.75rem;
   padding: 1.25rem 1.5rem;
   overflow-x: auto;
@@ -161,8 +159,7 @@
 }
 
 .docs-article pre:hover {
-  border-color: rgba(113, 113, 122, 0.3);
-  box-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(113, 113, 122, 0.12);
+  border-color: var(--c-rule-strong);
 }
 
 .docs-article pre code {
@@ -170,38 +167,35 @@
 }
 
 .docs-article a {
-  /* Links are zinc and underlined. They used to be green with a hover-only
+  /* Links are ink and underlined. They used to be green with a hover-only
      underline, which spent the brand colour on every link on the site and left
      a link indistinguishable from body text until you pointed at it. */
   text-decoration: underline;
-  text-decoration-color: #52525b;
+  text-decoration-color: var(--c-rule-strong);
   text-underline-offset: 3px;
   transition: text-decoration-color 0.2s;
 }
 
 .docs-article a:hover {
-  text-decoration-color: #f4f4f5;
+  text-decoration-color: currentColor;
 }
 
 .docs-article blockquote {
   position: relative;
-  background: linear-gradient(135deg, rgba(113, 113, 122, 0.10) 0%, rgba(9, 9, 11, 0.4) 100%);
-  border: 1px solid rgba(113, 113, 122, 0.25);
-  border-left: 3px solid #52525b;
+  background: var(--c-panel);
+  border: 1px solid var(--c-rule);
+  border-left: 3px solid var(--c-rule-strong);
   padding: 1rem 1.25rem;
   border-radius: 0 0.75rem 0.75rem 0;
-  backdrop-filter: blur(4px);
   transition: border-color 0.3s, box-shadow 0.3s;
 }
 
 .docs-article blockquote:hover {
-  border-color: rgba(113, 113, 122, 0.4);
-  border-left-color: #a1a1aa;
-  box-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.45);
+  border-left-color: var(--c-ink-3);
 }
 
 .docs-article blockquote p {
-  color: #d4d4d8;
+  color: var(--c-ink-2);
 }
 
 .docs-article table {
@@ -213,14 +207,15 @@
 .docs-article th {
   text-align: left;
   padding: 0.5rem 0.75rem;
-  background: #18181b;
-  border-bottom: 1px solid #3f3f46;
+  background: var(--c-subtle);
+  color: var(--c-ink);
+  border-bottom: 1px solid var(--c-rule-strong);
   font-weight: 600;
 }
 
 .docs-article td {
   padding: 0.5rem 0.75rem;
-  border-bottom: 1px solid #27272a;
+  border-bottom: 1px solid var(--c-rule);
 }
 
 .docs-article tr:last-child td {
@@ -229,7 +224,7 @@
 
 .docs-article img {
   border-radius: 0.5rem;
-  border: 1px solid #27272a;
+  border: 1px solid var(--c-rule);
 }
 
 .docs-article ul, .docs-article ol {
@@ -250,12 +245,12 @@
 }
 
 .docs-sidebar nav::-webkit-scrollbar-thumb {
-  background: #3f3f46;
+  background: var(--c-rule-strong);
   border-radius: 2px;
 }
 
 .docs-sidebar nav::-webkit-scrollbar-thumb:hover {
-  background: #52525b;
+  background: var(--c-ink-3);
 }
 
 /* Entry animations — Tailwind v4 @starting-style */
@@ -301,11 +296,22 @@ html {
 }
 
 body {
-    @apply bg-zinc-950 text-zinc-100 antialiased;
+    background: var(--c-ground);
+    color: var(--c-ink-2);
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Headings take the strongest ink unless something says otherwise: body text
+ * is --c-ink-2, and a heading that inherited it would read as a paragraph. */
+@layer base {
+    h1, h2, h3, h4 {
+        color: var(--c-ink);
+    }
 }
 
 ::selection {
-    @apply bg-zinc-300/30 text-zinc-50;
+    background: var(--c-selection);
+    color: var(--c-ink);
 }
 
 /* Terminal-style cursor blink */
@@ -356,22 +362,22 @@ pre.mermaid svg {
  * same palette and the same control. Three copies of one design is three
  * places for it to drift.
  *
- * Tokens are the site's zinc base. `--brand` is zinc-300, not a hue: on this
+ * Tokens come from tokens.css. `--brand` is ink, not a hue: on this
  * map an accent means "you are here", and green already means allow.
  */
 .learn-map {
-    --sunken: #131316;       /* below zinc-900 — a surface cards sit ON */
-    --panel: #18181b;        /* zinc-900 */
-    --panel-2: #1b1b1f;
-    --raise: #27272a;        /* zinc-800 */
-    --ink: #fafafa;          /* zinc-50 */
-    --ink-2: #d4d4d8;        /* zinc-300 */
-    --muted: #a1a1aa;        /* zinc-400 */
-    --faint: #71717a;        /* zinc-500: rules and swatches only. Text uses --muted: zinc-500 is 3.6:1 on --panel, under AA */
-    --line: #27272a;         /* zinc-800 */
-    --line-2: #3f3f46;       /* zinc-700 */
-    --brand: #d4d4d8;        /* zinc-300 — accents are neutral */
-    --brand-dim: #27272a;    /* zinc-800 */
+    --sunken: var(--c-subtle);   /* a surface cards sit ON */
+    --panel: var(--c-panel);
+    --panel-2: var(--c-panel);
+    --raise: var(--c-subtle);
+    --ink: var(--c-ink);
+    --ink-2: var(--c-ink-2);
+    --muted: var(--c-ink-3);
+    --faint: var(--c-ink-3);
+    --line: var(--c-rule);
+    --line-2: var(--c-rule-strong);
+    --brand: var(--c-ink);       /* accents are neutral: "you are here" */
+    --brand-dim: var(--c-subtle);
     --r: 14px;
 }
 
@@ -394,7 +400,7 @@ pre.mermaid svg {
 
 .learn-map .ctl:hover {
     transform: translateY(-2px);
-    border-color: color-mix(in srgb, var(--muted) 45%, var(--line));
+    border-color: var(--line-2);
 }
 
 /* The focusable element is the control itself, except on a `<details>`, where
@@ -411,5 +417,20 @@ pre.mermaid svg {
     }
     .learn-map .ctl:hover {
         transform: none;
+    }
+}
+
+/* A reader who asked for less motion gets none: the entry animations end where
+ * they would have ended, at once. (They also meant a page caught mid-fade read
+ * as low contrast to anything that looked at it then, axe included.) */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    ::before,
+    ::after {
+        animation-duration: 0.01ms !important;
+        animation-delay: 0ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
     }
 }

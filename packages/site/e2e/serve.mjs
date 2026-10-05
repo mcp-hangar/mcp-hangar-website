@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 // the Astro CLI automatically starts a background process.
 const server = await preview({
   root: fileURLToPath(new URL("../", import.meta.url)),
-  server: { host: "127.0.0.1", port: 4321 },
+  server: { host: "127.0.0.1", port: Number(process.env.E2E_PORT ?? 4321) },
 });
 for (const signal of ["SIGINT", "SIGTERM"]) {
   process.once(signal, async () => {

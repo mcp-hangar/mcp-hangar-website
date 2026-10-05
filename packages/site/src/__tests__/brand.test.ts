@@ -25,14 +25,14 @@ const read = (...segments: string[]) =>
 const lock = JSON.parse(read("brand.lock.json"));
 const geometry = read(lock.vendorDir, "generators/hangar_brand/geometry.py");
 const gate = read("src/components/icons/Gate.astro");
-const css = read("src/styles/global.css");
+const css = read("src/styles/tokens.css");
 
 /** A `NAME = "value"` constant out of the brand's geometry module. */
 const brandConst = (name: string) =>
   geometry.match(new RegExp(`^${name} = "([^"]+)"`, "m"))?.[1];
 
 const token = (name: string) =>
-  css.match(new RegExp(`--color-${name}:\\s*([^;]+);`))?.[1].trim();
+  css.match(new RegExp(`--${name}:\\s*([^;]+);`))?.[1].trim();
 
 describe("the gate's geometry comes from the brand", () => {
   const parts = [
@@ -62,18 +62,21 @@ describe("the gate's geometry comes from the brand", () => {
   });
 });
 
-describe("the verdict palette comes from the brand", () => {
-  // Green and red are not theme choices here — they are the two states a
-  // policy can produce, and the brand's generated assets close their gates in
-  // exactly these hexes. A second red on the site meant a page and a status
-  // wall sitting side by side disagreed about what a refusal looks like.
+describe("the marks' palette comes from the brand", () => {
+  // Green, red and amber are not theme choices -- the brand's generated assets
+  // close their gates in exactly these hexes, so the marks the site draws (the
+  // gate, the favicon, the OG card) take them verbatim from tokens.css.
+  //
+  // The UI's verdict *text* does not: #10b981 is 2.4:1 on the light ground, so
+  // `--c-allow`, `--c-deny` and `--c-hold` are darker (light) or lighter (dark)
+  // values of the same three verdicts, held to 4.5:1 by tokens.test.ts.
   const pairs: [string, string][] = [
-    ["verdict-allow", "BRAND"],
-    ["verdict-deny", "DENY"],
-    ["state-optin", "AMBER"],
+    ["brand-allow", "BRAND"],
+    ["brand-deny", "DENY"],
+    ["brand-amber", "AMBER"],
   ];
 
-  it.each(pairs)("--color-%s is the brand's %s", (name, constant) => {
+  it.each(pairs)("--%s is the brand's %s", (name, constant) => {
     expect(token(name)).toBe(brandConst(constant));
   });
 });

@@ -8,8 +8,9 @@ Learn and Security sections, the blog, and the rendered documentation for
 
 - **Astro 7**, static output. No client framework: nothing on this site is
   hydrated, and there is no `client:*` directive anywhere.
-- **Tailwind CSS 4**, configured in CSS rather than in a config file — the
-  `@theme` block at the top of `src/styles/global.css` is the whole palette.
+- **Tailwind CSS 4**, configured in CSS rather than in a config file. Every
+  colour is a token in `src/styles/tokens.css`; `global.css` maps them to
+  utilities and clears Tailwind's own palette.
 - **pnpm 11** workspace, **Node 22** (`.nvmrc`). The root lockfile covers every
   package; there is no second one.
 - **Vercel**, building `packages/site/dist` from `main`.
@@ -69,12 +70,17 @@ served favicon are all checked against the vendored source.
 
 ## Colour
 
-Two colours carry meaning, because the product is a binary verdict: green for
-allow, rose for deny, and amber for the one state that is neither — a control
-that exists but is off by default. Everything else is zinc. A hue on something
-that is not a verdict is a bug, not a preference; `src/styles/global.css` says
-so at greater length, and the code theme in `src/lib/code-theme.ts` is built
-from lightness alone for the same reason.
+Light is the default theme and dark is a full variant: the same token names in
+`src/styles/tokens.css`, followed from the system preference or chosen with the
+toggle in the nav (remembered in `localStorage`, applied before first paint).
+
+Three colours carry meaning, because every call ends in a verdict: allow,
+deny, and hold (an approval pending, or a control that is off by default).
+Everything else is a neutral ramp. A hue on something that is not a verdict is
+a bug, not a preference. `src/__tests__/tokens.test.ts` fails the build on a
+colour literal or a Tailwind palette class outside `tokens.css`, on a text
+token under 4.5:1 in either theme, and on the two dark blocks drifting apart;
+`e2e/theme.spec.ts` runs axe on sample pages in both themes, by both paths.
 
 ## Contributing
 

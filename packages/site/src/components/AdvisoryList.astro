@@ -37,7 +37,7 @@ const fmtDate = (iso: string) =>
   });
 ---
 
-<ul class={`advisory-list not-prose divide-y divide-zinc-800/60 border-y border-zinc-800/60 ${className}`}>
+<ul class={`advisory-list not-prose divide-y divide-rule border-y border-rule ${className}`}>
   {
     advisories.map((a) => (
       <li id={a.ghsaId.toLowerCase()}>
@@ -47,14 +47,14 @@ const fmtDate = (iso: string) =>
           rel="noopener noreferrer"
           class="group flex flex-col gap-1.5 py-4 transition-colors"
         >
-          <span class="flex flex-wrap items-baseline gap-x-3 gap-y-1 font-mono text-xs text-zinc-400">
+          <span class="flex flex-wrap items-baseline gap-x-3 gap-y-1 font-mono text-xs text-ink-3">
             <time datetime={a.publishedAt}>{fmtDate(a.publishedAt)}</time>
             <span class="uppercase tracking-wider">{a.severity}</span>
             <span>{a.ghsaId}</span>
             {a.cveId && <span>{a.cveId}</span>}
           </span>
-          <span class="advisory-summary text-zinc-300 group-hover:text-zinc-100 transition-colors">{a.summary}</span>
-          <span class="text-xs text-zinc-400">
+          <span class="advisory-summary text-ink-2 group-hover:text-ink transition-colors">{a.summary}</span>
+          <span class="text-xs text-ink-3">
             {a.patchedVersions
               ? `Fixed in ${a.patchedVersions}`
               : `Affects ${a.affectedVersions ?? "see advisory"}`}
@@ -63,7 +63,7 @@ const fmtDate = (iso: string) =>
       </li>
     ))
   }
-  {advisories.length === 0 && <li class="py-4 text-sm text-zinc-400">No advisories published yet.</li>}
+  {advisories.length === 0 && <li class="py-4 text-sm text-ink-3">No advisories published yet.</li>}
 </ul>
 
 <style>

@@ -27,8 +27,8 @@ interface Props {
 const { verdict, code, size = "md", class: className = "" } = Astro.props;
 
 const tone = {
-    allow: "border-verdict-allow/35 bg-verdict-allow/10 text-verdict-allow-soft",
-    deny: "border-verdict-deny/35 bg-verdict-deny/10 text-verdict-deny-soft",
+    allow: "border-allow/40 bg-allow-tint text-allow",
+    deny: "border-deny/40 bg-deny-tint text-deny",
 }[verdict];
 
 const dims = {
@@ -41,5 +41,5 @@ const dims = {
     class={`inline-flex items-center font-mono font-semibold uppercase tracking-[0.1em] rounded border ${tone} ${dims} ${className}`}
 >
     {verdict}
-    {code && <span class="opacity-80 tracking-normal normal-case">{code}</span>}
+    {code && <span class="font-medium tracking-normal normal-case">{code}</span>}
 </span>

@@ -83,29 +83,29 @@ const sections = [
   <div class="space-y-10">
     <!-- Header -->
     <div>
-      <h1 class="text-3xl font-bold text-zinc-100 mb-3">Documentation</h1>
-      <p class="text-zinc-400 text-lg leading-relaxed max-w-2xl">
+      <h1 class="text-3xl font-bold text-ink mb-3">Documentation</h1>
+      <p class="text-ink-3 text-lg leading-relaxed max-w-2xl">
         Everything you need to install, configure, and run MCP Hangar in production.
-        Start with the <a href="/docs/getting-started/quickstart" class="text-zinc-300 underline underline-offset-2 decoration-zinc-500 hover:text-zinc-100 hover:decoration-zinc-300 transition-colors">Quick Start</a> or explore the sections below.
+        Start with the <a href="/docs/getting-started/quickstart" class="text-ink-2 underline underline-offset-2 decoration-rule-strong hover:text-ink hover:decoration-rule-strong transition-colors">Quick Start</a> or explore the sections below.
       </p>
     </div>
 
     <!-- Section cards -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-5 stagger-grid">
       {sections.map((section) => (
-        <div class="group p-5 rounded-xl bg-zinc-900/40 border border-zinc-800/60 hover:border-zinc-700/80 transition-all duration-300">
+        <div class="group p-5 rounded-xl bg-panel border border-rule hover:border-rule-strong transition-all duration-300">
           <div class="mb-3">
-            <h2 class="text-base font-semibold text-zinc-100 group-hover:text-zinc-300 transition-colors">
+            <h2 class="text-base font-semibold text-ink group-hover:text-ink-2 transition-colors">
               {section.title}
             </h2>
-            <p class="text-sm text-zinc-400 mt-0.5">{section.description}</p>
+            <p class="text-sm text-ink-3 mt-0.5">{section.description}</p>
           </div>
           <ul class="space-y-1">
             {section.links.map((link) => (
               <li>
                 <a
                   href={link.href}
-                  class="text-sm text-zinc-400 hover:text-zinc-300 transition-colors"
+                  class="text-sm text-ink-3 hover:text-ink-2 transition-colors"
                 >
                   {link.label}
                 </a>
@@ -117,12 +117,12 @@ const sections = [
     </div>
 
     <!-- Footer note -->
-    <div class="pt-6 border-t border-zinc-800/50">
-      <p class="text-sm text-zinc-400">
+    <div class="pt-6 border-t border-rule">
+      <p class="text-sm text-ink-3">
         {pageCount} pages in the documentation, and{' '}
-        <a href={DECISIONS_INDEX} class="text-zinc-300 underline underline-offset-2 decoration-zinc-500 hover:text-zinc-100 hover:decoration-zinc-300 transition-colors">{decisionCount} decision records</a>{' '}
+        <a href={DECISIONS_INDEX} class="text-ink-2 underline underline-offset-2 decoration-rule-strong hover:text-ink hover:decoration-rule-strong transition-colors">{decisionCount} decision records</a>{' '}
         under Decisions.{' '}
-        <a href="https://github.com/mcp-hangar/mcp-hangar" class="text-zinc-300 underline underline-offset-2 decoration-zinc-500 hover:text-zinc-100 hover:decoration-zinc-300 transition-colors">View source on GitHub</a>
+        <a href="https://github.com/mcp-hangar/mcp-hangar" class="text-ink-2 underline underline-offset-2 decoration-rule-strong hover:text-ink hover:decoration-rule-strong transition-colors">View source on GitHub</a>
       </p>
     </div>
   </div>

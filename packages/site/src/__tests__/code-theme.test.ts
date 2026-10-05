@@ -1,65 +1,61 @@
 import { describe, expect, it } from "vitest";
 import { codeTheme } from "../lib/code-theme";
+import { contrast, rgb, themes } from "./tokens-helpers";
 
 /**
- * `global.css` states the rule: colour is semantics, two hues carry meaning
- * because a verdict is binary, and nothing that is not a verdict gets a hue.
- * Code blocks are the most common visual element on this site, so they are
- * where that rule is most expensive to break -- and they broke it for as long
- * as they rendered in a borrowed editor theme.
+ * `styles/tokens.css` states the rule: colour is semantics, three hues carry
+ * meaning because a call ends in one of three verdicts, and nothing that is
+ * not a verdict gets a hue. Code blocks are the most common visual element on
+ * this site, so they are where that rule is most expensive to break -- and
+ * they broke it for as long as they rendered in a borrowed editor theme.
  *
- * This asserts the rule rather than the values. A new scope can be added, a
- * shade can be re-picked, but nothing in the theme may carry a hue.
+ * The theme names custom properties rather than hexes, so this resolves each
+ * one in both themes and asserts the rule there. A new scope can be added, a
+ * shade can be re-picked, but nothing may carry a hue or drop under 4.5:1.
  */
 
-const channels = (hex: string) => {
-  const m = /^#([0-9a-f]{6})$/i.exec(hex);
-  if (!m) throw new Error(`not a 6-digit hex colour: ${hex}`);
-  const n = parseInt(m[1], 16);
-  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
-};
+const { light, darkAttr } = themes();
 
-/** sRGB relative luminance, for the contrast floor below. */
-const luminance = (hex: string) => {
-  const [r, g, b] = channels(hex).map((c) => {
-    const s = c / 255;
-    return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
-  });
-  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
-};
-
-const contrast = (a: string, b: string) => {
-  const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x);
-  return (hi + 0.05) / (lo + 0.05);
+const resolve = (theme: Record<string, string>, value: string) => {
+  const m = /^var\((--[\w-]+)\)$/.exec(value);
+  if (!m) throw new Error(`the code theme should name a token: ${value}`);
+  const hex = theme[m[1]];
+  if (!hex) throw new Error(`${m[1]} is not declared in tokens.css`);
+  return hex;
 };
 
 const background = codeTheme.colors!["editor.background"]!;
 
 const foregrounds = [
-  codeTheme.colors!["editor.foreground"]!,
-  ...(codeTheme.settings ?? [])
-    .map((rule) => rule.settings?.foreground)
-    .filter((c): c is string => typeof c === "string"),
+  ...new Set([
+    codeTheme.colors!["editor.foreground"]!,
+    ...(codeTheme.settings ?? [])
+      .map((rule) => rule.settings?.foreground)
+      .filter((c): c is string => typeof c === "string"),
+  ]),
 ];
 
-describe("the code theme carries no hue", () => {
+describe("the code theme", () => {
   it("has foreground colours to check", () => {
-    expect(foregrounds.length).toBeGreaterThan(5);
+    expect(foregrounds.length).toBeGreaterThanOrEqual(4);
   });
 
-  it.each([...new Set(foregrounds), background])("%s is achromatic", (hex) => {
-    const [r, g, b] = channels(hex);
-    // Tailwind's zinc is very slightly cool rather than a pure grey, so this
-    // is a hue test, not an r === g === b test.
-    expect(Math.max(r, g, b) - Math.min(r, g, b)).toBeLessThanOrEqual(10);
-  });
-});
+  describe.each([
+    ["light", light],
+    ["dark", darkAttr],
+  ])("in the %s theme", (_name, theme) => {
+    it.each([...foregrounds, background])("%s is achromatic", (value) => {
+      const [r, g, b] = rgb(resolve(theme, value));
+      // The ink ramp is a slightly cool grey rather than a pure one, so this
+      // is a hue test, not an r === g === b test: a real hue spreads the
+      // channels by 40 or more.
+      expect(Math.max(r, g, b) - Math.min(r, g, b)).toBeLessThanOrEqual(20);
+    });
 
-describe("the code theme stays readable", () => {
-  it.each([...new Set(foregrounds)])(
-    "%s clears 4.5:1 on the background",
-    (hex) => {
-      expect(contrast(hex, background)).toBeGreaterThanOrEqual(4.5);
-    }
-  );
+    it.each(foregrounds)("%s clears 4.5:1 on the background", (value) => {
+      expect(
+        contrast(resolve(theme, value), resolve(theme, background))
+      ).toBeGreaterThanOrEqual(4.5);
+    });
+  });
 });

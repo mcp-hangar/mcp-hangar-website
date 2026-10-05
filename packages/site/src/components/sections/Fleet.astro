@@ -23,33 +23,33 @@ import SectionHeader from "../SectionHeader.astro";
   </SectionHeader>
 
   <div class="grid gap-5 md:grid-cols-3">
-    <div class="rounded-2xl border border-zinc-800/60 bg-zinc-900/30 p-6">
-      <h3 class="text-lg font-semibold text-zinc-100 mb-2">One writer for the estate</h3>
-      <p class="text-zinc-400 text-sm leading-relaxed">
+    <div class="rounded-2xl border border-rule bg-panel p-6">
+      <h3 class="text-lg font-semibold text-ink mb-2">One writer for the estate</h3>
+      <p class="text-ink-3 text-sm leading-relaxed">
         A single instance holds the management lease. Discovery, deregistration and the
         other estate-wide moves happen there, so two replicas cannot undo each other's
         work.
       </p>
     </div>
-    <div class="rounded-2xl border border-zinc-800/60 bg-zinc-900/30 p-6">
-      <h3 class="text-lg font-semibold text-zinc-100 mb-2">Fenced, not just elected</h3>
-      <p class="text-zinc-400 text-sm leading-relaxed">
+    <div class="rounded-2xl border border-rule bg-panel p-6">
+      <h3 class="text-lg font-semibold text-ink mb-2">Fenced, not just elected</h3>
+      <p class="text-ink-3 text-sm leading-relaxed">
         The lease carries a generation, and a convergence loop's deregistration carries
         it into the write, so a superseded holder affects zero rows. Re-registering and
         metric snapshots rest on local belief, where a repeat costs nothing.
       </p>
     </div>
-    <div class="rounded-2xl border border-zinc-800/60 bg-zinc-900/30 p-6">
-      <h3 class="text-lg font-semibold text-zinc-100 mb-2">A log every replica agrees on</h3>
-      <p class="text-zinc-400 text-sm leading-relaxed">
+    <div class="rounded-2xl border border-rule bg-panel p-6">
+      <h3 class="text-lg font-semibold text-ink mb-2">A log every replica agrees on</h3>
+      <p class="text-ink-3 text-sm leading-relaxed">
         State is an event log the replicas follow, so a server registered on one is
         visible to the rest instead of living in one instance's memory.
       </p>
     </div>
   </div>
 
-  <div class="max-w-3xl mx-auto mt-8 rounded-2xl border border-zinc-800/60 bg-zinc-950/40 p-7">
-    <p class="text-zinc-300">
+  <div class="max-w-3xl mx-auto mt-8 rounded-2xl border border-rule bg-ground/40 p-7">
+    <p class="text-ink-2">
       The detail that makes it correct: a follower cannot assume events become visible
       in the order they were numbered. A lower-numbered event can commit after a
       higher-numbered one, so a reader that trusted the numbering would step straight
@@ -58,7 +58,7 @@ import SectionHeader from "../SectionHeader.astro";
     </p>
     <a
       href="/learn/more-than-one-hangar"
-      class="group inline-flex items-center gap-2 mt-5 text-sm font-semibold text-zinc-300 hover:text-zinc-100 transition-colors"
+      class="group inline-flex items-center gap-2 mt-5 text-sm font-semibold text-ink-2 hover:text-ink transition-colors"
     >
       What it takes to run more than one
       <span class="transition-transform group-hover:translate-x-0.5" aria-hidden="true">&rarr;</span>
