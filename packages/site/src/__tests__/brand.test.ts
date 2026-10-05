@@ -96,9 +96,11 @@ describe("the OG card carries the brand's mark", () => {
     expect(gate).toContain(`stroke="${brandConst("BRAND")}"`);
   });
 
-  it("spells the display lockup at the brand's tracking", () => {
-    // BRAND.md: display tracking is 0.14em.
-    expect(templates).toContain("0.14");
+  // The card's wordmark is the site's: "MCP Hangar" in Schibsted 800, as in
+  // the nav (redesign direction A), not the brand's spaced mono lockup.
+  it("sets the wordmark the way the site's nav does", () => {
+    expect(templates).toContain('"MCP Hangar"');
+    expect(templates).toMatch(/fontFamily: FONT\.display,\s*fontWeight: 800/);
   });
 });
 

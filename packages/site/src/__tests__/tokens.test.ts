@@ -69,11 +69,12 @@ describe.each([
 
 describe("no colour goes around the tokens", () => {
   const root = process.cwd();
-  // og/ renders with satori, which has no custom properties: its hexes mirror
-  // the tokens and are held to them by og.test.ts.
+  // og/tokens.ts feeds satori, which has no custom properties: its hexes
+  // mirror tokens.css and are held to it by og.test.ts. The templates that
+  // use them are checked like everything else.
   const files = fg.sync(["src/**/*.{astro,ts,css,mjs}"], {
     cwd: root,
-    ignore: ["src/styles/tokens.css", "src/og/**", "src/__tests__/**"],
+    ignore: ["src/styles/tokens.css", "src/og/tokens.ts", "src/__tests__/**"],
   });
 
   /** Comments say "#1285" and "zinc-500 was 4.1:1"; code is what is checked. */
