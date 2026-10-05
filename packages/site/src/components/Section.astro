@@ -1,0 +1,23 @@
+---
+/**
+ * One band of a page: the site's column, its gutter, and a rule above it.
+ *
+ * Every page section used to restate `max-w-6xl mx-auto px-6 py-…` with its
+ * own padding, so the left edge and the rhythm drifted section by section.
+ */
+interface Props {
+    id?: string;
+    /** Draw the hairline that separates this band from the one above. */
+    rule?: boolean;
+    class?: string;
+    labelledby?: string;
+}
+
+const { id, rule = true, class: className = "", labelledby } = Astro.props;
+---
+
+<section id={id} aria-labelledby={labelledby} class={`${rule ? "border-t border-rule" : ""} ${className}`}>
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-16 md:py-24">
+        <slot />
+    </div>
+</section>

@@ -1,6 +1,9 @@
-import { defineConfig } from "vitest/config";
+/// <reference types="vitest/config" />
+import { getViteConfig } from "astro/config";
 
-export default defineConfig({
+// Astro's Vite config, so a test can render a component with the container
+// API (record.test.ts) as well as import plain modules.
+export default getViteConfig({
   test: {
     include: ["src/__tests__/**/*.test.ts"],
     // Node by default. Only `mermaid-diagrams` needs a DOM -- it parses built

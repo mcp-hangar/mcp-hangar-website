@@ -120,3 +120,16 @@ test("search finds content pages and links them without a trailing slash", async
   );
   expect(overflow).toBe(0);
 });
+
+test("the nav marks the section the reader is in", async ({ page }) => {
+  await page.goto("/learn/the-request-path");
+  const nav = page.getByRole("navigation", { name: "Main navigation" });
+  await expect(nav.getByRole("link", { name: "Learn" })).toHaveAttribute(
+    "aria-current",
+    "page"
+  );
+  await expect(nav.getByRole("link", { name: "Docs" })).not.toHaveAttribute(
+    "aria-current",
+    "page"
+  );
+});

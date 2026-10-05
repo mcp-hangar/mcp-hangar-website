@@ -22,19 +22,21 @@ const {
     external = false,
 } = Astro.props;
 
+// Square-shouldered and flat, like the record it sits beside: ink on paper.
+// Primary is filled with ink, secondary is outlined in it, ghost is text.
 const variantClasses: Record<ButtonVariant, string> = {
-    primary:   "bg-ink hover:bg-ink-2 text-ground ",
-    secondary: "bg-subtle hover:bg-rule text-ink",
-    ghost:     "bg-transparent border border-rule-strong hover:border-rule-strong text-ink-2 hover:text-ink",
+    primary:   "bg-ink text-ground border border-ink hover:bg-ink-2 hover:border-ink-2",
+    secondary: "bg-transparent text-ink border border-ink hover:bg-subtle",
+    ghost:     "bg-transparent text-ink-2 border border-transparent underline underline-offset-4 decoration-rule-strong hover:text-ink hover:decoration-ink",
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
-    sm: "px-4 py-2 text-sm",
-    md: "px-6 py-3 text-sm",
-    lg: "px-8 py-4 text-base",
+    sm: "px-3 py-1.5 text-sm",
+    md: "px-4 py-2.5 text-base",
+    lg: "px-5 py-3 text-base",
 };
 
-const base = "group inline-flex items-center gap-2 font-semibold rounded-lg transition-all duration-300 hover:-translate-y-0.5";
+const base = "group inline-flex items-center gap-2 font-semibold rounded-[4px] transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink";
 const classes = `${base} ${variantClasses[variant]} ${sizeClasses[size]} ${className}`;
 ---
 
@@ -42,7 +44,7 @@ const classes = `${base} ${variantClasses[variant]} ${sizeClasses[size]} ${class
     <a href={href} class={classes} target="_blank" rel="noopener noreferrer">
         <slot />
         {withArrow && (
-            <span class="transition-transform duration-300 group-hover:translate-x-1 flex items-center justify-center">
+            <span class="transition-transform duration-150 group-hover:translate-x-0.5 flex items-center justify-center">
                 <ArrowIcon />
             </span>
         )}
@@ -51,7 +53,7 @@ const classes = `${base} ${variantClasses[variant]} ${sizeClasses[size]} ${class
     <a href={href} class={classes}>
         <slot />
         {withArrow && (
-            <span class="transition-transform duration-300 group-hover:translate-x-1 flex items-center justify-center">
+            <span class="transition-transform duration-150 group-hover:translate-x-0.5 flex items-center justify-center">
                 <ArrowIcon />
             </span>
         )}

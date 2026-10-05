@@ -1,0 +1,147 @@
+---
+import VerdictChip from "./VerdictChip.astro";
+
+/**
+ * The verdict record: the motif the whole site is built on.
+ *
+ * Rows of time | verdict | call and reason, the way Hangar writes them down.
+ * Records are content, not decoration: every field shown here is one the
+ * product actually emits (see src/data/core-gates.json for where each name
+ * comes from), so a reader who copies a reason code into a search of their
+ * own logs finds it.
+ *
+ * A real `<table>`, so a screen reader announces it as one and a printout
+ * keeps its columns. On a phone the reason drops under the call instead of
+ * scrolling the page sideways.
+ */
+export interface RecordRow {
+    /** Wall clock, `HH:MM:SS`. */
+    time: string;
+    verdict: "allow" | "deny" | "hold";
+    /** `server.tool`, as the record names it. */
+    call: string;
+    /** A bounded code or field list, e.g. `gate=tool_access reason=tool_not_in_access_policy`. */
+    reason?: string;
+}
+
+interface Props {
+    rows: RecordRow[];
+    /** What the record is, for the table's accessible name and its caption. */
+    label: string;
+    /** Where the rows come from, e.g. `batch_call_refused`, shown in the header. */
+    source?: string;
+    class?: string;
+}
+
+const { rows, label, source, class: className = "" } = Astro.props;
+---
+
+<figure class={`record min-w-0 ${className}`}>
+    <div class="record-frame" tabindex="0" role="region" aria-label={label}>
+        <table>
+            <caption class="sr-only">{label}</caption>
+            <thead>
+                <tr>
+                    <th scope="col">time</th>
+                    <th scope="col">verdict</th>
+                    <th scope="col">
+                        call · reason
+                        {source && <span class="record-source">{source}</span>}
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                {rows.map((row) => (
+                    <tr>
+                        <td class="record-time">{row.time}</td>
+                        <td><VerdictChip verdict={row.verdict} size="sm" /></td>
+                        <td class="record-call">
+                            <span class="text-ink">{row.call}</span>
+                            {row.reason && <span class="record-reason">{row.reason}</span>}
+                        </td>
+                    </tr>
+                ))}
+            </tbody>
+        </table>
+    </div>
+    {Astro.slots.has("default") && (
+        <figcaption class="mt-3 text-sm text-ink-3">
+            <slot />
+        </figcaption>
+    )}
+</figure>
+
+<style>
+    .record-frame {
+        background: var(--c-panel);
+        border: 1px solid var(--c-rule);
+        border-radius: 6px;
+        overflow-x: auto;
+    }
+    .record-frame:focus-visible {
+        outline: 2px solid var(--c-ink);
+        outline-offset: 2px;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-family: var(--font-mono);
+        font-size: 0.8125rem;
+        line-height: 1.6;
+    }
+    th {
+        text-align: left;
+        font-weight: 400;
+        font-size: 0.6875rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--c-ink-3);
+        background: var(--c-subtle);
+        padding: 0.4rem 0.75rem;
+        border-bottom: 1px solid var(--c-rule);
+        white-space: nowrap;
+    }
+    .record-source {
+        float: right;
+        text-transform: none;
+        letter-spacing: 0;
+    }
+    td {
+        padding: 0.45rem 0.75rem;
+        border-bottom: 1px solid var(--c-rule);
+        vertical-align: baseline;
+    }
+    tr:last-child td {
+        border-bottom: 0;
+    }
+    td:first-child,
+    td:nth-child(2) {
+        white-space: nowrap;
+        width: 1%;
+    }
+    .record-time {
+        color: var(--c-ink-3);
+        font-variant-numeric: tabular-nums;
+    }
+    .record-call {
+        overflow-wrap: anywhere;
+    }
+    .record-reason {
+        color: var(--c-ink-3);
+        margin-left: 0.6em;
+    }
+    @media (max-width: 40rem) {
+        th,
+        td {
+            padding-left: 0.5rem;
+            padding-right: 0.5rem;
+        }
+        .record-reason {
+            display: block;
+            margin-left: 0;
+        }
+        .record-source {
+            display: none;
+        }
+    }
+</style>
