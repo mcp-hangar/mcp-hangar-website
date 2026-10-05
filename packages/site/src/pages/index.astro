@@ -2,37 +2,23 @@
 import Base from '../layouts/Base.astro';
 import { BRAND, CATEGORY, DESCRIPTION } from '../config';
 
-import Hero from '../components/sections/Hero.astro';
-import WhyEnforcement from '../components/sections/WhyEnforcement.astro';
-import Architecture from '../components/sections/Architecture.astro';
-import UseCases from '../components/sections/UseCases.astro';
-import Fleet from '../components/sections/Fleet.astro';
-import AsyncGovernance from '../components/sections/AsyncGovernance.astro';
-import HardeningNote from '../components/sections/HardeningNote.astro';
-import ThreeDoors from '../components/sections/ThreeDoors.astro';
+import HomeHero from '../components/sections/HomeHero.astro';
+import HowDecided from '../components/sections/HowDecided.astro';
+import Proof from '../components/sections/Proof.astro';
+import Start from '../components/sections/Start.astro';
 ---
 
 <Base title={`${BRAND} | ${CATEGORY}`} description={DESCRIPTION} path="/">
-    <!-- Background effects -->
-    <div class="fixed inset-0 z-[-1]">
-        <div class="absolute inset-0 bg-ground"/>
-        <div
-            class="fixed inset-0 bg-[url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noise%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noise)%22/%3E%3C/svg%3E')] opacity-[0.03]"/>
-    </div>
-
     <!--
-        Six sections, one question each. Anything that needs more than a screen to
-        answer lives in /learn or /docs and is linked from here, rather than being
-        inlined a second time.
+        Four sections: the verdict, how it is reached, what it leaves behind,
+        and where to start. Each of the middle two ends with the record its
+        mechanism produces. Anything that needs more than a screen lives in
+        /learn or /docs and is linked from here.
     -->
     <main>
-        <Hero />
-        <WhyEnforcement />
-        <Architecture />
-        <UseCases />
-        <Fleet />
-        <AsyncGovernance />
-        <HardeningNote />
-        <ThreeDoors />
+        <HomeHero />
+        <HowDecided />
+        <Proof />
+        <Start />
     </main>
 </Base>

@@ -13,17 +13,25 @@ test("landing, documentation and blog load without browser errors", async ({
   expect(errors).toEqual([]);
 });
 
-test("install command copies the complete code", async ({ page, context }) => {
+test("every install command copies the complete code", async ({
+  page,
+  context,
+}) => {
   await context.grantPermissions(["clipboard-read", "clipboard-write"]);
   await page.goto("/");
-  const button = page.getByRole("button", {
+  // The hero and the start section each carry one.
+  const buttons = page.getByRole("button", {
     name: "Copy pip install command to clipboard",
   });
-  const code = await button.locator(".start-copy-text").innerText();
-  await button.click();
-  await expect
-    .poll(() => page.evaluate(() => navigator.clipboard.readText()))
-    .toBe(code);
+  await expect(buttons).toHaveCount(2);
+  for (const button of await buttons.all()) {
+    await page.evaluate(() => navigator.clipboard.writeText(""));
+    const code = await button.locator(".start-copy-text").innerText();
+    await button.click();
+    await expect
+      .poll(() => page.evaluate(() => navigator.clipboard.readText()))
+      .toBe(code);
+  }
 });
 
 test("mobile navigation and documentation drawer open and close", async ({

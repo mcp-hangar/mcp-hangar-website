@@ -59,27 +59,15 @@ const titleOf = new Map(allEntries.map(e => [e.id, e.data.title]));
 
     <article class="prose max-w-none docs-article" data-pagefind-body data-pagefind-filter="section:Learn">
       <header class="not-prose mb-10">
-        <!-- Compact facet meta row — same signals as the /learn hub cards. -->
-        <div class="flex flex-wrap items-center gap-x-3 gap-y-2 mb-4 text-xs">
-          <span class="inline-flex items-center gap-1.5 font-semibold text-ink-3">
-            <span class="w-2 h-2 rounded-sm bg-ink-3" />
-            {TLABEL[type]}
-          </span>
-          <span class="w-1 h-1 rounded-full bg-rule-strong" aria-hidden="true" />
-          <span class="text-ink-3">{level}</span>
-          <span class="w-1 h-1 rounded-full bg-rule-strong" aria-hidden="true" />
-          <span class="text-ink-3 font-mono">{time}</span>
-          <span
-            class:list={[
-              'ml-auto px-2 py-0.5 rounded font-semibold',
-              upcoming
-                ? 'bg-subtle text-ink-3'
-                : 'bg-subtle text-ink-2',
-            ]}
-          >
-            {sinceLabel(since)}
-          </span>
-        </div>
+        <!-- One mono line, the record's voice: the same facets as the /learn
+             hub cards, as text rather than dots and pills. -->
+        <p class="flex flex-wrap items-baseline gap-x-2 gap-y-1 mb-4 font-mono text-xs text-ink-3">
+          <span>learn</span><span aria-hidden="true">·</span>
+          <span>{TLABEL[type].toLowerCase()}</span><span aria-hidden="true">·</span>
+          <span>{level.toLowerCase()}</span><span aria-hidden="true">·</span>
+          <span>{time}</span>
+          <span class:list={['ml-auto', upcoming ? 'text-hold' : 'text-ink-2']}>{sinceLabel(since).toLowerCase()}</span>
+        </p>
         {entry.data.tags && (
           <div class="flex flex-wrap items-center gap-2 mb-4">
             {entry.data.tags.map(tag => (
@@ -107,7 +95,7 @@ const titleOf = new Map(allEntries.map(e => [e.id, e.data.title]));
               <li>
                 <a
                   href={d.href}
-                  class="group flex items-center justify-between gap-3 rounded-xl bg-panel border border-rule hover:border-rule-strong hover:bg-panel px-4 py-3.5 transition-colors"
+                  class="group flex items-center justify-between gap-3 rounded-md bg-panel border border-rule hover:border-rule-strong hover:bg-panel px-4 py-3.5 transition-colors"
                 >
                   <span class="text-base text-ink-2 group-hover:text-ink transition-colors">{d.label}</span>
                   <span class="text-ink-3 group-hover:text-ink-2 group-hover:translate-x-0.5 transition-all shrink-0" aria-hidden="true">&rarr;</span>
@@ -133,7 +121,7 @@ const titleOf = new Map(allEntries.map(e => [e.id, e.data.title]));
             {track.prev && (
               <a
                 href={`/learn/${track.prev}`}
-                class="group rounded-xl bg-panel border border-rule hover:border-rule-strong hover:bg-panel px-5 py-4 transition-colors"
+                class="group rounded-md bg-panel border border-rule hover:border-rule-strong hover:bg-panel px-5 py-4 transition-colors"
               >
                 <span class="flex items-center gap-1.5 text-xs font-semibold text-ink-3 uppercase tracking-wider mb-1.5">
                   <span class="group-hover:-translate-x-0.5 transition-transform" aria-hidden="true">&larr;</span>
@@ -147,7 +135,7 @@ const titleOf = new Map(allEntries.map(e => [e.id, e.data.title]));
             {track.next && (
               <a
                 href={`/learn/${track.next}`}
-                class={`group rounded-xl bg-panel border border-rule hover:border-rule-strong hover:bg-panel px-5 py-4 transition-colors sm:text-right ${track.prev ? '' : 'sm:col-start-2'}`}
+                class={`group rounded-md bg-panel border border-rule hover:border-rule-strong hover:bg-panel px-5 py-4 transition-colors sm:text-right ${track.prev ? '' : 'sm:col-start-2'}`}
               >
                 <span class="flex items-center gap-1.5 text-xs font-semibold text-ink-3 uppercase tracking-wider mb-1.5 sm:justify-end">
                   Next
