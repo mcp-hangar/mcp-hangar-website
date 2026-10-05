@@ -1,4 +1,5 @@
 import { getCollection } from "astro:content";
+import { publishedPosts } from "../lib/blog";
 
 /**
  * Every card the build emits, in one list.
@@ -28,7 +29,7 @@ const isAdvisory = (id: string, tags?: string[]) =>
 
 export async function ogCards(): Promise<Card[]> {
   const [blog, learn, docs, security] = await Promise.all([
-    getCollection("blog"),
+    publishedPosts(),
     getCollection("learn"),
     getCollection("oss"),
     getCollection("security"),

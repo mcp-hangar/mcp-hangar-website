@@ -1,9 +1,9 @@
 import rss from "@astrojs/rss";
 import type { APIContext } from "astro";
-import { getCollection } from "astro:content";
+import { publishedPosts } from "../lib/blog";
 
 export async function GET(context: APIContext) {
-  const posts = await getCollection("blog");
+  const posts = await publishedPosts();
   return rss({
     title: "MCP Hangar Blog",
     description: "Updates and technical deep-dives from the MCP Hangar team.",
