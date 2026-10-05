@@ -61,8 +61,11 @@ Install and run:
 
 ```bash
 curl -sSL https://mcp-hangar.io/install.sh | bash
+export PATH="$HOME/.mcp-hangar/bin:$PATH"   # this shell; new shells have it
 mcp-hangar serve
 ```
+
+> **Update (2026-10-05):** The `export` line was added after publication. The installer puts `~/.mcp-hangar/bin` on `PATH` for new shells only, so without it the next line exits 127 in the shell you installed from.
 
 Or with pip:
 
