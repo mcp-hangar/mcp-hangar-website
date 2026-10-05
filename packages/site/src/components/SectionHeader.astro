@@ -34,11 +34,11 @@ const { eyebrow, class: className = "" } = Astro.props;
             {eyebrow}
         </p>
     )}
-    <h2 class="text-3xl md:text-4xl font-bold tracking-tight text-ink text-balance">
+    <h2 class="text-h2 text-ink text-balance">
         <slot />
     </h2>
     {Astro.slots.has("lead") && (
-        <div class="mt-5 space-y-4 text-lg text-ink-3 leading-relaxed">
+        <div class="mt-5 space-y-4 text-lead text-ink-3">
             <slot name="lead" />
         </div>
     )}

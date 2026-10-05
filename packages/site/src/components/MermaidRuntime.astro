@@ -40,9 +40,8 @@
     try {
       const { default: mermaid } = await import('mermaid');
 
-      // 'JetBrains Mono Variable' is the family @fontsource-variable actually
-      // registers; the bare name is kept after it as the local fallback.
-      const mono = "'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, monospace";
+      // The site's data face: a diagram's labels are names from the product.
+      const mono = "'IBM Plex Mono', ui-monospace, monospace";
 
       const sources = Array.from(nodes, (n) => n.textContent ?? '');
 

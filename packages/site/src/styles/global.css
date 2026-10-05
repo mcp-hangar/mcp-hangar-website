@@ -1,5 +1,15 @@
-@import "@fontsource-variable/space-grotesk";
-@import "@fontsource-variable/jetbrains-mono";
+/* Three families, self-hosted, Latin subset only, and only the weights the
+ * type scale below uses: Schibsted Grotesk for headings (700, 800), IBM Plex
+ * Sans for text (400, 400 italic, 500, 600), IBM Plex Mono for data and code
+ * (400, 500). Each file loads only when a glyph on the page needs it. */
+@import "@fontsource/schibsted-grotesk/latin-700.css";
+@import "@fontsource/schibsted-grotesk/latin-800.css";
+@import "@fontsource/ibm-plex-sans/latin-400.css";
+@import "@fontsource/ibm-plex-sans/latin-400-italic.css";
+@import "@fontsource/ibm-plex-sans/latin-500.css";
+@import "@fontsource/ibm-plex-sans/latin-600.css";
+@import "@fontsource/ibm-plex-mono/latin-400.css";
+@import "@fontsource/ibm-plex-mono/latin-500.css";
 @import "tailwindcss";
 @import "./tokens.css";
 @plugin "@tailwindcss/typography";
@@ -10,8 +20,36 @@
  * tokens.css through the names below. */
 @theme {
     --color-*: initial;
-    --font-sans: 'Space Grotesk', system-ui, sans-serif;
-    --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+    --font-sans: 'IBM Plex Sans', system-ui, sans-serif;
+    --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+    --font-display: 'Schibsted Grotesk', 'IBM Plex Sans', system-ui, sans-serif;
+
+    /* The type scale. Headings use the four named steps and nothing else
+     * (typography.test.ts holds that); text uses Tailwind's xs to xl.
+     *
+     *   display  the home h1 only
+     *   h1       every other page's title
+     *   h2       a section
+     *   h3       a card or a subsection
+     *   lead     the paragraph under a title */
+    --text-display: clamp(2.5rem, 1.6rem + 3.4vw, 4rem);
+    --text-display--line-height: 1;
+    --text-display--letter-spacing: -0.035em;
+    --text-display--font-weight: 800;
+    --text-h1: clamp(2rem, 1.55rem + 1.8vw, 2.75rem);
+    --text-h1--line-height: 1.08;
+    --text-h1--letter-spacing: -0.028em;
+    --text-h1--font-weight: 800;
+    --text-h2: clamp(1.5rem, 1.25rem + 1vw, 2rem);
+    --text-h2--line-height: 1.15;
+    --text-h2--letter-spacing: -0.02em;
+    --text-h2--font-weight: 800;
+    --text-h3: 1.25rem;
+    --text-h3--line-height: 1.3;
+    --text-h3--letter-spacing: -0.012em;
+    --text-h3--font-weight: 700;
+    --text-lead: 1.1875rem;
+    --text-lead--line-height: 1.55;
     --animate-pulse-slow: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
     --animate-fade-in: fade-in 0.6s ease-out both;
     --animate-slide-up: slide-up 0.5s ease-out both;
@@ -102,7 +140,10 @@
 }
 
 .docs-article h1 {
-  font-size: 2rem;
+  font-size: var(--text-h1);
+  line-height: var(--text-h1--line-height);
+  letter-spacing: var(--text-h1--letter-spacing);
+  font-weight: 800;
   margin-bottom: 1rem;
   padding-bottom: 0.75rem;
   border-bottom: 1px solid var(--c-rule);
@@ -110,6 +151,8 @@
 
 .docs-article h2 {
   font-size: 1.5rem;
+  line-height: 1.2;
+  font-weight: 800;
   margin-top: 2.5rem;
   margin-bottom: 0.75rem;
   padding-bottom: 0.5rem;
@@ -117,7 +160,9 @@
 }
 
 .docs-article h3 {
-  font-size: 1.25rem;
+  font-size: var(--text-h3);
+  line-height: var(--text-h3--line-height);
+  font-weight: 700;
   margin-top: 2rem;
   margin-bottom: 0.5rem;
 }
@@ -139,7 +184,7 @@
   padding: 0.15em 0.4em;
   border-radius: 0.3rem;
   font-size: 0.875em;
-  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-family: var(--font-mono);
   color: var(--c-ink);
   /* A long identifier or path has no break opportunity of its own, so on a
    * phone it pushed the page sideways. Code blocks keep scrolling instead. */
@@ -163,7 +208,7 @@
 }
 
 .docs-article pre code {
-  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-family: var(--font-mono);
 }
 
 .docs-article a {
@@ -306,6 +351,19 @@ body {
 @layer base {
     h1, h2, h3, h4 {
         color: var(--c-ink);
+    }
+
+    /* Headings are set in the display face, tight; h4 and below stay in the
+     * text face, which reads better at text sizes. */
+    h1, h2, h3 {
+        font-family: var(--font-display);
+        letter-spacing: -0.02em;
+        text-wrap: balance;
+    }
+
+    body {
+        font-size: 1rem;
+        line-height: 1.6;
     }
 }
 

@@ -33,7 +33,7 @@ const v = variants[variant] ?? variants.note;
 <aside class={`not-prose my-6 p-4 sm:p-5 rounded-2xl border ${v.wrap} ${className}`} role="note">
     <div class="flex items-center gap-2 mb-2">
         <span
-            class={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border text-[11px] font-semibold uppercase tracking-wider ${v.labelClass}`}
+            class={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border text-xs font-semibold uppercase tracking-wider ${v.labelClass}`}
         >
             {v.showDot && <span class={`w-1.5 h-1.5 rounded-full ${v.dot} animate-pulse`} aria-hidden="true" />}
             {v.label}
