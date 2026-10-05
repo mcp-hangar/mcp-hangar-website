@@ -139,7 +139,7 @@ const titleOf = new Map(allEntries.map(e => [e.id, e.data.title]));
                   <span class="group-hover:-translate-x-0.5 transition-transform" aria-hidden="true">&larr;</span>
                   Previous
                 </span>
-                <span class="block text-base font-medium text-ink group-hover:text-ink transition-colors text-balance">
+                <span class="block text-base font-semibold text-ink group-hover:text-ink transition-colors text-balance">
                   {titleOf.get(track.prev)}
                 </span>
               </a>
@@ -153,7 +153,7 @@ const titleOf = new Map(allEntries.map(e => [e.id, e.data.title]));
                   Next
                   <span class="group-hover:translate-x-0.5 transition-transform" aria-hidden="true">&rarr;</span>
                 </span>
-                <span class="block text-base font-medium text-ink group-hover:text-ink transition-colors text-balance">
+                <span class="block text-base font-semibold text-ink group-hover:text-ink transition-colors text-balance">
                   {titleOf.get(track.next)}
                 </span>
               </a>
