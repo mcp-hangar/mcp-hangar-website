@@ -28,7 +28,7 @@ const { filename, code, lang = "yaml", class: className = "" } = Astro.props;
      intrinsic width -- so a snippet dropped into a card made the card as wide
      as the longest line of YAML, and the page scrolled sideways on a phone
      while the snippet's own `overflow-x-auto` sat there unused. -->
-<figure class={`min-w-0 rounded-xl border border-rule bg-ground/60 overflow-hidden ${className}`}>
+<figure class={`min-w-0 rounded-md border border-rule bg-ground/60 overflow-hidden ${className}`}>
     <figcaption
         class="flex items-center gap-2 border-b border-rule px-4 py-2 font-mono text-xs text-ink-3"
     >
