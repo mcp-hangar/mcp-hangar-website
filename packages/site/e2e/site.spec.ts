@@ -83,3 +83,40 @@ test("no page scrolls sideways at phone width", async ({ page }) => {
   }
   expect(offenders).toEqual([]);
 });
+
+// Search is Pagefind's static index plus its default UI script, on one page.
+// Nothing else on the site is hydrated, so this is the one place a script has
+// to work for a feature to exist at all.
+test("search finds content pages and links them without a trailing slash", async ({
+  page,
+}) => {
+  const errors: string[] = [];
+  page.on("pageerror", (error) => errors.push(error.message));
+
+  // The docs sidebar's box is a plain GET form to /search.
+  await page.goto("/docs/getting-started/quickstart");
+  await page.locator("#docs-search").fill("approval");
+  await page.locator("#docs-search").press("Enter");
+  await expect(page).toHaveURL(/\/search\?q=approval$/);
+
+  const results = page.locator(".pagefind-ui__result-link");
+  await expect(results.first()).toBeVisible();
+  const hrefs = await results.evaluateAll((links) =>
+    links.map((a) => a.getAttribute("href") ?? "")
+  );
+  expect(hrefs.length).toBeGreaterThan(0);
+  for (const href of hrefs) {
+    expect(href).toMatch(/^\/(docs|learn|blog|security)\//);
+    expect(href).not.toMatch(/\/(#|$)/);
+  }
+  expect(errors).toEqual([]);
+
+  // /search is out of the sitemap, so the sitewide width check misses it.
+  await page.setViewportSize({ width: 390, height: 844 });
+  const overflow = await page.evaluate(
+    () =>
+      document.documentElement.scrollWidth -
+      document.documentElement.clientWidth
+  );
+  expect(overflow).toBe(0);
+});

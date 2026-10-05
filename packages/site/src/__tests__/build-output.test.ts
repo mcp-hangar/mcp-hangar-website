@@ -585,6 +585,51 @@ describe("Security advisories", () => {
   });
 });
 
+// Pagefind runs after `astro build` (package.json `build`) and indexes only
+// what carries data-pagefind-body: the article on docs, Learn, blog and
+// security pages.
+describe("Search", () => {
+  const countHtml = (dir: string) =>
+    [...htmlFiles(path.join(DIST, dir))].filter(
+      (f) => path.dirname(f) !== path.join(DIST, dir)
+    ).length;
+
+  it("builds a static index of exactly the content pages", () => {
+    const entry = JSON.parse(readDistFile("pagefind/pagefind-entry.json"));
+    expect(fs.existsSync(path.join(DIST, "pagefind/pagefind-ui.js"))).toBe(
+      true
+    );
+    // The Decisions index (docs/adr) is a listing, like /docs itself, and
+    // carries no data-pagefind-body.
+    const expected =
+      countHtml("docs") -
+      Number(fs.existsSync(path.join(DIST, "docs/adr/index.html"))) +
+      countHtml("learn") +
+      countHtml("blog") +
+      countHtml("security");
+    expect(entry.languages.en.page_count).toBe(expected);
+  });
+
+  it("marks only article bodies for indexing", () => {
+    expect(readDistFile("index.html")).not.toContain("data-pagefind-body");
+    expect(readDistFile("docs/index.html")).not.toContain("data-pagefind-body");
+    expect(
+      readDistFile("docs/getting-started/quickstart/index.html")
+    ).toContain('data-pagefind-filter="section:Docs"');
+  });
+
+  it("offers search from the nav and the docs sidebar, and keeps /search out of the index", () => {
+    expect(readDistFile("index.html")).toContain('href="/search"');
+    expect(readDistFile("docs/getting-started/quickstart/index.html")).toMatch(
+      /<form action="\/search" method="get" role="search"/
+    );
+    const search = readDistFile("search/index.html");
+    expect(search).toContain('<meta name="robots" content="noindex, nofollow"');
+    expect(search).toContain('src="/pagefind/pagefind-ui.js"');
+    expect(readDistFile("sitemap-0.xml")).not.toContain("/search");
+  });
+});
+
 // One duration for install -> first governed deny (config TIME_TO_VALUE),
 // everywhere the site states one. It used to be four.
 describe("Time to value", () => {

@@ -50,6 +50,17 @@ const inDecisions =
     >
       Documentation
     </a>
+    <!-- A plain GET form: it reaches /search with no script on this page. -->
+    <form action="/search" method="get" role="search" class="mb-4">
+      <label for={mobile ? 'docs-search-mobile' : 'docs-search'} class="sr-only">Search the docs</label>
+      <input
+        id={mobile ? 'docs-search-mobile' : 'docs-search'}
+        type="search"
+        name="q"
+        placeholder="Search"
+        class="w-full text-[13px] px-2.5 py-1.5 rounded-md bg-zinc-900 border border-zinc-700 text-zinc-200 placeholder:text-zinc-400 focus:outline-none focus:border-zinc-400"
+      />
+    </form>
 
     {sections.map((section, i) => {
       const isOpen = i === activeIndex || (activeIndex === -1 && !inDecisions && i === 0);

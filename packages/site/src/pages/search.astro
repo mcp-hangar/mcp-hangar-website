@@ -1,0 +1,97 @@
+---
+/**
+ * Site search, over the docs, Learn, the blog and the security pages.
+ *
+ * Pagefind indexes the built site after `astro build` (see the `build` script)
+ * and writes a static index to dist/pagefind -- no server, no third party, and
+ * nothing hydrated: the UI below is Pagefind's own plain script, loaded only on
+ * this page. What gets indexed is what carries `data-pagefind-body` (the
+ * article on each content page), so the home page, indexes and chrome stay out
+ * of the results.
+ *
+ * Every search box on the site is a plain GET form to this page (`?q=`), so it
+ * works without JavaScript up to here; the results themselves need it.
+ *
+ * The pagefind files do not exist until after the Astro build, so they are
+ * loaded with `is:inline` and Astro never tries to resolve them.
+ */
+import Base from '../layouts/Base.astro';
+---
+
+<Base
+  title="Search | MCP Hangar"
+  description="Search the MCP Hangar documentation, Learn pages, blog and security pages."
+  path="/search"
+  noindex
+>
+  <link rel="stylesheet" href="/pagefind/pagefind-ui.css" />
+  <main class="max-w-3xl mx-auto px-4 sm:px-6 py-16">
+    <h1 class="text-3xl font-bold text-zinc-100 mb-3">Search</h1>
+    <p class="text-zinc-400 mb-8">
+      Documentation, Learn, the blog and the security pages.
+    </p>
+    <div id="search" class="site-search"></div>
+    <noscript>
+      <p class="text-zinc-400">
+        Search needs JavaScript. The <a href="/docs" class="underline">documentation index</a>
+        lists every section.
+      </p>
+    </noscript>
+  </main>
+  <script is:inline src="/pagefind/pagefind-ui.js"></script>
+  <script is:inline>
+    (function () {
+      if (typeof PagefindUI === "undefined") return;
+      const ui = new PagefindUI({
+        element: "#search",
+        showSubResults: true,
+        showImages: false,
+        resetStyles: false,
+        autofocus: true,
+        // Pagefind derives URLs from dist paths (`/docs/x/`). The site is
+        // slash-less (vercel.json `trailingSlash: false`), and a slashed link
+        // is a 308 the reader pays for on every result.
+        processResult: function (result) {
+          const trim = function (url) {
+            return url.replace(/\/(?=#|$)/, "");
+          };
+          result.url = trim(result.url);
+          (result.sub_results || []).forEach(function (sub) {
+            sub.url = trim(sub.url);
+          });
+          return result;
+        },
+      });
+      const q = new URLSearchParams(window.location.search).get("q");
+      if (q) ui.triggerSearch(q);
+    })();
+  </script>
+</Base>
+
+<style is:global>
+  /* Pagefind's default UI is a light theme. These are its own variables, set to
+     the site's zinc scale so the results pass WCAG AA on the dark page. */
+  .site-search {
+    --pagefind-ui-scale: 0.9;
+    --pagefind-ui-primary: #f4f4f5; /* zinc-100 */
+    --pagefind-ui-text: #d4d4d8; /* zinc-300 */
+    --pagefind-ui-background: #18181b; /* zinc-900 */
+    --pagefind-ui-border: #3f3f46; /* zinc-700 */
+    --pagefind-ui-tag: #27272a; /* zinc-800 */
+    --pagefind-ui-border-width: 1px;
+    --pagefind-ui-border-radius: 8px;
+    --pagefind-ui-font: inherit;
+  }
+  .site-search .pagefind-ui__result-excerpt,
+  .site-search .pagefind-ui__message,
+  .site-search .pagefind-ui__filter-name,
+  .site-search .pagefind-ui__filter-label {
+    color: #a1a1aa; /* zinc-400: 7.8:1 on zinc-950 */
+  }
+  .site-search mark {
+    background: transparent;
+    color: #f4f4f5;
+    font-weight: 600;
+    text-decoration: underline;
+  }
+</style>

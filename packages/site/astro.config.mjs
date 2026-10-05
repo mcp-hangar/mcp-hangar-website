@@ -27,7 +27,10 @@ export default defineConfig({
       // The OG contact sheet is a build artefact for humans reviewing cards,
       // not content. It is noindex'd too; this keeps it out of the sitemap so
       // the two surfaces don't contradict each other.
-      filter: (page) => !page.startsWith(SITE_URL + "/og-preview"),
+      // /search is noindex too: a results page for an empty query is not content.
+      filter: (page) =>
+        !page.startsWith(SITE_URL + "/og-preview") &&
+        !page.startsWith(SITE_URL + "/search"),
       serialize(item) {
         if (item.url !== SITE_URL + "/") item.url = item.url.replace(/\/$/, "");
         return item;
