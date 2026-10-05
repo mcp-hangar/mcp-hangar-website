@@ -6,29 +6,27 @@ import { ogPathFor, OG_FALLBACK } from "../og/resolve";
 import { fitTitle } from "../og/render";
 
 // Satori has no CSS custom properties, so the card palette is a second copy of
-// the verdict tokens. A second copy is fine as long as it cannot drift, which
-// is what this asserts: change a colour in @theme without changing tokens.ts
+// the tokens. A second copy is fine as long as it cannot drift, which is what
+// this asserts: change a colour in tokens.css without changing og/tokens.ts
 // and the suite fails rather than the cards quietly rendering last month's red.
 
 const css = fs.readFileSync(
-  path.join(process.cwd(), "src/styles/global.css"),
+  path.join(process.cwd(), "src/styles/tokens.css"),
   "utf-8"
 );
 
 const tokenValue = (name: string) =>
-  css.match(new RegExp(`--color-${name}:\\s*([^;]+);`))?.[1].trim();
+  css.match(new RegExp(`--${name}:\\s*([^;]+);`))?.[1].trim();
 
 describe("OG palette", () => {
+  // The card's marks are the brand's own hexes, as the site's are.
   const pairs: [string, string][] = [
-    ["verdict-allow", VERDICT.allow],
-    ["verdict-allow-soft", VERDICT.allowSoft],
-    ["verdict-deny", VERDICT.deny],
-    ["verdict-deny-soft", VERDICT.denySoft],
-    ["state-optin", VERDICT.optin],
-    ["state-optin-soft", VERDICT.optinSoft],
+    ["brand-allow", VERDICT.allow],
+    ["brand-deny", VERDICT.deny],
+    ["brand-amber", VERDICT.optin],
   ];
 
-  it.each(pairs)("--color-%s matches the satori token", (name, value) => {
+  it.each(pairs)("--%s matches the satori token", (name, value) => {
     expect(tokenValue(name)).toBe(value);
   });
 });

@@ -20,41 +20,61 @@ const navLinks = [
 ];
 ---
 
-<header class="sticky top-0 z-50 bg-zinc-950/80 backdrop-blur-md border-b border-zinc-800/50">
+<header class="sticky top-0 z-50 bg-ground/80 backdrop-blur-md border-b border-rule">
   <nav
     class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between"
     aria-label="Main navigation"
   >
     <!-- Logo -->
     <a href="/" class="flex items-center gap-2.5 shrink-0">
-      <Gate size={24} class="text-zinc-300" />
-      <span class="font-semibold text-zinc-100 text-[15px]">{BRAND}</span>
+      <Gate size={24} class="text-ink-2" />
+      <span class="font-semibold text-ink text-[15px]">{BRAND}</span>
     </a>
 
+    <div class="flex items-center gap-1">
     <!-- Desktop links -->
     <div class="hidden md:flex items-center gap-1">
       {navLinks.map((link) => (
         <a
           href={link.href}
-          class="px-3 py-2 text-sm text-zinc-400 hover:text-zinc-100 rounded-md hover:bg-zinc-800/50 transition-colors duration-200"
+          class="px-3 py-2 text-sm text-ink-3 hover:text-ink rounded-md hover:bg-subtle transition-colors duration-200"
           {...(link.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
         >
           {link.label}
         </a>
       ))}
-      <div class="w-px h-5 bg-zinc-800 mx-2" />
+      <div class="w-px h-5 bg-rule mx-2" />
       <a
         href={LINKS.ossQuickstart}
-        class="ml-1 inline-flex items-center px-3.5 py-1.5 text-sm bg-zinc-100 hover:bg-white text-zinc-950 font-semibold rounded-md transition-colors duration-200"
+        class="ml-1 inline-flex items-center px-3.5 py-1.5 text-sm bg-ink hover:bg-ink-2 text-ground font-semibold rounded-md transition-colors duration-200"
       >
         Get Started
       </a>
     </div>
 
+    <!-- Theme. Hidden until the script below can run it: without JS the page
+         follows the system, and a button that does nothing is worse than none.
+         Its name says what it will do, not what the page is now. -->
+    <button
+      id="theme-toggle"
+      type="button"
+      hidden
+      class="p-2 md:ml-2 text-ink-3 hover:text-ink rounded-md hover:bg-subtle transition-colors"
+      aria-label="Switch to dark theme"
+    >
+      <svg id="theme-icon-dark" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z" />
+      </svg>
+      <svg id="theme-icon-light" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="12" cy="12" r="4" stroke-width="1.75" />
+        <path stroke-linecap="round" stroke-width="1.75" d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4" />
+      </svg>
+    </button>
+
     <!-- Mobile hamburger -->
     <button
       id="nav-mobile-toggle"
-      class="md:hidden p-2 -mr-2 text-zinc-400 hover:text-zinc-100 transition-colors"
+      class="md:hidden p-2 -mr-2 text-ink-3 hover:text-ink transition-colors"
       aria-label="Open menu"
       aria-expanded="false"
     >
@@ -65,15 +85,16 @@ const navLinks = [
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
       </svg>
     </button>
+    </div>
   </nav>
 
   <!-- Mobile menu -->
-  <div id="nav-mobile-menu" class="hidden md:hidden border-t border-zinc-800/50">
+  <div id="nav-mobile-menu" class="hidden md:hidden border-t border-rule">
     <div class="px-4 py-4 space-y-1">
       {navLinks.map((link) => (
         <a
           href={link.href}
-          class="block px-3 py-2.5 text-sm text-zinc-300 hover:text-zinc-100 hover:bg-zinc-800/50 rounded-md transition-colors"
+          class="block px-3 py-2.5 text-sm text-ink-2 hover:text-ink hover:bg-subtle rounded-md transition-colors"
           {...(link.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
         >
           {link.label}
@@ -82,7 +103,7 @@ const navLinks = [
       <div class="pt-2">
         <a
           href={LINKS.ossQuickstart}
-          class="block text-center px-3 py-2.5 text-sm bg-zinc-100 hover:bg-white text-zinc-950 font-semibold rounded-md transition-colors"
+          class="block text-center px-3 py-2.5 text-sm bg-ink hover:bg-ink-2 text-ground font-semibold rounded-md transition-colors"
         >
           Get Started
         </a>
@@ -92,6 +113,40 @@ const navLinks = [
 </header>
 
 <script>
+  // The theme the page shows now: the reader's choice if they made one,
+  // otherwise the system's.
+  const root = document.documentElement;
+  const media = matchMedia("(prefers-color-scheme: dark)");
+  const current = () =>
+    root.dataset.theme === "dark" || root.dataset.theme === "light"
+      ? root.dataset.theme
+      : media.matches
+        ? "dark"
+        : "light";
+  const themeButton = document.getElementById("theme-toggle");
+  const label = () => {
+    const now = current();
+    themeButton?.setAttribute("aria-label", now === "dark" ? "Switch to light theme" : "Switch to dark theme");
+    document.getElementById("theme-icon-dark")?.classList.toggle("hidden", now === "dark");
+    document.getElementById("theme-icon-light")?.classList.toggle("hidden", now !== "dark");
+  };
+  if (themeButton) {
+    themeButton.hidden = false;
+    label();
+    media.addEventListener("change", label);
+    themeButton.addEventListener("click", () => {
+      const next = current() === "dark" ? "light" : "dark";
+      root.dataset.theme = next;
+      try {
+        localStorage.setItem("theme", next);
+      } catch {
+        // Not remembered, still applied.
+      }
+      label();
+      document.dispatchEvent(new CustomEvent("themechange", { detail: next }));
+    });
+  }
+
   const toggle = document.getElementById('nav-mobile-toggle');
   const menu = document.getElementById('nav-mobile-menu');
   const iconOpen = document.getElementById('nav-icon-open');

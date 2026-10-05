@@ -1,57 +1,52 @@
 import type { ThemeRegistrationRaw } from "@shikijs/types";
 
 /**
- * The code theme: zinc, and nothing else.
+ * The code theme: the neutral ramp, and nothing else.
  *
  * Every snippet on this site used to render in `github-dark`, which is a fine
- * theme and the wrong one here. `global.css` spends a paragraph establishing
- * that colour is semantics — two hues carry meaning because the product is a
- * binary verdict, and nothing that is not a verdict gets a hue — and then every
- * code block on the site, which is the most common visual element it has,
- * arrived carrying five borrowed ones. A purple keyword next to a green ALLOW
- * chip teaches a reader that green is decoration.
+ * theme and the wrong one here. `styles/tokens.css` spends a paragraph
+ * establishing that colour is semantics -- three hues carry meaning because a
+ * call ends in one of three verdicts, and nothing that is not a verdict gets a
+ * hue -- and code blocks are the most common visual element the site has. A
+ * purple keyword next to a green ALLOW chip teaches a reader that green is
+ * decoration.
  *
- * So the hierarchy here is built out of lightness rather than hue, on the zinc
- * ramp the rest of the site is built from:
+ * So the hierarchy here is built out of lightness rather than hue:
  *
- *   zinc-400   punctuation, comments      the scaffolding
- *   zinc-300   keys, properties, tags     what a thing is called
- *   zinc-200   default, numbers           everything unclassified
- *   zinc-100   strings, values            what a policy actually says
- *   zinc-50    keywords, bold             the words the language reserves
+ *   --c-code-punct   punctuation, comments      the scaffolding
+ *   --c-code-key     keys, properties, tags     what a thing is called
+ *   --c-code-text    default, numbers           everything unclassified
+ *   --c-code-value   strings, values, keywords  what a policy actually says
  *
- * That ordering is deliberate for the language this site mostly shows: in a
- * policy the values are the decision, so `["github.get_*"]` outranks the
- * `allow:` that introduces it.
- *
- * The dimmest colour used is zinc-400, at 7.3:1 on zinc-950. zinc-500 reads as
- * the natural choice for a comment and lands at 4.1:1, under the floor.
+ * The values are CSS custom properties, not hexes, so one highlighted block
+ * follows the theme: Shiki writes `color:var(--c-code-key)` into the markup and
+ * tokens.css decides what that is in light and in dark. code-theme.test.ts
+ * resolves every one of them in both themes and holds them achromatic and above
+ * 4.5:1 on the code background.
  */
 
-/** Tailwind's zinc, the same values `og/tokens.ts` mirrors. */
-const ZINC = {
-  950: "#09090b",
-  400: "#a1a1aa",
-  300: "#d4d4d8",
-  200: "#e4e4e7",
-  100: "#f4f4f5",
-  50: "#fafafa",
+const C = {
+  bg: "var(--c-code-bg)",
+  punct: "var(--c-code-punct)",
+  key: "var(--c-code-key)",
+  text: "var(--c-code-text)",
+  value: "var(--c-code-value)",
 } as const;
 
 export const codeTheme: ThemeRegistrationRaw = {
   name: "hangar",
   type: "dark",
   colors: {
-    "editor.background": ZINC[950],
-    "editor.foreground": ZINC[200],
+    "editor.background": C.bg,
+    "editor.foreground": C.text,
   },
   settings: [
     {
-      settings: { background: ZINC[950], foreground: ZINC[200] },
+      settings: { background: C.bg, foreground: C.text },
     },
     {
       scope: ["comment", "punctuation.definition.comment", "string.comment"],
-      settings: { foreground: ZINC[400], fontStyle: "italic" },
+      settings: { foreground: C.punct, fontStyle: "italic" },
     },
     {
       scope: [
@@ -62,7 +57,7 @@ export const codeTheme: ThemeRegistrationRaw = {
         "meta.brace",
         "keyword.operator",
       ],
-      settings: { foreground: ZINC[400] },
+      settings: { foreground: C.punct },
     },
     {
       // What a thing is called: a YAML key, a JSON property, an XML tag, an
@@ -74,20 +69,20 @@ export const codeTheme: ThemeRegistrationRaw = {
         "variable.other.member",
         "variable.other.property",
       ],
-      settings: { foreground: ZINC[300] },
+      settings: { foreground: C.key },
     },
     {
       scope: ["variable", "variable.parameter", "entity.name.variable"],
-      settings: { foreground: ZINC[200] },
+      settings: { foreground: C.text },
     },
     {
       scope: ["constant.numeric", "constant.language", "constant.character"],
-      settings: { foreground: ZINC[200] },
+      settings: { foreground: C.text },
     },
     {
       // What it says. A quoted string, a plain YAML scalar, a regexp.
       scope: ["string", "string.quoted", "string.unquoted", "string.regexp"],
-      settings: { foreground: ZINC[100] },
+      settings: { foreground: C.value },
     },
     {
       scope: [
@@ -98,7 +93,7 @@ export const codeTheme: ThemeRegistrationRaw = {
         "support.class",
         "support.type",
       ],
-      settings: { foreground: ZINC[100] },
+      settings: { foreground: C.value },
     },
     {
       // The words the language reserves.
@@ -109,11 +104,11 @@ export const codeTheme: ThemeRegistrationRaw = {
         "storage.type",
         "storage.modifier",
       ],
-      settings: { foreground: ZINC[50] },
+      settings: { foreground: C.value },
     },
     {
       scope: ["markup.bold", "markup.heading"],
-      settings: { foreground: ZINC[50], fontStyle: "bold" },
+      settings: { foreground: C.value, fontStyle: "bold" },
     },
     {
       scope: ["markup.italic"],

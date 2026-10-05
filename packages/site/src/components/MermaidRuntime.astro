@@ -13,11 +13,15 @@
  * installed during `vercel build`; a diagram is not worth putting a headless
  * browser on the critical path of every deploy.
  *
- * Theming follows the site's own rule (see styles/global.css): zinc carries
- * structure, and the three semantic colours are reserved for verdicts and
- * opt-in state. A diagram is structure, so it is zinc throughout — a mermaid
+ * Theming follows the site's own rule (see styles/tokens.css): the neutral
+ * ramp carries structure, and the three semantic colours are reserved for
+ * verdicts. A diagram is structure, so it is neutral throughout -- a mermaid
  * default palette here would be the loudest thing on the page and would mean
  * something it does not.
+ *
+ * Mermaid derives shades from the colours it is given, so it needs values, not
+ * `var()` references: they are read from the tokens at render time, and the
+ * diagrams are drawn again from their source when the theme changes.
  */
 ---
 
@@ -40,87 +44,105 @@
       // registers; the bare name is kept after it as the local fallback.
       const mono = "'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, monospace";
 
-      const zinc = {
-        surface: '#18181b', // zinc-900 — node fill
-        surfaceAlt: '#27272a', // zinc-800 — clusters, notes, alt rows
-        border: '#3f3f46', // zinc-700
-        borderStrong: '#52525b', // zinc-600
-        line: '#71717a', // zinc-500 — edges
-        text: '#e4e4e7', // zinc-200 — labels
-        textDim: '#a1a1aa', // zinc-400 — edge labels, secondary text
+      const sources = Array.from(nodes, (n) => n.textContent ?? '');
+
+      const draw = async () => {
+        const css = getComputedStyle(root);
+        const token = (name: string) => css.getPropertyValue(name).trim();
+        const dark = css.colorScheme === 'dark';
+        const tone = {
+          surface: token('--c-panel'), // node fill
+          surfaceAlt: token('--c-subtle'), // clusters, notes, alt rows
+          border: token('--c-rule'),
+          borderStrong: token('--c-rule-strong'),
+          line: token('--c-ink-3'), // edges
+          text: token('--c-ink'), // labels
+          textDim: token('--c-ink-2'), // edge labels, secondary text
+          ground: token('--c-ground'),
+        };
+
+        mermaid.initialize({
+          startOnLoad: false,
+          theme: 'base',
+          // Diagrams are authored in this repo and the docs repo, never supplied
+          // by a reader, but strict costs nothing here: `<br/>` line breaks still
+          // work, and no diagram on either site uses click bindings.
+          securityLevel: 'strict',
+          fontFamily: mono,
+          themeCSS: `
+            .node rect, .node polygon, .node circle, .node path { stroke-width: 1px; }
+            .edgeLabel { border-radius: 4px; }
+          `,
+          themeVariables: {
+            darkMode: dark,
+            background: 'transparent',
+            fontFamily: mono,
+            fontSize: '14px',
+
+            primaryColor: tone.surface,
+            primaryBorderColor: tone.borderStrong,
+            primaryTextColor: tone.text,
+            secondaryColor: tone.surfaceAlt,
+            secondaryBorderColor: tone.border,
+            secondaryTextColor: tone.text,
+            tertiaryColor: tone.surfaceAlt,
+            tertiaryBorderColor: tone.border,
+            tertiaryTextColor: tone.textDim,
+
+            mainBkg: tone.surface,
+            nodeBorder: tone.borderStrong,
+            nodeTextColor: tone.text,
+            lineColor: tone.line,
+            textColor: tone.textDim,
+            titleColor: tone.text,
+
+            // flowchart
+            clusterBkg: tone.surfaceAlt,
+            clusterBorder: tone.border,
+            edgeLabelBackground: tone.ground,
+            defaultLinkColor: tone.line,
+
+            // sequence
+            actorBkg: tone.surface,
+            actorBorder: tone.borderStrong,
+            actorTextColor: tone.text,
+            actorLineColor: tone.border,
+            signalColor: tone.line,
+            signalTextColor: tone.textDim,
+            labelBoxBkgColor: tone.surfaceAlt,
+            labelBoxBorderColor: tone.border,
+            labelTextColor: tone.text,
+            loopTextColor: tone.textDim,
+            noteBkgColor: tone.surfaceAlt,
+            noteBorderColor: tone.border,
+            noteTextColor: tone.text,
+            activationBkgColor: tone.surfaceAlt,
+            activationBorderColor: tone.borderStrong,
+            sequenceNumberColor: tone.ground,
+
+            // state / flowchart shared
+            altBackground: tone.surfaceAlt,
+            compositeBackground: tone.surface,
+            compositeBorder: tone.border,
+            compositeTitleBackground: tone.surfaceAlt,
+            labelColor: tone.text,
+            errorBkgColor: tone.surfaceAlt,
+            errorTextColor: tone.textDim,
+          },
+        });
+
+        nodes.forEach((n, i) => {
+          n.removeAttribute('data-processed');
+          n.textContent = sources[i];
+        });
+        await mermaid.run({ nodes: Array.from(nodes) });
       };
 
-      mermaid.initialize({
-        startOnLoad: false,
-        theme: 'base',
-        // Diagrams are authored in this repo and the docs repo, never supplied
-        // by a reader, but strict costs nothing here: `<br/>` line breaks still
-        // work, and no diagram on either site uses click bindings.
-        securityLevel: 'strict',
-        fontFamily: mono,
-        themeCSS: `
-          .node rect, .node polygon, .node circle, .node path { stroke-width: 1px; }
-          .edgeLabel { border-radius: 4px; }
-        `,
-        themeVariables: {
-          darkMode: true,
-          background: 'transparent',
-          fontFamily: mono,
-          fontSize: '14px',
-
-          primaryColor: zinc.surface,
-          primaryBorderColor: zinc.borderStrong,
-          primaryTextColor: zinc.text,
-          secondaryColor: zinc.surfaceAlt,
-          secondaryBorderColor: zinc.border,
-          secondaryTextColor: zinc.text,
-          tertiaryColor: zinc.surfaceAlt,
-          tertiaryBorderColor: zinc.border,
-          tertiaryTextColor: zinc.textDim,
-
-          mainBkg: zinc.surface,
-          nodeBorder: zinc.borderStrong,
-          nodeTextColor: zinc.text,
-          lineColor: zinc.line,
-          textColor: zinc.textDim,
-          titleColor: zinc.text,
-
-          // flowchart
-          clusterBkg: 'rgba(39, 39, 42, 0.35)', // zinc-800/35
-          clusterBorder: zinc.border,
-          edgeLabelBackground: '#09090b', // zinc-950 — the page ground
-          defaultLinkColor: zinc.line,
-
-          // sequence
-          actorBkg: zinc.surface,
-          actorBorder: zinc.borderStrong,
-          actorTextColor: zinc.text,
-          actorLineColor: zinc.border,
-          signalColor: zinc.line,
-          signalTextColor: zinc.textDim,
-          labelBoxBkgColor: zinc.surfaceAlt,
-          labelBoxBorderColor: zinc.border,
-          labelTextColor: zinc.text,
-          loopTextColor: zinc.textDim,
-          noteBkgColor: zinc.surfaceAlt,
-          noteBorderColor: zinc.border,
-          noteTextColor: zinc.text,
-          activationBkgColor: zinc.surfaceAlt,
-          activationBorderColor: zinc.borderStrong,
-          sequenceNumberColor: '#09090b',
-
-          // state / flowchart shared
-          altBackground: zinc.surfaceAlt,
-          compositeBackground: zinc.surface,
-          compositeBorder: zinc.border,
-          compositeTitleBackground: zinc.surfaceAlt,
-          labelColor: zinc.text,
-          errorBkgColor: zinc.surfaceAlt,
-          errorTextColor: zinc.textDim,
-        },
-      });
-
-      await mermaid.run({ nodes: Array.from(nodes) });
+      await draw();
+      // The theme toggle announces itself (see SiteNav); a reader who has not
+      // chosen follows the system, which can change under an open page.
+      document.addEventListener('themechange', () => void draw());
+      matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => void draw());
     } catch (err) {
       console.error('[mermaid] diagram rendering failed, showing source', err);
     } finally {

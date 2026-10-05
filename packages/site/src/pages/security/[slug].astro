@@ -28,19 +28,19 @@ const siblings = (await getCollection('security'))
   path={`/security/${entry.id}`}
 >
   <main class="max-w-3xl mx-auto px-6 py-16">
-    <a href="/security" class="inline-flex items-center gap-1.5 text-sm text-zinc-400 hover:text-zinc-300 transition-colors mb-8 group">
+    <a href="/security" class="inline-flex items-center gap-1.5 text-sm text-ink-3 hover:text-ink-2 transition-colors mb-8 group">
       <span class="group-hover:-translate-x-0.5 transition-transform">&larr;</span>
       Security
     </a>
 
-    <article class="prose prose-invert max-w-none docs-article" data-pagefind-body data-pagefind-filter="section:Security">
+    <article class="prose max-w-none docs-article" data-pagefind-body data-pagefind-filter="section:Security">
       <header class="not-prose mb-10">
-        <div class="font-mono text-xs font-semibold text-zinc-400 uppercase tracking-[0.16em] mb-3">
+        <div class="font-mono text-xs font-semibold text-ink-3 uppercase tracking-[0.16em] mb-3">
           Security posture
         </div>
-        <h1 class="text-3xl md:text-4xl font-bold text-zinc-50 mb-4 leading-tight">{entry.data.title}</h1>
-        <p class="text-base text-zinc-400 mb-4 text-balance">{entry.data.description}</p>
-        <p class="text-sm text-zinc-400">Updated {fmtDate(entry.data.updated)}</p>
+        <h1 class="text-3xl md:text-4xl font-bold text-ink mb-4 leading-tight">{entry.data.title}</h1>
+        <p class="text-base text-ink-3 mb-4 text-balance">{entry.data.description}</p>
+        <p class="text-sm text-ink-3">Updated {fmtDate(entry.data.updated)}</p>
       </header>
 
       <div class="mt-8 blog-content">
@@ -48,12 +48,12 @@ const siblings = (await getCollection('security'))
       </div>
     </article>
 
-    <footer class="mt-16 pt-10 border-t border-zinc-800/60">
+    <footer class="mt-16 pt-10 border-t border-rule">
       <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
-        <span class="font-mono text-xs text-zinc-400 uppercase tracking-wider">
+        <span class="font-mono text-xs text-ink-3 uppercase tracking-wider">
           Also in Security
         </span>
-        <a href="/security" class="text-sm text-zinc-400 hover:text-zinc-300 transition-colors">
+        <a href="/security" class="text-sm text-ink-3 hover:text-ink-2 transition-colors">
           All security pages
         </a>
       </div>
@@ -62,20 +62,20 @@ const siblings = (await getCollection('security'))
           <li>
             <a
               href={`/security/${s.id}`}
-              class="group flex items-center justify-between gap-3 rounded-xl bg-zinc-900/40 border border-zinc-800/60 hover:border-zinc-600/60 hover:bg-zinc-900/60 px-4 py-3.5 transition-colors"
+              class="group flex items-center justify-between gap-3 rounded-xl bg-panel border border-rule hover:border-rule-strong hover:bg-panel px-4 py-3.5 transition-colors"
             >
-              <span class="text-base text-zinc-300 group-hover:text-zinc-100 transition-colors">{s.data.title}</span>
-              <span class="text-zinc-600 group-hover:text-zinc-300 group-hover:translate-x-0.5 transition-all shrink-0" aria-hidden="true">&rarr;</span>
+              <span class="text-base text-ink-2 group-hover:text-ink transition-colors">{s.data.title}</span>
+              <span class="text-ink-3 group-hover:text-ink-2 group-hover:translate-x-0.5 transition-all shrink-0" aria-hidden="true">&rarr;</span>
             </a>
           </li>
         ))}
         <li>
           <a
             href="/docs/security"
-            class="group flex items-center justify-between gap-3 rounded-xl bg-zinc-900/40 border border-zinc-800/60 hover:border-zinc-600/60 hover:bg-zinc-900/60 px-4 py-3.5 transition-colors"
+            class="group flex items-center justify-between gap-3 rounded-xl bg-panel border border-rule hover:border-rule-strong hover:bg-panel px-4 py-3.5 transition-colors"
           >
-            <span class="text-base text-zinc-300 group-hover:text-zinc-100 transition-colors">Reporting a vulnerability</span>
-            <span class="text-zinc-600 group-hover:text-zinc-300 group-hover:translate-x-0.5 transition-all shrink-0" aria-hidden="true">&rarr;</span>
+            <span class="text-base text-ink-2 group-hover:text-ink transition-colors">Reporting a vulnerability</span>
+            <span class="text-ink-3 group-hover:text-ink-2 group-hover:translate-x-0.5 transition-all shrink-0" aria-hidden="true">&rarr;</span>
           </a>
         </li>
       </ul>

@@ -7,9 +7,9 @@ const { pulse = true, class: className = "" } = Astro.props;
 ---
 
 <div
-    class={`inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-800/40 border border-zinc-700/50 text-zinc-300 text-sm cursor-default hover:bg-zinc-800/60 transition-all ${className}`}
+    class={`inline-flex items-center gap-2 px-3 py-1 rounded-full bg-subtle border border-rule-strong text-ink-2 text-sm cursor-default hover:bg-subtle transition-all ${className}`}
     role="status"
 >
-    {pulse && <span class="w-2 h-2 rounded-full bg-zinc-300 animate-pulse" aria-hidden="true"/>}
+    {pulse && <span class="w-2 h-2 rounded-full bg-ink-2 animate-pulse" aria-hidden="true"/>}
     <slot />
 </div>

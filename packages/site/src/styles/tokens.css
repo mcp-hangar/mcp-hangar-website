@@ -1,0 +1,119 @@
+/* Design tokens: every colour on the site, and the only file allowed to hold
+ * a colour literal (src/__tests__/tokens.test.ts holds that line).
+ *
+ * Colour is semantics, not decoration. The base is a neutral ramp: a paper
+ * ground and a slightly cool ink. Exactly three hues carry meaning, because
+ * every MCP tool call ends in one of three verdicts:
+ *
+ *   allow  the policy let the call through
+ *   deny   the policy refused it
+ *   hold   neither yet: an approval pending, or a control that exists but is
+ *          off by default
+ *
+ * Nothing else gets a hue. A hue on something that is not a verdict is a bug,
+ * not a preference. Colour is never the only encoding either: every verdict
+ * also carries its word (see VerdictChip).
+ *
+ * Light is the default theme. Dark is the same set of names with other values,
+ * declared twice below because CSS cannot share one block between a media
+ * query and an attribute selector: once for a reader whose system asks for
+ * dark and who has not chosen, once for a reader who chose dark with the
+ * toggle. tokens.test.ts asserts the two blocks are identical, and that every
+ * text token clears 4.5:1 on every surface, in both themes.
+ *
+ * Tailwind sees these through `@theme inline` in global.css, as `bg-ground`,
+ * `text-ink-2`, `border-rule`, `text-deny` and so on.
+ */
+
+:root {
+  color-scheme: light;
+
+  /* Surfaces */
+  --c-ground: #f7f8f5; /* the page */
+  --c-panel: #ffffff; /* a record, a card, a table: paper on the page */
+  --c-subtle: #eef0eb; /* a header row, a hover, a code block */
+
+  /* Text, strongest to quietest. All three clear 4.5:1 on all three surfaces. */
+  --c-ink: #12161b;
+  --c-ink-2: #3f4750;
+  --c-ink-3: #58606a;
+
+  /* Lines */
+  --c-rule: #d5d9d2;
+  --c-rule-strong: #a9afa6;
+
+  /* Verdicts: the word's colour, and the tint it sits on. */
+  --c-allow: #0d6b46;
+  --c-allow-tint: #e1f1e8;
+  --c-deny: #a61f26;
+  --c-deny-tint: #f7e0e0;
+  --c-hold: #875600;
+  --c-hold-tint: #f5ead2;
+
+  /* Code, by lightness alone: punctuation and comments quietest, the values a
+   * policy actually states loudest. No hue (see lib/code-theme.ts). */
+  --c-code-bg: #f1f3ef;
+  --c-code-punct: #58606a;
+  --c-code-key: #3f4750;
+  --c-code-text: #262c33;
+  --c-code-value: #12161b;
+
+  --c-selection: #d5d9d2;
+
+  /* The brand's own hexes, from the vendored geometry.py. They paint the marks
+   * (the gate, the favicon, the OG card) and are not text colours: #10b981 is
+   * 2.4:1 on this ground. The UI's verdict text uses the AA values above. */
+  --brand-allow: #10b981;
+  --brand-deny: #ef4444;
+  --brand-amber: #f59e0b;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --c-ground: #111418;
+    --c-panel: #171b20;
+    --c-subtle: #1e2329;
+    --c-ink: #e8ebe6;
+    --c-ink-2: #c0c6bf;
+    --c-ink-3: #9aa19a;
+    --c-rule: #2b3138;
+    --c-rule-strong: #454d55;
+    --c-allow: #5cc99a;
+    --c-allow-tint: #13291f;
+    --c-deny: #f2898c;
+    --c-deny-tint: #2e1719;
+    --c-hold: #e2ae55;
+    --c-hold-tint: #2a2113;
+    --c-code-bg: #0c0f12;
+    --c-code-punct: #9aa19a;
+    --c-code-key: #c0c6bf;
+    --c-code-text: #d6dad4;
+    --c-code-value: #eef1ec;
+    --c-selection: #3a4148;
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --c-ground: #111418;
+  --c-panel: #171b20;
+  --c-subtle: #1e2329;
+  --c-ink: #e8ebe6;
+  --c-ink-2: #c0c6bf;
+  --c-ink-3: #9aa19a;
+  --c-rule: #2b3138;
+  --c-rule-strong: #454d55;
+  --c-allow: #5cc99a;
+  --c-allow-tint: #13291f;
+  --c-deny: #f2898c;
+  --c-deny-tint: #2e1719;
+  --c-hold: #e2ae55;
+  --c-hold-tint: #2a2113;
+  --c-code-bg: #0c0f12;
+  --c-code-punct: #9aa19a;
+  --c-code-key: #c0c6bf;
+  --c-code-text: #d6dad4;
+  --c-code-value: #eef1ec;
+  --c-selection: #3a4148;
+}
