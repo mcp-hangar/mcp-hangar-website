@@ -63,6 +63,7 @@ const articleJsonLd = toJsonLd(
             ))}
           </div>
         )}
+        <p class="font-mono text-xs text-ink-3 mb-3">blog · {post.data.date.toISOString().slice(0, 10)}</p>
         <h1 class="text-h1 text-ink mb-4">{post.data.title}</h1>
         <BlogByline date={post.data.date} author={post.data.author} />
       </header>
@@ -74,16 +75,16 @@ const articleJsonLd = toJsonLd(
 
     <!-- Prev/Next navigation -->
     {(prevPost || nextPost) && (
-      <nav class="mt-16 pt-8 border-t border-rule grid grid-cols-1 md:grid-cols-2 gap-4">
+      <nav aria-label="More posts" class="mt-16 grid grid-cols-1 md:grid-cols-2 gap-4">
         {nextPost ? (
-          <a href={`/blog/${nextPost.id}`} class="group p-4 rounded-xl border border-rule hover:border-rule-strong hover:bg-panel transition-all">
-            <span class="text-xs text-ink-3 uppercase tracking-wider">Older</span>
+          <a href={`/blog/${nextPost.id}`} class="group py-4 border-t border-rule">
+            <span class="font-mono text-xs text-ink-3">older</span>
             <p class="text-sm text-ink-2 font-semibold mt-1 group-hover:text-ink transition-colors">{nextPost.data.title}</p>
           </a>
         ) : <div />}
         {prevPost && (
-          <a href={`/blog/${prevPost.id}`} class="group p-4 rounded-xl border border-rule hover:border-rule-strong hover:bg-panel transition-all text-right">
-            <span class="text-xs text-ink-3 uppercase tracking-wider">Newer</span>
+          <a href={`/blog/${prevPost.id}`} class="group py-4 border-t border-rule md:text-right">
+            <span class="font-mono text-xs text-ink-3">newer</span>
             <p class="text-sm text-ink-2 font-semibold mt-1 group-hover:text-ink transition-colors">{prevPost.data.title}</p>
           </a>
         )}

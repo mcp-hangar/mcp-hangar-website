@@ -226,7 +226,7 @@
   position: relative;
   background: var(--c-code-bg) !important;
   border: 1px solid var(--c-rule);
-  border-radius: 0.75rem;
+  border-radius: 6px;
   padding: 1.25rem 1.5rem;
   overflow-x: auto;
   font-size: 0.85rem;
@@ -262,7 +262,7 @@
   border: 1px solid var(--c-rule);
   border-left: 3px solid var(--c-rule-strong);
   padding: 1rem 1.25rem;
-  border-radius: 0 0.75rem 0.75rem 0;
+  border-radius: 0 6px 6px 0;
   transition: border-color 0.3s, box-shadow 0.3s;
 }
 
@@ -467,7 +467,7 @@ pre.mermaid svg {
     --line-2: var(--c-rule-strong);
     --brand: var(--c-ink);       /* accents are neutral: "you are here" */
     --brand-dim: var(--c-subtle);
-    --r: 14px;
+    --r: 6px;
 }
 
 /* Every box on the map a reader can act on: a hub node, a pipeline step, a
@@ -481,14 +481,14 @@ pre.mermaid svg {
     color: inherit;
     background: var(--panel);
     border: 1px solid var(--line);
-    border-radius: 12px;
+    border-radius: 6px;
     position: relative;
     overflow: hidden;
     transition: transform .15s, border-color .15s, box-shadow .15s;
 }
 
 .learn-map .ctl:hover {
-    transform: translateY(-2px);
+    transform: none;
     border-color: var(--line-2);
 }
 

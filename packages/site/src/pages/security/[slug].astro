@@ -35,12 +35,9 @@ const siblings = (await getCollection('security'))
 
     <article class="prose max-w-none docs-article" data-pagefind-body data-pagefind-filter="section:Security">
       <header class="not-prose mb-10">
-        <div class="font-mono text-xs font-semibold text-ink-3 uppercase tracking-[0.16em] mb-3">
-          Security posture
-        </div>
+        <p class="font-mono text-xs text-ink-3 mb-3">security · posture · updated {fmtDate(entry.data.updated)}</p>
         <h1 class="text-h1 text-ink mb-4">{entry.data.title}</h1>
-        <p class="text-base text-ink-3 mb-4 text-balance">{entry.data.description}</p>
-        <p class="text-sm text-ink-3">Updated {fmtDate(entry.data.updated)}</p>
+        <p class="text-lead text-ink-2 text-balance">{entry.data.description}</p>
       </header>
 
       <div class="mt-8 blog-content">
@@ -50,9 +47,7 @@ const siblings = (await getCollection('security'))
 
     <footer class="mt-16 pt-10 border-t border-rule">
       <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
-        <span class="font-mono text-xs text-ink-3 uppercase tracking-wider">
-          Also in Security
-        </span>
+        <span class="font-mono text-xs text-ink-3">also in security</span>
         <a href="/security" class="text-sm text-ink-3 hover:text-ink-2 transition-colors">
           All security pages
         </a>
@@ -62,7 +57,7 @@ const siblings = (await getCollection('security'))
           <li>
             <a
               href={`/security/${s.id}`}
-              class="group flex items-center justify-between gap-3 rounded-xl bg-panel border border-rule hover:border-rule-strong hover:bg-panel px-4 py-3.5 transition-colors"
+              class="group flex items-center justify-between gap-3 rounded-md bg-panel border border-rule hover:border-rule-strong hover:bg-panel px-4 py-3.5 transition-colors"
             >
               <span class="text-base text-ink-2 group-hover:text-ink transition-colors">{s.data.title}</span>
               <span class="text-ink-3 group-hover:text-ink-2 group-hover:translate-x-0.5 transition-all shrink-0" aria-hidden="true">&rarr;</span>
@@ -72,7 +67,7 @@ const siblings = (await getCollection('security'))
         <li>
           <a
             href="/docs/security"
-            class="group flex items-center justify-between gap-3 rounded-xl bg-panel border border-rule hover:border-rule-strong hover:bg-panel px-4 py-3.5 transition-colors"
+            class="group flex items-center justify-between gap-3 rounded-md bg-panel border border-rule hover:border-rule-strong hover:bg-panel px-4 py-3.5 transition-colors"
           >
             <span class="text-base text-ink-2 group-hover:text-ink transition-colors">Reporting a vulnerability</span>
             <span class="text-ink-3 group-hover:text-ink-2 group-hover:translate-x-0.5 transition-all shrink-0" aria-hidden="true">&rarr;</span>
