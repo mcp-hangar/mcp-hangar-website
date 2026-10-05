@@ -1,0 +1,70 @@
+---
+import { getCollection } from "astro:content";
+import CopyCommand from "../CopyCommand.astro";
+import { INSTALL_COMMAND, LINKS, TIME_TO_VALUE } from "../../config";
+import { countCookbookRecipes } from "../../docsNav";
+
+/**
+ * Start: the install, and three doors. Installing is what most readers came
+ * for, so it comes first; the doors are where to go next.
+ */
+const recipeCount = countCookbookRecipes(await getCollection("oss"));
+const learnCount = (await getCollection("learn")).filter((e) => !e.data.draft).length;
+
+const doors = [
+  {
+    href: "/docs",
+    label: "Docs",
+    meta: `${recipeCount} recipes`,
+    text: "Configuration, CLI, REST API and MCP tool reference, plus production recipes.",
+  },
+  {
+    href: "/learn",
+    label: "Learn",
+    meta: `${learnCount} pages`,
+    text: "What an enforcement plane is, how a request travels it, and where it stops.",
+  },
+  {
+    href: "/security",
+    label: "Security",
+    meta: "advisories · OWASP",
+    text: "The published advisories, the CVE ledger, and the OWASP MCP Top 10 mapped to what Hangar does and does not cover.",
+  },
+];
+---
+
+<section class="border-t border-rule">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-16 md:py-24">
+    <div class="grid gap-10 lg:grid-cols-[1fr_1.4fr] lg:gap-14 [&>*]:min-w-0">
+      <div>
+        <p class="font-mono text-xs text-ink-3 mb-3">03 · start</p>
+        <h2 class="text-h2 text-ink mb-4">Install it, understand it, or look it up</h2>
+        <p class="text-lead text-ink-2 mb-6">
+          Install the Python core, put a policy in front of one MCP server, and watch a call get denied on
+          purpose.
+        </p>
+        <CopyCommand command={INSTALL_COMMAND} label="Copy pip install command to clipboard" class="w-full mb-4" />
+        <a
+          href={LINKS.ossQuickstart}
+          class="inline-flex items-center gap-2 font-medium text-ink underline underline-offset-4 decoration-rule-strong hover:decoration-ink"
+        >
+          Quickstart: {TIME_TO_VALUE.words}, start to refusal <span aria-hidden="true">&rarr;</span>
+        </a>
+      </div>
+
+      <ul class="border-t border-rule">
+        {doors.map((d) => (
+          <li class="border-b border-rule">
+            <a href={d.href} class="door group grid grid-cols-[1fr_auto] gap-x-6 gap-y-1 py-5">
+              <span class="font-display font-extrabold text-xl text-ink group-hover:underline underline-offset-4">
+                {d.label}
+              </span>
+              <span class="font-mono text-xs text-ink-3 self-center">{d.meta}</span>
+              <span class="col-span-2 text-ink-3">{d.text}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+</section>

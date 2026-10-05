@@ -1,0 +1,97 @@
+{
+  "core": {
+    "tag": "v2.24.0",
+    "commit": "62132630f30f52fd9c859167370ae41e9df60327"
+  },
+  "gates": [
+    {
+      "name": "cancelled_before_execution",
+      "doc": ""
+    },
+    {
+      "name": "global_timeout",
+      "doc": "Refuse if the batch's budget is already spent, and set what is left."
+    },
+    {
+      "name": "resolve_target",
+      "doc": "Resolve the call to a concrete backend, selecting a group member if needed."
+    },
+    {
+      "name": "tool_access",
+      "doc": "Tool access policy, checked BEFORE starting the server or executing."
+    },
+    {
+      "name": "withdrawal",
+      "doc": "Tool withdrawal status, checked BEFORE backend invoke (#231)."
+    },
+    {
+      "name": "digest_pin",
+      "doc": "Per-tenant digest pin enforcement (#233)."
+    },
+    {
+      "name": "circuit_breaker",
+      "doc": "Circuit breaker / health degradation of the resolved target."
+    },
+    {
+      "name": "validators",
+      "doc": "Interceptor validators, fail-closed BEFORE prompting for approval."
+    },
+    {
+      "name": "tenant_budget",
+      "doc": "Whether the caller's tenant has a budget, and a token for this call (#1445)."
+    },
+    {
+      "name": "approval",
+      "doc": "Human approval gate, plus the re-check of everything it paused."
+    },
+    {
+      "name": "cold_start",
+      "doc": "Single-flight cold start of the resolved target."
+    },
+    {
+      "name": "deferred_digest_pin",
+      "doc": "Run the pin check the cold start made possible (#601)."
+    },
+    {
+      "name": "cancelled_after_cold_start",
+      "doc": ""
+    }
+  ],
+  "gateReasons": [
+    "approval_denied",
+    "approval_gate_error",
+    "approval_no_longer_valid",
+    "approval_revalidation_error",
+    "approval_timeout",
+    "batch_timeout",
+    "cancelled",
+    "circuit_open",
+    "digest_mismatch",
+    "no_available_member",
+    "not_revived_by_calls",
+    "server_not_found",
+    "start_failed",
+    "tenant_quota_exceeded",
+    "tool_not_in_access_policy",
+    "tool_withdrawn",
+    "validator_denied"
+  ],
+  "tenantBudgetReasons": ["no_budget", "concurrency", "rate"],
+  "refusedAtDispatch": [
+    "EgressPolicyApprovalRequiredError",
+    "EgressPolicyDeniedError",
+    "RateLimitExceeded"
+  ],
+  "approvalStates": ["pending", "approved", "denied", "expired"],
+  "l7Verdicts": [
+    "allow",
+    "audit_observed",
+    "deny",
+    "require_approval",
+    "approval_honored"
+  ],
+  "record": {
+    "leef": "LEEF:2.0|MCP Hangar|MCP Hangar|0.15.0|103|\tdevTime=Oct 05 2026 15:15:07\tproto=tool\tusrName=svc:ci\tsessID=sess-4f1a\ttenantID=acme\taction=delete_repository\tduration=0.41\tgate=tool_access\tgateReason=tool_not_in_access_policy\tsrc=github\trouteBackend=github",
+    "jsonl": "{\"timestamp\": \"2026-10-05T15:15:07.204000+00:00\", \"event_type\": \"ToolInvocationDenied\", \"provider_id\": \"github\", \"route_backend\": \"github\", \"tool_name\": \"delete_repository\", \"status\": \"denied\", \"duration_ms\": 0.41, \"user_id\": \"svc:ci\", \"session_id\": \"sess-4f1a\", \"tenant_id\": \"acme\", \"gate\": \"tool_access\", \"gate_reason\": \"tool_not_in_access_policy\"}"
+  }
+}
