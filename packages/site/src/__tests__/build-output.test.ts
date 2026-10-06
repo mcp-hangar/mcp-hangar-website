@@ -109,7 +109,10 @@ describe("Build Output", () => {
   it("should lead with records rather than an illustration", () => {
     const html = readDistFile("index.html");
     expect(html).toContain("tool_not_in_access_policy");
-    expect(html).toContain("gate=approval state=pending");
+    // As text: the record sets each field in its own element.
+    expect(html.replace(/<[^>]+>/g, "")).toContain(
+      "gate=approval state=pending"
+    );
     expect(html).toMatch(/l7_verdict=deny/);
     expect(html).toContain("LEEF:2.0|MCP Hangar|");
     expect(html).toContain("ToolInvocationDenied");
@@ -188,6 +191,26 @@ describe("Build Output", () => {
       }))
       .filter((f) => f.hits.length > 0);
 
+    expect(offenders).toEqual([]);
+  });
+
+  // axe `label` (#304): a task-list checkbox is named by the plugin, not by
+  // the text beside it. Checked over dist so both pipelines are covered.
+  it("should give every task-list checkbox an accessible name", () => {
+    // Quoted attribute values may hold ">" (e.g. `mcp_servers.<id>`).
+    const INPUT = /<input\b(?:[^>"]|"[^"]*")*>/g;
+    let seen = 0;
+    const offenders = [...htmlFiles(DIST)].flatMap((file) =>
+      (fs.readFileSync(file, "utf-8").match(INPUT) ?? [])
+        .filter((tag) => /type="checkbox"/.test(tag))
+        .filter((tag) => {
+          seen += 1;
+          return !/aria-label="[^"]*\S[^"]*"/.test(tag);
+        })
+        .map((tag) => `${path.relative(DIST, file)}: ${tag}`)
+    );
+
+    expect(seen).toBeGreaterThan(0);
     expect(offenders).toEqual([]);
   });
 

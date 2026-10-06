@@ -21,6 +21,7 @@
     "check": "pnpm --filter site check",
     "brand:sync": "pnpm --filter site brand:sync",
     "advisories:refresh": "pnpm --filter site advisories:refresh",
+    "release-post": "pnpm --filter site release-post",
     "test": "pnpm --filter site test",
     "test:unit": "pnpm --filter site test:unit",
     "test:build": "pnpm --filter site test:build",

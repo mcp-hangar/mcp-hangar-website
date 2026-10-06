@@ -117,6 +117,8 @@ Every decision — accept or deny — is recorded as a `TaskConsentDecided` even
 
 ## Why this one is different from L7 approval
 
+> **Update (2026-10-05):** This section describes the sync L7 `requireApproval` verb as it was when the post went out, and that is no longer how it behaves. Since core 2.11.0 (and in 2.24.0) a call that matches it is held for a person, not denied: a typed pending approval is created and delivered on the configured approval channel, resolving it takes the `approval:resolve` permission, and the decision is checked again at dispatch. It still fails closed when no approval channel is configured. So the claim below that task consent is the only place a governed call pauses for a person, the "Behavior", "Human in the loop" and "Absent decision" rows of the table, and the line after it are out of date. The current behaviour is in [Egress Policy, L7 semantics](/docs/guides/EGRESS_POLICY#l7-semantics).
+
 Hangar already says "no" on the synchronous path. The L7 `requireApproval` verb in the egress policy is a policy *decision point*: a tool call that matches it is denied. It **fails closed** — it is not an approval queue, and there is no human sitting behind it waiting to click. It's a gate that answers deterministically at request time.
 
 The task consent gate is a different animal. It is the *only* place in Hangar where a governed call pauses and routes to a **genuinely interactive human-in-the-loop elicitation** — a real prompt to the downstream client, a real accept/decline coming back, and the gate opening on the strength of that answer. Not a static rule. An actual mid-flight ask.

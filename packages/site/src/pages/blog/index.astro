@@ -2,9 +2,9 @@
 import Base from '../../layouts/Base.astro';
 import BlogByline from '../../components/BlogByline.astro';
 import Tag from '../../components/Tag.astro';
-import { getCollection } from 'astro:content';
+import { publishedPosts } from '../../lib/blog';
 
-const posts = await getCollection('blog');
+const posts = await publishedPosts();
 const sortedPosts = posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 const [featured, ...rest] = sortedPosts;
 
