@@ -10,7 +10,7 @@ import {
   PLATFORM_FACT,
   VERDICT_PATH_FACT,
 } from "../lib/product-facts";
-import { DESCRIPTION } from "../config";
+import { DESCRIPTION, VERSION } from "../config";
 
 const SITE = "https://mcp-hangar.io";
 
@@ -199,7 +199,8 @@ export const GET: APIRoute = async () => {
 - ${DETERMINISM_FACT}
 - Audit export: ${AUDIT_EXPORT_FACT}
 - ${PLATFORM_FACT}
-- Task relay-with-governance (ADR-014) shipped in 2.0.0; it is not in the 1.6.x line
+- Current release: ${VERSION} (pip install mcp-hangar==${VERSION}); release notes: https://github.com/mcp-hangar/mcp-hangar/releases
+- Governed task relay (ADR-014): since 2.0.0
 - GitHub: https://github.com/mcp-hangar/mcp-hangar
 - Website: ${SITE}
 - Index: ${SITE}/llms.txt
