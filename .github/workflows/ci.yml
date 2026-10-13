@@ -59,6 +59,21 @@ jobs:
           retention-days: 7
           if-no-files-found: error
 
+  # The advertised version against PyPI (#336): an error when it is not a
+  # stable release there, a warning while a newer one waits for its sync PR.
+  version:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version-file: ".nvmrc"
+      - name: Compare VERSION with PyPI
+        run: node packages/site/scripts/check-version.mjs
+
   # The site publishes Kubernetes manifests as copyable examples, and until
   # 2026-09-09 nothing checked them: both homepage MCPEgressPolicy snippets had
   # drifted into something `kubectl apply` rejects, while every manifest in the
