@@ -1,0 +1,92 @@
+---
+title: "Detect and block MCP tool rug pulls (tool description and schema drift)"
+description: "Pin what each MCP tool says it is, and refuse the call when its description or schema changes after you approved it."
+type: Tutorial
+level: Intro
+time: "5 min"
+theme: enforcement
+since: "2.18.0"
+updated: 2026-10-13
+tags: [rug-pull, tool-poisoning, digest-pinning, supply-chain, enforcement]
+---
+import Callout from '../../components/Callout.astro';
+
+## The problem
+
+An MCP server sends its tool list, with descriptions and input schemas, every
+time a client connects, and nothing in the protocol says that list must match
+the one you approved. A server that changes a tool's description after you
+trusted it has rewritten the instructions your model follows. The call looks
+the same; the tool behind it is different.
+
+## The deny
+
+Hangar keeps a SHA-256 digest of each tool's name, description, input schema
+and output schema, and refuses a call whose tool no longer matches it. Below,
+the demo server from the repository first serves an honest `echo`, and is then
+restarted with one sentence added to the description. The same call is made
+both times, through `mcp-hangar` 2.27.2:
+
+```text
+# before: the call is allowed
+{"is_error": false, "text": "[{\"type\": \"text\", \"text\": \"hi\" ...}]"}
+
+# after the description changed: the call is refused before the server is asked
+{"is_error": true, "text": "[{\"type\": \"text\", \"text\": \"Tool 'echo' schema does not match its pinned digest\" ...}]"}
+```
+
+`pin --check` names the drift and exits 1, so the same check belongs in CI:
+
+```text
+$ mcp-hangar pin --config config.yaml --check
+drift demo.echo
+  pinned:   2970199253016cbcebf2d4b43d194f2cdd4c28a8517381ae8a81aecc5edff245
+  serving:  cac088cafdfe089cce3a7bd29ad6882124dd566ccbf7a2168b11a05a2bb5383a
+```
+
+The refusal is also an audit record (`gate=digest_pin`,
+`gateReason=digest_mismatch`), in whichever
+[SIEM format](/learn/export-mcp-tool-calls-to-your-siem) you export.
+
+## The config that does it
+
+`mcp-hangar pin --write` asks each server what it serves today and writes the
+digests into your config:
+
+```yaml
+mcp_servers:
+  demo:
+    mode: subprocess
+    command: [python, examples/rugpull/server.py]
+    tool_projection:
+      pins:
+        echo: 2970199253016cbcebf2d4b43d194f2cdd4c28a8517381ae8a81aecc5edff245
+```
+
+A pinned tool whose digest no longer matches is refused. To adopt a change you
+wanted, run `pin --write` again and review the diff like any other dependency
+bump. Since 2.25.0 a pinned, running server is also re-listed every
+`tool_projection.pin_recheck_interval_s` (60 seconds by default), so drift is
+logged as `tool_digest_pin_drift_detected` before anyone calls the tool.
+
+## What it does not do
+
+- **It does not judge intent.** A digest says the contract changed, not that
+  the change is hostile. Every change to a pinned tool is refused until you
+  re-pin it, the harmless ones included.
+- **A missing event does not mean no drift.** The periodic re-check sees a
+  change at most one interval after it happens, and not while the server is
+  cold, degraded, dead, or failing to list its tools. The call-time check is
+  the one that refuses.
+- **It covers what the tool advertises, not what it does.** A server that keeps
+  its description and changes its behaviour passes the pin. Pair it with
+  [egress policy](/learn/control-mcp-server-egress-on-kubernetes) for what the
+  server can reach.
+- **Unpinned tools are not refused.** A tool with no pin is served as it comes,
+  so pin every server you depend on.
+
+<Callout variant="note">
+  The full walkthrough, with a real MCP client, is
+  [From install to a governed deny in five minutes](/learn/from-install-to-a-governed-deny-locally).
+  How the digest is computed is in [Digest pinning](/learn/digest-pinning).
+</Callout>
