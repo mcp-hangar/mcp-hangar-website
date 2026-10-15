@@ -24,7 +24,12 @@ export const READING_ORDER = [
   "write-your-first-mcpegresspolicy",
   "the-l7-mcpegresspolicy-language",
   "digest-pinning",
+  "detect-and-block-mcp-tool-rug-pulls", // the need, in the words people search
+  "control-mcp-server-egress-on-kubernetes",
+  "require-human-approval-for-mcp-tool-calls",
+  "bind-mcp-tokens-to-one-server",
   "governance-observability",
+  "export-mcp-tool-calls-to-your-siem",
   "the-governed-task-relay-flow",
   "mid-flight-consent",
   "govern-an-async-task-end-to-end",
@@ -117,6 +122,32 @@ export const DEEPER_READING: Record<string, DocsLink[]> = {
       href: "/docs/cookbook/14-upgrade-1.3-digest-pinning",
       label: "Cookbook: adopting digest pinning",
     },
+  ],
+  "detect-and-block-mcp-tool-rug-pulls": [
+    {
+      href: "/docs/cookbook/14-upgrade-1.3-digest-pinning",
+      label: "Cookbook: adopting digest pinning",
+    },
+    { href: "/docs/security/VERDICT_LIMITS", label: "What a verdict means" },
+  ],
+  "control-mcp-server-egress-on-kubernetes": [
+    { href: "/docs/guides/KUBERNETES", label: "Kubernetes guide" },
+    { href: "/docs/guides/EGRESS_POLICY", label: "Egress policy guide" },
+  ],
+  "require-human-approval-for-mcp-tool-calls": [
+    {
+      href: "/docs/guides/APPROVAL_ADAPTERS",
+      label: "Approval adapters guide",
+    },
+    { href: "/docs/reference/configuration", label: "Configuration reference" },
+  ],
+  "bind-mcp-tokens-to-one-server": [
+    { href: "/docs/guides/AUTHENTICATION", label: "Authentication guide" },
+    { href: "/docs/cookbook/12-auth-rbac", label: "Cookbook: auth and RBAC" },
+  ],
+  "export-mcp-tool-calls-to-your-siem": [
+    { href: "/docs/guides/OBSERVABILITY", label: "Observability guide" },
+    { href: "/docs/reference/configuration", label: "Configuration reference" },
   ],
   "governance-observability": [
     { href: "/docs/guides/OBSERVABILITY", label: "Observability guide" },

@@ -1,0 +1,125 @@
+---
+title: "Export MCP tool calls to your SIEM (CEF, LEEF, syslog, OTLP)"
+description: "Write every MCP tool call, and every refusal with the gate that made it, to a file your SIEM already reads, or to an OTLP collector."
+type: Tutorial
+level: Core
+time: "5 min"
+theme: observability
+since: "2.19.0"
+updated: 2026-10-14
+tags: [siem, audit, cef, leef, syslog, otlp, observability]
+---
+import Callout from '../../components/Callout.astro';
+
+## The problem
+
+The tool calls an agent makes are the part of its behaviour you can actually
+audit, and they pass through one place. A security team wants them where it
+already looks: in the SIEM, in a format the SIEM parses, with a refusal
+recorded as a refusal and not as a gap in the log.
+
+## The record
+
+One refused call, as each exporter writes it. The call is the one from
+[the rug-pull walkthrough](/learn/detect-and-block-mcp-tool-rug-pulls): the
+tool's description changed after it was pinned. Captured from `mcp-hangar`
+2.27.3.
+
+CEF:
+
+```text
+CEF:0|MCP Hangar|MCP Hangar|2.27.3|103|Tool Invocation Denied|5|rt=1791926901180 dvchost=mcp-hangar act=ToolInvocationDenied cs1=demo cs1Label=ProviderID suser=local-user cs6=local cs6Label=TenantID flexString1=demo flexString1Label=RouteBackend cs5=echo cs5Label=ToolName cn1=2.08 cn1Label=DurationMs gate=digest_pin gateReason=digest_mismatch
+```
+
+LEEF 2.0 (fields are tab-separated):
+
+```text
+LEEF:2.0|MCP Hangar|MCP Hangar|2.27.3|103|	devTime=Oct 13 2026 21:28:28	proto=tool	usrName=local-user	tenantID=local	action=echo	duration=2.17	gate=digest_pin	gateReason=digest_mismatch	src=demo	routeBackend=demo
+```
+
+RFC 5424 syslog:
+
+```text
+<132>1 2026-10-13T21:28:35.641693Z host mcp-hangar 90512 103 [mcp@49152 provider="demo" routeBackend="demo" tool="echo" status="denied" duration="2.1" user="local-user" tenant="local" gate="digest_pin" gateReason="digest_mismatch"] Tool echo on provider demo denied
+```
+
+JSON lines:
+
+```json
+{"timestamp": "2026-10-13T21:28:42.856724+00:00", "event_type": "ToolInvocationDenied", "provider_id": "demo", "route_backend": "demo", "tool_name": "echo", "status": "denied", "duration_ms": 2.13, "user_id": "local-user", "tenant_id": "local", "gate": "digest_pin", "gate_reason": "digest_mismatch"}
+```
+
+OTLP, as the collector's debug exporter prints the log record:
+
+```text
+Body: Str(tool_invocation)
+     -> mcp.server.id: Str(demo)
+     -> gen_ai.tool.name: Str(echo)
+     -> mcp.tool.status: Str(denied)
+     -> mcp.caller.id: Str(local-user)
+     -> mcp.caller.tenant_id: Str(local)
+     -> hangar.gate.name: Str(digest_pin)
+     -> hangar.gate.reason: Str(digest_mismatch)
+Trace ID: 7dee0ec07e9b74c74f4c74234651b130
+```
+
+The same call that succeeds writes a `Tool Invocation Completed` record
+(signature `101`), and a server changing state writes one with the transition,
+so a refusal sits in the log between the calls that were allowed.
+
+## The config that does it
+
+The file formats are chosen with two environment variables:
+
+```bash
+MCP_COMPLIANCE_FORMAT=cef        # cef, leef, syslog or jsonlines
+MCP_COMPLIANCE_OUTPUT=/var/log/mcp-hangar/audit.cef
+mcp-hangar serve --http
+```
+
+Set `MCP_COMPLIANCE_FORMAT` and leave `MCP_COMPLIANCE_OUTPUT` out, and the lines
+go to standard error. An unknown format name refuses startup; before 2.25.0 it
+logged a warning and served calls with no export.
+
+OTLP goes to a collector you name, as logs:
+
+```yaml
+observability:
+  audit:
+    enabled: true
+```
+
+```bash
+OTEL_EXPORTER_OTLP_ENDPOINT=http://collector:4317 mcp-hangar serve --http
+```
+
+Audit records are sent only to an endpoint you set. Hangar never falls back to
+a default one.
+
+## What it does not do
+
+- **The CEF, LEEF, syslog and JSON exporters write a file or standard error.**
+  They do not send anything over the network. A forwarder you already run (your
+  SIEM's agent, `rsyslog`, a log shipper) reads the file. Only OTLP is pushed.
+- **Setting only `MCP_COMPLIANCE_OUTPUT` does nothing.** Without a format the
+  variable is ignored, silently
+  ([#1723](https://github.com/mcp-hangar/mcp-hangar/issues/1723)).
+- **The refusal reasons are not in these records.** A record carries the gate and
+  its reason code (`digest_pin`, `digest_mismatch`), the tool, the server and the
+  caller. The free-text reasons of an egress denial are on the event and in the
+  gateway log, not on the audit line.
+- **Caller type and cost fields are not written yet.** The exporters accept them
+  and do not emit them
+  ([#1705](https://github.com/mcp-hangar/mcp-hangar/issues/1705)). The OTLP record
+  does carry caller type, id and tenant.
+- **Before 2.27.3, CEF and LEEF headers said `0.15.0`** as the device version, and
+  two CEF state changes of one server were identical lines.
+- **A record shows what Hangar decided, not that the traffic stopped.** For the
+  network side, see
+  [egress control on Kubernetes](/learn/control-mcp-server-egress-on-kubernetes).
+
+<Callout variant="note">
+  Which events are audited, and how a refusal is shaped, is in
+  [what a refusal leaves behind](/docs/security/VERDICT_LIMITS) and the
+  [configuration reference](/docs/reference/configuration).
+</Callout>

@@ -1,0 +1,104 @@
+---
+title: "Control MCP server egress on Kubernetes"
+description: "Decide which hosts an MCP server can reach and which of its tool calls may leave, as a Kubernetes object, enforced by the network and by the gateway."
+type: Tutorial
+level: Core
+time: "6 min"
+theme: enforcement
+since: "1.6.0"
+updated: 2026-10-13
+tags: [egress, kubernetes, mcpegresspolicy, networkpolicy, cilium, enforcement]
+---
+import Callout from '../../components/Callout.astro';
+
+## The problem
+
+An MCP server is code you did not write, running with network access you did
+not scope. A NetworkPolicy can say which hosts its pod may reach, but not which
+tool calls may go there or what their arguments may carry. A gateway can judge
+the call, but a pod that can open its own sockets walks around it.
+
+## The deny
+
+An `MCPEgressPolicy` does both. The operator compiles it into a NetworkPolicy
+(or a CiliumNetworkPolicy, for hostnames), and pushes its tool and argument
+rules to the gateway. Here the rules allow only `echo`, and refuse any call
+whose arguments carry a GitHub token. Two calls through `mcp-hangar` 2.27.2:
+
+```text
+# echo with a clean argument: allowed
+"success": true   "text": "hello"
+
+# echo with a GitHub token in its argument: refused before the server is asked
+"success": false
+"error": "Tool call denied by egress policy"
+"error_type": "EgressPolicyDeniedError"
+```
+
+The gateway's log names the rule that decided it:
+
+```text
+egress_policy_enforced  action=deny rule_kind=arguments tool_name=echo
+  policy_id=sha256:89ab90c5df47266f
+  reasons=["tool 'echo' matched an allow rule",
+           "arguments contain a secret matching 'github-tokens'"]
+```
+
+The network half is checked on a real CNI on every operator change: on Calico,
+`TestCIDRRuleAllowsAndOtherDestinationsAreBlocked`,
+`TestNamespaceDefaultDenyLimitsUnregisteredPods` and
+`TestOperator_EgressPolicyBackstopIsEnforced` connect from the server's pod and
+assert that what the policy does not name times out.
+
+## The config that does it
+
+```bash
+kubectl label namespace prod mcp-hangar.io/enforce-egress=true
+```
+
+```yaml
+apiVersion: mcp-hangar.io/v1alpha2
+kind: MCPEgressPolicy
+metadata:
+  name: gh-readonly
+  namespace: prod
+spec:
+  mode: Enforce                 # Audit (the default) records; Enforce refuses
+  targetRef: {kind: MCPServer, name: github}
+  defaultAction: Deny
+  upstreams:
+    - name: github
+      match:
+        host: api.github.com    # a hostname needs Cilium; a CIDR works on any CNI
+      tools:
+        allow: ["get_*", "list_*"]
+      arguments:
+        deny:
+          secretPatterns: [github-tokens, jwt]
+          maxPayloadBytes: 262144
+```
+
+The namespace label puts a default-deny under every MCP server there; the
+policy opens exactly what it names. Precedence is deny, then requireApproval,
+then allow, then `defaultAction`.
+
+## What it does not do
+
+- **It does not cut connections that are already open.** A policy applied to a
+  running pod refuses new connections; established ones live until they close.
+  Restart the pod after switching to `Enforce`.
+- **A hostname needs Cilium.** A vanilla NetworkPolicy cannot match a DNS name,
+  so under another CNI a hostname upstream is denied, not opened, and the policy
+  reports `Degraded/FQDNUpstreamsUnenforceable`.
+- **The gateway half sees only what passes through the gateway.** Without the
+  network half, a pod that skips Hangar reaches whatever its own NetworkPolicy
+  allows. The namespace label is what makes the tool rules enforcement.
+- **The reasons are not on every record.** They are on the event and the log
+  line above; the audit record and the trace carry the verdict, the rule kind
+  and the policy id.
+
+<Callout variant="note">
+  The step-by-step version, with status conditions, is
+  [Write your first MCPEgressPolicy](/learn/write-your-first-mcpegresspolicy);
+  the rule language is in [The L7 MCPEgressPolicy language](/learn/the-l7-mcpegresspolicy-language).
+</Callout>

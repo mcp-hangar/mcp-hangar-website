@@ -1,0 +1,90 @@
+---
+title: "Require human approval for MCP tool calls"
+description: "Hold chosen MCP tool calls until a person approves them, refuse them on a denial or a timeout, and keep a record of who decided."
+type: Tutorial
+level: Intro
+time: "5 min"
+theme: enforcement
+since: "2.1.0"
+updated: 2026-10-13
+tags: [approval, human-in-the-loop, enforcement, audit]
+---
+import Callout from '../../components/Callout.astro';
+
+## The problem
+
+Some tool calls should not run on a model's word alone: a refund, a deletion, a
+message sent on someone's behalf. Asking in the chat is not a control, because
+the model that wants the call is the one asking. The hold has to sit between
+the agent and the server, where the agent cannot answer for the human.
+
+## The deny
+
+With `echo` on the approval list, a call to it is held. While it waits, it is
+listed over the REST API (`mcp-hangar` 2.27.2):
+
+```text
+$ curl -s localhost:8000/api/approvals
+[{"approval_id": "7f800dc8-...", "provider_id": "demo", "tool_name": "echo",
+  "arguments": {"text": "approve-me"}, "state": "pending",
+  "expires_at": "2026-10-13T20:48:48+00:00", "expires_in_seconds": 119, ...}]
+```
+
+Approved, the held call runs and the agent gets its result:
+
+```text
+$ curl -s -X POST localhost:8000/api/approvals/7f800dc8-.../resolve \
+    -d '{"decision": "approve", "reason": "refund checked"}'
+{"approval_id": "7f800dc8-...", "state": "approved"}
+
+"success": true, "result": {"content": [{"text": "approve-me", "type": "text"}]}
+```
+
+Denied, the call never reaches the server, and the agent is told why:
+
+```text
+$ curl -s -X POST localhost:8000/api/approvals/5142217c-.../resolve \
+    -d '{"decision": "deny", "reason": "not this account"}'
+{"approval_id": "5142217c-...", "state": "denied"}
+
+"success": false, "error": "not this account", "error_type": "approval_denied"
+```
+
+Captured on a laptop with the demo `echo` server; approval ids are shortened
+and the agent's side is the matching `hangar_call` result.
+
+## The config that does it
+
+```yaml
+mcp_servers:
+  payments:
+    mode: remote
+    endpoint: https://payments.example.com/mcp
+    tools:
+      approval_list: ["refund_*", "issue_credit"]
+      approval_timeout_seconds: 600
+approvals:
+  enabled: true
+  channel: event_stream      # or an installed adapter, such as slack
+```
+
+A tool on the list stays visible and is held on every call; one that matches no
+list runs straight through. A denial or an expiry refuses the call: the gate
+fails closed. Resolving needs the `approval:resolve` permission.
+
+## What it does not do
+
+- **The approver sees a redacted copy of the arguments.** At dispatch, Hangar
+  re-checks the approval, its expiry and a hash of the raw arguments, so a call
+  cannot be swapped after approval, but the person did not see secrets the
+  redaction removed.
+- **Approved is not the same as done.** An approval that arrives after the
+  caller's batch deadline is recorded `cancelled` and the call does not run.
+- **It says nothing about who should approve.** Which people hold
+  `approval:resolve`, and how they are notified, is yours to set.
+- **`deny_list` wins.** A tool on both lists is hidden, not held.
+
+<Callout variant="note">
+  Approval can also come from an egress policy's `requireApproval` rule, and a
+  long-running task can ask mid-flight: see [Mid-flight consent](/learn/mid-flight-consent).
+</Callout>

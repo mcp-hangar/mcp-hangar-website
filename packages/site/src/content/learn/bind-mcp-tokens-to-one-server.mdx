@@ -1,0 +1,77 @@
+---
+title: "Bind MCP tokens to one server (RFC 8707 audience binding)"
+description: "Accept only access tokens minted for this MCP gateway, so a token issued for another server cannot be replayed here."
+type: Tutorial
+level: Core
+time: "5 min"
+theme: foundations
+since: "2.4.0"
+updated: 2026-10-13
+tags: [oauth, rfc-8707, rfc-9728, audience, identity, auth]
+---
+import Callout from '../../components/Callout.astro';
+
+## The problem
+
+One identity provider usually issues tokens for many services. If an MCP
+server accepts any valid token from that issuer, a token a user handed to one
+MCP server can be replayed against another. RFC 8707 resource indicators fix
+this by naming the server a token is for; the server then has to refuse tokens
+that name someone else.
+
+## The deny
+
+Hangar with `resource_uri: https://hangar.example.com`, two tokens from the same
+issuer and key, one minted for Hangar and one for another MCP server
+(`mcp-hangar` 2.27.2):
+
+```text
+$ curl -s localhost:8000/.well-known/oauth-protected-resource
+{"resource":"https://hangar.example.com","authorization_servers":["https://auth.example.com"]}
+
+# aud = https://hangar.example.com
+{"mcp_servers":[]}                                              [200]
+
+# aud = https://other-mcp.example.com
+{"error":"authentication_failed","message":"Invalid JWT audience",
+ "details":{"auth_method":"jwt"}}                               [401]
+www-authenticate: Bearer resource_metadata="https://hangar.example.com/.well-known/oauth-protected-resource"
+```
+
+Captured on a laptop against a local test issuer, whose address is shown here
+as `auth.example.com`. The first response is the RFC 9728 protected-resource metadata a client reads
+to learn which resource to ask the authorization server for.
+
+## The config that does it
+
+```yaml
+auth:
+  enabled: true
+  oidc:
+    enabled: true
+    issuer: https://auth.example.com
+    jwks_uri: https://auth.example.com/.well-known/jwks.json
+    resource_uri: https://hangar.example.com
+```
+
+With `resource_uri` set, it is the audience every trusted issuer's tokens must
+carry, and it is what the metadata advertises. For several tenants on one
+gateway, `strict_tenant_audience` with a `tenant_audiences` map requires a
+token's audience to match the one mapped to its tenant, so a token minted for
+one tenant is refused as another.
+
+## What it does not do
+
+- **It binds tokens to the gateway, not to each upstream.** Hangar checks the
+  token it receives. It does not forward that token to the MCP servers behind
+  it; their credentials are set per server in Hangar's config.
+- **A valid token is not permission.** Audience binding decides whether the
+  token is for this gateway; roles decide what its holder may do. A token with
+  the right audience and no matching role gets `403`.
+- **It does not mint tokens.** Your authorization server has to support
+  resource indicators and put the requested resource in `aud`.
+
+<Callout variant="note">
+  The full set of OIDC settings, multi-issuer trust and tenant claims is in the
+  [configuration reference](/docs/reference/configuration#auth).
+</Callout>
