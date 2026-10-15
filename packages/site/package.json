@@ -26,7 +26,7 @@
     "@fontsource/ibm-plex-mono": "^5.3.0",
     "@fontsource/ibm-plex-sans": "^5.3.0",
     "@fontsource/schibsted-grotesk": "^5.3.0",
-    "@mcp-hangar/docs": "github:mcp-hangar/docs#11742fb2a1f10c40f13baeb4f2542c6328557518",
+    "@mcp-hangar/docs": "github:mcp-hangar/docs#0bee84f88817291155b5b33c1ed874cc0caa44d9",
     "@shikijs/rehype": "^4.4.3",
     "@tailwindcss/typography": "^0.5.20",
     "@tailwindcss/vite": "^4.3.3",
