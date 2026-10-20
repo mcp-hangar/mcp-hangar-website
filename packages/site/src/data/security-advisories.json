@@ -3,6 +3,26 @@
   "state": "published",
   "advisories": [
     {
+      "ghsaId": "GHSA-cfcx-vrqr-qr84",
+      "cveId": null,
+      "severity": "high",
+      "summary": "Tool digest pin does not cover title, annotations or _meta, so a rug-pull through those fields passes the pin",
+      "publishedAt": "2026-10-19",
+      "affectedVersions": ">= 2.5.3, <= 2.29.1",
+      "patchedVersions": "2.30.0",
+      "url": "https://github.com/mcp-hangar/mcp-hangar/security/advisories/GHSA-cfcx-vrqr-qr84"
+    },
+    {
+      "ghsaId": "GHSA-qrgf-hc7g-w6v6",
+      "cveId": null,
+      "severity": "high",
+      "summary": "Hot-loaded registry entries can request arbitrary host environment variables and secret files",
+      "publishedAt": "2026-10-19",
+      "affectedVersions": "< 2.30.0",
+      "patchedVersions": "2.30.0",
+      "url": "https://github.com/mcp-hangar/mcp-hangar/security/advisories/GHSA-qrgf-hc7g-w6v6"
+    },
+    {
       "ghsaId": "GHSA-3vqv-89q2-8m26",
       "cveId": null,
       "severity": "low",
