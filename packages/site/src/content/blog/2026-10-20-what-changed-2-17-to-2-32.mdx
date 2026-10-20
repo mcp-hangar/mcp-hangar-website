@@ -1,0 +1,308 @@
+---
+title: "What changed in MCP Hangar 2.17 to 2.32"
+date: 2026-10-20
+author: MCP Hangar Team
+description: "Twenty-nine releases, from 2.17.0 on 29 August to 2.32.0 on 20 October, grouped by what they change for an operator: upstreams pinned by their TLS key, refusals that leave a record, pins that hold against drift, eleven published advisories, replicas that agree, and what to check before upgrading."
+tags: [mcp, mcp-hangar, release, governance, observability, security]
+---
+
+import Record from '../../components/Record.astro';
+
+The last release post here covered 2.9.0. This one covers the twenty-nine releases from 2.17.0 (29 August) to 2.32.0 (20 October). For 2.10 to 2.16, see the [changelog](https://github.com/mcp-hangar/mcp-hangar/blob/main/CHANGELOG.md).
+
+It is grouped by what changes for someone running MCP Hangar, not by version. Each item names the release it landed in. The [changelog](https://github.com/mcp-hangar/mcp-hangar/blob/v2.32.0/CHANGELOG.md) and the [upgrade notes](https://github.com/mcp-hangar/mcp-hangar/blob/v2.32.0/UPGRADE.md) at `v2.32.0` have the full text.
+
+One thing first. After 2.24.0 shipped, its documentation was reviewed chapter by chapter against the code and a running gateway. Where the code was wrong, a defect was filed under [mcp-hangar#1647](https://github.com/mcp-hangar/mcp-hangar/issues/1647). Nearly all of them were fixed in 2.25.0 to 2.29.1, and this post says where. The ones still open are named where they bear on a control.
+
+## Upstreams pinned by their key
+
+The largest change in the range is new in `2.32.0` ([ADR-030](/docs/adr/ADR-030-an-upstream-is-pinned-by-its-key-at-the-connection)). A remote server can declare a **peer identity**: a list of TLS keys its upstream may present, under a `key_ref` that names the key lineage.
+
+```yaml
+mcp_servers:
+  payments:
+    mode: remote
+    endpoint: https://10.244.3.17:8443
+    tls:
+      peer_identity:
+        key_ref: payments-tls
+        spki_sha256: [sha256:9f2c...]
+```
+
+- **The key is the identity.** Every connection to such a server is checked inside the TLS 1.3 handshake, before a request byte is written. A peer whose key is not listed is refused with `upstream_peer_key_mismatch`. Neither a CA nor the hostname is consulted. A pod that inherits the server's IP does not hold the key, so it never sees a call.
+- **Every connection.** The check covers the first call, retries, reconnects and the long-lived GET stream. `tls.max_connection_age`, one hour by default, replaces the connection pool so that no connection is reused forever.
+- **Over the API and from Kubernetes.** `POST` and `PUT /api/mcp_servers` accept the `tls` block. Declaring or changing a peer identity needs a new permission, `mcp_servers:peer_identity`, which `admin` and `kubernetes-operator` hold and `developer` does not. Under OPA, the policy must allow action `peer_identity`. With authentication off, any client of the API can set one. Operator `0.17.32` registers an `MCPServer` with `spec.tls.peerIdentity`, remote or container. It does so only with a core that advertises the capability, and only over an `https` `hangar.url`.
+- **The name keeps its key.** A peer-key name record outlives the server, so a deleted key-pinned server cannot come back under its name as a plain one, unless a holder of `mcp_servers:peer_identity` forgets the name. Declaring a peer identity over the API needs durable storage.
+- **The record says which key answered.** Audit records carry the verified key of a served call and the key a refused peer presented, in every SIEM format. `mcp-hangar why` shows a refused key next to the listed ones, and `mcp_hangar_upstream_peer_key_connections_total` counts handshakes by outcome.
+
+What it does not establish is in the ADR and on the [Learn page](/learn/pin-an-mcp-server-by-its-key). Whoever writes the key list decides which keys are trusted. Hangar verifies no attestation, and a declared `issuance: kbs-attested` is not accepted yet. The walkthrough, with a refusal captured on 2.32.0, is [Stop a rescheduled pod from answering as your MCP server](/learn/stop-a-rescheduled-pod-from-answering-as-your-mcp-server).
+
+## Refusals leave a record
+
+Until 2.22, a refusal was hard to find. Each gate logged it under its own name and at its own level. A refused call returned before the upstream was invoked, so no `ToolInvocationCompleted` or `ToolInvocationFailed` event existed for it, and the audit trail showed successes and upstream failures but never a governance decision. Three releases changed that.
+
+- **One log line per refusal** (`2.22.0`). Every refused batch call logs one `batch_call_refused` warning, naming the gate and a bounded reason code. The per-gate lines it replaces, such as `tool_access_denied` and `tool_digest_pin_rejected`, are now debug. A gate that broke, rather than refused, logs `batch_call_failed`.
+- **What each gate decided** (`2.22.0`). Each of the executor's thirteen gates records a `hangar.gate.decision` event on the call's `batch.call.<tool>` span: `allow`, `deny`, `skip`, `deferred` or `error`, with a reason code where the gate has one. Before this, only three gates had a span, so a refused call's trace could not name the gate that refused it.
+- **A refusal is not an error** (`2.22.0`). A policy denial, a call routed to approval and a spent rate-limit budget used to end their spans ERROR, so a count of error traces included refusals. `batch.call.<tool>` now stays UNSET when the outcome is `deny`, and so do the dispatch, handler and command spans a refusal passes through. Real failures still end ERROR: a cold start that did not start, an approval gate that could not be reached, an upstream that broke.
+- **An audit record for gate, authorization and L7 refusals** (`2.24.0`). These refusals publish a new domain event, `ToolCallRefused`: a batch gate that says `deny`, a `tool:invoke` denial (`gate=authorization`), and an L7 `deny` or `require_approval` at dispatch. Refusals outside the call executor, such as a suspended session or a command-bus rate limit, are not covered by this event. The OTLP audit exporter writes it as `tool_invocation` with `mcp.tool.status=denied`. The CEF, LEEF, JSON-lines and syslog exporters write it as a new event type, `ToolInvocationDenied` (CEF signature, LEEF event id and syslog MSGID `103`).
+- **Bounded fields only** (`2.24.0`). `batch_call_refused` no longer carries `error`, the text the caller was told, because several gates fill it with text they do not bound, such as an approver's own reason. L7 refusals log `l7_verdict`, `l7_mode` and `l7_rule_kind` in place of the policy's reasons. A tenant-budget refusal taken after the gates now writes its `batch_call_refused` line too; before, it had none.
+- **What authorized a call** (`2.24.0`). An audit record now names the role the `tool:invoke` decision matched in `mcp.caller.roles`, or `opa_policy` when an OPA policy admitted the call. The compliance formats carry it too. It goes on the audit record only, never on a span.
+- **`mcp-hangar why`** (`2.28.0`) prints the latest refusals from the event store: when, which server and tool, the gate and its reason, and for a digest mismatch both digests. It opens the store read-only, so it works while a gateway holds it.
+
+Here is a refusal as the JSON-lines exporter writes it. Core's own exporter at `v2.24.0` wrote this line from an example event; the time, caller and names are examples.
+
+<Record
+  label="A refused call, from core's JSON-lines audit export"
+  source="ToolInvocationDenied"
+  rows={[
+    {
+      time: "15:15:07",
+      verdict: "deny",
+      call: "github.delete_repository",
+      reason: "gate=tool_access reason=tool_not_in_access_policy",
+    },
+  ]}
+/>
+
+```json
+{"timestamp": "2026-10-05T15:15:07.204000+00:00", "event_type": "ToolInvocationDenied", "provider_id": "github", "route_backend": "github", "tool_name": "delete_repository", "status": "denied", "duration_ms": 0.41, "user_id": "svc:ci", "session_id": "sess-4f1a", "tenant_id": "acme", "gate": "tool_access", "gate_reason": "tool_not_in_access_policy"}
+```
+
+**The export itself.** Three gaps the 2.24.0 review found are closed:
+
+- **An export it cannot perform refuses startup** (`2.25.0`). An unknown `MCP_COMPLIANCE_FORMAT`, or an output directory that does not exist, used to mean no export at all while calls were still served. A write that fails later is counted in `mcp_hangar_compliance_export_failures_total` and turns `/health/ready` `degraded`, while calls are still served. Alert on the counter.
+- **CEF and LEEF name the running release** (`2.27.3`). They used to carry a hard-coded `0.15.0`.
+- **Caller and cost fields** (`2.28.0`). The JSON-lines, CEF, LEEF and syslog exporters write the caller and cost fields a tool call has.
+
+## Pins that hold
+
+Digest pinning got a way in, then lost its limits one by one.
+
+- **`mcp-hangar pin`** (`2.18.0`) computes the digest Hangar enforces for each tool, with the same function the gate uses. `--write` merges them into `tool_projection.pins`. `--check` exits 1 when the file and the servers disagree, so it can run in CI. A digest covers the tool's description as well as its schemas, so a poisoned description with unchanged parameters counts as drift.
+- **`mcp-hangar init`** (`2.18.0`) now writes a configuration that enforces something: `tool_access.mode: front_door`, a stdio principal, and a pin for every tool its smoke test saw.
+- **A stdio session can have an identity** (`2.18.0`). Declare it under `auth.stdio.principal`. With that block, a front door served over stdio lists the upstreams' own tools rather than an empty list. No credential is checked: the OS user who launched the process is the trust boundary (ADR-026).
+- **The digest is visible** (`2.24.0`). Every tool in `hangar_tools`, `GET /api/tools` and `GET /api/mcp_servers/{id}/tools` carries `digest`. When a pin covers the tool, it also carries `pinned_digest`, so a mismatch can be read without the CLI. A pin a member inherits from its group is not shown there.
+- **Drift that nobody announces** (`2.25.0`). A pin used to be compared only with the catalogue from the last start, so an upstream that changed a pinned tool without sending `tools/list_changed` was served under the old pin until a restart. Every READY server a pin covers is now re-listed every `tool_projection.pin_recheck_interval_s` seconds, 60 by default; a server that is not READY is not started for it.
+- **Every page of the catalogue** (`2.28.0`). An upstream that paginates `tools/list` is read to its last page, up to 50 pages or until a cursor repeats. A tool on a later page used to be invisible to pinning and to the drift check, and could not be called.
+- **Pins bound to their upstream** (`2.28.0`). `pin --write` records the upstream a pin was taken from, so a pin block copied to another server, or a renamed server pointed elsewhere, no longer matches. For a key-pinned server, that upstream is its key lineage.
+- **New tools can wait** (`2.28.0`). `tool_projection.new_tools: withhold` keeps a tool that appears after the pins were taken out of every listing until it is pinned.
+- **Pins have a history** (`2.28.0`, `2.29.0`). Each applied configuration appends `ToolPinRecorded` and `ToolPinRevoked` to the event log. `mcp-hangar why --tool NAME` and `GET /api/admin/tools/pins` read it back.
+- **A drifted tool disappears** (`2.30.0`). Under `block`, a tool that drifted from its pin is no longer only refused when called. It is withheld from `tools/list` and `hangar_tools`, so the rug pull's new description never reaches the model.
+- **Only what the pin covers is served** (`2.30.0`). Under `block`, a pinned tool is served with only `name`, `description`, `inputSchema` and `outputSchema`. Before, an upstream could keep the digest and still put instructions in `title` or `_meta`, or add `annotations` that can remove a client's confirmation. That is advisory [GHSA-cfcx-vrqr-qr84](https://github.com/mcp-hangar/mcp-hangar/security/advisories/GHSA-cfcx-vrqr-qr84).
+
+## Security fixes
+
+Eleven published advisories cover fixes in this range: nine in 2.19.0, 2.19.1 or 2.20.0, and two in 2.30.0. The summaries below are the advisories' own. The advisories have the details, and [/security](/security) lists every published one.
+
+| Advisory | Severity | Fixed in | Summary |
+| --- | --- | --- | --- |
+| [GHSA-48jg-9vqq-gmqv](https://github.com/mcp-hangar/mcp-hangar/security/advisories/GHSA-48jg-9vqq-gmqv) | high | 2.19.0 | Tenant-scoped role grants apply fleet-wide: cross-tenant event and history reads, and cross-tenant or global tool withdrawal |
+| [GHSA-fhwh-fmq2-7m5c](https://github.com/mcp-hangar/mcp-hangar/security/advisories/GHSA-fhwh-fmq2-7m5c) | medium | 2.19.1 | Session suspension is never enforced: a suspended session keeps invoking tools |
+| [GHSA-qwq2-7g49-jxc6](https://github.com/mcp-hangar/mcp-hangar/security/advisories/GHSA-qwq2-7g49-jxc6) | medium | 2.19.1 | Tool error text exported in trace status; baggage scrubber trusts a caller-forgeable prefix and is skipped on stdio |
+| [GHSA-9mfg-mfwg-7cvr](https://github.com/mcp-hangar/mcp-hangar/security/advisories/GHSA-9mfg-mfwg-7cvr) | high | 2.20.0 | Tool calls skip group- and tenant-scoped governance: member-direct calls bypass group policy, approval lists are not enforced, and a withdrawal during an approval hold is not re-checked |
+| [GHSA-j393-8j4v-v73r](https://github.com/mcp-hangar/mcp-hangar/security/advisories/GHSA-j393-8j4v-v73r) | high | 2.20.0 | Capability enforcement in block and quarantine modes does not stop a drifting server, so undeclared upstream tools still run |
+| [GHSA-pfrp-gjcw-mxq3](https://github.com/mcp-hangar/mcp-hangar/security/advisories/GHSA-pfrp-gjcw-mxq3) | medium | 2.20.0 | Truncated-result continuations are fetchable across tenants, and their ids are logged at INFO |
+| [GHSA-4wc3-66v8-968j](https://github.com/mcp-hangar/mcp-hangar/security/advisories/GHSA-4wc3-66v8-968j) | medium | 2.20.0 | Concurrent appends drop a tool call's events, audit records included, report a successful call as failed, and fail auth-store role and key revocations |
+| [GHSA-6fp8-g5qw-73g7](https://github.com/mcp-hangar/mcp-hangar/security/advisories/GHSA-6fp8-g5qw-73g7) | medium | 2.20.0 | A failed or repeated upstream start leaks the transport client and its child process or connection |
+| [GHSA-3vqv-89q2-8m26](https://github.com/mcp-hangar/mcp-hangar/security/advisories/GHSA-3vqv-89q2-8m26) | low | 2.20.0 | A silent stdio upstream that fails tools/list blocks the starting gateway thread indefinitely |
+| [GHSA-cfcx-vrqr-qr84](https://github.com/mcp-hangar/mcp-hangar/security/advisories/GHSA-cfcx-vrqr-qr84) | high | 2.30.0 | Tool digest pin does not cover title, annotations or _meta, so a rug-pull through those fields passes the pin |
+| [GHSA-qrgf-hc7g-w6v6](https://github.com/mcp-hangar/mcp-hangar/security/advisories/GHSA-qrgf-hc7g-w6v6) | high | 2.30.0 | Hot-loaded registry entries can request arbitrary host environment variables and secret files |
+
+Other security fixes in this range shipped in the open, without an advisory. The ones most likely to matter:
+
+- **`2.17.1`.** `POST /config/export` and `GET /config/diff` no longer return a server's `env` and resolved `${VAR}` references. Tool arguments are redacted before they reach the event store and `/ws/events`. A runtime withdrawal is now recorded in the event log and applied on every replica; before, it lived in the memory of the replica that served the request. A group member's own tool policy is now applied; before, a member `deny_list` failed open.
+- **`2.22.0`.** The dependency floors now name releases free of known vulnerabilities. OIDC signing keys are no longer fetched over plain HTTP, except from localhost.
+- **`2.24.0`.**
+  - The front door's flat `tools/call` now checks `tool:invoke`, as `hangar_call` does. Before, a `viewer` could call upstream tools through it.
+  - An L7 header rule no longer matches an `Mcp-Param-*` header that nothing checked against the call's body.
+  - Over stdio, the management tools are now authorized for the declared principal.
+- **`2.25.0`.**
+  - **A policy that cannot be read refuses the configuration.** An access policy with one invalid field, a block that is not a mapping, or an access list given as a string used to be dropped or misread, and that scope booted with no policy or the wrong one. A refused reload keeps the previous policy.
+  - **A missing configuration file stops the gateway.** It used to boot a built-in demo configuration with no pins, policies or auth.
+  - **Auth changes are recorded against the caller.** An auth mutation is recorded against the authenticated caller, not whoever the request body names.
+  - **A late approval of a cancelled call is refused.** It used to be recorded as a grant for a call that never ran.
+- **`2.27.4`.** A key an access policy does not read refuses the boot. `tools: {allow: [read], deny: [add]}`, the shape the README once showed, parsed as no policy at all.
+- **`2.29.0`.**
+  - Withdrawing a tool for every tenant at once needs the administrator's grant; a global `developer` could do it.
+  - `mcp-hangar add` no longer writes a secret it prompts for into `config.yaml`.
+  - `/api/config/diff` and `/api/config/backup` no longer take a `config_path`.
+  - A call that an enforced L7 policy refuses no longer cold-starts its server first, unless a pin check is still to run.
+- **`2.30.0`.** A server loaded with `hangar_load` gets only a fixed base environment plus the secrets and variables the operator lists for it, and counts as verified only under a namespace the operator trusts. That is advisory [GHSA-qrgf-hc7g-w6v6](https://github.com/mcp-hangar/mcp-hangar/security/advisories/GHSA-qrgf-hc7g-w6v6).
+- **`2.32.0`.** `aiohttp>=3.14.4` is the declared floor.
+
+## More than one replica
+
+Several gateways behind one load balancer used to disagree in ways a single gateway never showed.
+
+- **Who answered** (`2.20.0`). `hangar_status` and `hangar_health` say which replica answered.
+- **Approvals** (`2.21.2`, `2.27.4`). An approval resolves on any front-door replica. Each state change of an approval is a conditional update from `pending`, so a resolve, an expiry and a cancel on different replicas no longer overwrite each other. A lost resolve answers `409` with the winning state.
+- **L7 policies** (`2.22.1`, `2.23.0`). `mcp_hangar_l7_policy_held` shows which L7 policies each replica holds. An L7 policy pushed through the API survives a restart only with a persistence backend, and the push response says so in `persisted`. The chart's default has no backend.
+- **No stale overwrites** (`2.32.0`). A replica whose copy of a server was behind could write it over the shared configuration row, older L7 policy included. Every write now builds on the recorded row and is a compare-and-set on its version, and a create is insert-only.
+- **Updates reach every replica** (`2.32.0`). A server's update used to change only the replica that handled it. Every replica now applies it from the shared row without a restart. A changed endpoint or `tls` block replaces the replica's copy, and other fields are taken in place. A server the configuration file declares still changes when its replica reloads.
+
+## Traces and metrics
+
+`2.19.0` made the telemetry Hangar already claimed to send actually arrive:
+
+- With the OpenTelemetry SDK installed, OTLP audit records were being dropped. Hangar now registers a logger provider when an OTLP endpoint is configured.
+- Audit records now carry the caller and tenant.
+- The OTLP exporters honour the standard `OTEL_EXPORTER_OTLP_*` variables. A scheme-less endpoint such as `collector:4317` therefore now uses TLS.
+- Every tool call was counted twice in `mcp_hangar_tool_calls_total` and its siblings. Call-volume series halve after the upgrade.
+- Span, log and event text is length-bounded.
+
+`2.19.1` took error text out of traces and the security log, and Hangar stopped forwarding W3C baggage upstream.
+
+From `2.22.0` the work followed one data contract (ADR-029). Spans carry bounded codes and identifiers, never payloads or free text:
+
+- **Dispatch spans** (`2.22.0`). Every command and query dispatch opens `dispatch.<Operation>` with an outcome of `success`, `rejected` or `error`.
+- **Retries** (`2.22.0`). A retried call says which layer retried it, how often, and why.
+- **Cold starts** (`2.22.0`). The caller that starts a cold server is marked `leader`. Callers that wait for it get a `mcp_server.startup_wait` span linked to the start.
+- **Launch time** (`2.24.0`). A `mcp_server.launch` span times the spawn, container run or HTTP connect itself.
+- **Recovery** (`2.24.0`). Health checks, saga runs and timer-scheduled commands each get a bounded span.
+- **Payload handling** (`2.24.0`). Request and response mutation and batch truncation show up on the call's trace.
+- **L7 verdicts and routing** (`2.24.0`). L7 verdicts appear on `batch.call.<tool>` as `hangar.l7.*`. A group call names the member that served it in `hangar.route.backend`, and why it was chosen in `hangar.route.reason`.
+- **The upstream's key** (`2.32.0`). The upstream call span of a key-pinned server carries `hangar.upstream.peer_spki`.
+
+Two changes in `2.24.0` take things off spans:
+
+- The caller's user, agent and session ids are now off by default. Turn them on with `observability.tracing.caller_ids: true`.
+- On every span of a group call, `mcp.server.id` names the group.
+
+Metrics that read wrong now read right (`2.28.0`):
+
+- `mcp_hangar_health_checks_total` counts each check once; it rose by two.
+- `mcp_hangar_mcp_server_info` has one series per server.
+- `hangar_metrics` reports what the counters hold; several of its fields were always 0.
+- A server's `health_check_interval_s` is honoured; every server used to be checked every 60 seconds.
+
+The Langfuse adapter is removed (`2.25.0`); nothing called it after 2.22.0. Langfuse takes Hangar's spans over OTLP.
+
+Still open: the HTTP metrics of a remote server, `mcp_hangar_upstream_peer_key_connections_total` among them, are labelled with the server's host, not its id ([#1981](https://github.com/mcp-hangar/mcp-hangar/issues/1981)).
+
+## Operations
+
+**Dead means dead** (`2.20.0`). A server Hangar gives up on now reads `dead` on `mcp_hangar_mcp_server_state`; it used to read `cold`, the state of a server nobody has called. A crashed process now reads `dead` too, where it used to keep reading `ready`. From `2.21.0`, `hangar_status`, `hangar_details` and the REST server listings give the reason (`given_up`, `crashed`, `start_failed`, `capability_blocked`) and what starts the server again.
+
+**Groups recover by themselves.**
+
+- `2.20.0` fixed three ways a group got stuck:
+  - A passing health check now returns a member to rotation.
+  - The group circuit opens after the configured number of failures in a row, not over the life of the process.
+  - An open circuit closes once `min_healthy` members are back.
+- `2.20.0` also made the recovery saga's restarts actually run with default settings.
+- `2.21.0` judges a member by its own health, so a caller's bad arguments no longer take a healthy member out of rotation.
+- `2.23.0` adds a per-replica `group_recovery` worker that starts the members of a group with nothing left to select, with backoff.
+- `2.25.0` counts a refused connection as a failed health check. A stopped remote server used to stay `ready`, in rotation, for as long as the upstream was down.
+- `mcp_hangar_group_circuit_open` (`2.20.0`) shows each replica's breaker. Breakers are per replica, so two replicas can disagree.
+
+**Reloads.**
+
+- A reload now applies the whole configuration and keeps the topology mode (`2.20.0`). It used to reset to `egress` and apply only `mcp_servers`.
+- A reload that changes `tool_access.mode` is refused, with HTTP 409 (`2.20.0`).
+- A reload restarts only the servers whose settings changed, and puts policies, withdrawals and pins in force as one set (`2.21.0`).
+- Every CLI command reads the configuration file by one rule, and a gateway started on `./config.yaml` can be reloaded (`2.25.0`).
+- A `graceful` reload waits up to 30 seconds for the calls in flight to the servers it stops (`2.28.0`).
+
+**Limits and budgets.**
+
+- `execution.tenant_limits` gives each tenant its own concurrency and rate budget, counted per process (`2.21.0`).
+- `rate_limit.per_caller` gives each caller a share of the command-bus limit, and read-only tools are no longer limited (`2.21.0`).
+- An upstream response is bounded while it is read, at 32 MiB by default. A response over the limit fails the call with `ResponseTooLarge` (`2.24.0`).
+
+**Front door.**
+
+- `tools/list` waits for the boot warm-up instead of serving an empty catalogue (`2.18.2`).
+- `tool_access.required_catalogue` holds a replica out of readiness until named servers are projected (`2.21.0`).
+- `tools.listChanged` is advertised and sent over stdio (`2.23.0`), and over HTTP on a `GET /mcp` stream (`2.24.0`).
+- A failing `hangar_*` tool answers with `isError: true`, so a generic client no longer reads a refusal as a success (`2.29.1`).
+- `hangar_whoami` tells a caller who the gateway thinks it is (`2.31.0`).
+- Still open: `server/discover` returns no tools to an authenticated front-door caller ([#1695](https://github.com/mcp-hangar/mcp-hangar/issues/1695)).
+
+**Kubernetes and the API.**
+
+- Deleting a server the configuration declares is refused with `409` (`2.26.0`). It used to come back at the next reload.
+- `ssrf.trusted_networks` lists the private networks an endpoint registered over the API may resolve into, such as a cluster's Service range (`2.27.0`).
+- A built-in `kubernetes-operator` role holds what the operator calls (`2.28.0`), and `provider-admin` can now register and manage servers as its name says (`2.29.1`).
+- `serve --http` binds `127.0.0.1` by default (`2.28.0`).
+
+**Approvals over stdio** (`2.31.0`). `mcp-hangar approvals list|approve|deny` resolves a call held by a gateway that runs over stdio and serves no REST API. Until then, such a call could only time out.
+
+## Before you upgrade
+
+Most of these releases are drop-in, but some change what a query, an alert or a client sees. Most items below have a section in [UPGRADE.md](https://github.com/mcp-hangar/mcp-hangar/blob/v2.32.0/UPGRADE.md). The items marked "changelog" are described only in that release's changelog entry.
+
+- **`2.19.0`**
+  - A role bound at `tenant:<id>` no longer authorizes fleet-wide routes. Rebind at `global` scope where fleet-wide access was meant.
+  - Call-volume series halve (changelog).
+  - A scheme-less OTLP endpoint now uses TLS (changelog).
+- **`2.19.1`**
+  - Only `MCP_TRUSTED_PROXIES` decides the forwarded client address; `FORWARDED_ALLOW_IPS` is no longer read.
+  - `scrub_baggage_for_tenant` is removed.
+- **`2.20.0`**
+  - An alert on `mcp_hangar_mcp_server_state == 0` no longer catches a server Hangar gave up on.
+  - `tool_access.rules`, which nothing ever read, is refused under strict config.
+  - A group's `circuit_breaker.reset_timeout_s` is removed.
+  - `healthy_count` now counts `ready` members only.
+- **`2.21.0`**
+  - Tool error payloads name the failure in `error_type`, not `type`.
+  - Stop counts drop, because each stop is counted once.
+  - The Python facade's `invoke` now applies the configured controls and takes `principal=`.
+- **`2.22.0`**
+  - A refused call is no longer an error trace.
+  - The per-gate refusal log lines are debug; query `batch_call_refused`.
+  - A non-https `jwks_uri` refuses to start.
+  - `TracedMcpServerService` is removed.
+- **`2.22.1`.** Check whether your deployment keeps a pushed L7 policy across restarts.
+- **`2.24.0`**
+  - Audit and compliance feeds now include refused calls. A rule that counts every `tool_invocation` record as a call that ran should filter on status.
+  - A group call's audit record and spans name the group in `mcp.server.id`. The member is in `hangar.route.backend`.
+  - Caller ids are off spans by default.
+  - `batch_call_refused` has no `error` field.
+  - A front-door caller without `tool:invoke` is refused. Over stdio with auth on, the default declared role `viewer` cannot call tools; declare `developer` or `service-account`.
+  - L7 header rules are not consulted on `hangar_call`.
+  - A response over 32 MiB fails the call.
+- **`2.25.0`**
+  - An access policy that cannot be read refuses the configuration, where it used to boot with no policy. Run `mcp-hangar config check` first.
+  - A missing configuration file stops the gateway.
+  - An auth mutation that names its actor in the body (`created_by` and the like) is refused with 422.
+  - The Langfuse settings are gone, and a scrub setting refuses the boot. Send spans to Langfuse over OTLP.
+  - A pinned server's catalogue is re-listed every 60 seconds.
+  - A SIEM export the gateway cannot perform refuses startup.
+  - Approving a held call whose batch was cancelled answers 409.
+- **`2.26.0`.** Deleting a server the configuration declares answers 409 `declared_in_config`.
+- **`2.27.4`.** An access policy with a key nothing reads refuses the configuration.
+- **`2.27.5`.** The MCP SDK is 2.3.0, with its own defaults for request size and session expiry.
+- **`2.28.0`**
+  - Subprocess `args` are now passed to the server.
+  - `serve --http` binds `127.0.0.1` by default.
+  - `max_consecutive_failures` must be 1 to 100.
+  - `MCP_COMPLIANCE_OUTPUT` without `MCP_COMPLIANCE_FORMAT` refuses startup.
+  - Existing pins can be bound to their upstream with `pin --write`.
+- **`2.29.0`**
+  - `/api/config/diff` and `/api/config/backup` refuse `config_path`.
+  - Withdrawing a tool for every tenant needs the administrator's grant.
+  - `hangar_call(max_attempts=1)` disables the configured retries.
+- **`2.29.1`**
+  - A failing `hangar_*` tool returns `isError: true`.
+  - A misspelled `digest_enforcement` refuses the configuration.
+  - Governance extension identifiers use a slash: `io.mcp-hangar/validator`.
+- **`2.30.0`**
+  - `hangar_load` loads only what `hot_loading.trusted_namespaces` verifies, with only the secrets and environment the operator binds to it.
+  - Under `block`, a drifted tool disappears from listings, and a pinned tool is served without its title, annotations, icons and `_meta`.
+- **`2.31.0`.** `PolicyPushRejected` is removed.
+- **`2.32.0`**
+  - Declare a peer identity over REST only once every replica runs 2.32.0. An older replica does not serve such a server, and can still write a plain row under its name. A configuration file that declares a peer identity is served unchecked by an older release.
+  - Giving a server a peer identity changes its upstream identity, so record its digest pins again.
+  - Deleting a key-pinned server needs `mcp_servers:peer_identity`.
+  - A configuration write that lost a race between replicas is refused.
+  - Changing a server's endpoint over the API needs durable storage.
+
+None of these releases is a major version.
+
+## Get it
+
+```bash
+pip install --upgrade mcp-hangar==2.32.0   # or: ghcr.io/mcp-hangar/mcp-hangar:2.32.0
+```
+
+The Kubernetes operator that registers key-pinned servers is `0.17.32`. Everything here is MIT and self-hosted. Defects are tracked in the open; what is left of the 2.24.0 review is under [#1647](https://github.com/mcp-hangar/mcp-hangar/issues/1647).
