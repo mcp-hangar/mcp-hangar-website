@@ -1,0 +1,236 @@
+---
+title: "Stop a rescheduled pod from answering as your MCP server"
+description: "Pin an MCP server by its TLS key, watch a process with another key at the same address get refused, and declare the pin on Kubernetes."
+type: Tutorial
+level: Core
+time: "8 min"
+theme: enforcement
+since: "2.32.0"
+updated: 2026-10-20
+tags: [peer-identity, tls, spki, kubernetes, mcpserver, enforcement]
+---
+import Callout from '../../components/Callout.astro';
+
+## The problem
+
+Your gateway reaches an MCP server at an address. In a cluster, that address is a
+pod IP, and the next pod to be scheduled can inherit it. Whatever answers there
+gets the tool calls, with their arguments. A certificate from a CA does not
+help: the IP has no name for a CA to vouch for, and many workloads can hold a
+certificate the CA would sign.
+
+Pinning the server by its key settles who answers. This walkthrough shows the
+refusal on one machine first, then declares the same pin on Kubernetes. The
+concepts are in [Pin an MCP server by its key](/learn/pin-an-mcp-server-by-its-key).
+
+## 1. Two keys, one address
+
+Make two keys and self-signed certificates for `127.0.0.1`. One belongs to your
+server; the other plays the pod that inherits its address.
+
+```bash
+for k in served other; do
+  openssl req -x509 -newkey ec -pkeyopt ec_paramgen_curve:P-256 \
+    -pkeyopt ec_param_enc:named_curve -nodes \
+    -keyout $k.key -out $k.crt -days 2 -subj "/CN=payments" \
+    -addext "subjectAltName=IP:127.0.0.1"
+done
+```
+
+The pin is the SHA-256 of the certificate's `SubjectPublicKeyInfo`, written as
+`sha256:` and 64 lowercase hex characters:
+
+```bash
+echo "sha256:$(openssl x509 -in served.crt -pubkey -noout \
+  | openssl pkey -pubin -outform der | openssl dgst -sha256 -hex | awk '{print $NF}')"
+```
+
+<Callout variant="note">
+  **Use a named curve.** `ec_param_enc:named_curve` matters with the `openssl`
+  macOS ships, LibreSSL, which otherwise writes the curve's parameters into the
+  key. A pin computed over that encoding does not match what Hangar computes,
+  and the server is refused ([mcp-hangar#1982](https://github.com/mcp-hangar/mcp-hangar/issues/1982)).
+  PKIX forbids explicit parameters anyway (RFC 5480).
+</Callout>
+
+## 2. A server, and a gateway that knows its key
+
+Any MCP server over HTTPS will do. This one has a single `echo` tool, on the
+Python SDK:
+
+```python
+# server.py: python server.py served   (or: python server.py other)
+import sys
+import uvicorn
+from mcp.server.mcpserver import MCPServer
+
+mcp = MCPServer("payments")
+
+@mcp.tool()
+def echo(text: str) -> str:
+    """Echo the text back."""
+    return text
+
+uvicorn.run(mcp.streamable_http_app(), host="127.0.0.1", port=8443,
+            ssl_keyfile=f"{sys.argv[1]}.key", ssl_certfile=f"{sys.argv[1]}.crt")
+```
+
+Give the gateway the server and its key list. The event store is there so that
+`mcp-hangar why` can read the refusal later.
+
+```yaml
+# demo.yaml
+mcp_servers:
+  payments:
+    mode: remote
+    endpoint: https://127.0.0.1:8443/mcp
+    tls:
+      peer_identity:
+        key_ref: payments-tls
+        spki_sha256:
+          - sha256:06eeb57619607484302cf6ffa9ff03c37dd97cf0a5582b3712acd5a1a84e3901
+event_store:
+  driver: sqlite
+  path: ./events.db
+```
+
+```bash
+python server.py served &
+mcp-hangar --config demo.yaml serve --http --port 8099 &
+```
+
+Call `echo` through the gateway with `hangar_call`, from your client or any MCP
+client pointed at `http://127.0.0.1:8099/mcp`. It is allowed:
+
+```text
+"success": true   "text": "hello"
+```
+
+## 3. Another key at the same address. The same call is refused
+
+Stop the server and start the impostor on the same address and port:
+
+```bash
+kill %1 && python server.py other &
+```
+
+The same call, with nothing about it changed:
+
+```text
+"success": false
+"error": "upstream TLS key is not in the key list"
+"error_type": "UpstreamPeerKeyMismatchError"
+```
+
+The gateway refused inside the TLS handshake, before it wrote a byte of the
+request. The impostor never saw the call or its arguments.
+
+## 4. See which key answered
+
+Trimmed to fit:
+
+```text
+$ mcp-hangar --config demo.yaml why --db events.db
+│ Time (UTC)          │ Event    │ Server   │ Tool │ Gate         │ Reason                      │
+│ 2026-10-20 20:41:11 │ 9000edaf │ payments │ echo │ upstream_tls │ upstream_peer_key_mismatch  │
+  9000edaf  upstream presented sha256:05e1fe90...0cb87b  listed now sha256:06eeb576...4e3901
+```
+
+`why` names the key the peer presented next to the keys your configuration file
+lists now. The audit record carries the same key in every SIEM export, under each
+format's own field name: `observed_peer_spki` in JSON lines. The handshakes are counted by
+outcome:
+
+```text
+mcp_hangar_upstream_peer_key_connections_total{...,outcome="verified"} 2.0
+mcp_hangar_upstream_peer_key_connections_total{...,outcome="refused"} 2.0
+```
+
+The calls above ran against `mcp-hangar` 2.32.0 on one machine.
+
+## 5. The same pin on Kubernetes
+
+With the operator (0.17.32 or newer), the pin is part of the `MCPServer`:
+
+```yaml
+apiVersion: mcp-hangar.io/v1alpha2
+kind: MCPServer
+metadata:
+  name: payments
+spec:
+  mode: remote
+  endpoint: https://payments.payments.svc:8443/mcp
+  tls:
+    peerIdentity:
+      keyRef: payments-tls
+      spkiSha256:
+        - sha256:06eeb57619607484302cf6ffa9ff03c37dd97cf0a5582b3712acd5a1a84e3901
+    maxConnectionAge: 1h
+```
+
+The apiserver refuses a malformed pin, a missing `keyRef` and an `http` endpoint,
+with no webhook involved. For a `mode: container` server, the operator runs the
+pod and registers it at `https://<pod IP>:8080`. The pod gets no discovery
+annotations, so core never finds it as a plain server. The server must serve TLS
+on port 8080 with a listed key.
+
+The operator registers a key-pinned server only when these hold. Each failure
+shows as condition `Degraded` on the CR, with its own reason:
+
+- **Core advertises the capability.** Core 2.32.0 or newer lists `peer_identity`
+  in `GET /api/system/`; an older core would ignore the key list. Otherwise the
+  reason is `PeerIdentityNotCarried`.
+- **The key list travels over TLS.** `hangar.url` is `https://`. When a private CA
+  signed the core's certificate, point `hangar.tls.ca` at the Secret or ConfigMap
+  that holds it. Otherwise the reason is `PeerIdentityNotCarried`.
+- **No `issuance` is declared.** Core 2.32.0 does not record one yet. Otherwise
+  the reason is `PeerIdentityNotCarried`.
+- **The operator's key may declare it.** Its core API key holds the
+  `kubernetes-operator` role, which carries `mcp_servers:peer_identity`; a
+  `developer` key cannot set, change or delete a key-pinned server. Otherwise
+  core answers 403 and the reason is `RegistrationForbidden`.
+- **Core keeps durable storage.** A key-pinned server registered over the API
+  needs `persistence.backend`: `sqlite` for one gateway, `postgresql` for several
+  replicas. That is where its name and key are recorded, and how replicas learn of
+  a changed key list. Otherwise core refuses and the reason is `RegistrationFailed`.
+
+Core holds an endpoint set over the API to its SSRF policy, so list the private
+networks it may resolve into. A remote server addressed by a `.svc` name resolves
+to a ClusterIP in the Service range; a `mode: container` server is reached at its
+pod IP in the pod range. The ranges below are common defaults; use your cluster's:
+
+```yaml
+ssrf:
+  trusted_networks:
+    - "10.96.0.0/12"    # Services, for mode: remote
+    - "10.244.0.0/16"   # pods, for mode: container
+```
+
+Otherwise the reason is `EndpointNotTrusted`.
+
+## 6. Rotate the key
+
+Rotation is two edits of `spkiSha256`:
+
+1. Add the next key beside the current one. Roll out the workload with the new
+   key.
+2. Remove the old key.
+
+Each replica picks up an edit without a restart, when the change reaches it. It
+then replaces its copy of the server and closes the connections made under the
+old list. One edit cannot
+replace the whole list: a list that shares no key with the current one is
+refused, so a typo cannot cut every trusted key at once. A new `keyRef` starts a
+new lineage, and digest pins bound to the old one have to be recorded again.
+
+## What you just did
+
+You pinned a server by its key, then let something else take its address, and
+watched the gateway refuse it in the handshake. The call was the same both
+times, and so was the address. Only the key changed.
+
+The mechanism has no model in it. A key is on the list or it is not. That is also
+its limit: whoever writes the list decides which keys are trusted, and a listed
+key that is stolen is trusted until you remove it. The
+[concept page](/learn/pin-an-mcp-server-by-its-key) says what a key pin does not
+establish.
