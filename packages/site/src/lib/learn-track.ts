@@ -24,6 +24,7 @@ export const READING_ORDER = [
   "write-your-first-mcpegresspolicy",
   "the-l7-mcpegresspolicy-language",
   "digest-pinning",
+  "pin-an-mcp-server-by-its-key", // the upstream, where digest pinning fixes the contract
   "detect-and-block-mcp-tool-rug-pulls", // the need, in the words people search
   "control-mcp-server-egress-on-kubernetes",
   "require-human-approval-for-mcp-tool-calls",
@@ -122,6 +123,13 @@ export const DEEPER_READING: Record<string, DocsLink[]> = {
       href: "/docs/cookbook/14-upgrade-1.3-digest-pinning",
       label: "Cookbook: adopting digest pinning",
     },
+  ],
+  "pin-an-mcp-server-by-its-key": [
+    {
+      href: "/docs/guides/KUBERNETES",
+      label: "Kubernetes guide: the MCPServer tls block",
+    },
+    { href: "/docs/upgrade", label: "Upgrade notes for 2.32.0" },
   ],
   "detect-and-block-mcp-tool-rug-pulls": [
     {

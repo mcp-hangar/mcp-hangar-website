@@ -1,0 +1,163 @@
+---
+title: "Pin an MCP server by its key, not its address"
+description: "A key-pinned upstream is accepted only when the TLS peer presents one of the listed keys. A pod that inherits the address does not hold the key."
+type: Concept
+level: Core
+time: "7 min"
+theme: enforcement
+since: "2.32.0"
+updated: 2026-10-20
+tags: [concepts, enforcement, peer-identity, tls, spki, kubernetes, adr-030]
+---
+
+When Hangar relays a tool call, it relays it *to* something. An address in the
+configuration says where that something lives. In a cluster, that address is often
+a pod IP, and pod IPs are recycled: the pod is rescheduled, the CNI hands its
+address to the next pod that asks, and the old address now answers as someone
+else. A certificate does not settle it either. A CA-issued certificate says a name
+was vouched for, not that the process holding it is the one you meant, and a pod
+IP has no name to vouch for.
+
+[Digest pinning](/learn/digest-pinning) fixes the *tool contract* you approved. It
+says nothing about *who* is serving that contract. A key pin is the other half: it
+fixes the upstream itself.
+
+## The key is the identity
+
+A key-pinned server declares a **peer identity**: a list of keys the upstream may
+present, and a name for the lineage those keys belong to.
+
+```yaml
+mcp_servers:
+  payments:
+    mode: remote
+    endpoint: https://10.244.3.17:8443
+    tls:
+      peer_identity:
+        key_ref: payments-tls          # the key lineage; survives rotation
+        spki_sha256:
+          - sha256:9f2c...             # current key
+          - sha256:4b10...             # the next one, during a rotation
+      max_connection_age: 1h
+```
+
+Each entry is the SHA-256 of the key's DER-encoded `SubjectPublicKeyInfo`, written
+as `sha256:` and 64 lowercase hex characters. There is one canonical form, so an
+encoding difference can never surface as a mismatch.
+
+Hangar checks the key **inside the TLS handshake**, before the first request byte
+is written. A peer whose key is not on the list is refused, and the connection is
+closed. For such a server, the key replaces the certificate chain and the hostname
+as the identity: Hangar requires TLS 1.3, and does not ask a CA about the peer at
+all. The address in the endpoint says where to dial. It no longer says who answers.
+
+That is why a rescheduled pod is not a problem. A pod that inherits the old IP
+does not hold the key, so its handshake fails, and the call never leaves.
+
+## Fail closed, on every connection
+
+The check is not a probe at start-up. It runs on every connection the transport
+makes: the first call, a retry, a reconnect, a replaced pool, and the long-lived
+GET stream. A key that is removed from the list stops being
+trusted, and every replica learns of the change:
+
+- **Every replica applies a changed list.** The update is recorded with a
+  compare-and-set on the shared configuration row. Every replica's fleet
+  projection then replaces its copy of the server, the one that handled the
+  update included.
+- **No connection is reused past `max_connection_age`.** The pool is replaced on
+  that schedule, one hour by default, and the old one closes once its in-flight
+  requests finish. The GET stream is closed and reopened at once, against the
+  current list.
+- **A key-pinned server is never served unchecked.** If a replica cannot read the
+  row, it retires its copy and refuses calls until a later read succeeds. The
+  read is retried on each later fleet event.
+
+## Rotate without a gap
+
+The key list is a set, so rotation is two steps:
+
+1. Add the next key beside the current one, and roll it out.
+2. Once the upstream presents the new key, remove the old one.
+
+One update cannot replace the whole list under the same `key_ref`. A list that
+shares no key with the current one is refused, so a single write cannot cut every
+key a peer is trusted with at once. A new `key_ref` is a new lineage: its list
+need share nothing with the old one, and it changes the server's identity.
+
+## The identity digest pins bind to
+
+A key-pinned server's upstream identity is `peer-key:<key_ref>`, not
+`remote:https://host:port`. A [digest pin](/learn/digest-pinning) bound to that
+identity survives an endpoint change and a rotation within the lineage. A
+different `key_ref` behind the same address is a different upstream. Giving an
+existing server a peer identity changes its identity, so its pins are recorded
+again (`mcp-hangar pin --write`).
+
+## Who may declare one
+
+A key list decides which upstream a call may reach, so declaring one is its own
+permission: `mcp_servers:peer_identity`, held by `admin` and `kubernetes-operator`.
+It governs these actions:
+
+- setting a peer identity, or changing one;
+- changing a key-pinned server's endpoint;
+- deleting a key-pinned server;
+- forgetting the name of one that was deleted.
+
+`mcp_servers:write`, which a `developer` holds, is not enough. A discovery source
+never may declare one.
+
+The name keeps its key after deletion. A peer-key name record outlives the server,
+so a deleted key-pinned server cannot be registered again under its name as a plain
+one. Forgetting the name is a separate act, after the server is deleted, and it
+needs the same permission.
+
+A few things are refused outright:
+
+- a peer identity on a gateway without durable storage (`persistence.backend`
+  `sqlite` or `postgresql`);
+- removing a peer identity by an update;
+- a key-pinned server as a group member;
+- changing a server the configuration file declares over the API.
+
+The configuration file can declare key-pinned servers too: it is the
+operator-trusted source of the servers it declares, and it changes them when a
+replica reloads it.
+
+## The record says which key served the call
+
+A refused handshake is a refusal, not an outage: the call ends with
+`failure_code: upstream_peer_key_mismatch`, and the record carries
+`observed_peer_spki`, the key the peer actually presented. A served call carries
+`upstream_peer_spki`, the verified key of the connection that served it. The
+JSON-lines, CEF, LEEF, syslog and OTLP exporters carry them. `mcp-hangar why` shows a refused key next to the
+keys the configuration file lists now, and `mcp_hangar_upstream_peer_key_connections_total` counts
+handshakes by outcome.
+
+## What this does not establish
+
+A key pin proves that the connection ended at a key the operator listed. It does
+not prove anything about *how* that key came to be listed:
+
+- **Trust in the list rests on its writer.** Whoever holds
+  `mcp_servers:peer_identity`, or writes the configuration file, can list a key
+  they control. This is operator-declared trust, not independently administered
+  trust. With authentication disabled, any client of the API can set a key list.
+- **Hangar verifies no attestation.** The ADR names a declared source of keys,
+  `issuance: kbs-attested`: a key a Key Broker Service released only to an
+  attested guest. That is a declaration, not something Hangar checks, and core
+  2.32.0 does not accept it yet. The operator CRD takes the field, and refuses to
+  register a server that declares it until core records it.
+- **A key on the list is trusted until it leaves the list.** A stolen key is
+  trusted until the operator removes it, and then until each replica's tail
+  delivers the change. Nothing a key issuer does shortens that.
+
+The address tells Hangar where to dial. The key tells it who answered, and an
+answer from anyone else ends the call before it starts.
+
+---
+
+*Grounded in [ADR-030](/docs/adr/ADR-030-an-upstream-is-pinned-by-its-key-at-the-connection)
+(an upstream pinned by its key at the connection). Shipped in core `2.32.0`, and
+registered from Kubernetes by operator `0.17.32`. MIT and self-hosted, no SaaS.*
