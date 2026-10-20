@@ -3,10 +3,10 @@ title: "Stop a rescheduled pod from answering as your MCP server"
 description: "Pin an MCP server by its TLS key, watch a process with another key at the same address get refused, and declare the pin on Kubernetes."
 type: Tutorial
 level: Core
-time: "8 min"
+time: "15 min"
 theme: enforcement
 since: "2.32.0"
-updated: 2026-10-20
+updated: 2026-10-21
 tags: [peer-identity, tls, spki, kubernetes, mcpserver, enforcement]
 ---
 import Callout from '../../components/Callout.astro';
@@ -23,10 +23,23 @@ Pinning the server by its key settles who answers. This walkthrough shows the
 refusal on one machine first, then declares the same pin on Kubernetes. The
 concepts are in [Pin an MCP server by its key](/learn/pin-an-mcp-server-by-its-key).
 
+## Before you start
+
+One Python environment, with Hangar and the MCP SDK it brings along (2.x):
+
+```bash
+python -m venv .venv && . .venv/bin/activate
+pip install "mcp-hangar==2.32.0"
+```
+
+Run every command below in that environment. The steps were run against
+`mcp-hangar` 2.32.0, with the MCP SDK 2.3.0 it installs.
+
 ## 1. Two keys, one address
 
 Make two keys and self-signed certificates for `127.0.0.1`. One belongs to your
-server; the other plays the pod that inherits its address.
+server; the other plays the pod that inherits its address. Self-signed is fine:
+for a key-pinned server, Hangar consults no CA.
 
 ```bash
 for k in served other; do
@@ -37,8 +50,9 @@ for k in served other; do
 done
 ```
 
-The pin is the SHA-256 of the certificate's `SubjectPublicKeyInfo`, written as
-`sha256:` and 64 lowercase hex characters:
+The key list holds the SHA-256 of each certificate's `SubjectPublicKeyInfo`,
+written as `sha256:` and 64 lowercase hex characters. Print the one for
+`served.crt`:
 
 ```bash
 echo "sha256:$(openssl x509 -in served.crt -pubkey -noout \
@@ -48,7 +62,7 @@ echo "sha256:$(openssl x509 -in served.crt -pubkey -noout \
 <Callout variant="note">
   **Use a named curve.** `ec_param_enc:named_curve` matters with the `openssl`
   macOS ships, LibreSSL, which otherwise writes the curve's parameters into the
-  key. A pin computed over that encoding does not match what Hangar computes,
+  key. A hash computed over that encoding does not match what Hangar computes,
   and the server is refused ([mcp-hangar#1982](https://github.com/mcp-hangar/mcp-hangar/issues/1982)).
   PKIX forbids explicit parameters anyway (RFC 5480).
 </Callout>
@@ -56,7 +70,7 @@ echo "sha256:$(openssl x509 -in served.crt -pubkey -noout \
 ## 2. A server, and a gateway that knows its key
 
 Any MCP server over HTTPS will do. This one has a single `echo` tool, on the
-Python SDK:
+MCP SDK 2.x (on 1.x the class is `FastMCP`):
 
 ```python
 # server.py: python server.py served   (or: python server.py other)
@@ -75,8 +89,9 @@ uvicorn.run(mcp.streamable_http_app(), host="127.0.0.1", port=8443,
             ssl_keyfile=f"{sys.argv[1]}.key", ssl_certfile=f"{sys.argv[1]}.crt")
 ```
 
-Give the gateway the server and its key list. The event store is there so that
-`mcp-hangar why` can read the refusal later.
+Give the gateway the server and its key list. Put in the hash you printed for
+`served.crt`; yours will differ from any shown on this page. The event store is
+there so that `mcp-hangar why` can read the refusal later.
 
 ```yaml
 # demo.yaml
@@ -88,7 +103,7 @@ mcp_servers:
       peer_identity:
         key_ref: payments-tls
         spki_sha256:
-          - sha256:06eeb57619607484302cf6ffa9ff03c37dd97cf0a5582b3712acd5a1a84e3901
+          - sha256:<the hash you printed for served.crt>
 event_store:
   driver: sqlite
   path: ./events.db
@@ -99,8 +114,32 @@ python server.py served &
 mcp-hangar --config demo.yaml serve --http --port 8099 &
 ```
 
-Call `echo` through the gateway with `hangar_call`, from your client or any MCP
-client pointed at `http://127.0.0.1:8099/mcp`. It is allowed:
+Call `echo` through the gateway's `hangar_call` tool. Any MCP client pointed at
+`http://127.0.0.1:8099/mcp` will do; this one uses the SDK you already have:
+
+```python
+# call.py
+import asyncio
+from mcp.client.session import ClientSession
+from mcp.client.streamable_http import streamable_http_client
+
+async def main():
+    async with streamable_http_client("http://127.0.0.1:8099/mcp") as (read, write):
+        async with ClientSession(read, write) as session:
+            await session.initialize()
+            result = await session.call_tool("hangar_call", {"calls": [
+                {"mcp_server": "payments", "tool": "echo", "arguments": {"text": "hello"}},
+            ]})
+            print(result.content[0].text)
+
+asyncio.run(main())
+```
+
+```bash
+python call.py
+```
+
+It is allowed:
 
 ```text
 "success": true   "text": "hello"
@@ -108,13 +147,14 @@ client pointed at `http://127.0.0.1:8099/mcp`. It is allowed:
 
 ## 3. Another key at the same address. The same call is refused
 
-Stop the server and start the impostor on the same address and port:
+Stop the server, and start the impostor on the same address and port:
 
 ```bash
-kill %1 && python server.py other &
+kill %1
+python server.py other &
 ```
 
-The same call, with nothing about it changed:
+Run `python call.py` again. The same call, with nothing about it changed:
 
 ```text
 "success": false
@@ -123,11 +163,13 @@ The same call, with nothing about it changed:
 ```
 
 The gateway refused inside the TLS handshake, before it wrote a byte of the
-request. The impostor never saw the call or its arguments.
+request. The impostor received a TLS handshake and nothing else: never the call,
+never its arguments.
 
 ## 4. See which key answered
 
-Trimmed to fit:
+`mcp-hangar why` reads the refusal from the event store. Its output, trimmed to
+fit:
 
 ```text
 $ mcp-hangar --config demo.yaml why --db events.db
@@ -136,21 +178,25 @@ $ mcp-hangar --config demo.yaml why --db events.db
   9000edaf  upstream presented sha256:05e1fe90...0cb87b  listed now sha256:06eeb576...4e3901
 ```
 
-`why` names the key the peer presented next to the keys your configuration file
+It names the key the peer presented next to the keys your configuration file
 lists now. The audit record carries the same key in every SIEM export, under each
-format's own field name: `observed_peer_spki` in JSON lines. The handshakes are counted by
-outcome:
+format's own field name; in JSON lines it is `observed_peer_spki`.
+
+The gateway's metrics count the handshakes by outcome, one per connection, and a
+call can open more than one:
+
+```bash
+curl -s http://127.0.0.1:8099/metrics | grep upstream_peer_key
+```
 
 ```text
 mcp_hangar_upstream_peer_key_connections_total{...,outcome="verified"} 2.0
 mcp_hangar_upstream_peer_key_connections_total{...,outcome="refused"} 2.0
 ```
 
-The calls above ran against `mcp-hangar` 2.32.0 on one machine.
-
 ## 5. The same pin on Kubernetes
 
-With the operator (0.17.32 or newer), the pin is part of the `MCPServer`:
+With the operator (0.17.32 or newer), the key list is part of the `MCPServer`:
 
 ```yaml
 apiVersion: mcp-hangar.io/v1alpha2
@@ -164,40 +210,37 @@ spec:
     peerIdentity:
       keyRef: payments-tls
       spkiSha256:
-        - sha256:06eeb57619607484302cf6ffa9ff03c37dd97cf0a5582b3712acd5a1a84e3901
+        - sha256:<your server key's hash>
     maxConnectionAge: 1h
 ```
 
-The apiserver refuses a malformed pin, a missing `keyRef` and an `http` endpoint,
+The apiserver refuses a malformed hash, a missing `keyRef` and an `http` endpoint,
 with no webhook involved. For a `mode: container` server, the operator runs the
 pod and registers it at `https://<pod IP>:8080`. The pod gets no discovery
 annotations, so core never finds it as a plain server. The server must serve TLS
 on port 8080 with a listed key.
 
-The operator registers a key-pinned server only when these hold. Each failure
-shows as condition `Degraded` on the CR, with its own reason:
+The operator registers a key-pinned server only when these hold. A failure shows
+as condition `Degraded` on the CR, with this reason:
 
-- **Core advertises the capability.** Core 2.32.0 or newer lists `peer_identity`
-  in `GET /api/system/`; an older core would ignore the key list. Otherwise the
-  reason is `PeerIdentityNotCarried`.
-- **The key list travels over TLS.** `hangar.url` is `https://`. When a private CA
-  signed the core's certificate, point `hangar.tls.ca` at the Secret or ConfigMap
-  that holds it. Otherwise the reason is `PeerIdentityNotCarried`.
-- **No `issuance` is declared.** Core 2.32.0 does not record one yet. Otherwise
-  the reason is `PeerIdentityNotCarried`.
-- **The operator's key may declare it.** Its core API key holds the
-  `kubernetes-operator` role, which carries `mcp_servers:peer_identity`; a
-  `developer` key cannot set, change or delete a key-pinned server. Otherwise
-  core answers 403 and the reason is `RegistrationForbidden`.
-- **Core keeps durable storage.** A key-pinned server registered over the API
-  needs `persistence.backend`: `sqlite` for one gateway, `postgresql` for several
-  replicas. That is where its name and key are recorded, and how replicas learn of
-  a changed key list. Otherwise core refuses and the reason is `RegistrationFailed`.
+| Condition | If it does not hold |
+| --- | --- |
+| Core advertises the capability: core 2.32.0 or newer lists `peer_identity` in `GET /api/system/`. An older core would ignore the key list. | `PeerIdentityNotCarried` |
+| The key list travels over TLS: `hangar.url` is `https://`. When a private CA signed the core's certificate, point `hangar.tls.ca` at the Secret or ConfigMap that holds it. | `PeerIdentityNotCarried` |
+| No `issuance` is declared. Core 2.32.0 does not record one yet. | `PeerIdentityNotCarried` |
+| The operator's core API key holds the `kubernetes-operator` role, which carries `mcp_servers:peer_identity`. A `developer` key cannot set, change or delete a key-pinned server. | `RegistrationForbidden` (core answers 403) |
+| Core keeps durable storage: `persistence.backend` is `sqlite` for one gateway, `postgresql` for several replicas. That is where the name and key are recorded, and how replicas learn of a changed key list. | `RegistrationFailed` |
+| Core trusts the network the endpoint resolves into (below). | `EndpointNotTrusted` |
 
-Core holds an endpoint set over the API to its SSRF policy, so list the private
-networks it may resolve into. A remote server addressed by a `.svc` name resolves
-to a ClusterIP in the Service range; a `mode: container` server is reached at its
-pod IP in the pod range. The ranges below are common defaults; use your cluster's:
+An operator started without `--hangar-url` cannot register anything. It holds a
+key-pinned container CR with `Ready=False` and reason `PeerIdentityNotCarried`, and
+creates no pod.
+
+Core checks every endpoint registered over the API against its SSRF policy, so list
+the private networks it may resolve into. A remote server addressed by a `.svc`
+name resolves to a ClusterIP in the Service range; a `mode: container` server is
+reached at its pod IP in the pod range. The ranges below are common defaults; use
+your cluster's:
 
 ```yaml
 ssrf:
@@ -205,8 +248,6 @@ ssrf:
     - "10.96.0.0/12"    # Services, for mode: remote
     - "10.244.0.0/16"   # pods, for mode: container
 ```
-
-Otherwise the reason is `EndpointNotTrusted`.
 
 ## 6. Rotate the key
 
@@ -217,11 +258,11 @@ Rotation is two edits of `spkiSha256`:
 2. Remove the old key.
 
 Each replica picks up an edit without a restart, when the change reaches it. It
-then replaces its copy of the server and closes the connections made under the
-old list. One edit cannot
-replace the whole list: a list that shares no key with the current one is
-refused, so a typo cannot cut every trusted key at once. A new `keyRef` starts a
-new lineage, and digest pins bound to the old one have to be recorded again.
+then rebuilds its copy of the server and closes the connections made under the
+old list. One edit cannot replace the whole list: a list that shares no key with
+the current one is refused, so a typo cannot cut every trusted key at once. A new
+`keyRef` starts a new lineage, and digest pins bound to the old one have to be
+recorded again.
 
 ## What you just did
 
