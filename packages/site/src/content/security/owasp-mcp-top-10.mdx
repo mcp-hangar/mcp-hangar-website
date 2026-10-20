@@ -1,7 +1,7 @@
 ---
 title: "OWASP MCP Top 10 coverage"
 description: "Where MCP Hangar maps against the OWASP MCP Top 10 (2025) — what it enforces, which component does it, and the three categories that are out of scope by design."
-updated: 2026-08-09
+updated: 2026-10-20
 order: 2
 ---
 
@@ -38,7 +38,7 @@ one is the bug.
 | MCP06 | Intent Flow Subversion | Out of scope by design | — | — |
 | MCP07 | Insufficient Authentication & Authorization | Covered | The auth middleware binds the authenticated caller and tenant before any gate runs; every governed route passes one authz chokepoint; identity is propagated end to end and the path fails closed | [Authentication](/docs/guides/AUTHENTICATION) · [Front door](/docs/guides/FRONT_DOOR) |
 | MCP08 | Lack of Audit and Telemetry | Covered | Domain events and OTel spans at every governed step; each allowed call carries caller identity into its audit record; SIEM export in CEF, LEEF 2.0, RFC 5424 syslog and JSON-lines | [Compliance](/docs/operations/COMPLIANCE) · [Observability](/docs/guides/OBSERVABILITY) |
-| MCP09 | Shadow MCP Servers | Partial | Registry of `MCPServer` resources, admission validation, per-server egress policy, and — in namespaces labelled `mcp-hangar.io/enforce-egress=true` — a webhook that rejects a pod claiming to be a provider for a server that is not registered. It keys on the pod's own `mcp-hangar.io/provider` label, so it catches **misconfiguration, not concealment** | [ADR-013](/docs/adr/ADR-013-egress-policy-enforcement-model) · [Egress policy](/docs/guides/EGRESS_POLICY) |
+| MCP09 | Shadow MCP Servers | Partial | Registry of `MCPServer` resources, admission validation, per-server egress policy, and — in namespaces labelled `mcp-hangar.io/enforce-egress=true` — a webhook that rejects a pod claiming to be a provider for a server that is not registered. It keys on the pod's own `mcp-hangar.io/provider` label, so it catches **misconfiguration, not concealment**. A server pinned by its key (2.32.0) refuses a peer without a listed key, so such a peer cannot answer in its place | [Pin by key](/learn/pin-an-mcp-server-by-its-key) · [ADR-013](/docs/adr/ADR-013-egress-policy-enforcement-model) · [Egress policy](/docs/guides/EGRESS_POLICY) |
 | MCP10 | Context Injection & Over-Sharing | Out of scope by design | — | — |
 
 Gate letters (`a`–`i`) are the ordered enforcement gates a call meets; see
@@ -126,6 +126,14 @@ admission, but the policy has three settings and ships as `warn`: an unpinned
 image is admitted with a warning recorded. `block` has to be turned on at
 operator startup, and an annotation can waive it per server. So "images are
 digest-pinned" is available, not the default.
+
+**MCP09 — a key pin stops impersonation, not concealment.** Since core
+`2.32.0` a server can be [pinned by its key](/learn/pin-an-mcp-server-by-its-key):
+Hangar accepts the connection only when the TLS peer presents a listed key, so a
+pod that inherits a registered server's address, or answers in its place, is
+refused in the handshake. That closes the "answers as a registered server" half
+of the problem for the servers that declare a key. It does not find a server
+nobody registered, and a server without a key list is checked as before.
 
 Neither limit is a defect — an opt-in, fail-closed webhook that does not gate
 namespaces which never opted in is a deliberate blast-radius choice. They are

@@ -6,7 +6,7 @@ level: Core
 time: "5 min"
 theme: enforcement
 since: "1.6.0"
-updated: 2026-07-22
+updated: 2026-10-20
 tags: [concepts, enforcement, digest-pinning, supply-chain, sep-1766]
 ---
 
@@ -107,6 +107,13 @@ malicious one and never trigger re-approval. The root cause is a client that can
 tell when an approved definition has changed. Digest pinning is the mechanism that
 gives it that sense — and makes the change *fail the call* rather than silently
 take effect.
+
+A pin can also name the upstream it was taken from, and a pin bound to an upstream
+is a mismatch for any other, however identical the tool. For a server with a
+[peer identity](/learn/pin-an-mcp-server-by-its-key), that upstream is its key
+lineage, `peer-key:<key_ref>`, not its address: the pin survives an endpoint change
+and a key rotation, and a different key lineage (`key_ref`) behind the same address
+does not match it.
 
 It is also designed to compose with the rest of the enforcement plane. An [egress policy](/docs/guides/EGRESS_POLICY)
 can carry a per-tenant tool-schema pin reference (`match.toolSchemaDigestRef`), the
