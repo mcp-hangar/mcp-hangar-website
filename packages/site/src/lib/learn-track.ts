@@ -25,6 +25,7 @@ export const READING_ORDER = [
   "the-l7-mcpegresspolicy-language",
   "digest-pinning",
   "pin-an-mcp-server-by-its-key", // the upstream, where digest pinning fixes the contract
+  "stop-a-rescheduled-pod-from-answering-as-your-mcp-server", // the same, as the need
   "detect-and-block-mcp-tool-rug-pulls", // the need, in the words people search
   "control-mcp-server-egress-on-kubernetes",
   "require-human-approval-for-mcp-tool-calls",
@@ -130,6 +131,16 @@ export const DEEPER_READING: Record<string, DocsLink[]> = {
       label: "Kubernetes guide: the MCPServer tls block",
     },
     { href: "/docs/upgrade", label: "Upgrade notes for 2.32.0" },
+  ],
+  "stop-a-rescheduled-pod-from-answering-as-your-mcp-server": [
+    {
+      href: "/docs/guides/KUBERNETES",
+      label: "Kubernetes guide: the MCPServer tls block",
+    },
+    {
+      href: "/docs/reference/configuration",
+      label: "Configuration reference: ssrf.trusted_networks",
+    },
   ],
   "detect-and-block-mcp-tool-rug-pulls": [
     {
