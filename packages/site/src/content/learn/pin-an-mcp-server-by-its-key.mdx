@@ -25,13 +25,14 @@ fixes the upstream itself.
 ## The key is the identity
 
 A key-pinned server declares a **peer identity**: a list of keys the upstream may
-present, and a name for the lineage those keys belong to.
+present, and a `key_ref`, the name of their **lineage**. The name stays the same
+while the keys under it rotate.
 
 ```yaml
 mcp_servers:
   payments:
     mode: remote
-    endpoint: https://10.244.3.17:8443
+    endpoint: https://10.244.3.17:8443/mcp
     tls:
       peer_identity:
         key_ref: payments-tls          # the key lineage; survives rotation
@@ -42,8 +43,11 @@ mcp_servers:
 ```
 
 Each entry is the SHA-256 of the key's DER-encoded `SubjectPublicKeyInfo`, written
-as `sha256:` and 64 lowercase hex characters. There is one canonical form, so an
-encoding difference can never surface as a mismatch.
+as `sha256:` and 64 lowercase hex characters. There is one written form, so the way
+a hash is spelled can never cause a mismatch. Use keys on a named curve, or RSA:
+Hangar hashes the key in its standard encoding, and a key written with explicit
+curve parameters hashes differently
+([mcp-hangar#1982](https://github.com/mcp-hangar/mcp-hangar/issues/1982)).
 
 Hangar checks the key **inside the TLS handshake**, before the first request byte
 is written. A peer whose key is not on the list is refused, and the connection is
@@ -57,28 +61,30 @@ does not hold the key, so its handshake fails, and the call never leaves.
 ## Fail closed, on every connection
 
 The check is not a probe at start-up. It runs on every connection the transport
-makes: the first call, a retry, a reconnect, a replaced pool, and the long-lived
-GET stream. A key that is removed from the list stops being
-trusted, and every replica learns of the change:
+makes: the first call, a retry, a reconnect, a replaced pool, and the GET stream
+a streamable-HTTP client keeps open. A key that is removed from the list stops
+being trusted, on every replica:
 
 - **Every replica applies a changed list.** The update is recorded with a
-  compare-and-set on the shared configuration row. Every replica's fleet
-  projection then replaces its copy of the server, the one that handled the
-  update included.
+  compare-and-set on the shared configuration row. Each replica then rebuilds its
+  copy of the server from that row, the one that handled the update included,
+  and closes the connections made under the old list.
 - **No connection is reused past `max_connection_age`.** The pool is replaced on
   that schedule, one hour by default, and the old one closes once its in-flight
   requests finish. The GET stream is closed and reopened at once, against the
   current list.
 - **A key-pinned server is never served unchecked.** If a replica cannot read the
-  row, it retires its copy and refuses calls until a later read succeeds. The
-  read is retried on each later fleet event.
+  row, it takes its copy out of service and refuses calls until a later read
+  succeeds. The read is retried whenever the replica next hears of a change to
+  the fleet.
 
 ## Rotate without a gap
 
-The key list is a set, so rotation is two steps:
+The key list is a set, so rotation needs no gap:
 
-1. Add the next key beside the current one, and roll it out.
-2. Once the upstream presents the new key, remove the old one.
+1. Add the next key to the list, beside the current one.
+2. Move the upstream to the new key.
+3. Once it presents the new key, remove the old one from the list.
 
 One update cannot replace the whole list under the same `key_ref`. A list that
 shares no key with the current one is refused, so a single write cannot cut every
@@ -106,20 +112,21 @@ It governs these actions:
 - forgetting the name of one that was deleted.
 
 `mcp_servers:write`, which a `developer` holds, is not enough. A discovery source
-never may declare one.
+can never declare one.
 
-The name keeps its key after deletion. A peer-key name record outlives the server,
+Deleting the server does not free its name. A peer-key name record outlives the server,
 so a deleted key-pinned server cannot be registered again under its name as a plain
 one. Forgetting the name is a separate act, after the server is deleted, and it
 needs the same permission.
 
 A few things are refused outright:
 
-- a peer identity on a gateway without durable storage (`persistence.backend`
-  `sqlite` or `postgresql`);
+- a peer identity declared over the API on a gateway without durable storage
+  (`persistence.backend` `sqlite` or `postgresql`). The configuration file needs
+  none;
 - removing a peer identity by an update;
 - a key-pinned server as a group member;
-- changing a server the configuration file declares over the API.
+- changing, over the API, a server the configuration file declares.
 
 The configuration file can declare key-pinned servers too: it is the
 operator-trusted source of the servers it declares, and it changes them when a
@@ -127,13 +134,20 @@ replica reloads it.
 
 ## The record says which key served the call
 
-A refused handshake is a refusal, not an outage: the call ends with
-`failure_code: upstream_peer_key_mismatch`, and the record carries
-`observed_peer_spki`, the key the peer actually presented. A served call carries
-`upstream_peer_spki`, the verified key of the connection that served it. The
-JSON-lines, CEF, LEEF, syslog and OTLP exporters carry them. `mcp-hangar why` shows a refused key next to the
-keys the configuration file lists now, and `mcp_hangar_upstream_peer_key_connections_total` counts
-handshakes by outcome.
+A refused handshake ends the call with `failure_code: upstream_peer_key_mismatch`,
+and the record carries `observed_peer_spki`, the key the peer actually presented.
+A served call carries `upstream_peer_spki`, the verified key of the connection that
+served it. Every SIEM export carries them, each under its own field name.
+
+In the audit feed the two moments look different. A call refused on a warm
+connection is a failed invocation (`status: error`), and only its `failure_code`
+tells it from an upstream error. A call refused while the server was starting is
+a refusal (`status: denied`) with the reason `upstream_peer_key_mismatch`. Both
+carry `observed_peer_spki`.
+
+`mcp-hangar why` shows a refused key next to the keys the configuration file lists
+now; for a server registered over the API it has no list to show.
+`mcp_hangar_upstream_peer_key_connections_total` counts handshakes by outcome.
 
 ## What this does not establish
 
@@ -145,13 +159,13 @@ not prove anything about *how* that key came to be listed:
   they control. This is operator-declared trust, not independently administered
   trust. With authentication disabled, any client of the API can set a key list.
 - **Hangar verifies no attestation.** The ADR names a declared source of keys,
-  `issuance: kbs-attested`: a key a Key Broker Service released only to an
-  attested guest. That is a declaration, not something Hangar checks, and core
+  `issuance: kbs-attested`: a key that a Key Broker Service, a service that hands
+  out secrets only to workloads it has attested, released to the upstream. That is a declaration, not something Hangar checks, and core
   2.32.0 does not accept it yet. The operator CRD takes the field, and refuses to
   register a server that declares it until core records it.
 - **A key on the list is trusted until it leaves the list.** A stolen key is
-  trusted until the operator removes it, and then until each replica's tail
-  delivers the change. Nothing a key issuer does shortens that.
+  trusted until the operator removes it, and then until the change reaches each
+  replica. Nothing a key issuer does shortens that.
 
 The address tells Hangar where to dial. The key tells it who answered, and an
 answer from anyone else ends the call before it starts.

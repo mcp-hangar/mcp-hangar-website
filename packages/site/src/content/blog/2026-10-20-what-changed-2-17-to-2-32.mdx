@@ -6,9 +6,9 @@ description: "Twenty-nine releases, from 2.17.0 on 29 August to 2.32.0 on 20 Oct
 tags: [mcp, mcp-hangar, release, governance, observability, security]
 ---
 
-import Record from '../../components/Record.astro';
-
 The last release post here covered 2.9.0. This one covers the twenty-nine releases from 2.17.0 (29 August) to 2.32.0 (20 October). For 2.10 to 2.16, see the [changelog](https://github.com/mcp-hangar/mcp-hangar/blob/main/CHANGELOG.md).
+
+Upgrading? Start at [Before you upgrade](#before-you-upgrade).
 
 It is grouped by what changes for someone running MCP Hangar, not by version. Each item names the release it landed in. The [changelog](https://github.com/mcp-hangar/mcp-hangar/blob/v2.32.0/CHANGELOG.md) and the [upgrade notes](https://github.com/mcp-hangar/mcp-hangar/blob/v2.32.0/UPGRADE.md) at `v2.32.0` have the full text.
 
@@ -16,7 +16,7 @@ One thing first. After 2.24.0 shipped, its documentation was reviewed chapter by
 
 ## Upstreams pinned by their key
 
-The largest change in the range is new in `2.32.0` ([ADR-030](/docs/adr/ADR-030-an-upstream-is-pinned-by-its-key-at-the-connection)). A remote server can declare a **peer identity**: a list of TLS keys its upstream may present, under a `key_ref` that names the key lineage.
+The largest change in the range is new in `2.32.0` ([ADR-030](/docs/adr/ADR-030-an-upstream-is-pinned-by-its-key-at-the-connection)). A remote server can declare a **peer identity**: a list of TLS keys its upstream may present, under a `key_ref` that names their lineage. The name stays the same while the keys under it rotate.
 
 ```yaml
 mcp_servers:
@@ -31,15 +31,15 @@ mcp_servers:
 
 - **The key is the identity.** Every connection to such a server is checked inside the TLS 1.3 handshake, before a request byte is written. A peer whose key is not listed is refused with `upstream_peer_key_mismatch`. Neither a CA nor the hostname is consulted. A pod that inherits the server's IP does not hold the key, so it never sees a call.
 - **Every connection.** The check covers the first call, retries, reconnects and the long-lived GET stream. `tls.max_connection_age`, one hour by default, replaces the connection pool so that no connection is reused forever.
-- **Over the API and from Kubernetes.** `POST` and `PUT /api/mcp_servers` accept the `tls` block. Declaring or changing a peer identity needs a new permission, `mcp_servers:peer_identity`, which `admin` and `kubernetes-operator` hold and `developer` does not. Under OPA, the policy must allow action `peer_identity`. With authentication off, any client of the API can set one. Operator `0.17.32` registers an `MCPServer` with `spec.tls.peerIdentity`, remote or container. It does so only with a core that advertises the capability, and only over an `https` `hangar.url`.
-- **The name keeps its key.** A peer-key name record outlives the server, so a deleted key-pinned server cannot come back under its name as a plain one, unless a holder of `mcp_servers:peer_identity` forgets the name. Declaring a peer identity over the API needs durable storage.
-- **The record says which key answered.** Audit records carry the verified key of a served call and the key a refused peer presented, in every SIEM format. `mcp-hangar why` shows a refused key next to the listed ones, and `mcp_hangar_upstream_peer_key_connections_total` counts handshakes by outcome.
+- **Over the API and from Kubernetes.** `POST` and `PUT /api/mcp_servers` accept the `tls` block. Declaring or changing a peer identity needs a new permission, `mcp_servers:peer_identity`, which `admin` and `kubernetes-operator` hold and `developer` does not. Under OPA, the policy must allow action `peer_identity`. With authentication off, any client of the API can set one. Operator `0.17.32` registers an `MCPServer` with `spec.tls.peerIdentity`, remote or container. It does so only with a core that advertises the capability, and only over an `https` `hangar.url`. Declaring a peer identity over the API needs durable storage.
+- **The name keeps its key.** A peer-key name record outlives the server, so a deleted key-pinned server cannot come back under its name as a plain one, unless a holder of `mcp_servers:peer_identity` forgets the name.
+- **The record says which key answered.** Audit records carry the verified key of a served call and the key a refused peer presented, in every SIEM format. A call refused on a warm connection is a failed invocation (`status: error`) with `failure_code: upstream_peer_key_mismatch`; one refused while the server starts is a refusal (`status: denied`). `mcp-hangar why` shows a refused key next to the listed ones, and `mcp_hangar_upstream_peer_key_connections_total` counts handshakes by outcome.
 
 What it does not establish is in the ADR and on the [Learn page](/learn/pin-an-mcp-server-by-its-key). Whoever writes the key list decides which keys are trusted. Hangar verifies no attestation, and a declared `issuance: kbs-attested` is not accepted yet. The walkthrough, with a refusal captured on 2.32.0, is [Stop a rescheduled pod from answering as your MCP server](/learn/stop-a-rescheduled-pod-from-answering-as-your-mcp-server).
 
 ## Refusals leave a record
 
-Until 2.22, a refusal was hard to find. Each gate logged it under its own name and at its own level. A refused call returned before the upstream was invoked, so no `ToolInvocationCompleted` or `ToolInvocationFailed` event existed for it, and the audit trail showed successes and upstream failures but never a governance decision. Three releases changed that.
+Until 2.22.0, a refusal was hard to find. Each gate logged it under its own name and at its own level. A refused call returned before the upstream was invoked, so no `ToolInvocationCompleted` or `ToolInvocationFailed` event existed for it, and the audit trail showed successes and upstream failures but never a governance decision. Three releases changed that.
 
 - **One log line per refusal** (`2.22.0`). Every refused batch call logs one `batch_call_refused` warning, naming the gate and a bounded reason code. The per-gate lines it replaces, such as `tool_access_denied` and `tool_digest_pin_rejected`, are now debug. A gate that broke, rather than refused, logs `batch_call_failed`.
 - **What each gate decided** (`2.22.0`). Each of the executor's thirteen gates records a `hangar.gate.decision` event on the call's `batch.call.<tool>` span: `allow`, `deny`, `skip`, `deferred` or `error`, with a reason code where the gate has one. Before this, only three gates had a span, so a refused call's trace could not name the gate that refused it.
@@ -50,19 +50,6 @@ Until 2.22, a refusal was hard to find. Each gate logged it under its own name a
 - **`mcp-hangar why`** (`2.28.0`) prints the latest refusals from the event store: when, which server and tool, the gate and its reason, and for a digest mismatch both digests. It opens the store read-only, so it works while a gateway holds it.
 
 Here is a refusal as the JSON-lines exporter writes it. Core's own exporter at `v2.24.0` wrote this line from an example event; the time, caller and names are examples.
-
-<Record
-  label="A refused call, from core's JSON-lines audit export"
-  source="ToolInvocationDenied"
-  rows={[
-    {
-      time: "15:15:07",
-      verdict: "deny",
-      call: "github.delete_repository",
-      reason: "gate=tool_access reason=tool_not_in_access_policy",
-    },
-  ]}
-/>
 
 ```json
 {"timestamp": "2026-10-05T15:15:07.204000+00:00", "event_type": "ToolInvocationDenied", "provider_id": "github", "route_backend": "github", "tool_name": "delete_repository", "status": "denied", "duration_ms": 0.41, "user_id": "svc:ci", "session_id": "sess-4f1a", "tenant_id": "acme", "gate": "tool_access", "gate_reason": "tool_not_in_access_policy"}
@@ -76,7 +63,7 @@ Here is a refusal as the JSON-lines exporter writes it. Core's own exporter at `
 
 ## Pins that hold
 
-Digest pinning got a way in, then lost its limits one by one.
+Digest pinning got a CLI, then had its gaps closed one by one.
 
 - **`mcp-hangar pin`** (`2.18.0`) computes the digest Hangar enforces for each tool, with the same function the gate uses. `--write` merges them into `tool_projection.pins`. `--check` exits 1 when the file and the servers disagree, so it can run in CI. A digest covers the tool's description as well as its schemas, so a poisoned description with unchanged parameters counts as drift.
 - **`mcp-hangar init`** (`2.18.0`) now writes a configuration that enforces something: `tool_access.mode: front_door`, a stdio principal, and a pin for every tool its smoke test saw.
@@ -128,7 +115,6 @@ Other security fixes in this range shipped in the open, without an advisory. The
   - `/api/config/diff` and `/api/config/backup` no longer take a `config_path`.
   - A call that an enforced L7 policy refuses no longer cold-starts its server first, unless a pin check is still to run.
 - **`2.30.0`.** A server loaded with `hangar_load` gets only a fixed base environment plus the secrets and variables the operator lists for it, and counts as verified only under a namespace the operator trusts. That is advisory [GHSA-qrgf-hc7g-w6v6](https://github.com/mcp-hangar/mcp-hangar/security/advisories/GHSA-qrgf-hc7g-w6v6).
-- **`2.32.0`.** `aiohttp>=3.14.4` is the declared floor.
 
 ## More than one replica
 
@@ -146,8 +132,8 @@ Several gateways behind one load balancer used to disagree in ways a single gate
 
 - With the OpenTelemetry SDK installed, OTLP audit records were being dropped. Hangar now registers a logger provider when an OTLP endpoint is configured.
 - Audit records now carry the caller and tenant.
-- The OTLP exporters honour the standard `OTEL_EXPORTER_OTLP_*` variables. A scheme-less endpoint such as `collector:4317` therefore now uses TLS.
-- Every tool call was counted twice in `mcp_hangar_tool_calls_total` and its siblings. Call-volume series halve after the upgrade.
+- The OTLP exporters honour the standard `OTEL_EXPORTER_OTLP_*` variables.
+- Every tool call was counted twice in `mcp_hangar_tool_calls_total` and its siblings.
 - Span, log and event text is length-bounded.
 
 `2.19.1` took error text out of traces and the security log, and Hangar stopped forwarding W3C baggage upstream.
@@ -223,13 +209,12 @@ Still open: the HTTP metrics of a remote server, `mcp_hangar_upstream_peer_key_c
 - Deleting a server the configuration declares is refused with `409` (`2.26.0`). It used to come back at the next reload.
 - `ssrf.trusted_networks` lists the private networks an endpoint registered over the API may resolve into, such as a cluster's Service range (`2.27.0`).
 - A built-in `kubernetes-operator` role holds what the operator calls (`2.28.0`), and `provider-admin` can now register and manage servers as its name says (`2.29.1`).
-- `serve --http` binds `127.0.0.1` by default (`2.28.0`).
 
 **Approvals over stdio** (`2.31.0`). `mcp-hangar approvals list|approve|deny` resolves a call held by a gateway that runs over stdio and serves no REST API. Until then, such a call could only time out.
 
 ## Before you upgrade
 
-Most of these releases are drop-in, but some change what a query, an alert or a client sees. Most items below have a section in [UPGRADE.md](https://github.com/mcp-hangar/mcp-hangar/blob/v2.32.0/UPGRADE.md). The items marked "changelog" are described only in that release's changelog entry.
+None of these releases is a major version. Most are drop-in, but some change what a query, an alert or a client sees. Most items below have a section in [UPGRADE.md](https://github.com/mcp-hangar/mcp-hangar/blob/v2.32.0/UPGRADE.md). The items marked "changelog" are described only in that release's changelog entry.
 
 - **`2.19.0`**
   - A role bound at `tenant:<id>` no longer authorizes fleet-wide routes. Rebind at `global` scope where fleet-wide access was meant.
@@ -254,7 +239,7 @@ Most of these releases are drop-in, but some change what a query, an alert or a 
   - `TracedMcpServerService` is removed.
 - **`2.22.1`.** Check whether your deployment keeps a pushed L7 policy across restarts.
 - **`2.24.0`**
-  - Audit and compliance feeds now include refused calls. A rule that counts every `tool_invocation` record as a call that ran should filter on status.
+  - Audit and compliance feeds now include refused calls. A rule that counts every `tool_invocation` record as a call that ran should filter on status. From 2.32.0, a key refusal on a warm connection is recorded with `status: error` and `failure_code`, not as `denied`.
   - A group call's audit record and spans name the group in `mcp.server.id`. The member is in `hangar.route.backend`.
   - Caller ids are off spans by default.
   - `batch_call_refused` has no `error` field.
@@ -296,8 +281,6 @@ Most of these releases are drop-in, but some change what a query, an alert or a 
   - Deleting a key-pinned server needs `mcp_servers:peer_identity`.
   - A configuration write that lost a race between replicas is refused.
   - Changing a server's endpoint over the API needs durable storage.
-
-None of these releases is a major version.
 
 ## Get it
 
