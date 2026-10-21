@@ -163,7 +163,7 @@ Metrics that read wrong now read right (`2.28.0`):
 
 The Langfuse adapter is removed (`2.25.0`); nothing called it after 2.22.0. Langfuse takes Hangar's spans over OTLP.
 
-Still open: the HTTP metrics of a remote server, `mcp_hangar_upstream_peer_key_connections_total` among them, are labelled with the server's host, not its id ([#1981](https://github.com/mcp-hangar/mcp-hangar/issues/1981)).
+Fixed in `2.32.1`: the HTTP metrics of a remote server, `mcp_hangar_upstream_peer_key_connections_total` among them, are labelled with the server's id, not its endpoint's host ([#1981](https://github.com/mcp-hangar/mcp-hangar/issues/1981)). A dashboard that selected them by host selects nothing after the upgrade; select by the id.
 
 ## Operations
 
