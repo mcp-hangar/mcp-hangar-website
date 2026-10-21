@@ -6,7 +6,7 @@ level: Core
 time: "7 min"
 theme: enforcement
 since: "2.32.0"
-updated: 2026-10-20
+updated: 2026-10-21
 tags: [concepts, enforcement, peer-identity, tls, spki, kubernetes, adr-030]
 ---
 
@@ -44,9 +44,11 @@ mcp_servers:
 
 Each entry is the SHA-256 of the key's DER-encoded `SubjectPublicKeyInfo`, written
 as `sha256:` and 64 lowercase hex characters. There is one written form, so the way
-a hash is spelled can never cause a mismatch. Use keys on a named curve, or RSA:
-Hangar hashes the key in its standard encoding, and a key written with explicit
-curve parameters hashes differently
+a hash is spelled can never cause a mismatch. The hash is taken over the
+`SubjectPublicKeyInfo` exactly as the certificate encodes it, so the usual
+`openssl` pipeline gives the value Hangar compares. That holds for a key written
+with explicit curve parameters too, from `2.32.1`; `2.32.0` re-encoded the key
+first and refused one
 ([mcp-hangar#1982](https://github.com/mcp-hangar/mcp-hangar/issues/1982)).
 
 Hangar checks the key **inside the TLS handshake**, before the first request byte
