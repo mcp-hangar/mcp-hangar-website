@@ -60,11 +60,10 @@ echo "sha256:$(openssl x509 -in served.crt -pubkey -noout \
 ```
 
 <Callout variant="note">
-  **Use a named curve.** `ec_param_enc:named_curve` matters with the `openssl`
-  macOS ships, LibreSSL, which otherwise writes the curve's parameters into the
-  key. A hash computed over that encoding does not match what Hangar computes,
-  and the server is refused ([mcp-hangar#1982](https://github.com/mcp-hangar/mcp-hangar/issues/1982)).
-  PKIX forbids explicit parameters anyway (RFC 5480).
+  **Why `ec_param_enc:named_curve`.** Without it, the `openssl` macOS ships,
+  LibreSSL, writes the curve's parameters into the key. PKIX forbids that
+  (RFC 5480), so the flag stays. Hangar `2.32.1` and newer pin such a key all the
+  same; `2.32.0` refused it ([mcp-hangar#1982](https://github.com/mcp-hangar/mcp-hangar/issues/1982)).
 </Callout>
 
 ## 2. A server, and a gateway that knows its key
