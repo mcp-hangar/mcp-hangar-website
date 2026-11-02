@@ -12,7 +12,6 @@ coverage/
 
 # Internal notes and configs (not for public repo)
 .claude/
-AGENTS.md
 DEPLOYMENT.md
 DEPLOYMENT_SUMMARY.md
 MAINTENANCE_SUMMARY.md
