@@ -31,9 +31,18 @@ export const UNPUBLISHED_IDS = [
   "testing/approval-gate-manual-testing",
 ] as const;
 
-/** Files the loader never renders as pages, whatever their content. */
+/**
+ * Files the loader never renders as pages, whatever their content. `AGENTS`
+ * is the docs repo's brief for coding agents; it never had a page, so unlike
+ * the ids above it owes no redirect.
+ */
 function isRepoScaffolding(id: string): boolean {
-  return id === "index" || id === "README" || id.endsWith("/README");
+  return (
+    id === "index" ||
+    id === "README" ||
+    id === "AGENTS" ||
+    id.endsWith("/README")
+  );
 }
 
 export function isUnpublished(id: string): boolean {

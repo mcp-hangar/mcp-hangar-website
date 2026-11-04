@@ -42,6 +42,7 @@ describe("which docs pages the site publishes", () => {
     }
     expect(isPublished("adr/README")).toBe(false);
     expect(isPublished("index")).toBe(false);
+    expect(isPublished("AGENTS")).toBe(false);
   });
 
   // An unpublished page had a URL until now, and someone has it bookmarked.
