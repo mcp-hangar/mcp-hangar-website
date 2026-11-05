@@ -67,8 +67,8 @@ importers:
         specifier: ^5.3.0
         version: 5.3.0
       '@mcp-hangar/docs':
-        specifier: github:mcp-hangar/docs#294dc4dfd4736c2a3ffc153cc4a02b3e57510368
-        version: https://codeload.github.com/mcp-hangar/docs/tar.gz/294dc4dfd4736c2a3ffc153cc4a02b3e57510368
+        specifier: github:mcp-hangar/docs#c1be0adc476fa9d5344338549a58e4bf0811f867
+        version: https://codeload.github.com/mcp-hangar/docs/tar.gz/c1be0adc476fa9d5344338549a58e4bf0811f867
       '@shikijs/rehype':
         specifier: ^4.4.3
         version: 4.4.3
@@ -977,9 +977,9 @@ packages:
   '@keyv/serialize@1.1.1':
     resolution: {integrity: sha512-dXn3FZhPv0US+7dtJsIi2R+c7qWYiReoEh5zUntWCf4oSpMNib8FDhSoed6m3QyZdx5hK7iLFkYk3rNxwt8vTA==}
 
-  '@mcp-hangar/docs@https://codeload.github.com/mcp-hangar/docs/tar.gz/294dc4dfd4736c2a3ffc153cc4a02b3e57510368':
-    resolution: {gitHosted: true, integrity: sha512-NsBs61iEd4zMVUjIwt2ZCbbMEaxUM5+dmLfiy4Y/ksGe0/7CJr+YfcrGZE1KWs97zXNGxMVqU8jtzcYmg7138A==, tarball: https://codeload.github.com/mcp-hangar/docs/tar.gz/294dc4dfd4736c2a3ffc153cc4a02b3e57510368}
-    version: 1.2.68
+  '@mcp-hangar/docs@https://codeload.github.com/mcp-hangar/docs/tar.gz/c1be0adc476fa9d5344338549a58e4bf0811f867':
+    resolution: {gitHosted: true, integrity: sha512-92S+Si3S/tjF1gEuaoz5NUBhq3Jndkxbhp/8oqsx/aRPM+DRRZigGzJwtdMbmtXYZC8uv8Vj7SPBn4x5ZQWEcw==, tarball: https://codeload.github.com/mcp-hangar/docs/tar.gz/c1be0adc476fa9d5344338549a58e4bf0811f867}
+    version: 1.2.69
 
   '@mdx-js/mdx@3.1.1':
     resolution: {integrity: sha512-f6ZO2ifpwAQIpzGWaBQT2TXxPv6z3RBzQKpVftEWN78Vl/YweF1uwussDx8ECAXVtr3Rs89fKyG9YlzUs9DyGQ==}
@@ -4705,7 +4705,7 @@ snapshots:
 
   '@keyv/serialize@1.1.1': {}
 
-  '@mcp-hangar/docs@https://codeload.github.com/mcp-hangar/docs/tar.gz/294dc4dfd4736c2a3ffc153cc4a02b3e57510368': {}
+  '@mcp-hangar/docs@https://codeload.github.com/mcp-hangar/docs/tar.gz/c1be0adc476fa9d5344338549a58e4bf0811f867': {}
 
   '@mdx-js/mdx@3.1.1':
     dependencies:
