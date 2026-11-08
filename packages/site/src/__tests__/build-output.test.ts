@@ -225,6 +225,23 @@ describe("Build Output", () => {
     expect(html).toContain("MIT");
   });
 
+  it("should generate the comparison page with a commit for every project", () => {
+    const html = readDistFile("compare/index.html");
+    expect(html).toContain("Last verified");
+    for (const repo of [
+      "mcp-hangar/mcp-hangar",
+      "stacklok/toolhive",
+      "Kuadrant/mcp-gateway",
+      "docker/mcp-gateway",
+      "agentgateway/agentgateway",
+      "pipelab-org/pipelock",
+    ]) {
+      expect(html).toMatch(
+        new RegExp(`github\\.com/${repo}/(tree|blob)/[0-9a-f]{40}`)
+      );
+    }
+  });
+
   it("should generate blog index page", () => {
     const html = readDistFile("blog/index.html");
     expect(html).toContain("mcp-hangar");

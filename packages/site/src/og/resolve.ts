@@ -15,7 +15,7 @@ export const OG_FALLBACK = "/og-image.png";
 const SECTIONS = ["blog", "learn", "security", "docs"] as const;
 
 /** Single-segment pages that have a card but are not a section. */
-const STANDALONE = new Set(["/privacy", "/terms"]);
+const STANDALONE = new Set(["/privacy", "/terms", "/compare"]);
 
 export function ogPathFor(pagePath: string): string {
   const p = pagePath.replace(/\/+$/, "") || "/";
