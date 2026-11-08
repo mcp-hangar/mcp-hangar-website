@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "The website for MCP Hangar, the runtime security and governance layer between your agents and your MCP servers",
+  "description": "The website for MCP Hangar, the MCP gateway that pins every tool, holds risky calls for approval, and enforces egress policy",
   "repository": {
     "type": "git",
     "url": "https://github.com/mcp-hangar/mcp-hangar-website.git"

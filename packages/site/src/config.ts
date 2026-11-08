@@ -85,7 +85,7 @@ export const INSTALL_COMMANDS = {
  * carries "MCP" and the nav carries the full name.
  */
 const ROLE =
-  "the runtime security and governance layer between your agents and your MCP servers: identity, policy, approvals and an audit record for every call.";
+  "the MCP gateway that pins every tool, holds risky calls for approval, and enforces egress policy.";
 const RUNS_ON = "Runs on a laptop, a VM, or Kubernetes.";
 
 export const BRAND = "MCP Hangar";
@@ -100,4 +100,4 @@ export const HERO_SUB = `Hangar is ${ROLE} ${RUNS_ON}`;
 export const DESCRIPTION = `${BRAND} is ${ROLE} ${RUNS_ON}`;
 
 /** The category in a few words: <title>, the OG eyebrow, the footer. */
-export const CATEGORY = "Runtime security and governance for MCP";
+export const CATEGORY = "MCP gateway with tool pinning and approvals";
