@@ -36,11 +36,11 @@ describe("config", () => {
     }
   });
 
-  // Redesign decision D2, verbatim. A rewording is a positioning change and
+  // The maintainer's tagline decision (core #1783), verbatim. A rewording is a positioning change and
   // should fail here first.
   it("states the one self-description the maintainer chose", () => {
     expect(HERO_SUB).toBe(
-      "Hangar is the runtime security and governance layer between your agents and your MCP servers: identity, policy, approvals and an audit record for every call. Runs on a laptop, a VM, or Kubernetes."
+      "Hangar is the MCP gateway that pins every tool, holds risky calls for approval, and enforces egress policy. Runs on a laptop, a VM, or Kubernetes."
     );
     expect(DESCRIPTION).toBe(HERO_SUB.replace(/^Hangar/, BRAND));
     expect(BRAND).toBe("MCP Hangar");
@@ -53,7 +53,7 @@ describe("config", () => {
       readFileSync(new URL("../../../../package.json", import.meta.url), "utf8")
     );
     expect(pkg.description).toContain(
-      "the runtime security and governance layer between your agents and your MCP servers"
+      "the MCP gateway that pins every tool, holds risky calls for approval, and enforces egress policy"
     );
     expect(pkg.description).not.toMatch(/control plane/i);
   });
