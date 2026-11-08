@@ -81,6 +81,11 @@ export async function ogCards(): Promise<Card[]> {
       props: { kind: "docs", title: "Privacy policy" },
     },
     { slug: "terms", page: "/terms", props: { kind: "docs", title: "Terms" } },
+    {
+      slug: "compare",
+      page: "/compare",
+      props: { kind: "docs", title: "How Hangar compares" },
+    },
   ];
 
   for (const p of blog) {
