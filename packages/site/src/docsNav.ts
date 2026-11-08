@@ -103,6 +103,7 @@ const HIDDEN_IDS = new Set<string>([
 const EXPLICIT_ORDER: string[] = [
   // Getting Started
   "getting-started/quickstart",
+  "getting-started/kubernetes-quickstart",
   "getting-started/installation",
   "getting-started/releases",
   // Guides
@@ -147,6 +148,7 @@ const EXPLICIT_ORDER: string[] = [
 /** Short, curated sidebar labels. Falls back to `sidebar.label` then title. */
 const LABEL_OVERRIDES: Record<string, string> = {
   "getting-started/quickstart": "Quick Start",
+  "getting-started/kubernetes-quickstart": "Kubernetes Quick Start",
   "getting-started/installation": "Installation",
   "guides/HTTP_TRANSPORT": "HTTP Transport",
   "guides/AUTHENTICATION": "Authentication & RBAC",
