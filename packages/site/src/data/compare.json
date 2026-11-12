@@ -1731,9 +1731,15 @@
     {
       "product": "hangar",
       "row": "llm-gateway",
-      "value": "not-found",
-      "note": "No LLM provider routing, model budgets or per-key LLM rate limits found; no explicit non-goal statement found",
-      "evidence": []
+      "value": "by-design-no",
+      "note": "README non-goal: no model routing, provider failover or token budgets; none found in code at 0c70812",
+      "evidence": [
+        {
+          "url": "https://github.com/mcp-hangar/mcp-hangar/blob/740397fc7c51e5dff733fae5d27a3ace1bca19fc/README.md#L202-L206",
+          "kind": "docs",
+          "sha": "740397fc7c51e5dff733fae5d27a3ace1bca19fc"
+        }
+      ]
     },
     {
       "product": "hangar",
