@@ -2,7 +2,7 @@
 import Button from "../Button.astro";
 import CopyCommand from "../CopyCommand.astro";
 import Record from "../Record.astro";
-import { HEADLINE, HERO_SUB, INSTALL_COMMAND, VERSION_TAG } from "../../config";
+import { HEADLINE, HERO_SUB, INSTALL_COMMAND, LINKS, VERSION_TAG } from "../../config";
 import { HERO_RECORD } from "../../lib/home-records";
 
 /**
@@ -20,14 +20,15 @@ import { HERO_RECORD } from "../../lib/home-records";
 <section class="max-w-6xl mx-auto px-4 sm:px-6 pt-12 md:pt-20 pb-16 md:pb-24">
   <div class="grid gap-10 lg:grid-cols-[1.05fr_1fr] lg:gap-14 lg:items-center [&>*]:min-w-0">
     <div>
-      <p class="font-mono text-xs text-ink-3 mb-5">{VERSION_TAG} · open source · MIT</p>
+      <p class="font-mono text-xs text-ink-3 mb-5">Open-source MCP gateway · {VERSION_TAG} · MIT</p>
       <h1 class="text-display font-display text-ink mb-6">{HEADLINE}</h1>
       <p class="text-lead text-ink-2 max-w-[38rem] mb-4">{HERO_SUB}</p>
       <p class="text-sm text-ink-3 mb-8">Deterministic — no ML. Self-hosted — no SaaS. MIT.</p>
-      <div class="flex flex-wrap items-center gap-3">
-        <CopyCommand command={INSTALL_COMMAND} label="Copy pip install command to clipboard" />
-        <Button href="#how-a-call-is-decided" variant="secondary">Read a verdict</Button>
+      <div class="flex flex-wrap items-center gap-3 mb-4">
+        <Button href={LINKS.ossQuickstart} variant="primary">Start the quickstart</Button>
+        <Button href="#how-a-call-is-decided" variant="secondary">See how it works</Button>
       </div>
+      <CopyCommand command={INSTALL_COMMAND} label="Copy pip install command to clipboard" />
     </div>
 
     <Record rows={HERO_RECORD} label="Four calls and their verdicts" source="audit record">
