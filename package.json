@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "The website for MCP Hangar, the MCP gateway that pins every tool, holds risky calls for approval, and enforces egress policy",
+  "description": "The website for MCP Hangar, a policy enforcement plane for MCP: it pins every tool, holds risky calls for approval, and enforces egress policy",
   "repository": {
     "type": "git",
     "url": "https://github.com/mcp-hangar/mcp-hangar-website.git"

@@ -36,15 +36,16 @@ describe("config", () => {
     }
   });
 
-  // The maintainer's tagline decision (core #1783), verbatim. A rewording is a positioning change and
-  // should fail here first.
+  // The maintainer's self-description, verbatim: core #1783, reworded from "the MCP gateway" to
+  // "a policy enforcement plane for MCP" with /compare (website #402). A rewording is a positioning
+  // change and should fail here first.
   it("states the one self-description the maintainer chose", () => {
     expect(HERO_SUB).toBe(
-      "Hangar is the MCP gateway that pins every tool, holds risky calls for approval, and enforces egress policy. Runs on a laptop, a VM, or Kubernetes."
+      "Hangar is a policy enforcement plane for MCP: it pins every tool, holds risky calls for approval, and enforces egress policy. Runs on a laptop, a VM, or Kubernetes."
     );
     expect(DESCRIPTION).toBe(HERO_SUB.replace(/^Hangar/, BRAND));
     expect(BRAND).toBe("MCP Hangar");
-    expect(CATEGORY).not.toMatch(/kubernetes|control plane/i);
+    expect(CATEGORY).not.toMatch(/kubernetes|control plane|gateway/i);
   });
 
   // The root package.json cannot import config.ts, so this keeps it honest.
@@ -53,7 +54,7 @@ describe("config", () => {
       readFileSync(new URL("../../../../package.json", import.meta.url), "utf8")
     );
     expect(pkg.description).toContain(
-      "the MCP gateway that pins every tool, holds risky calls for approval, and enforces egress policy"
+      "a policy enforcement plane for MCP: it pins every tool, holds risky calls for approval, and enforces egress policy"
     );
     expect(pkg.description).not.toMatch(/control plane/i);
   });
