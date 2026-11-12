@@ -14,21 +14,21 @@ const learnCount = (await getCollection("learn")).filter((e) => !e.data.draft).l
 const doors = [
   {
     href: "/docs",
-    label: "Docs",
+    label: "Build with Hangar",
     meta: `${recipeCount} recipes`,
-    text: "Configuration, CLI, REST API and MCP tool reference, plus production recipes.",
+    text: "Find configuration, API and CLI references, plus recipes for running Hangar.",
   },
   {
     href: "/learn",
-    label: "Learn",
+    label: "Understand the architecture",
     meta: `${learnCount} pages`,
-    text: "What an enforcement plane is, how a request travels it, and where it stops.",
+    text: "Follow a request through the enforcement plane and understand where it can stop.",
   },
   {
     href: "/security",
-    label: "Security",
+    label: "Evaluate security",
     meta: "advisories · OWASP",
-    text: "The published advisories, the CVE ledger, and the OWASP MCP Top 10 mapped to what Hangar does and does not cover.",
+    text: "Review advisories, the CVE ledger and the OWASP MCP Top 10 coverage.",
   },
 ];
 ---
@@ -38,7 +38,7 @@ const doors = [
     <div class="grid gap-10 lg:grid-cols-[1fr_1.4fr] lg:gap-14 [&>*]:min-w-0">
       <div>
         <p class="font-mono text-xs text-ink-3 mb-3">03 · start</p>
-        <h2 class="text-h2 text-ink mb-4">Install it, understand it, or look it up</h2>
+        <h2 class="text-h2 text-ink mb-4">Start with the path that fits</h2>
         <p class="text-lead text-ink-2 mb-6">
           Install the Python core, put a policy in front of one MCP server, and watch a call get denied on
           purpose.
