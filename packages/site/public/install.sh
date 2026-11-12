@@ -924,7 +924,7 @@ print_banner() {
                 |_| |_____|                 |___/
 EOF
     echo -e "${NC}"
-    echo -e "${BOLD}MCP gateway with tool pinning and approvals${NC}"
+    echo -e "${BOLD}Policy enforcement plane for MCP${NC}"
     echo -e "${DIM}Installer v${INSTALLER_VERSION}${NC}"
     echo ""
 }
