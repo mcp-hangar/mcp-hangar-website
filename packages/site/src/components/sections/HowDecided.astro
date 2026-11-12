@@ -12,7 +12,7 @@ import { TOOL_ACCESS_SNIPPET } from "../../lib/home-snippets";
  * every gate the batch executor runs at the advertised version -- including
  * the ones the old a-to-i strip left out: the tenant budget, the timeout, the
  * routing. The stages after it are labelled apart because core says they are
- * not gates. The section ends with what one small config produces.
+ * not gates. The section starts with what one small config produces.
  */
 const n = GATES.length;
 ---
@@ -28,8 +28,24 @@ const n = GATES.length;
       </p>
     </header>
 
-    <div class="grid gap-10 lg:grid-cols-[1.15fr_1fr] lg:gap-14 [&>*]:min-w-0">
-      <div>
+    <div class="grid gap-6 lg:grid-cols-2 [&>*]:min-w-0">
+        <div>
+          <p class="font-mono text-xs text-ink-3 mb-3">this config</p>
+          <PolicySnippet filename="config.yaml" code={TOOL_ACCESS_SNIPPET} />
+        </div>
+        <div>
+          <p class="font-mono text-xs text-ink-3 mb-3">produces this record</p>
+          <Record rows={PATH_RECORD} label="What the config decides, call by call">
+            Reads pass, the write waits for a person, anything else is never exposed, and a tenant over its
+            rate is refused before anyone is asked.
+          </Record>
+        </div>
+    </div>
+
+    <details class="mt-10 max-w-5xl border-t border-rule">
+      <summary class="py-4 text-ink font-semibold cursor-pointer hover:text-ink-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink">
+        Explore all {n} gates in order
+      </summary>
         <ol class="gate-list" aria-label={`The ${n} gates, in order`}>
           {GATES.map((g, i) => (
             <li class:list={["gate", g.kind]}>
@@ -66,22 +82,7 @@ const n = GATES.length;
             class="text-ink-2 underline underline-offset-4 decoration-rule-strong hover:decoration-ink">the request path</a
           >.
         </p>
-      </div>
-
-      <div class="lg:sticky lg:top-24 self-start space-y-6">
-        <div>
-          <p class="font-mono text-xs text-ink-3 mb-3">this config</p>
-          <PolicySnippet filename="config.yaml" code={TOOL_ACCESS_SNIPPET} />
-        </div>
-        <div>
-          <p class="font-mono text-xs text-ink-3 mb-3">produces this record</p>
-          <Record rows={PATH_RECORD} label="What the config above decides, call by call">
-            Reads pass, the write waits for a person, anything else is never exposed, and a tenant over its
-            rate is refused before anyone is asked.
-          </Record>
-        </div>
-      </div>
-    </div>
+    </details>
   </div>
 </section>
 
