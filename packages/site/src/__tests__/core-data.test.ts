@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import core from "../data/core.json";
 import { GATES, STAGE_NAMES } from "../lib/gate-path";
-import { HERO_RECORD, PATH_RECORD } from "../lib/home-records";
+import { PATH_RECORD } from "../lib/home-records";
 import { VERSION_TAG } from "../config";
 
 /**
@@ -53,7 +53,7 @@ describe("the records on the home page", () => {
     Object.fromEntries(
       [...reason.matchAll(/(\w+)=(\S+)/g)].map((m) => [m[1], m[2]])
     );
-  const rows = [...HERO_RECORD, ...PATH_RECORD];
+  const rows = PATH_RECORD;
 
   it.each(rows.map((r) => [r.call, r.verdict, r.reason ?? ""]))(
     "%s %s: %s uses core's vocabulary",
@@ -70,8 +70,8 @@ describe("the records on the home page", () => {
     }
   );
 
-  it("shows all three verdicts in the hero", () => {
-    expect(new Set(HERO_RECORD.map((r) => r.verdict))).toEqual(
+  it("shows all three verdicts in the path record", () => {
+    expect(new Set(PATH_RECORD.map((r) => r.verdict))).toEqual(
       new Set(["allow", "hold", "deny"])
     );
   });

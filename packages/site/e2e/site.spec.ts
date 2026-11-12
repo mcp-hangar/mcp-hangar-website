@@ -19,11 +19,10 @@ test("every install command copies the complete code", async ({
 }) => {
   await context.grantPermissions(["clipboard-read", "clipboard-write"]);
   await page.goto("/");
-  // The hero and the start section each carry one.
   const buttons = page.getByRole("button", {
     name: "Copy pip install command to clipboard",
   });
-  await expect(buttons).toHaveCount(2);
+  await expect(buttons).toHaveCount(1);
   for (const button of await buttons.all()) {
     await page.evaluate(() => navigator.clipboard.writeText(""));
     const code = await button.locator(".start-copy-text").innerText();
