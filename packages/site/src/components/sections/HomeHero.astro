@@ -24,15 +24,25 @@ import { HERO_RECORD } from "../../lib/home-records";
       <h1 class="text-display font-display text-ink mb-6">{HEADLINE}</h1>
       <p class="text-lead text-ink-2 max-w-[38rem] mb-4">{HERO_SUB}</p>
       <p class="text-sm text-ink-3 mb-8">Deterministic — no ML. Self-hosted — no SaaS. MIT.</p>
-      <div class="flex flex-wrap items-center gap-3 mb-4">
-        <Button href="#how-a-call-is-decided" variant="primary">See how it works</Button>
+      <div class="flex flex-wrap items-center gap-3">
+        <CopyCommand command={INSTALL_COMMAND} label="Copy pip install command to clipboard" />
+        <Button href="#how-a-call-is-decided" variant="secondary">Read a verdict</Button>
       </div>
-      <CopyCommand command={INSTALL_COMMAND} label="Copy pip install command to clipboard" />
     </div>
 
-    <Record rows={HERO_RECORD} label="Four calls and their verdicts" source="audit record">
-      Allowed, held for a person, refused by the tool policy, refused by the egress policy: each with the
-      gate and the code that decided it.
-    </Record>
+    <div>
+      <p class="font-mono text-xs text-ink-3 mb-3">Where Hangar sits</p>
+      <ol aria-label="A tool call's path" class="flex flex-wrap items-center gap-x-2 gap-y-2 mb-6 text-sm">
+        <li class="border border-rule rounded-sm px-3 py-2 text-ink-2">MCP client</li>
+        <li aria-hidden="true" class="text-ink-3">&rarr;</li>
+        <li class="border border-rule-strong bg-panel rounded-sm px-3 py-2 font-semibold text-ink">MCP Hangar</li>
+        <li aria-hidden="true" class="text-ink-3">&rarr;</li>
+        <li class="border border-rule rounded-sm px-3 py-2 text-ink-2">MCP server</li>
+      </ol>
+      <Record rows={HERO_RECORD} label="Four calls and their verdicts" source="audit record">
+        Allowed, held for a person, refused by the tool policy, refused by the egress policy: each with the
+        gate and the code that decided it.
+      </Record>
+    </div>
   </div>
 </section>
