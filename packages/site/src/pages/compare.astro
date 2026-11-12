@@ -85,7 +85,7 @@ const jsonLd = JSON.stringify({
             <ul class="list-disc pl-6 space-y-2 text-ink-2">
                 <li>Each repository was cloned at its default branch and every cell was read at that commit. The commit is listed under the table.</li>
                 <li>Code first: a search, then the whole file, then the path from a request handler or config to the mechanism. Docs are secondary evidence, and required for any feature a vendor sells separately.</li>
-                <li>A mechanism without a path to it from a request is <span class="font-mono text-sm">partial</span>, and the note says what is missing.</li>
+                <li>A mechanism without a path to it from a request is <span class="font-mono text-sm">partial</span>, and the note says what is missing. A row that names two things is <span class="font-mono text-sm">yes</span> only when both are there.</li>
                 <li>
                     <span class="font-mono text-sm">no</span> means the project says so, and links where.
                     <span class="font-mono text-sm">no evidence at &lt;sha&gt;</span> means the code at that commit was searched and nothing was found.
@@ -108,7 +108,7 @@ const jsonLd = JSON.stringify({
             <ul class="flex flex-wrap gap-x-5 gap-y-2 text-sm text-ink-2">
                 <li><span class="font-mono text-xs px-1.5 py-px rounded-sm bg-allow-tint text-allow">yes</span> in the open-source code</li>
                 <li><span class="font-mono text-xs px-1.5 py-px rounded-sm bg-subtle text-ink-2">partial</span> some of it, or no path to it</li>
-                <li><span class="font-mono text-xs px-1.5 py-px rounded-sm bg-subtle text-ink-2">enterprise</span> paid edition, per the vendor</li>
+                <li><span class="font-mono text-xs px-1.5 py-px rounded-sm bg-subtle text-ink-2">enterprise</span> enterprise edition, per the vendor</li>
                 <li><span class="font-mono text-xs px-1.5 py-px rounded-sm bg-deny-tint text-deny">no</span> stated by the project</li>
                 <li><span class="font-mono text-xs px-1.5 py-px rounded-sm bg-subtle text-ink-2">no evidence at &lt;sha&gt;</span> searched, not found</li>
                 <li><span class="font-mono text-xs px-1.5 py-px rounded-sm bg-subtle text-ink-2">no, by design</span> a stated non-goal</li>

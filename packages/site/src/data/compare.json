@@ -61,6 +61,11 @@
           "repo": "mcp-hangar/mcp-hangar-operator",
           "sha": "71afc22b1dacef76b03d5ed47bb45be5ac8216dc",
           "version": "operator 0.17.39"
+        },
+        {
+          "repo": "mcp-hangar/helm-charts",
+          "sha": "8a0ffe7792c886c12f53db869cc734b22bf060af",
+          "version": "charts 0.15.60 / 0.12.55"
         }
       ]
     }
@@ -69,7 +74,7 @@
     {
       "product": "bifrost",
       "row": "license",
-      "value": "partial",
+      "value": "enterprise",
       "note": "Apache-2.0; guardrails, SSO/SCIM, RBAC, signed audit logs, clustering, token exchange, Edge are enterprise",
       "evidence": [
         {
@@ -303,8 +308,8 @@
     {
       "product": "bifrost",
       "row": "runtime-catalog",
-      "value": "yes",
-      "note": "MCP library catalog with browse/install UI and API; launches stdio servers as subprocesses, no container sandbox",
+      "value": "partial",
+      "note": "Catalog: MCP library with browse/install UI; runtime: stdio servers as host subprocesses, no sandbox",
       "evidence": [
         {
           "url": "https://github.com/maximhq/bifrost/blob/21e226373d94382a2d6740770828470d25fb0d91/transports/bifrost-http/handlers/mcp.go#L109-L112",
@@ -539,8 +544,8 @@
     {
       "product": "contextforge",
       "row": "runtime-catalog",
-      "value": "yes",
-      "note": "Catalog of MCP servers with one-click register in admin UI and API; no sandboxed server runtime found",
+      "value": "partial",
+      "note": "Catalog: entries registered from the admin UI and API; no container or sandbox runtime found",
       "evidence": [
         {
           "url": "https://github.com/IBM/mcp-context-forge/blob/1f8b9bf0a265649d72b76205f50c9aa1a3d65a34/mcpgateway/routers/catalog.py#L84-L88",
@@ -559,7 +564,7 @@
     {
       "product": "obot",
       "row": "license",
-      "value": "partial",
+      "value": "enterprise",
       "note": "MIT; Entra/Okta/OneLogin/JumpCloud/Keycloak/Auth0 SSO need a license key (free registration); >100 users/devices paid",
       "evidence": [
         {
@@ -799,7 +804,7 @@
       "product": "obot",
       "row": "runtime-catalog",
       "value": "yes",
-      "note": "Runs MCP servers in Docker containers or Kubernetes pods (npx, uvx, containerized); catalog/registry UI and API",
+      "note": "Runtime: Docker containers or K8s pods; catalog with browse UI and API",
       "evidence": [
         {
           "url": "https://github.com/obot-platform/obot/blob/d8e5db5c87dc6f1471349a224d9f3e41bf2b3bb1/pkg/mcp/manager.go#L149-L199",
@@ -808,14 +813,18 @@
         {
           "url": "https://github.com/obot-platform/obot/blob/d8e5db5c87dc6f1471349a224d9f3e41bf2b3bb1/pkg/api/router/router.go#L163-L169",
           "kind": "code"
+        },
+        {
+          "url": "https://github.com/obot-platform/obot/blob/d8e5db5c87dc6f1471349a224d9f3e41bf2b3bb1/ui/user/src/routes/mcp-servers/%2Bpage.svelte#L180-L190",
+          "kind": "code"
         }
       ]
     },
     {
       "product": "docker",
       "row": "license",
-      "value": "partial",
-      "note": "MIT; policy evaluation, policy audit and tool scoping by group run in Docker Desktop (AI Governance, invite-only)",
+      "value": "enterprise",
+      "note": "MIT; policy evaluation, policy audit and group tool scoping need Docker AI Governance (via sales)",
       "evidence": [
         {
           "url": "https://github.com/docker/mcp-gateway/blob/7e0f34277c91855ad861eeff536b4fdc77420593/LICENSE#L1",
@@ -1040,8 +1049,8 @@
     {
       "product": "docker",
       "row": "runtime-catalog",
-      "value": "yes",
-      "note": "Runs MCP servers as local Docker containers; catalog CLI (import, ls, show); Toolkit browse UI is in Docker Desktop",
+      "value": "partial",
+      "note": "Runtime: each server in its own Docker container; catalog CLI in OSS, browse UI in Docker Desktop",
       "evidence": [
         {
           "url": "https://github.com/docker/mcp-gateway/blob/7e0f34277c91855ad861eeff536b4fdc77420593/pkg/gateway/clientpool.go#L352-L364",
@@ -1256,8 +1265,8 @@
     {
       "product": "microsoft",
       "row": "runtime-catalog",
-      "value": "yes",
-      "note": "Runtime: /adapters and /tools deploy images as K8s StatefulSets; portal lists/creates them; no browsable catalog",
+      "value": "partial",
+      "note": "Runtime: images deployed as K8s StatefulSets; portal registers images by name, no catalog",
       "evidence": [
         {
           "url": "https://github.com/microsoft/mcp-gateway/blob/cf9f5e9eff89276bc3fc42f0ae4d6109d70e5509/dotnet/Microsoft.McpGateway.Service/src/Controllers/ManagementController.cs#L21-L29",
@@ -1598,15 +1607,16 @@
       "product": "hangar",
       "row": "deployment",
       "value": "yes",
-      "note": "pip CLI, Dockerfile, compose, K8s operator with 4 CRDs, PostgreSQL backend and lease for replicas; no Helm chart in repo",
+      "note": "pip CLI, Docker image, Helm charts for core (HPA, PDB, PostgreSQL) and operator (4 CRDs); replicas share a lease",
       "evidence": [
         {
           "url": "https://github.com/mcp-hangar/mcp-hangar/blob/0c70812bb5b47163f10caf32af65cf9d80f8ab40/Dockerfile#L13",
           "kind": "code"
         },
         {
-          "url": "https://github.com/mcp-hangar/mcp-hangar/blob/0c70812bb5b47163f10caf32af65cf9d80f8ab40/src/mcp_hangar/server/bootstrap/persistence.py#L1-L12",
-          "kind": "code"
+          "url": "https://github.com/mcp-hangar/helm-charts/blob/8a0ffe7792c886c12f53db869cc734b22bf060af/mcp-hangar/values.yaml#L193-L200",
+          "kind": "code",
+          "sha": "8a0ffe7792c886c12f53db869cc734b22bf060af"
         },
         {
           "url": "https://github.com/mcp-hangar/mcp-hangar-operator/blob/71afc22b1dacef76b03d5ed47bb45be5ac8216dc/config/crd/bases/mcp-hangar.io_mcpservers.yaml#L3-L10",
@@ -1744,8 +1754,8 @@
     {
       "product": "hangar",
       "row": "runtime-catalog",
-      "value": "yes",
-      "note": "Runtime: subprocess, Docker/Podman (network, read-only, cap-drop), K8s Deployments; catalog: 4-entry CLI list, no UI",
+      "value": "partial",
+      "note": "Runtime: Docker/Podman (read-only, cap-drop) and operator Deployments; catalog: 4-entry CLI list, no UI",
       "evidence": [
         {
           "url": "https://github.com/mcp-hangar/mcp-hangar/blob/0c70812bb5b47163f10caf32af65cf9d80f8ab40/src/mcp_hangar/infrastructure/launchers/factory.py#L84-L101",

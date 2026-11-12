@@ -53,7 +53,7 @@ export const GROUPS = [
     rows: [
       ["llm-gateway", "LLM gateway"],
       ["device-inventory", "Desktop and device MCP inventory"],
-      ["runtime-catalog", "Hosted server runtime and catalog UI"],
+      ["runtime-catalog", "Sandboxed server runtime and catalog UI"],
     ],
   },
 ] as const;
