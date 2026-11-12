@@ -11,6 +11,7 @@ import {
   VERDICT_PATH_FACT,
 } from "../lib/product-facts";
 import { DESCRIPTION, VERSION } from "../config";
+import { COMPARE_TITLE, compareMarkdown } from "../lib/compare-markdown";
 
 const SITE = "https://mcp-hangar.io";
 
@@ -174,6 +175,8 @@ export const GET: APIRoute = async () => {
       )
     ),
     renderSection("Learn", learn),
+    // Generated from compare.json, the same data the /compare table renders.
+    `## Comparison\n\n### ${COMPARE_TITLE}\n\nSource: ${SITE}/compare\n\n${compareMarkdown()}`,
   ].filter(Boolean);
 
   // Blog: compact index only (title + description + date + link) — no bodies.

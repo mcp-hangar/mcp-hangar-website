@@ -14,6 +14,7 @@ const ROUTES = [
   "/learn",
   "/blog",
   "/security",
+  "/compare",
   "/search?q=approval",
 ];
 
