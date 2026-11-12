@@ -62,7 +62,7 @@ describe("Build Output", () => {
     const html = readDistFile("index.html");
     expect(html).toContain("Every MCP tool call ends in a verdict.");
     expect(html).toContain(
-      "Hangar is the MCP gateway that pins every tool, holds risky calls for approval, and enforces egress policy."
+      "Hangar is a policy enforcement plane for MCP: it pins every tool, holds risky calls for approval, and enforces egress policy."
     );
     // Kubernetes is one place it runs, not the premise (redesign D2).
     expect(html).toContain("Runs on a laptop, a VM, or Kubernetes.");
@@ -74,7 +74,7 @@ describe("Build Output", () => {
   it("should describe the product the same way in meta, OG, JSON-LD and llms.txt", () => {
     const html = readDistFile("index.html");
     const lead =
-      "MCP Hangar is the MCP gateway that pins every tool, holds risky calls for approval, and enforces egress policy.";
+      "MCP Hangar is a policy enforcement plane for MCP: it pins every tool, holds risky calls for approval, and enforces egress policy.";
     expect(html).toMatch(
       new RegExp(`<meta name="description" content="${lead}`)
     );
@@ -82,7 +82,7 @@ describe("Build Output", () => {
       new RegExp(`<meta property="og:description" content="${lead}`)
     );
     expect(html).toContain(
-      "<title>MCP Hangar | MCP gateway with tool pinning and approvals</title>"
+      "<title>MCP Hangar | Policy enforcement plane for MCP</title>"
     );
     const ld = [
       ...html.matchAll(
