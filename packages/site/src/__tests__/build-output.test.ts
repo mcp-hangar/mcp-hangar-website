@@ -225,21 +225,53 @@ describe("Build Output", () => {
     expect(html).toContain("MIT");
   });
 
-  it("should generate the comparison page with a commit for every project", () => {
+  it("should generate the comparison page as a table pinned to commits", () => {
     const html = readDistFile("compare/index.html");
-    expect(html).toContain("Last verified");
-    for (const repo of [
-      "mcp-hangar/mcp-hangar",
-      "stacklok/toolhive",
-      "Kuadrant/mcp-gateway",
-      "docker/mcp-gateway",
-      "agentgateway/agentgateway",
-      "pipelab-org/pipelock",
-    ]) {
-      expect(html).toMatch(
-        new RegExp(`github\\.com/${repo}/(tree|blob)/[0-9a-f]{40}`)
+    const data = JSON.parse(
+      fs.readFileSync(path.join(__dirname, "../data/compare.json"), "utf8")
+    );
+    const table = html.slice(
+      html.indexOf('<table class="compare'),
+      html.indexOf("</table>")
+    );
+    expect(table.length).toBeGreaterThan(0);
+    // Values are text in the markup: no picture of a table, no SVG text.
+    expect(table).not.toMatch(/<img\b|<text\b|<canvas\b/);
+    for (const p of data.products) {
+      expect(html).toContain(`github.com/${p.repo}/tree/${p.verifiedSha}`);
+    }
+    // One <td> per cell, and every note present as text with JS off.
+    expect(table.match(/<td\b/g)?.length).toBe(data.cells.length);
+    const text = table
+      .replace(/<[^>]+>/g, " ")
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/&amp;/g, "&")
+      .replace(/\s+/g, " ");
+    for (const c of data.cells) {
+      expect(text).toContain(c.note.replace(/\s+/g, " "));
+    }
+    // Group C is on the page, and not-found never reads as "no".
+    expect(html).toContain("Where Hangar is the wrong choice");
+    for (const td of table.match(
+      /<td[^>]*data-value="not-found"[\s\S]*?<\/summary>/g
+    ) ?? []) {
+      expect(td.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ")).toMatch(
+        /no evidence at [0-9a-f]{7}/
       );
     }
+  });
+
+  it("should put the comparison table in llms-full.txt", () => {
+    const txt = readDistFile("llms-full.txt");
+    expect(txt).toContain("## Comparison");
+    expect(txt).toMatch(/\| Row \| Bifrost \|/);
+    expect(readDistFile("llms.txt")).toContain(
+      "https://mcp-hangar.io/compare.md"
+    );
+    expect(readDistFile("compare.md")).toMatch(/\| Tool contract integrity \|/);
   });
 
   it("should generate blog index page", () => {

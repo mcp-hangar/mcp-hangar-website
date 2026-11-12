@@ -3,6 +3,7 @@ import { ogCards, type CardProps } from "../../og/cards";
 import { renderCard } from "../../og/render";
 import {
   blogCard,
+  compareCard,
   docsCard,
   homeCard,
   learnCard,
@@ -25,7 +26,9 @@ export function cardTree(p: CardProps) {
         ? securityCard(p)
         : p.kind === "learn"
           ? learnCard(p)
-          : docsCard(p);
+          : p.kind === "compare"
+            ? compareCard(p)
+            : docsCard(p);
 }
 
 export const GET: APIRoute = async ({ props }) => {

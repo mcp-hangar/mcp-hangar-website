@@ -9,7 +9,7 @@ import { ogCards } from '../og/cards';
 
 const cards = await ogCards();
 
-const KINDS = ['home', 'blog', 'security', 'learn', 'docs'] as const;
+const KINDS = ['home', 'blog', 'security', 'learn', 'docs', 'compare'] as const;
 const groups = KINDS.map(kind => ({
     kind,
     items: cards.filter(c => c.props.kind === kind),

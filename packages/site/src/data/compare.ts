@@ -1,286 +1,260 @@
 /**
- * The facts behind /compare. Every claim points at source code at a named
- * commit, never at a README. Re-verify each project quarterly and move
- * `VERIFIED` with the SHAs; a claim that cannot be re-read at the new commit
- * comes off the page.
+ * The facts behind /compare, read from compare.json and checked before a page
+ * is rendered. A check that fails throws, and a throw at import fails the
+ * build: a table with a missing cell, an unlinked claim or a link to a commit
+ * nobody verified does not ship.
+ *
+ * Every cell was read in source at the product's pinned commit. To re-verify,
+ * move the product's SHAs and `verifiedAt`, re-read each cell, and let the
+ * checks below tell you which links still point at the old commit.
  */
+import { z } from "astro/zod";
+import raw from "./compare.json";
 
-export const VERIFIED = "2026-11-08";
+export const VALUES = [
+  "yes",
+  "partial",
+  "enterprise",
+  "no",
+  "not-found",
+  "by-design-no",
+] as const;
+export type Value = (typeof VALUES)[number];
 
-export type Verdict = "yes" | "partial" | "no";
-
-export type Cell = { verdict: Verdict; note: string; href?: string };
-
-export type Project = {
-  name: string;
-  repo: string;
-  sha: string;
-  pinning: Cell;
-  approval: Cell;
-  k8s: Cell;
-  tenant: Cell;
-  stronger: string[];
-};
-
-const blob = (repo: string, sha: string, file: string, lines?: string) =>
-  `https://github.com/${repo}/blob/${sha}/${file}${lines ? `#${lines}` : ""}`;
-
-const CORE = "mcp-hangar/mcp-hangar";
-const CORE_SHA = "0d51ddae9ce81b8882144aa386b7b6a7ab15f3df";
-const OP = "mcp-hangar/mcp-hangar-operator";
-const OP_SHA = "e6bfa3c48b7f87ad87d0bd5018058786ee1f1d38";
-
-export const HANGAR: Project = {
-  name: "MCP Hangar",
-  repo: CORE,
-  sha: CORE_SHA,
-  pinning: {
-    verdict: "yes",
-    note: "Pins name, description, inputSchema and outputSchema at approval; a drifted tool leaves tools/list and is reported as digest_drift.",
-    href: blob(
-      CORE,
-      CORE_SHA,
-      "src/mcp_hangar/application/read_models/tool_projection.py",
-      "L850-L874"
-    ),
-  },
-  approval: {
-    verdict: "yes",
-    note: "A tools/call is held until a person approves or denies it.",
-    href: blob(
-      CORE,
-      CORE_SHA,
-      "src/mcp_hangar/approvals/hold_registry.py",
-      "L70-L81"
-    ),
-  },
-  k8s: {
-    verdict: "yes",
-    note: "MCPEgressPolicy allows or denies by upstream and tool, and the operator installs a NetworkPolicy backstop on the server's pod.",
-    href: blob(
-      OP,
-      OP_SHA,
-      "api/v1alpha2/mcpegresspolicy_types.go",
-      "L228-L230"
-    ),
-  },
-  tenant: {
-    verdict: "yes",
-    note: "The effective tool policy is resolved per caller tenant.",
-    href: blob(
-      CORE,
-      CORE_SHA,
-      "src/mcp_hangar/domain/services/_policy_merge.py",
-      "L28"
-    ),
-  },
-  stronger: [],
-};
-
-const TH = "stacklok/toolhive";
-const TH_SHA = "42cd9b7e497bfc77dc67a1e73037675247d405b1";
-const KU = "Kuadrant/mcp-gateway";
-const KU_SHA = "0550fbb04465f9345a7379ecfa602c3aabdf4a93";
-const DO = "docker/mcp-gateway";
-const DO_SHA = "7e0f34277c91855ad861eeff536b4fdc77420593";
-const AG = "agentgateway/agentgateway";
-const AG_SHA = "d327d10bc92bb5459482a19a79d0b3b6f83c3636";
-const PL = "pipelab-org/pipelock";
-const PL_SHA = "5b40a6fe8129e6ddeb0bb100fbe8cd1a435033f4";
-
-export const ALTERNATIVES: Project[] = [
+/** The row set is fixed by the page's brief; a new row is a decision, not an edit. */
+export const GROUPS = [
   {
-    name: "ToolHive",
-    repo: TH,
-    sha: TH_SHA,
-    pinning: {
-      verdict: "no",
-      note: "On tools/list_changed the cache is dropped and tools are re-read without a comparison.",
-      href: blob(TH, TH_SHA, "pkg/vmcp/core/core.go", "L230-L238"),
-    },
-    approval: {
-      verdict: "partial",
-      note: "An elicitation step inside composite workflows asks the calling client; it does not hold an arbitrary tools/call.",
-      href: blob(
-        TH,
-        TH_SHA,
-        "pkg/vmcp/composer/workflow_engine.go",
-        "L643-L700"
-      ),
-    },
-    k8s: {
-      verdict: "yes",
-      note: "MCPAuthzConfig (Cedar or HTTP) and a toolsFilter allowlist, enforced at the gateway.",
-      href: blob(
-        TH,
-        TH_SHA,
-        "cmd/thv-operator/api/v1beta1/mcpauthzconfig_types.go",
-        "L27-L44"
-      ),
-    },
-    tenant: {
-      verdict: "yes",
-      note: "Cedar policies over the JWT principal and group claim, evaluated on call_tool.",
-      href: blob(
-        TH,
-        TH_SHA,
-        "pkg/authz/authorizers/cedar/core.go",
-        "L280-L295"
-      ),
-    },
-    stronger: [
-      "A broad server catalog, shipped as its own module.",
-      "Standalone quickstarts: thv run starts a server on a local container runtime, no Kubernetes needed.",
-      "An operator with many CRDs, composite tools and a choice of Cedar or HTTP authorization.",
+    id: "A",
+    label: "What gateway comparisons usually ask",
+    rows: [
+      ["license", "License and open-core boundary"],
+      ["caller-auth", "Caller authentication"],
+      ["tool-scoping", "Tool scoping"],
+      ["upstream-creds", "Upstream credentials"],
+      ["inspection", "Argument and result inspection"],
+      ["audit", "Audit of tool calls"],
+      ["deployment", "Deployment model"],
     ],
   },
   {
-    name: "Kuadrant mcp-gateway",
-    repo: KU,
-    sha: KU_SHA,
-    pinning: {
-      verdict: "no",
-      note: "Its only SHA-256 uses are session-id log hashing and key derivation.",
-    },
-    approval: {
-      verdict: "no",
-      note: "URL elicitation collects per-user credentials only.",
-      href: blob(KU, KU_SHA, "api/v1/types.go", "L118"),
-    },
-    k8s: {
-      verdict: "partial",
-      note: "The router exposes server and tool names as headers a Kuadrant AuthPolicy can match; the per-tool tools/call rule ships as a sample.",
-      href: blob(
-        KU,
-        KU_SHA,
-        "config/samples/oauth-token-exchange/tools-call-auth.yaml",
-        "L73-L80"
-      ),
-    },
-    tenant: {
-      verdict: "yes",
-      note: "Per-user tool sets from JWT roles, through Kuadrant and Authorino.",
-      href: blob(KU, KU_SHA, "config/e2e/auth/mcp-auth-policy.yaml", "L28-L47"),
-    },
-    stronger: [
-      "Native to Gateway API and Envoy; reuses existing AuthPolicy, OPA and token-exchange patterns.",
-      "MCPVirtualServer curates which tools are exposed.",
+    id: "B",
+    label: "Tool contract and call path",
+    rows: [
+      ["contract-integrity", "Tool contract integrity"],
+      ["drift", "Drift detection"],
+      ["pin-identity", "Pin bound to upstream identity"],
+      ["approval", "Human approval gate"],
+      ["egress", "Egress and network enforcement"],
     ],
   },
   {
-    name: "docker/mcp-gateway",
-    repo: DO,
-    sha: DO_SHA,
-    pinning: {
-      verdict: "no",
-      note: "Digest pinning covers OCI images, not tool definitions.",
-      href: blob(DO, DO_SHA, "pkg/workingset/workingset.go", "L635-L644"),
-    },
-    approval: {
-      verdict: "no",
-      note: "The only elicitation asks whether to open a browser for OAuth.",
-      href: blob(DO, DO_SHA, "pkg/gateway/mcpadd.go", "L510-L512"),
-    },
-    k8s: {
-      verdict: "no",
-      note: "Not a Kubernetes project; allowHosts is host-based.",
-      href: blob(DO, DO_SHA, "pkg/gateway/clientpool.go", "L535-L537"),
-    },
-    tenant: {
-      verdict: "no",
-      note: "The policy request carries no caller identity in the open-source code.",
-      href: blob(DO, DO_SHA, "pkg/policy/policy.go", "L42-L60"),
-    },
-    stronger: [
-      "Image signature verification and per-server network blocking with host proxies.",
-      "A secrets-blocking interceptor, profiles pinned by OCI digest, and the Docker catalog.",
+    id: "C",
+    label: "Rows Hangar loses",
+    rows: [
+      ["llm-gateway", "LLM gateway"],
+      ["device-inventory", "Desktop and device MCP inventory"],
+      ["runtime-catalog", "Sandboxed server runtime and catalog UI"],
     ],
-  },
-  {
-    name: "agentgateway",
-    repo: AG,
-    sha: AG_SHA,
-    pinning: {
-      verdict: "no",
-      note: "No digest over tools; list_changed notifications are forwarded.",
-    },
-    approval: {
-      verdict: "no",
-      note: "No approval code; elicitation is passed through.",
-      href: blob(
-        AG,
-        AG_SHA,
-        "crates/agentgateway/src/mcp/session.rs",
-        "L842-L846"
-      ),
-    },
-    k8s: {
-      verdict: "yes",
-      note: "AgentgatewayPolicy backend.mcp.authorization filters lists and rejects call_tool, at the gateway.",
-      href: blob(AG, AG_SHA, "crates/agentgateway/src/mcp/rbac.rs", "L53-L63"),
-    },
-    tenant: {
-      verdict: "yes",
-      note: "CEL rules over the tool name and JWT claims.",
-      href: blob(AG, AG_SHA, "crates/agentgateway/src/mcp/rbac.rs", "L248"),
-    },
-    stronger: [
-      "A high-throughput Rust data plane for MCP, A2A and LLM traffic.",
-      "OpenAPI-to-MCP upstreams and MCP guardrail processors in the CRD.",
-    ],
-  },
-  {
-    name: "pipelock",
-    repo: PL,
-    sha: PL_SHA,
-    pinning: {
-      verdict: "partial",
-      note: "Hashes the whole tool and, separately, everything but the description; the baseline is the first tools/list seen, and the default action is warn.",
-      href: blob(PL, PL_SHA, "internal/mcp/tools/drift_cues.go", "L19-L43"),
-    },
-    approval: {
-      verdict: "yes",
-      note: "A defer action holds the call until an operator approves or denies it over the API.",
-      href: blob(PL, PL_SHA, "internal/proxy/deferred_api.go", "L147-L150"),
-    },
-    k8s: {
-      verdict: "no",
-      note: "Configured in YAML; no CRD in its charts.",
-    },
-    tenant: {
-      verdict: "partial",
-      note: "Per-agent tool policy overrides, behind a licensed feature.",
-      href: blob(PL, PL_SHA, "internal/config/schema.go", "L1871-L1884"),
-    },
-    stronger: [
-      "Splits a structural digest from the description and classifies drift by cue: egress URL, agent directive, concealment, cross-tool reference and more.",
-      "A durable, journalled hold for deferred calls, signed action receipts, and DLP and response scanning.",
-    ],
-  },
-];
-
-export const CAPABILITIES = [
-  {
-    key: "pinning",
-    label: "Tool-contract pinning",
-    detail:
-      "A digest of each tool's definition is recorded at approval, and a changed tool is refused or withheld.",
-  },
-  {
-    key: "approval",
-    label: "Call-path approval gate",
-    detail: "A person can hold a specific tools/call until they approve it.",
-  },
-  {
-    key: "k8s",
-    label: "MCP-semantic policy as a Kubernetes object",
-    detail:
-      "A CRD or Gateway API policy allows or denies by MCP server and tool, not only by host and port.",
-  },
-  {
-    key: "tenant",
-    label: "Per-tenant policy",
-    detail:
-      "Tool access differs per tenant, team or identity in one deployment.",
   },
 ] as const;
+
+export type RowId = (typeof GROUPS)[number]["rows"][number][0];
+export const ROWS: { id: RowId; label: string; group: string }[] =
+  GROUPS.flatMap((g) =>
+    g.rows.map(([id, label]) => ({ id: id as RowId, label, group: g.id }))
+  );
+
+const sha = z
+  .string()
+  .regex(/^[0-9a-f]{40}$/, "a full 40-character commit SHA");
+
+const Evidence = z.object({
+  url: z.string().url(),
+  kind: z.enum(["code", "docs"]),
+  sha: sha.optional(),
+});
+
+const Product = z.object({
+  id: z.string(),
+  name: z.string(),
+  repo: z.string(),
+  license: z.string(),
+  verifiedSha: sha,
+  verifiedAt: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  version: z.string().optional(),
+  /**
+   * Further repositories verified for the same product, each at its own
+   * commit. Hangar is core plus the operator; one SHA cannot pin both.
+   */
+  alsoVerified: z
+    .array(z.object({ repo: z.string(), sha, version: z.string().optional() }))
+    .optional(),
+});
+
+const Cell = z.object({
+  product: z.string(),
+  row: z.string(),
+  value: z.enum(VALUES),
+  note: z.string().min(1).max(120),
+  evidence: z.array(Evidence),
+});
+
+const Compare = z.object({
+  products: z.array(Product).min(1),
+  cells: z.array(Cell),
+});
+
+export type Evidence = z.infer<typeof Evidence>;
+export type Product = z.infer<typeof Product>;
+export type Cell = z.infer<typeof Cell>;
+export type CompareData = z.infer<typeof Compare>;
+
+/** Values that make a claim, and so must link the code or docs that make it. */
+const NEEDS_EVIDENCE: ReadonlySet<Value> = new Set([
+  "yes",
+  "partial",
+  "enterprise",
+  "no",
+  "by-design-no",
+]);
+
+/** Every repository a product was verified in, with the commit it was read at. */
+export const pinsOf = (p: Product) => [
+  { repo: p.repo, sha: p.verifiedSha, version: p.version },
+  ...(p.alsoVerified ?? []),
+];
+
+/**
+ * Parse and cross-check. Returns the problems rather than throwing so the unit
+ * test can assert on each rule; `loadCompare` throws on any of them.
+ */
+export function checkCompare(input: unknown): {
+  data?: CompareData;
+  errors: string[];
+} {
+  const parsed = Compare.safeParse(input);
+  if (!parsed.success) {
+    return {
+      errors: parsed.error.issues.map(
+        (i) => `${i.path.join(".")}: ${i.message}`
+      ),
+    };
+  }
+  const data = parsed.data;
+  const errors: string[] = [];
+  const products = new Map(data.products.map((p) => [p.id, p]));
+  const rowIds = new Set<string>(ROWS.map((r) => r.id));
+  const seen = new Map<string, number>();
+
+  for (const c of data.cells) {
+    const at = `${c.product} x ${c.row}`;
+    const p = products.get(c.product);
+    if (!p) errors.push(`${at}: unknown product`);
+    if (!rowIds.has(c.row)) errors.push(`${at}: unknown row`);
+    seen.set(
+      `${c.product}|${c.row}`,
+      (seen.get(`${c.product}|${c.row}`) ?? 0) + 1
+    );
+
+    if (NEEDS_EVIDENCE.has(c.value) && c.evidence.length === 0) {
+      errors.push(`${at}: "${c.value}" needs at least one evidence link`);
+    }
+    if (
+      c.value === "enterprise" &&
+      !c.evidence.some((e) => e.kind === "docs")
+    ) {
+      errors.push(
+        `${at}: "enterprise" needs the vendor's own docs as evidence`
+      );
+    }
+    if (!p) continue;
+    for (const e of c.evidence) {
+      if (e.kind !== "code") continue;
+      // A code link is a permalink into one of the product's repositories at
+      // the commit it was verified at, never a branch.
+      const pin = pinsOf(p).find((r) =>
+        e.url.startsWith(`https://github.com/${r.repo}/blob/${r.sha}/`)
+      );
+      if (!pin) {
+        errors.push(
+          `${at}: code link is not pinned to a verified commit: ${e.url}`
+        );
+      } else if (e.sha && e.sha !== pin.sha) {
+        errors.push(`${at}: evidence sha ${e.sha} does not match its URL`);
+      }
+    }
+  }
+
+  for (const p of data.products) {
+    for (const r of ROWS) {
+      const n = seen.get(`${p.id}|${r.id}`) ?? 0;
+      if (n !== 1)
+        errors.push(`${p.id} x ${r.id}: ${n} cells, expected exactly 1`);
+    }
+  }
+  return { data, errors };
+}
+
+/** Products whose evidence is older than this get a warning in the build log. */
+export const STALE_DAYS = 90;
+
+export function staleProducts(data: CompareData, now = new Date()): Product[] {
+  return data.products.filter(
+    (p) => (now.getTime() - Date.parse(p.verifiedAt)) / 86_400_000 > STALE_DAYS
+  );
+}
+
+function loadCompare(): CompareData {
+  const { data, errors } = checkCompare(raw);
+  if (errors.length || !data) {
+    throw new Error(
+      `src/data/compare.json failed its checks:\n- ${errors.join("\n- ")}`
+    );
+  }
+  for (const p of staleProducts(data)) {
+    console.warn(
+      `[compare] ${p.name} was verified on ${p.verifiedAt}, more than ${STALE_DAYS} days ago; re-verify it.`
+    );
+  }
+  return data;
+}
+
+export const COMPARE = loadCompare();
+export const PRODUCTS = COMPARE.products;
+
+export function cellOf(product: string, row: string): Cell {
+  const c = COMPARE.cells.find((x) => x.product === product && x.row === row);
+  // Unreachable after loadCompare; kept so a caller never gets undefined.
+  if (!c) throw new Error(`no cell for ${product} x ${row}`);
+  return c;
+}
+
+export const short = (s: string) => s.slice(0, 7);
+
+/**
+ * The words a value is shown as. `not-found` is never "No": it says what was
+ * searched and where, because absence from a search is not a vendor's word.
+ */
+export function valueLabel(c: Cell, p: Product): string {
+  switch (c.value) {
+    case "yes":
+      return "yes";
+    case "partial":
+      return "partial";
+    case "enterprise":
+      return "enterprise";
+    case "no":
+      return "no";
+    case "by-design-no":
+      return "no, by design";
+    case "not-found":
+      return `no evidence at ${pinsOf(p)
+        .map((r) => short(r.sha))
+        .join("+")}`;
+  }
+}
+
+/** The latest verification date across products, for the lede. */
+export const VERIFIED_ON = PRODUCTS.map((p) => p.verifiedAt)
+  .sort()
+  .at(-1)!;

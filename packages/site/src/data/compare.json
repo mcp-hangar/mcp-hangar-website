@@ -1,0 +1,1781 @@
+{
+  "products": [
+    {
+      "id": "bifrost",
+      "name": "Bifrost",
+      "repo": "maximhq/bifrost",
+      "license": "Apache-2.0",
+      "verifiedSha": "21e226373d94382a2d6740770828470d25fb0d91",
+      "verifiedAt": "2026-11-12"
+    },
+    {
+      "id": "contextforge",
+      "name": "ContextForge",
+      "repo": "IBM/mcp-context-forge",
+      "license": "Apache-2.0",
+      "verifiedSha": "1f8b9bf0a265649d72b76205f50c9aa1a3d65a34",
+      "verifiedAt": "2026-11-12"
+    },
+    {
+      "id": "obot",
+      "name": "Obot",
+      "repo": "obot-platform/obot",
+      "license": "MIT",
+      "verifiedSha": "d8e5db5c87dc6f1471349a224d9f3e41bf2b3bb1",
+      "verifiedAt": "2026-11-12"
+    },
+    {
+      "id": "docker",
+      "name": "Docker MCP Gateway",
+      "repo": "docker/mcp-gateway",
+      "license": "MIT",
+      "verifiedSha": "7e0f34277c91855ad861eeff536b4fdc77420593",
+      "verifiedAt": "2026-11-12"
+    },
+    {
+      "id": "microsoft",
+      "name": "Microsoft MCP Gateway",
+      "repo": "microsoft/mcp-gateway",
+      "license": "MIT",
+      "verifiedSha": "cf9f5e9eff89276bc3fc42f0ae4d6109d70e5509",
+      "verifiedAt": "2026-11-12"
+    },
+    {
+      "id": "kuadrant",
+      "name": "Kuadrant MCP Gateway",
+      "repo": "Kuadrant/mcp-gateway",
+      "license": "Apache-2.0",
+      "verifiedSha": "98a4ccb0450fb93cc35782d40c5e8294d5c34125",
+      "verifiedAt": "2026-11-12"
+    },
+    {
+      "id": "hangar",
+      "name": "MCP Hangar",
+      "repo": "mcp-hangar/mcp-hangar",
+      "license": "MIT",
+      "verifiedSha": "0c70812bb5b47163f10caf32af65cf9d80f8ab40",
+      "version": "2.36.6",
+      "verifiedAt": "2026-11-12",
+      "alsoVerified": [
+        {
+          "repo": "mcp-hangar/mcp-hangar-operator",
+          "sha": "71afc22b1dacef76b03d5ed47bb45be5ac8216dc",
+          "version": "operator 0.17.39"
+        },
+        {
+          "repo": "mcp-hangar/helm-charts",
+          "sha": "8a0ffe7792c886c12f53db869cc734b22bf060af",
+          "version": "charts 0.15.60 / 0.12.55"
+        }
+      ]
+    }
+  ],
+  "cells": [
+    {
+      "product": "bifrost",
+      "row": "license",
+      "value": "enterprise",
+      "note": "Apache-2.0; guardrails, SSO/SCIM, RBAC, signed audit logs, clustering, token exchange, Edge are enterprise",
+      "evidence": [
+        {
+          "url": "https://github.com/maximhq/bifrost/blob/21e226373d94382a2d6740770828470d25fb0d91/LICENSE#L1-L3",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/maximhq/bifrost/blob/21e226373d94382a2d6740770828470d25fb0d91/docs/enterprise/overview.mdx#L7-L7",
+          "kind": "docs"
+        },
+        {
+          "url": "https://www.getmaxim.ai/bifrost/pricing",
+          "kind": "docs"
+        }
+      ]
+    },
+    {
+      "product": "bifrost",
+      "row": "caller-auth",
+      "value": "yes",
+      "note": "Virtual-key headers; OAuth 2.1 AS on /mcp (DCR, PKCE S256, RFC 8707, RFC 9728, CIMD); user/SSO mode is enterprise",
+      "evidence": [
+        {
+          "url": "https://github.com/maximhq/bifrost/blob/21e226373d94382a2d6740770828470d25fb0d91/transports/bifrost-http/handlers/mcpserver.go#L884-L1023",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/maximhq/bifrost/blob/21e226373d94382a2d6740770828470d25fb0d91/transports/bifrost-http/handlers/mcpoauth2issuance.go#L32-L80",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/maximhq/bifrost/blob/21e226373d94382a2d6740770828470d25fb0d91/transports/bifrost-http/handlers/mcpoauth2discovery.go#L40-L52",
+          "kind": "code"
+        }
+      ]
+    },
+    {
+      "product": "bifrost",
+      "row": "tool-scoping",
+      "value": "yes",
+      "note": "Per-virtual-key tool allow-lists enforced at tools/list and tools/call; Virtual MCPs serve tool subsets at /mcp/<slug>",
+      "evidence": [
+        {
+          "url": "https://github.com/maximhq/bifrost/blob/21e226373d94382a2d6740770828470d25fb0d91/plugins/governance/main.go#L1767-L1786",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/maximhq/bifrost/blob/21e226373d94382a2d6740770828470d25fb0d91/transports/bifrost-http/handlers/mcpserver.go#L778-L806",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/maximhq/bifrost/blob/21e226373d94382a2d6740770828470d25fb0d91/docs/mcp/virtual-mcps.mdx#L9-L13",
+          "kind": "docs"
+        }
+      ]
+    },
+    {
+      "product": "bifrost",
+      "row": "upstream-creds",
+      "value": "yes",
+      "note": "Shared headers/OAuth and per-user OAuth/headers in OSS; RFC 8693 token exchange requires an enterprise SCIM IdP",
+      "evidence": [
+        {
+          "url": "https://github.com/maximhq/bifrost/blob/21e226373d94382a2d6740770828470d25fb0d91/core/mcp/credstore/credstore.go#L48-L55",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/maximhq/bifrost/blob/21e226373d94382a2d6740770828470d25fb0d91/framework/oauth2/tokenexchange.go#L63-L69",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/maximhq/bifrost/blob/21e226373d94382a2d6740770828470d25fb0d91/docs/mcp/auth/token-exchange.mdx#L19-L19",
+          "kind": "docs"
+        }
+      ]
+    },
+    {
+      "product": "bifrost",
+      "row": "inspection",
+      "value": "partial",
+      "note": "OSS Go .so plugin hooks see tool args and results, no validator ships; regex/secrets/LLM/ML guardrails are enterprise",
+      "evidence": [
+        {
+          "url": "https://github.com/maximhq/bifrost/blob/21e226373d94382a2d6740770828470d25fb0d91/docs/enterprise/guardrails.mdx#L191-L201",
+          "kind": "docs"
+        },
+        {
+          "url": "https://www.getmaxim.ai/bifrost/pricing",
+          "kind": "docs"
+        },
+        {
+          "url": "https://github.com/maximhq/bifrost/blob/21e226373d94382a2d6740770828470d25fb0d91/core/mcp/pluginpipeline.go#L39-L52",
+          "kind": "code"
+        }
+      ]
+    },
+    {
+      "product": "bifrost",
+      "row": "audit",
+      "value": "partial",
+      "note": "Structured MCP tool-call log in OSS; HMAC-signed audit log (enterprise) covers admin events; refusals name permit",
+      "evidence": [
+        {
+          "url": "https://github.com/maximhq/bifrost/blob/21e226373d94382a2d6740770828470d25fb0d91/framework/logstore/tables.go#L1971-L2022",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/maximhq/bifrost/blob/21e226373d94382a2d6740770828470d25fb0d91/plugins/logging/main.go#L3792-L3810",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/maximhq/bifrost/blob/21e226373d94382a2d6740770828470d25fb0d91/docs/enterprise/audit-logs.mdx#L9-L11",
+          "kind": "docs"
+        }
+      ]
+    },
+    {
+      "product": "bifrost",
+      "row": "deployment",
+      "value": "yes",
+      "note": "Binary via npx, Docker image, Helm chart (HPA, Postgres, multi-replica); no operator or CRDs; clustering is enterprise",
+      "evidence": [
+        {
+          "url": "https://github.com/maximhq/bifrost/blob/21e226373d94382a2d6740770828470d25fb0d91/helm-charts/bifrost/Chart.yaml#L1-L5",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/maximhq/bifrost/blob/21e226373d94382a2d6740770828470d25fb0d91/transports/Dockerfile#L54-L120",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/maximhq/bifrost/blob/21e226373d94382a2d6740770828470d25fb0d91/docs/enterprise/clustering.mdx#L1-L9",
+          "kind": "docs"
+        }
+      ]
+    },
+    {
+      "product": "bifrost",
+      "row": "contract-integrity",
+      "value": "not-found",
+      "note": "SHA-256 over discovered tools dedups change callbacks; no approved digest checked at tools/call",
+      "evidence": [
+        {
+          "url": "https://github.com/maximhq/bifrost/blob/21e226373d94382a2d6740770828470d25fb0d91/core/mcp/utils.go#L29-L45",
+          "kind": "code"
+        }
+      ]
+    },
+    {
+      "product": "bifrost",
+      "row": "drift",
+      "value": "not-found",
+      "note": "Re-lists tools on tools/list_changed and republishes /mcp; no compare-and-refuse/withhold/warn on changed definitions",
+      "evidence": [
+        {
+          "url": "https://github.com/maximhq/bifrost/blob/21e226373d94382a2d6740770828470d25fb0d91/core/mcp/toolslistchanged.go#L99-L110",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/maximhq/bifrost/blob/21e226373d94382a2d6740770828470d25fb0d91/transports/bifrost-http/server/server.go#L3872-L3874",
+          "kind": "code"
+        }
+      ]
+    },
+    {
+      "product": "bifrost",
+      "row": "pin-identity",
+      "value": "not-found",
+      "note": "No tool-definition pin found, so no upstream identity bound into one",
+      "evidence": []
+    },
+    {
+      "product": "bifrost",
+      "row": "approval",
+      "value": "not-found",
+      "note": "No gateway hold or timeout; agent mode returns non-auto tool calls to the app; elicitation is forwarded, not approval",
+      "evidence": [
+        {
+          "url": "https://github.com/maximhq/bifrost/blob/21e226373d94382a2d6740770828470d25fb0d91/core/mcp/agent.go#L183-L190",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/maximhq/bifrost/blob/21e226373d94382a2d6740770828470d25fb0d91/docs/mcp/agent-mode.mdx#L25-L25",
+          "kind": "docs"
+        }
+      ]
+    },
+    {
+      "product": "bifrost",
+      "row": "egress",
+      "value": "not-found",
+      "note": "No NetworkPolicy/egress CRD for MCP servers; SSRF guard on outbound URLs; stdio servers run as host subprocesses",
+      "evidence": []
+    },
+    {
+      "product": "bifrost",
+      "row": "llm-gateway",
+      "value": "yes",
+      "note": "Multi-provider routing with fallbacks; per-virtual-key budgets, token and request rate limits",
+      "evidence": [
+        {
+          "url": "https://github.com/maximhq/bifrost/blob/21e226373d94382a2d6740770828470d25fb0d91/plugins/governance/main.go#L987-L991",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/maximhq/bifrost/blob/21e226373d94382a2d6740770828470d25fb0d91/plugins/governance/store.go#L2278-L2282",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/maximhq/bifrost/blob/21e226373d94382a2d6740770828470d25fb0d91/core/bifrost.go#L5861-L5876",
+          "kind": "code"
+        }
+      ]
+    },
+    {
+      "product": "bifrost",
+      "row": "device-inventory",
+      "value": "enterprise",
+      "note": "Bifrost Edge endpoint agent inventories MCP servers in desktop AI app configs; needs Enterprise with Edge entitlement",
+      "evidence": [
+        {
+          "url": "https://github.com/maximhq/bifrost/blob/21e226373d94382a2d6740770828470d25fb0d91/docs/edge/mcp-governance.mdx#L18-L18",
+          "kind": "docs"
+        },
+        {
+          "url": "https://github.com/maximhq/bifrost/blob/21e226373d94382a2d6740770828470d25fb0d91/docs/edge/setup.mdx#L25-L25",
+          "kind": "docs"
+        }
+      ]
+    },
+    {
+      "product": "bifrost",
+      "row": "runtime-catalog",
+      "value": "partial",
+      "note": "Catalog: MCP library with browse/install UI; runtime: stdio servers as host subprocesses, no sandbox",
+      "evidence": [
+        {
+          "url": "https://github.com/maximhq/bifrost/blob/21e226373d94382a2d6740770828470d25fb0d91/transports/bifrost-http/handlers/mcp.go#L109-L112",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/maximhq/bifrost/blob/21e226373d94382a2d6740770828470d25fb0d91/framework/configstore/tables/mcplibrary.go#L9-L24",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/maximhq/bifrost/blob/21e226373d94382a2d6740770828470d25fb0d91/core/mcp/clientmanager.go#L4075",
+          "kind": "code"
+        }
+      ]
+    },
+    {
+      "product": "contextforge",
+      "row": "license",
+      "value": "yes",
+      "note": "Apache-2.0; no paid or enterprise-gated security features found in repo or docs",
+      "evidence": [
+        {
+          "url": "https://github.com/IBM/mcp-context-forge/blob/1f8b9bf0a265649d72b76205f50c9aa1a3d65a34/LICENSE#L1-L3",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/IBM/mcp-context-forge/blob/1f8b9bf0a265649d72b76205f50c9aa1a3d65a34/pyproject.toml#L59-L60",
+          "kind": "code"
+        }
+      ]
+    },
+    {
+      "product": "contextforge",
+      "row": "caller-auth",
+      "value": "yes",
+      "note": "Gateway JWT, API tokens, SSO (OIDC, Keycloak, Entra, ADFS); OAuth resource server, RFC 9728 PRM, audience check",
+      "evidence": [
+        {
+          "url": "https://github.com/IBM/mcp-context-forge/blob/1f8b9bf0a265649d72b76205f50c9aa1a3d65a34/mcpgateway/transports/streamablehttp_transport.py#L6862-L6925",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/IBM/mcp-context-forge/blob/1f8b9bf0a265649d72b76205f50c9aa1a3d65a34/mcpgateway/routers/well_known.py#L123-L137",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/IBM/mcp-context-forge/blob/1f8b9bf0a265649d72b76205f50c9aa1a3d65a34/mcpgateway/auth.py#L1491-L1499",
+          "kind": "code"
+        }
+      ]
+    },
+    {
+      "product": "contextforge",
+      "row": "tool-scoping",
+      "value": "yes",
+      "note": "Virtual servers expose a tool subset, enforced at tools/call; tokens scoped to server_id; team visibility",
+      "evidence": [
+        {
+          "url": "https://github.com/IBM/mcp-context-forge/blob/1f8b9bf0a265649d72b76205f50c9aa1a3d65a34/mcpgateway/services/tool_service.py#L5355-L5374",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/IBM/mcp-context-forge/blob/1f8b9bf0a265649d72b76205f50c9aa1a3d65a34/mcpgateway/middleware/token_scoping.py#L1414-L1421",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/IBM/mcp-context-forge/blob/1f8b9bf0a265649d72b76205f50c9aa1a3d65a34/mcpgateway/db.py#L4469",
+          "kind": "code"
+        }
+      ]
+    },
+    {
+      "product": "contextforge",
+      "row": "upstream-creds",
+      "value": "yes",
+      "note": "Shared (basic/bearer/headers/client_credentials); per-user OAuth auth-code and Vault creds; RFC 8693 exchange",
+      "evidence": [
+        {
+          "url": "https://github.com/IBM/mcp-context-forge/blob/1f8b9bf0a265649d72b76205f50c9aa1a3d65a34/mcpgateway/services/tool_service.py#L6229-L6290",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/IBM/mcp-context-forge/blob/1f8b9bf0a265649d72b76205f50c9aa1a3d65a34/mcpgateway/services/token_exchange_actor.py#L1-L16",
+          "kind": "code"
+        }
+      ]
+    },
+    {
+      "product": "contextforge",
+      "row": "inspection",
+      "value": "yes",
+      "note": "Args and results via tool_pre/post_invoke plugins (regex, lexicon, LLM Guard, Granite); opt-in; schema arg check",
+      "evidence": [
+        {
+          "url": "https://github.com/IBM/mcp-context-forge/blob/1f8b9bf0a265649d72b76205f50c9aa1a3d65a34/mcpgateway/services/tool_service.py#L5876-L5888",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/IBM/mcp-context-forge/blob/1f8b9bf0a265649d72b76205f50c9aa1a3d65a34/mcpgateway/services/tool_service.py#L7214-L7222",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/IBM/mcp-context-forge/blob/1f8b9bf0a265649d72b76205f50c9aa1a3d65a34/docs/docs/manage/configuration-plugins.md#L23",
+          "kind": "docs"
+        }
+      ]
+    },
+    {
+      "product": "contextforge",
+      "row": "audit",
+      "value": "partial",
+      "note": "Structured logs and tool.invoke spans with caller; plugin decision spans; no hash chain or signatures found",
+      "evidence": [
+        {
+          "url": "https://github.com/IBM/mcp-context-forge/blob/1f8b9bf0a265649d72b76205f50c9aa1a3d65a34/mcpgateway/services/tool_service.py#L5789-L5799",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/IBM/mcp-context-forge/blob/1f8b9bf0a265649d72b76205f50c9aa1a3d65a34/mcpgateway/plugins/control_telemetry.py#L677-L688",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/IBM/mcp-context-forge/blob/1f8b9bf0a265649d72b76205f50c9aa1a3d65a34/mcpgateway/config.py#L2418",
+          "kind": "code"
+        }
+      ]
+    },
+    {
+      "product": "contextforge",
+      "row": "deployment",
+      "value": "yes",
+      "note": "PyPI CLI, container image, docker-compose, Helm chart (2 replicas, HPA, Postgres, Redis); no own operator/CRDs",
+      "evidence": [
+        {
+          "url": "https://github.com/IBM/mcp-context-forge/blob/1f8b9bf0a265649d72b76205f50c9aa1a3d65a34/Containerfile#L304",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/IBM/mcp-context-forge/blob/1f8b9bf0a265649d72b76205f50c9aa1a3d65a34/charts/mcp-stack/values.yaml#L71",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/IBM/mcp-context-forge/blob/1f8b9bf0a265649d72b76205f50c9aa1a3d65a34/pyproject.toml#L325",
+          "kind": "code"
+        }
+      ]
+    },
+    {
+      "product": "contextforge",
+      "row": "contract-integrity",
+      "value": "not-found",
+      "note": "No digest or pin over tool definitions; refresh compares fields and overwrites them (see drift)",
+      "evidence": [
+        {
+          "url": "https://github.com/IBM/mcp-context-forge/blob/1f8b9bf0a265649d72b76205f50c9aa1a3d65a34/mcpgateway/services/gateway_service.py#L7298-L7314",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/IBM/mcp-context-forge/blob/1f8b9bf0a265649d72b76205f50c9aa1a3d65a34/mcpgateway/services/gateway_service.py#L7349-L7362",
+          "kind": "code"
+        }
+      ]
+    },
+    {
+      "product": "contextforge",
+      "row": "drift",
+      "value": "partial",
+      "note": "list_changed and refresh overwrite changed definitions; CEL description policy re-run on fetch can disable a tool",
+      "evidence": [
+        {
+          "url": "https://github.com/IBM/mcp-context-forge/blob/1f8b9bf0a265649d72b76205f50c9aa1a3d65a34/mcpgateway/services/notification_service.py#L1254-L1261",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/IBM/mcp-context-forge/blob/1f8b9bf0a265649d72b76205f50c9aa1a3d65a34/mcpgateway/services/gateway_service.py#L7339-L7362",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/IBM/mcp-context-forge/blob/1f8b9bf0a265649d72b76205f50c9aa1a3d65a34/mcpgateway/services/tool_validation_policy.py#L210-L235",
+          "kind": "code"
+        }
+      ]
+    },
+    {
+      "product": "contextforge",
+      "row": "pin-identity",
+      "value": "not-found",
+      "note": "No tool definition pin found; stored tool rows are keyed by gateway_id and upstream tool name",
+      "evidence": []
+    },
+    {
+      "product": "contextforge",
+      "row": "approval",
+      "value": "not-found",
+      "note": "No hold-for-approval on tools/call found; MCP elicitation pass-through and SSO signup approval are not this",
+      "evidence": []
+    },
+    {
+      "product": "contextforge",
+      "row": "egress",
+      "value": "not-found",
+      "note": "No egress enforcement for MCP servers found; Helm NetworkPolicies are ingress rules for Postgres/Redis/PgBouncer/MinIO",
+      "evidence": []
+    },
+    {
+      "product": "contextforge",
+      "row": "llm-gateway",
+      "value": "partial",
+      "note": "OpenAI-compatible proxy to OpenAI/Azure/Anthropic/Bedrock/watsonx/Ollama; per-token request limits; no budgets",
+      "evidence": [
+        {
+          "url": "https://github.com/IBM/mcp-context-forge/blob/1f8b9bf0a265649d72b76205f50c9aa1a3d65a34/mcpgateway/routers/llm_proxy_router.py#L43-L60",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/IBM/mcp-context-forge/blob/1f8b9bf0a265649d72b76205f50c9aa1a3d65a34/mcpgateway/llm_schemas.py#L33-L43",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/IBM/mcp-context-forge/blob/1f8b9bf0a265649d72b76205f50c9aa1a3d65a34/mcpgateway/middleware/token_scoping.py#L651-L690",
+          "kind": "code"
+        }
+      ]
+    },
+    {
+      "product": "contextforge",
+      "row": "device-inventory",
+      "value": "not-found",
+      "note": "No scanning of desktop MCP client configs or endpoint agent found",
+      "evidence": []
+    },
+    {
+      "product": "contextforge",
+      "row": "runtime-catalog",
+      "value": "partial",
+      "note": "Catalog: entries registered from the admin UI and API; no container or sandbox runtime found",
+      "evidence": [
+        {
+          "url": "https://github.com/IBM/mcp-context-forge/blob/1f8b9bf0a265649d72b76205f50c9aa1a3d65a34/mcpgateway/routers/catalog.py#L84-L88",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/IBM/mcp-context-forge/blob/1f8b9bf0a265649d72b76205f50c9aa1a3d65a34/mcpgateway/config.py#L1326-L1327",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/IBM/mcp-context-forge/blob/1f8b9bf0a265649d72b76205f50c9aa1a3d65a34/mcp-catalog.yml#L24-L26",
+          "kind": "code"
+        }
+      ]
+    },
+    {
+      "product": "obot",
+      "row": "license",
+      "value": "enterprise",
+      "note": "MIT; Entra/Okta/OneLogin/JumpCloud/Keycloak/Auth0 SSO need a license key (free registration); >100 users/devices paid",
+      "evidence": [
+        {
+          "url": "https://github.com/obot-platform/obot/blob/d8e5db5c87dc6f1471349a224d9f3e41bf2b3bb1/LICENSE#L1-L3",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/obot-platform/obot/blob/d8e5db5c87dc6f1471349a224d9f3e41bf2b3bb1/docs/docs/enterprise/overview.md#L15-L35",
+          "kind": "docs"
+        },
+        {
+          "url": "https://github.com/obot-platform/obot/blob/d8e5db5c87dc6f1471349a224d9f3e41bf2b3bb1/pkg/license/entitlements.go#L25-L44",
+          "kind": "code"
+        }
+      ]
+    },
+    {
+      "product": "obot",
+      "row": "caller-auth",
+      "value": "yes",
+      "note": "OAuth 2.1 AS: DCR, PKCE, resource param, RFC 9728 metadata, CIMD, private_key_jwt; API keys; OIDC/OAuth SSO providers",
+      "evidence": [
+        {
+          "url": "https://github.com/obot-platform/obot/blob/d8e5db5c87dc6f1471349a224d9f3e41bf2b3bb1/pkg/services/config.go#L1145-L1159",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/obot-platform/obot/blob/d8e5db5c87dc6f1471349a224d9f3e41bf2b3bb1/pkg/api/handlers/wellknown/handler.go#L19-L26",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/obot-platform/obot/blob/d8e5db5c87dc6f1471349a224d9f3e41bf2b3bb1/pkg/gateway/server/apikey_auth.go#L38-L64",
+          "kind": "code"
+        }
+      ]
+    },
+    {
+      "product": "obot",
+      "row": "tool-scoping",
+      "value": "yes",
+      "note": "vMCPs with per-component tool selection; per-user/group profiles grant tool subsets; API keys scoped to MCP server IDs",
+      "evidence": [
+        {
+          "url": "https://github.com/obot-platform/obot/blob/d8e5db5c87dc6f1471349a224d9f3e41bf2b3bb1/pkg/mcp/vmcp.go#L189-L194",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/obot-platform/obot/blob/d8e5db5c87dc6f1471349a224d9f3e41bf2b3bb1/pkg/mcp/vmcp.go#L267-L279",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/obot-platform/obot/blob/d8e5db5c87dc6f1471349a224d9f3e41bf2b3bb1/pkg/gateway/server/apikey_auth.go#L99-L106",
+          "kind": "code"
+        }
+      ]
+    },
+    {
+      "product": "obot",
+      "row": "upstream-creds",
+      "value": "yes",
+      "note": "Per-user upstream OAuth tokens; shared fixed config or user-supplied values per vMCP policy; no RFC 8693 found",
+      "evidence": [
+        {
+          "url": "https://github.com/obot-platform/obot/blob/d8e5db5c87dc6f1471349a224d9f3e41bf2b3bb1/pkg/api/handlers/mcpgateway/handler.go#L345-L356",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/obot-platform/obot/blob/d8e5db5c87dc6f1471349a224d9f3e41bf2b3bb1/pkg/gateway/types/tokens.go#L56-L71",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/obot-platform/obot/blob/d8e5db5c87dc6f1471349a224d9f3e41bf2b3bb1/apiclient/types/vmcp.go#L10-L14",
+          "kind": "code"
+        }
+      ]
+    },
+    {
+      "product": "obot",
+      "row": "inspection",
+      "value": "yes",
+      "note": "Filters on tools/call args and results: regex/secrets rules, LLM judge, third-party ML services, webhooks",
+      "evidence": [
+        {
+          "url": "https://github.com/obot-platform/obot/blob/d8e5db5c87dc6f1471349a224d9f3e41bf2b3bb1/pkg/api/handlers/mcpgateway/handler.go#L475-L505",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/obot-platform/obot/blob/d8e5db5c87dc6f1471349a224d9f3e41bf2b3bb1/pkg/api/handlers/mcpgateway/handler.go#L536",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/obot-platform/obot/blob/d8e5db5c87dc6f1471349a224d9f3e41bf2b3bb1/docs/docs/functionality/filters.md#L76-L83",
+          "kind": "docs"
+        }
+      ]
+    },
+    {
+      "product": "obot",
+      "row": "audit",
+      "value": "partial",
+      "note": "Structured MCP audit log with per-filter status and reason for blocked calls; no hash chain or signatures found",
+      "evidence": [
+        {
+          "url": "https://github.com/obot-platform/obot/blob/d8e5db5c87dc6f1471349a224d9f3e41bf2b3bb1/pkg/gateway/types/mcpauditlog.go#L23-L73",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/obot-platform/obot/blob/d8e5db5c87dc6f1471349a224d9f3e41bf2b3bb1/pkg/gateway/types/mcpauditlog.go#L139-L147",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/obot-platform/obot/blob/d8e5db5c87dc6f1471349a224d9f3e41bf2b3bb1/pkg/api/handlers/mcpgateway/proxy_audit.go#L203-L212",
+          "kind": "code"
+        }
+      ]
+    },
+    {
+      "product": "obot",
+      "row": "deployment",
+      "value": "yes",
+      "note": "Docker image, Helm chart, multi-replica on external PostgreSQL; darwin/linux/windows binaries; no K8s operator",
+      "evidence": [
+        {
+          "url": "https://github.com/obot-platform/obot/blob/d8e5db5c87dc6f1471349a224d9f3e41bf2b3bb1/Dockerfile#L61-L95",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/obot-platform/obot/blob/d8e5db5c87dc6f1471349a224d9f3e41bf2b3bb1/chart/values.yaml#L1-L3",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/obot-platform/obot/blob/d8e5db5c87dc6f1471349a224d9f3e41bf2b3bb1/docs/docs/operations/high-availability.md#L7-L9",
+          "kind": "docs"
+        }
+      ]
+    },
+    {
+      "product": "obot",
+      "row": "contract-integrity",
+      "value": "not-found",
+      "note": "No digest over tool definitions found; stored tool description is marked display-only, live description is served",
+      "evidence": [
+        {
+          "url": "https://github.com/obot-platform/obot/blob/d8e5db5c87dc6f1471349a224d9f3e41bf2b3bb1/apiclient/types/mcpserver.go#L183-L200",
+          "kind": "code"
+        }
+      ]
+    },
+    {
+      "product": "obot",
+      "row": "drift",
+      "value": "not-found",
+      "note": "list_changed refreshes the tool catalog; catalog-entry snapshot digest flags server config updates, not tools",
+      "evidence": [
+        {
+          "url": "https://github.com/obot-platform/obot/blob/d8e5db5c87dc6f1471349a224d9f3e41bf2b3bb1/pkg/vmcp/drift.go#L10-L21",
+          "kind": "code"
+        }
+      ]
+    },
+    {
+      "product": "obot",
+      "row": "pin-identity",
+      "value": "not-found",
+      "note": "No tool-definition pin found",
+      "evidence": []
+    },
+    {
+      "product": "obot",
+      "row": "approval",
+      "value": "not-found",
+      "note": "No gateway hold of tools/call found; built-in Inspector chat client asks the user before each call (client-side)",
+      "evidence": [
+        {
+          "url": "https://github.com/obot-platform/obot/blob/d8e5db5c87dc6f1471349a224d9f3e41bf2b3bb1/docs/docs/mcp-gateway/inspector.md#L81-L84",
+          "kind": "docs"
+        }
+      ]
+    },
+    {
+      "product": "obot",
+      "row": "egress",
+      "value": "yes",
+      "note": "Helm NetworkPolicy blocks private ranges; per-server domain allowlist resource enforced via Aviatrix; default allow",
+      "evidence": [
+        {
+          "url": "https://github.com/obot-platform/obot/blob/d8e5db5c87dc6f1471349a224d9f3e41bf2b3bb1/chart/templates/networkpolicy.yaml#L1-L58",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/obot-platform/obot/blob/d8e5db5c87dc6f1471349a224d9f3e41bf2b3bb1/pkg/controller/handlers/mcpserver/mcpserver.go#L66-L123",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/obot-platform/obot/blob/d8e5db5c87dc6f1471349a224d9f3e41bf2b3bb1/docs/docs/configuration/mcp-server-egress-control.md#L52-L58",
+          "kind": "docs"
+        }
+      ]
+    },
+    {
+      "product": "obot",
+      "row": "llm-gateway",
+      "value": "yes",
+      "note": "LLM proxy on Bifrost with provider routing, fallbacks, per-profile budgets on spend, tokens or requests per user",
+      "evidence": [
+        {
+          "url": "https://github.com/obot-platform/obot/blob/d8e5db5c87dc6f1471349a224d9f3e41bf2b3bb1/pkg/gateway/server/router.go#L70-L75",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/obot-platform/obot/blob/d8e5db5c87dc6f1471349a224d9f3e41bf2b3bb1/pkg/gateway/server/llmproxy_engine.go#L658-L671",
+          "kind": "code"
+        }
+      ]
+    },
+    {
+      "product": "obot",
+      "row": "device-inventory",
+      "value": "yes",
+      "note": "Obot Sentry agent (separate MIT repo) uploads scans of MCP servers, skills, clients; inventory views in server",
+      "evidence": [
+        {
+          "url": "https://github.com/obot-platform/obot/blob/d8e5db5c87dc6f1471349a224d9f3e41bf2b3bb1/pkg/api/router/router.go#L620-L623",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/obot-platform/obot/blob/d8e5db5c87dc6f1471349a224d9f3e41bf2b3bb1/apiclient/types/devicescan.go#L9-L28",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/obot-platform/obot/blob/d8e5db5c87dc6f1471349a224d9f3e41bf2b3bb1/docs/docs/device-management/inventory.md#L5-L30",
+          "kind": "docs"
+        }
+      ]
+    },
+    {
+      "product": "obot",
+      "row": "runtime-catalog",
+      "value": "yes",
+      "note": "Runtime: Docker containers or K8s pods; catalog with browse UI and API",
+      "evidence": [
+        {
+          "url": "https://github.com/obot-platform/obot/blob/d8e5db5c87dc6f1471349a224d9f3e41bf2b3bb1/pkg/mcp/manager.go#L149-L199",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/obot-platform/obot/blob/d8e5db5c87dc6f1471349a224d9f3e41bf2b3bb1/pkg/api/router/router.go#L163-L169",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/obot-platform/obot/blob/d8e5db5c87dc6f1471349a224d9f3e41bf2b3bb1/ui/user/src/routes/mcp-servers/%2Bpage.svelte#L180-L190",
+          "kind": "code"
+        }
+      ]
+    },
+    {
+      "product": "docker",
+      "row": "license",
+      "value": "enterprise",
+      "note": "MIT; policy evaluation, policy audit and group tool scoping need Docker AI Governance (via sales)",
+      "evidence": [
+        {
+          "url": "https://github.com/docker/mcp-gateway/blob/7e0f34277c91855ad861eeff536b4fdc77420593/LICENSE#L1",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/docker/mcp-gateway/blob/7e0f34277c91855ad861eeff536b4fdc77420593/pkg/policy/policy.go#L103-L116",
+          "kind": "code"
+        },
+        {
+          "url": "https://docs.docker.com/ai/mcp-catalog-and-toolkit/mcp-gateway/",
+          "kind": "docs"
+        }
+      ]
+    },
+    {
+      "product": "docker",
+      "row": "caller-auth",
+      "value": "partial",
+      "note": "One static Bearer token (MCP_GATEWAY_AUTH_TOKEN or generated) on SSE/streaming; stdio has none; no OAuth/JWT/SSO",
+      "evidence": [
+        {
+          "url": "https://github.com/docker/mcp-gateway/blob/7e0f34277c91855ad861eeff536b4fdc77420593/pkg/gateway/auth.go#L34-L87",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/docker/mcp-gateway/blob/7e0f34277c91855ad861eeff536b4fdc77420593/pkg/gateway/transport.go#L51-L68",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/docker/mcp-gateway/blob/7e0f34277c91855ad861eeff536b4fdc77420593/pkg/gateway/run.go#L494-L517",
+          "kind": "code"
+        }
+      ]
+    },
+    {
+      "product": "docker",
+      "row": "tool-scoping",
+      "value": "partial",
+      "note": "Gateway-wide tool lists via --tools, tools.yaml, profiles; no per-caller scoping; Desktop policy can deny tools",
+      "evidence": [
+        {
+          "url": "https://github.com/docker/mcp-gateway/blob/7e0f34277c91855ad861eeff536b4fdc77420593/pkg/gateway/capabilitites.go#L351-L379",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/docker/mcp-gateway/blob/7e0f34277c91855ad861eeff536b4fdc77420593/pkg/gateway/configuration_workingset.go#L212-L225",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/docker/mcp-gateway/blob/7e0f34277c91855ad861eeff536b4fdc77420593/pkg/gateway/configuration.go#L123-L153",
+          "kind": "code"
+        }
+      ]
+    },
+    {
+      "product": "docker",
+      "row": "upstream-creds",
+      "value": "partial",
+      "note": "Shared per-server secrets and OAuth tokens (DCR) via Desktop or credential helper; no per-user tokens, no RFC 8693",
+      "evidence": [
+        {
+          "url": "https://github.com/docker/mcp-gateway/blob/7e0f34277c91855ad861eeff536b4fdc77420593/pkg/mcp/remote.go#L94-L118",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/docker/mcp-gateway/blob/7e0f34277c91855ad861eeff536b4fdc77420593/pkg/oauth/credhelper.go#L78-L90",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/docker/mcp-gateway/blob/7e0f34277c91855ad861eeff536b4fdc77420593/pkg/gateway/clientpool.go#L378-L391",
+          "kind": "code"
+        }
+      ]
+    },
+    {
+      "product": "docker",
+      "row": "inspection",
+      "value": "yes",
+      "note": "Args and text results: regex secret scanner (block-secrets, default on); before/after exec, docker, http interceptors",
+      "evidence": [
+        {
+          "url": "https://github.com/docker/mcp-gateway/blob/7e0f34277c91855ad861eeff536b4fdc77420593/pkg/interceptors/block_secrets.go#L14-L75",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/docker/mcp-gateway/blob/7e0f34277c91855ad861eeff536b4fdc77420593/pkg/interceptors/interceptors.go#L21-L145",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/docker/mcp-gateway/blob/7e0f34277c91855ad861eeff536b4fdc77420593/pkg/gateway/run.go#L313",
+          "kind": "code"
+        }
+      ]
+    },
+    {
+      "product": "docker",
+      "row": "audit",
+      "value": "partial",
+      "note": "log-calls writes text lines (tool, arg shape, time); structured policy events go to Desktop; no signing or hash chain",
+      "evidence": [
+        {
+          "url": "https://github.com/docker/mcp-gateway/blob/7e0f34277c91855ad861eeff536b4fdc77420593/pkg/interceptors/log_calls.go#L12-L48",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/docker/mcp-gateway/blob/7e0f34277c91855ad861eeff536b4fdc77420593/pkg/gateway/policy_audit.go#L18-L30",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/docker/mcp-gateway/blob/7e0f34277c91855ad861eeff536b4fdc77420593/pkg/policy/audit.go#L35-L80",
+          "kind": "code"
+        }
+      ]
+    },
+    {
+      "product": "docker",
+      "row": "deployment",
+      "value": "partial",
+      "note": "Docker CLI plugin binary, gateway Docker image and dind image, compose examples; no Helm, operator or shared-state HA",
+      "evidence": [
+        {
+          "url": "https://github.com/docker/mcp-gateway/blob/7e0f34277c91855ad861eeff536b4fdc77420593/Dockerfile#L128-L134",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/docker/mcp-gateway/blob/7e0f34277c91855ad861eeff536b4fdc77420593/examples/minimal-compose/compose.yaml#L1-L7",
+          "kind": "code"
+        }
+      ]
+    },
+    {
+      "product": "docker",
+      "row": "contract-integrity",
+      "value": "not-found",
+      "note": "Image digests and signatures verified for mcp/ images; no digest over tool definitions found",
+      "evidence": [
+        {
+          "url": "https://github.com/docker/mcp-gateway/blob/7e0f34277c91855ad861eeff536b4fdc77420593/pkg/gateway/pull.go#L69-L94",
+          "kind": "code"
+        }
+      ]
+    },
+    {
+      "product": "docker",
+      "row": "drift",
+      "value": "not-found",
+      "note": "tools/list_changed triggers a capability refresh; no comparison to known definitions found",
+      "evidence": [
+        {
+          "url": "https://github.com/docker/mcp-gateway/blob/7e0f34277c91855ad861eeff536b4fdc77420593/pkg/mcp/mcp_client.go#L34-L38",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/docker/mcp-gateway/blob/7e0f34277c91855ad861eeff536b4fdc77420593/pkg/gateway/run.go#L559-L603",
+          "kind": "code"
+        }
+      ]
+    },
+    {
+      "product": "docker",
+      "row": "pin-identity",
+      "value": "not-found",
+      "note": "No tool definition pin found",
+      "evidence": []
+    },
+    {
+      "product": "docker",
+      "row": "approval",
+      "value": "not-found",
+      "note": "No held tools/call pending human approval; MCP elicitation requests are forwarded to the client",
+      "evidence": [
+        {
+          "url": "https://github.com/docker/mcp-gateway/blob/7e0f34277c91855ad861eeff536b4fdc77420593/pkg/mcp/mcp_client.go#L59-L64",
+          "kind": "code"
+        }
+      ]
+    },
+    {
+      "product": "docker",
+      "row": "egress",
+      "value": "partial",
+      "note": "Docker-level: disableNetwork runs --network none; --block-network with allowHosts adds proxy containers; no Kubernetes",
+      "evidence": [
+        {
+          "url": "https://github.com/docker/mcp-gateway/blob/7e0f34277c91855ad861eeff536b4fdc77420593/pkg/gateway/clientpool.go#L356-L364",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/docker/mcp-gateway/blob/7e0f34277c91855ad861eeff536b4fdc77420593/pkg/gateway/clientpool.go#L535-L540",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/docker/mcp-gateway/blob/7e0f34277c91855ad861eeff536b4fdc77420593/docs/security.md#L96-L99",
+          "kind": "docs"
+        }
+      ]
+    },
+    {
+      "product": "docker",
+      "row": "llm-gateway",
+      "value": "not-found",
+      "note": "No LLM provider routing or budgets; OpenAI API is used for find-tools embeddings",
+      "evidence": []
+    },
+    {
+      "product": "docker",
+      "row": "device-inventory",
+      "value": "partial",
+      "note": "CLI reads local MCP client configs (Claude, Cursor, Codex, others) on one machine; no fleet inventory or endpoint agent",
+      "evidence": [
+        {
+          "url": "https://github.com/docker/mcp-gateway/blob/7e0f34277c91855ad861eeff536b4fdc77420593/pkg/client/config.yml#L1-L19",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/docker/mcp-gateway/blob/7e0f34277c91855ad861eeff536b4fdc77420593/pkg/client/global.go#L95-L111",
+          "kind": "code"
+        }
+      ]
+    },
+    {
+      "product": "docker",
+      "row": "runtime-catalog",
+      "value": "partial",
+      "note": "Runtime: each server in its own Docker container; catalog CLI in OSS, browse UI in Docker Desktop",
+      "evidence": [
+        {
+          "url": "https://github.com/docker/mcp-gateway/blob/7e0f34277c91855ad861eeff536b4fdc77420593/pkg/gateway/clientpool.go#L352-L364",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/docker/mcp-gateway/blob/7e0f34277c91855ad861eeff536b4fdc77420593/cmd/docker-mcp/commands/catalog.go#L18",
+          "kind": "code"
+        },
+        {
+          "url": "https://docs.docker.com/ai/mcp-catalog-and-toolkit/toolkit/",
+          "kind": "docs"
+        }
+      ]
+    },
+    {
+      "product": "microsoft",
+      "row": "license",
+      "value": "yes",
+      "note": "MIT; no paid or enterprise edition found in the repo or its docs",
+      "evidence": [
+        {
+          "url": "https://github.com/microsoft/mcp-gateway/blob/cf9f5e9eff89276bc3fc42f0ae4d6109d70e5509/LICENSE#L1-L3",
+          "kind": "code"
+        }
+      ]
+    },
+    {
+      "product": "microsoft",
+      "row": "caller-auth",
+      "value": "yes",
+      "note": "Entra ID JWT bearer (resource server); RFC 9728 protected resource metadata; no API keys, no own AS or DCR",
+      "evidence": [
+        {
+          "url": "https://github.com/microsoft/mcp-gateway/blob/cf9f5e9eff89276bc3fc42f0ae4d6109d70e5509/dotnet/Microsoft.McpGateway.Service/src/Program.cs#L97-L118",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/microsoft/mcp-gateway/blob/cf9f5e9eff89276bc3fc42f0ae4d6109d70e5509/dotnet/Microsoft.McpGateway.Service/src/McpSubPathAwareAuthenticationHandler.cs#L139-L154",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/microsoft/mcp-gateway/blob/cf9f5e9eff89276bc3fc42f0ae4d6109d70e5509/dotnet/Microsoft.McpGateway.Service/src/Program.cs#L38-L51",
+          "kind": "code"
+        }
+      ]
+    },
+    {
+      "product": "microsoft",
+      "row": "tool-scoping",
+      "value": "yes",
+      "note": "/mcp router: per-tool requiredRoles (Entra roles)/creator/mcp.admin filter list and call; adapters gated per server",
+      "evidence": [
+        {
+          "url": "https://github.com/microsoft/mcp-gateway/blob/cf9f5e9eff89276bc3fc42f0ae4d6109d70e5509/dotnet/Microsoft.McpGateway.Management/src/Authorization/SimplePermissionProvider.cs#L52-L76",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/microsoft/mcp-gateway/blob/cf9f5e9eff89276bc3fc42f0ae4d6109d70e5509/dotnet/Microsoft.McpGateway.Tools/src/Services/StorageToolDefinitionProvider.cs#L149-L163",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/microsoft/mcp-gateway/blob/cf9f5e9eff89276bc3fc42f0ae4d6109d70e5509/dotnet/Microsoft.McpGateway.Tools/src/Services/HttpToolExecutor.cs#L72-L83",
+          "kind": "code"
+        }
+      ]
+    },
+    {
+      "product": "microsoft",
+      "row": "upstream-creds",
+      "value": "partial",
+      "note": "Shared: env vars, one Azure workload identity, Key Vault headers in sample proxy; caller token dropped, id/roles sent",
+      "evidence": [
+        {
+          "url": "https://github.com/microsoft/mcp-gateway/blob/cf9f5e9eff89276bc3fc42f0ae4d6109d70e5509/dotnet/Microsoft.McpGateway.Service/src/HttpProxy.cs#L52-L84",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/microsoft/mcp-gateway/blob/cf9f5e9eff89276bc3fc42f0ae4d6109d70e5509/dotnet/Microsoft.McpGateway.Management/src/Deployment/KubernetesAdapterDeploymentManager.cs#L52-L86",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/microsoft/mcp-gateway/blob/cf9f5e9eff89276bc3fc42f0ae4d6109d70e5509/docs/entra-app-roles.md#L52",
+          "kind": "docs"
+        }
+      ]
+    },
+    {
+      "product": "microsoft",
+      "row": "inspection",
+      "value": "partial",
+      "note": "Args, deterministic: /mcp router checks Mcp-Param-* headers match body per inputSchema; no guardrails or result checks",
+      "evidence": [
+        {
+          "url": "https://github.com/microsoft/mcp-gateway/blob/cf9f5e9eff89276bc3fc42f0ae4d6109d70e5509/dotnet/Microsoft.McpGateway.Tools/src/Services/McpToolHeaderValidator.cs#L15-L19",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/microsoft/mcp-gateway/blob/cf9f5e9eff89276bc3fc42f0ae4d6109d70e5509/dotnet/Microsoft.McpGateway.Tools/src/Services/HttpToolExecutor.cs#L93-L95",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/microsoft/mcp-gateway/blob/cf9f5e9eff89276bc3fc42f0ae4d6109d70e5509/dotnet/Microsoft.McpGateway.Management/src/McpProtocolMiddleware.cs#L141-L158",
+          "kind": "code"
+        }
+      ]
+    },
+    {
+      "product": "microsoft",
+      "row": "audit",
+      "value": "partial",
+      "note": "ILogger lines for router tool calls and denials (App Insights on gateway service); not signed; no refusal-explain tool",
+      "evidence": [
+        {
+          "url": "https://github.com/microsoft/mcp-gateway/blob/cf9f5e9eff89276bc3fc42f0ae4d6109d70e5509/dotnet/Microsoft.McpGateway.Tools/src/Services/HttpToolExecutor.cs#L61-L83",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/microsoft/mcp-gateway/blob/cf9f5e9eff89276bc3fc42f0ae4d6109d70e5509/dotnet/Microsoft.McpGateway.Service/src/Program.cs#L26-L27",
+          "kind": "code"
+        }
+      ]
+    },
+    {
+      "product": "microsoft",
+      "row": "deployment",
+      "value": "yes",
+      "note": "Docker images (ghcr), K8s manifests, Azure Bicep/ARM (AKS, Cosmos); Redis/Cosmos shared store; no Helm or operator",
+      "evidence": [
+        {
+          "url": "https://github.com/microsoft/mcp-gateway/blob/cf9f5e9eff89276bc3fc42f0ae4d6109d70e5509/.github/workflows/image.yml#L42-L46",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/microsoft/mcp-gateway/blob/cf9f5e9eff89276bc3fc42f0ae4d6109d70e5509/deployment/k8s/cloud-deployment-template.yml#L140-L195",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/microsoft/mcp-gateway/blob/cf9f5e9eff89276bc3fc42f0ae4d6109d70e5509/deployment/infra/azure-deployment.bicep#L164",
+          "kind": "code"
+        }
+      ]
+    },
+    {
+      "product": "microsoft",
+      "row": "contract-integrity",
+      "value": "not-found",
+      "note": "No digest over tool definitions; router serves operator-registered definitions from the store as submitted",
+      "evidence": [
+        {
+          "url": "https://github.com/microsoft/mcp-gateway/blob/cf9f5e9eff89276bc3fc42f0ae4d6109d70e5509/dotnet/Microsoft.McpGateway.Tools/src/Services/StorageToolDefinitionProvider.cs#L127-L147",
+          "kind": "code"
+        }
+      ]
+    },
+    {
+      "product": "microsoft",
+      "row": "drift",
+      "value": "not-found",
+      "note": "No definition comparison; adapter tools/list and list_changed pass through; router reads store with 5-minute cache",
+      "evidence": [
+        {
+          "url": "https://github.com/microsoft/mcp-gateway/blob/cf9f5e9eff89276bc3fc42f0ae4d6109d70e5509/dotnet/Microsoft.McpGateway.Tools/src/Services/StorageToolDefinitionProvider.cs#L54-L79",
+          "kind": "code"
+        }
+      ]
+    },
+    {
+      "product": "microsoft",
+      "row": "pin-identity",
+      "value": "not-found",
+      "note": "No tool-definition pin exists",
+      "evidence": []
+    },
+    {
+      "product": "microsoft",
+      "row": "approval",
+      "value": "not-found",
+      "note": "No human-in-the-loop hold of tools/call found",
+      "evidence": []
+    },
+    {
+      "product": "microsoft",
+      "row": "egress",
+      "value": "partial",
+      "note": "Static ingress NetworkPolicies in manifests (gateway pods reach adapter/tool pods); no egress rules, none per server",
+      "evidence": [
+        {
+          "url": "https://github.com/microsoft/mcp-gateway/blob/cf9f5e9eff89276bc3fc42f0ae4d6109d70e5509/deployment/k8s/cloud-deployment-template.yml#L197-L249",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/microsoft/mcp-gateway/blob/cf9f5e9eff89276bc3fc42f0ae4d6109d70e5509/dotnet/Microsoft.McpGateway.Management/src/Deployment/KubernetesAdapterDeploymentManager.cs#L60-L119",
+          "kind": "code"
+        }
+      ]
+    },
+    {
+      "product": "microsoft",
+      "row": "llm-gateway",
+      "value": "not-found",
+      "note": "No LLM traffic proxy; preview agent runner calls one Azure OpenAI/Foundry deployment as a client",
+      "evidence": []
+    },
+    {
+      "product": "microsoft",
+      "row": "device-inventory",
+      "value": "not-found",
+      "note": "No desktop/device MCP config discovery or endpoint agent found",
+      "evidence": []
+    },
+    {
+      "product": "microsoft",
+      "row": "runtime-catalog",
+      "value": "partial",
+      "note": "Runtime: images deployed as K8s StatefulSets; portal registers images by name, no catalog",
+      "evidence": [
+        {
+          "url": "https://github.com/microsoft/mcp-gateway/blob/cf9f5e9eff89276bc3fc42f0ae4d6109d70e5509/dotnet/Microsoft.McpGateway.Service/src/Controllers/ManagementController.cs#L21-L29",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/microsoft/mcp-gateway/blob/cf9f5e9eff89276bc3fc42f0ae4d6109d70e5509/dotnet/Microsoft.McpGateway.Management/src/Deployment/KubernetesAdapterDeploymentManager.cs#L45-L86",
+          "kind": "code"
+        }
+      ]
+    },
+    {
+      "product": "kuadrant",
+      "row": "license",
+      "value": "yes",
+      "note": "Apache-2.0; no gated security features found in the repo or its docs",
+      "evidence": [
+        {
+          "url": "https://github.com/Kuadrant/mcp-gateway/blob/98a4ccb0450fb93cc35782d40c5e8294d5c34125/LICENSE#L1-L2",
+          "kind": "code"
+        }
+      ]
+    },
+    {
+      "product": "kuadrant",
+      "row": "caller-auth",
+      "value": "partial",
+      "note": "Serves RFC 9728 protected resource metadata; JWT/OIDC validation is a Kuadrant AuthPolicy from the guides, not shipped",
+      "evidence": [
+        {
+          "url": "https://github.com/Kuadrant/mcp-gateway/blob/98a4ccb0450fb93cc35782d40c5e8294d5c34125/internal/broker/oauth_protected_resource_handler.go#L83-L109",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/Kuadrant/mcp-gateway/blob/98a4ccb0450fb93cc35782d40c5e8294d5c34125/internal/jwt/decode.go#L49-L52",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/Kuadrant/mcp-gateway/blob/98a4ccb0450fb93cc35782d40c5e8294d5c34125/docs/guides/authentication.md#L152-L188",
+          "kind": "docs"
+        }
+      ]
+    },
+    {
+      "product": "kuadrant",
+      "row": "tool-scoping",
+      "value": "partial",
+      "note": "tools/list filtered by signed x-mcp-authorized JWT and MCPVirtualServer; tools/call denial is an AuthPolicy CEL sample",
+      "evidence": [
+        {
+          "url": "https://github.com/Kuadrant/mcp-gateway/blob/98a4ccb0450fb93cc35782d40c5e8294d5c34125/internal/broker/filtered_tools_handler.go#L107-L137",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/Kuadrant/mcp-gateway/blob/98a4ccb0450fb93cc35782d40c5e8294d5c34125/docs/design/security-architecture.md#L211",
+          "kind": "docs"
+        },
+        {
+          "url": "https://github.com/Kuadrant/mcp-gateway/blob/98a4ccb0450fb93cc35782d40c5e8294d5c34125/docs/guides/authorization.md#L74-L81",
+          "kind": "docs"
+        }
+      ]
+    },
+    {
+      "product": "kuadrant",
+      "row": "upstream-creds",
+      "value": "yes",
+      "note": "Per-user token via URL elicitation (2025-11-25); client token passthrough, shared discovery creds; RFC 8693 by Authorino",
+      "evidence": [
+        {
+          "url": "https://github.com/Kuadrant/mcp-gateway/blob/98a4ccb0450fb93cc35782d40c5e8294d5c34125/internal/routing/router_202511.go#L708-L720",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/Kuadrant/mcp-gateway/blob/98a4ccb0450fb93cc35782d40c5e8294d5c34125/api/v1/types.go#L86-L118",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/Kuadrant/mcp-gateway/blob/98a4ccb0450fb93cc35782d40c5e8294d5c34125/docs/design/security-architecture.md#L110",
+          "kind": "docs"
+        }
+      ]
+    },
+    {
+      "product": "kuadrant",
+      "row": "inspection",
+      "value": "yes",
+      "note": "tools/call args and results checked by external NeMo Guardrails (rule or LLM rails); block or modify; fail-closed",
+      "evidence": [
+        {
+          "url": "https://github.com/Kuadrant/mcp-gateway/blob/98a4ccb0450fb93cc35782d40c5e8294d5c34125/internal/routing/router_202511.go#L192-L196",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/Kuadrant/mcp-gateway/blob/98a4ccb0450fb93cc35782d40c5e8294d5c34125/internal/guardrails/checker.go#L49-L66",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/Kuadrant/mcp-gateway/blob/98a4ccb0450fb93cc35782d40c5e8294d5c34125/docs/design/guardrails/guardrails-design.md#L9",
+          "kind": "docs"
+        }
+      ]
+    },
+    {
+      "product": "kuadrant",
+      "row": "audit",
+      "value": "partial",
+      "note": "Structured audit=true log line per tools/call (user, tool, server, status); not signed; AuthPolicy denials not logged",
+      "evidence": [
+        {
+          "url": "https://github.com/Kuadrant/mcp-gateway/blob/98a4ccb0450fb93cc35782d40c5e8294d5c34125/internal/mcp-router/ext_proc_adapter.go#L546-L557",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/Kuadrant/mcp-gateway/blob/98a4ccb0450fb93cc35782d40c5e8294d5c34125/docs/guides/auditing.md#L25-L28",
+          "kind": "docs"
+        }
+      ]
+    },
+    {
+      "product": "kuadrant",
+      "row": "deployment",
+      "value": "yes",
+      "note": "Docker image, Helm chart, CRDs + controller, OLM via Kuadrant Operator, Redis for multi-replica; standalone binary WIP",
+      "evidence": [
+        {
+          "url": "https://github.com/Kuadrant/mcp-gateway/blob/98a4ccb0450fb93cc35782d40c5e8294d5c34125/charts/mcp-gateway/Chart.yaml#L1-L6",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/Kuadrant/mcp-gateway/blob/98a4ccb0450fb93cc35782d40c5e8294d5c34125/api/v1/mcpgatewayextension_types.go#L128-L133",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/Kuadrant/mcp-gateway/blob/98a4ccb0450fb93cc35782d40c5e8294d5c34125/docs/guides/binary-install.md#L1-L5",
+          "kind": "docs"
+        }
+      ]
+    },
+    {
+      "product": "kuadrant",
+      "row": "contract-integrity",
+      "value": "not-found",
+      "note": "No digest or approved pin of tool definitions; last tools/list kept in memory and replaced on refresh",
+      "evidence": [
+        {
+          "url": "https://github.com/Kuadrant/mcp-gateway/blob/98a4ccb0450fb93cc35782d40c5e8294d5c34125/internal/broker/upstream/manager.go#L1098-L1103",
+          "kind": "code"
+        }
+      ]
+    },
+    {
+      "product": "kuadrant",
+      "row": "drift",
+      "value": "partial",
+      "note": "Re-fetch and list_changed diff description and schemas; change logged at INFO, new definition served, no refuse or hold",
+      "evidence": [
+        {
+          "url": "https://github.com/Kuadrant/mcp-gateway/blob/98a4ccb0450fb93cc35782d40c5e8294d5c34125/internal/broker/upstream/manager.go#L597-L632",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/Kuadrant/mcp-gateway/blob/98a4ccb0450fb93cc35782d40c5e8294d5c34125/internal/broker/upstream/manager.go#L1069-L1103",
+          "kind": "code"
+        }
+      ]
+    },
+    {
+      "product": "kuadrant",
+      "row": "pin-identity",
+      "value": "not-found",
+      "note": "No tool definition pin exists",
+      "evidence": []
+    },
+    {
+      "product": "kuadrant",
+      "row": "approval",
+      "value": "not-found",
+      "note": "No hold-for-approval on tools/call; URL elicitation collects per-user tokens and upstream elicitation is relayed",
+      "evidence": []
+    },
+    {
+      "product": "kuadrant",
+      "row": "egress",
+      "value": "not-found",
+      "note": "Routes to MCP servers it does not run; generated NetworkPolicies cover controller and broker pods, egress open",
+      "evidence": [
+        {
+          "url": "https://github.com/Kuadrant/mcp-gateway/blob/98a4ccb0450fb93cc35782d40c5e8294d5c34125/internal/controller/broker_router.go#L328-L376",
+          "kind": "code"
+        }
+      ]
+    },
+    {
+      "product": "kuadrant",
+      "row": "llm-gateway",
+      "value": "no",
+      "note": "VISION non-goal: not replacing Envoy AI Gateway or its AI gateway capabilities; rate limits apply to MCP traffic",
+      "evidence": [
+        {
+          "url": "https://github.com/Kuadrant/mcp-gateway/blob/98a4ccb0450fb93cc35782d40c5e8294d5c34125/VISION.md#L23-L25",
+          "kind": "docs"
+        }
+      ]
+    },
+    {
+      "product": "kuadrant",
+      "row": "device-inventory",
+      "value": "not-found",
+      "note": "No desktop or endpoint MCP config discovery found",
+      "evidence": []
+    },
+    {
+      "product": "kuadrant",
+      "row": "runtime-catalog",
+      "value": "not-found",
+      "note": "Does not launch MCP servers; discover_tools meta-tool lists registered tools, no install catalog",
+      "evidence": []
+    },
+    {
+      "product": "hangar",
+      "row": "license",
+      "value": "yes",
+      "note": "MIT (core and operator); HANGAR_LICENSE_KEY is deprecated with no effect; no enterprise directories in either repo",
+      "evidence": [
+        {
+          "url": "https://github.com/mcp-hangar/mcp-hangar/blob/0c70812bb5b47163f10caf32af65cf9d80f8ab40/LICENSE#L1",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/mcp-hangar/mcp-hangar/blob/0c70812bb5b47163f10caf32af65cf9d80f8ab40/src/mcp_hangar/server/bootstrap/__init__.py#L625-L628",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/mcp-hangar/mcp-hangar-operator/blob/71afc22b1dacef76b03d5ed47bb45be5ac8216dc/LICENSE#L1",
+          "kind": "code",
+          "sha": "71afc22b1dacef76b03d5ed47bb45be5ac8216dc"
+        }
+      ]
+    },
+    {
+      "product": "hangar",
+      "row": "caller-auth",
+      "value": "yes",
+      "note": "API keys; JWT via JWKS/OIDC discovery, multi-issuer, aud (RFC 8707); RFC 9728 metadata; resource server, no AS/DCR",
+      "evidence": [
+        {
+          "url": "https://github.com/mcp-hangar/mcp-hangar/blob/0c70812bb5b47163f10caf32af65cf9d80f8ab40/src/mcp_hangar/auth/bootstrap.py#L431-L512",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/mcp-hangar/mcp-hangar/blob/0c70812bb5b47163f10caf32af65cf9d80f8ab40/src/mcp_hangar/server/lifecycle.py#L750-L768",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/mcp-hangar/mcp-hangar/blob/0c70812bb5b47163f10caf32af65cf9d80f8ab40/src/mcp_hangar/server/lifecycle.py#L809-L812",
+          "kind": "code"
+        }
+      ]
+    },
+    {
+      "product": "hangar",
+      "row": "tool-scoping",
+      "value": "yes",
+      "note": "allow/deny/approval lists per server, group, member and tenant; RBAC tool:invoke per role; front door lists per tenant",
+      "evidence": [
+        {
+          "url": "https://github.com/mcp-hangar/mcp-hangar/blob/0c70812bb5b47163f10caf32af65cf9d80f8ab40/src/mcp_hangar/domain/value_objects/tool_access_policy.py#L1-L22",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/mcp-hangar/mcp-hangar/blob/0c70812bb5b47163f10caf32af65cf9d80f8ab40/src/mcp_hangar/server/tools/batch/__init__.py#L156-L176",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/mcp-hangar/mcp-hangar/blob/0c70812bb5b47163f10caf32af65cf9d80f8ab40/src/mcp_hangar/server/tools/batch/executor.py#L2076-L2104",
+          "kind": "code"
+        }
+      ]
+    },
+    {
+      "product": "hangar",
+      "row": "upstream-creds",
+      "value": "partial",
+      "note": "Shared: static api_key, bearer or basic per remote server, env for local servers; no per-user OAuth or RFC 8693 found",
+      "evidence": [
+        {
+          "url": "https://github.com/mcp-hangar/mcp-hangar/blob/0c70812bb5b47163f10caf32af65cf9d80f8ab40/src/mcp_hangar/infrastructure/launchers/http.py#L150-L170",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/mcp-hangar/mcp-hangar/blob/0c70812bb5b47163f10caf32af65cf9d80f8ab40/src/mcp_hangar/http_client.py#L640-L652",
+          "kind": "code"
+        }
+      ]
+    },
+    {
+      "product": "hangar",
+      "row": "inspection",
+      "value": "partial",
+      "note": "Args, deterministic: L7 secret regexes, size limit, tool/header rules; payload_size validator; no result checks found",
+      "evidence": [
+        {
+          "url": "https://github.com/mcp-hangar/mcp-hangar/blob/0c70812bb5b47163f10caf32af65cf9d80f8ab40/src/mcp_hangar/domain/model/mcp_server.py#L1868-L1897",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/mcp-hangar/mcp-hangar/blob/0c70812bb5b47163f10caf32af65cf9d80f8ab40/src/mcp_hangar/server/tools/batch/executor.py#L1309-L1336",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/mcp-hangar/mcp-hangar/blob/0c70812bb5b47163f10caf32af65cf9d80f8ab40/src/mcp_hangar/application/services/interceptor_registry.py#L33-L35",
+          "kind": "code"
+        }
+      ]
+    },
+    {
+      "product": "hangar",
+      "row": "audit",
+      "value": "partial",
+      "note": "Structured event store, SIEM export (CEF, LEEF, syslog, JSONL, OTLP); not signed or hash-chained; why explains refusals",
+      "evidence": [
+        {
+          "url": "https://github.com/mcp-hangar/mcp-hangar/blob/0c70812bb5b47163f10caf32af65cf9d80f8ab40/src/mcp_hangar/server/bootstrap/event_handlers.py#L170-L203",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/mcp-hangar/mcp-hangar/blob/0c70812bb5b47163f10caf32af65cf9d80f8ab40/src/mcp_hangar/server/cli/services/refusal_log.py#L23-L30",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/mcp-hangar/docs/blob/f1a878d5105bd03328c3b467487cf621902d83ee/operations/COMPLIANCE_POSTURE.md#L69",
+          "kind": "docs"
+        }
+      ]
+    },
+    {
+      "product": "hangar",
+      "row": "deployment",
+      "value": "yes",
+      "note": "pip CLI, Docker image, Helm charts for core (HPA, PDB, PostgreSQL) and operator (4 CRDs); replicas share a lease",
+      "evidence": [
+        {
+          "url": "https://github.com/mcp-hangar/mcp-hangar/blob/0c70812bb5b47163f10caf32af65cf9d80f8ab40/Dockerfile#L13",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/mcp-hangar/helm-charts/blob/8a0ffe7792c886c12f53db869cc734b22bf060af/mcp-hangar/values.yaml#L193-L200",
+          "kind": "code",
+          "sha": "8a0ffe7792c886c12f53db869cc734b22bf060af"
+        },
+        {
+          "url": "https://github.com/mcp-hangar/mcp-hangar-operator/blob/71afc22b1dacef76b03d5ed47bb45be5ac8216dc/config/crd/bases/mcp-hangar.io_mcpservers.yaml#L3-L10",
+          "kind": "code",
+          "sha": "71afc22b1dacef76b03d5ed47bb45be5ac8216dc"
+        }
+      ]
+    },
+    {
+      "product": "hangar",
+      "row": "contract-integrity",
+      "value": "yes",
+      "note": "SHA-256 (JCS) of name, description, inputSchema, outputSchema; opt-in pins checked on every tools/call; block default",
+      "evidence": [
+        {
+          "url": "https://github.com/mcp-hangar/mcp-hangar/blob/0c70812bb5b47163f10caf32af65cf9d80f8ab40/src/mcp_hangar/domain/services/digest_computation.py#L27-L59",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/mcp-hangar/mcp-hangar/blob/0c70812bb5b47163f10caf32af65cf9d80f8ab40/src/mcp_hangar/server/tools/batch/executor.py#L2160-L2262",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/mcp-hangar/mcp-hangar/blob/0c70812bb5b47163f10caf32af65cf9d80f8ab40/src/mcp_hangar/server/config.py#L1050-L1105",
+          "kind": "code"
+        }
+      ]
+    },
+    {
+      "product": "hangar",
+      "row": "drift",
+      "value": "yes",
+      "note": "list_changed and re-list compare to pins: block withholds and refuses; warn/audit emit event; opt-in new_tools: withhold",
+      "evidence": [
+        {
+          "url": "https://github.com/mcp-hangar/mcp-hangar/blob/0c70812bb5b47163f10caf32af65cf9d80f8ab40/src/mcp_hangar/domain/model/mcp_server.py#L1593-L1602",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/mcp-hangar/mcp-hangar/blob/0c70812bb5b47163f10caf32af65cf9d80f8ab40/src/mcp_hangar/application/read_models/tool_projection.py#L877-L908",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/mcp-hangar/mcp-hangar/blob/0c70812bb5b47163f10caf32af65cf9d80f8ab40/src/mcp_hangar/pin_recheck.py#L1-L27",
+          "kind": "code"
+        }
+      ]
+    },
+    {
+      "product": "hangar",
+      "row": "pin-identity",
+      "value": "yes",
+      "note": "Pin bound to upstream: remote origin or TLS key, image ref as written, or stdio command hash; pin --write records it",
+      "evidence": [
+        {
+          "url": "https://github.com/mcp-hangar/mcp-hangar/blob/0c70812bb5b47163f10caf32af65cf9d80f8ab40/src/mcp_hangar/domain/model/mcp_server.py#L606-L634",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/mcp-hangar/mcp-hangar/blob/0c70812bb5b47163f10caf32af65cf9d80f8ab40/src/mcp_hangar/domain/services/digest_validator.py#L77-L78",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/mcp-hangar/mcp-hangar/blob/0c70812bb5b47163f10caf32af65cf9d80f8ab40/src/mcp_hangar/server/cli/services/pinning.py#L294-L299",
+          "kind": "code"
+        }
+      ]
+    },
+    {
+      "product": "hangar",
+      "row": "approval",
+      "value": "yes",
+      "note": "approval_list or L7 requireApproval holds tools/call; refused on timeout; boot refused by default if gate absent",
+      "evidence": [
+        {
+          "url": "https://github.com/mcp-hangar/mcp-hangar/blob/0c70812bb5b47163f10caf32af65cf9d80f8ab40/src/mcp_hangar/server/tools/batch/executor.py#L2394-L2413",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/mcp-hangar/mcp-hangar/blob/0c70812bb5b47163f10caf32af65cf9d80f8ab40/src/mcp_hangar/approvals/service.py#L268-L281",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/mcp-hangar/mcp-hangar/blob/0c70812bb5b47163f10caf32af65cf9d80f8ab40/src/mcp_hangar/server/bootstrap/reachability.py#L65-L96",
+          "kind": "code"
+        }
+      ]
+    },
+    {
+      "product": "hangar",
+      "row": "egress",
+      "value": "yes",
+      "note": "MCPEgressPolicy: NetworkPolicy or Cilium backstop, Vanilla denies hostnames; Audit default; namespace deny opt-in",
+      "evidence": [
+        {
+          "url": "https://github.com/mcp-hangar/mcp-hangar-operator/blob/71afc22b1dacef76b03d5ed47bb45be5ac8216dc/pkg/networkpolicy/builder.go#L148-L189",
+          "kind": "code",
+          "sha": "71afc22b1dacef76b03d5ed47bb45be5ac8216dc"
+        },
+        {
+          "url": "https://github.com/mcp-hangar/mcp-hangar-operator/blob/71afc22b1dacef76b03d5ed47bb45be5ac8216dc/internal/controller/mcpegresspolicy_controller.go#L756-L760",
+          "kind": "code",
+          "sha": "71afc22b1dacef76b03d5ed47bb45be5ac8216dc"
+        },
+        {
+          "url": "https://github.com/mcp-hangar/mcp-hangar-operator/blob/71afc22b1dacef76b03d5ed47bb45be5ac8216dc/api/v1alpha2/mcpegresspolicy_types.go#L22-L32",
+          "kind": "code",
+          "sha": "71afc22b1dacef76b03d5ed47bb45be5ac8216dc"
+        }
+      ]
+    },
+    {
+      "product": "hangar",
+      "row": "llm-gateway",
+      "value": "by-design-no",
+      "note": "README non-goal: no model routing, provider failover or token budgets; none found in code at 0c70812",
+      "evidence": [
+        {
+          "url": "https://github.com/mcp-hangar/mcp-hangar/blob/740397fc7c51e5dff733fae5d27a3ace1bca19fc/README.md#L202-L206",
+          "kind": "docs",
+          "sha": "740397fc7c51e5dff733fae5d27a3ace1bca19fc"
+        }
+      ]
+    },
+    {
+      "product": "hangar",
+      "row": "device-inventory",
+      "value": "partial",
+      "note": "mcp-hangar init reads Claude Desktop, Claude Code and Cursor configs on one machine and imports them; no fleet agent",
+      "evidence": [
+        {
+          "url": "https://github.com/mcp-hangar/mcp-hangar/blob/0c70812bb5b47163f10caf32af65cf9d80f8ab40/src/mcp_hangar/server/cli/services/mcp_clients.py#L51-L68",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/mcp-hangar/mcp-hangar/blob/0c70812bb5b47163f10caf32af65cf9d80f8ab40/src/mcp_hangar/server/cli/commands/init.py#L321-L347",
+          "kind": "code"
+        }
+      ]
+    },
+    {
+      "product": "hangar",
+      "row": "runtime-catalog",
+      "value": "partial",
+      "note": "Runtime: Docker/Podman (read-only, cap-drop) and operator Deployments; catalog: 4-entry CLI list, no UI",
+      "evidence": [
+        {
+          "url": "https://github.com/mcp-hangar/mcp-hangar/blob/0c70812bb5b47163f10caf32af65cf9d80f8ab40/src/mcp_hangar/infrastructure/launchers/factory.py#L84-L101",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/mcp-hangar/mcp-hangar/blob/0c70812bb5b47163f10caf32af65cf9d80f8ab40/src/mcp_hangar/infrastructure/launchers/container.py#L308-L340",
+          "kind": "code"
+        },
+        {
+          "url": "https://github.com/mcp-hangar/mcp-hangar/blob/0c70812bb5b47163f10caf32af65cf9d80f8ab40/src/mcp_hangar/server/cli/services/mcp_server_registry.py#L124-L158",
+          "kind": "code"
+        }
+      ]
+    }
+  ]
+}

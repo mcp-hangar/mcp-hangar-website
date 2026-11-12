@@ -1,117 +1,281 @@
 ---
 import Base from '../layouts/Base.astro';
-import { ALTERNATIVES, CAPABILITIES, HANGAR, VERIFIED, type Cell, type Project } from '../data/compare';
+import { VERSION } from '../config';
+import {
+    GROUPS,
+    PRODUCTS,
+    VERIFIED_ON,
+    cellOf,
+    pinsOf,
+    short,
+    valueLabel,
+    type Cell,
+} from '../data/compare';
+import { COMPARE_DESCRIPTION, COMPARE_TITLE } from '../lib/compare-markdown';
 
-const rows: Project[] = [HANGAR, ...ALTERNATIVES];
-const short = (sha: string) => sha.slice(0, 7);
-const label: Record<Cell['verdict'], string> = { yes: 'Yes', partial: 'Partial', no: 'No' };
-const cell = (p: Project, key: (typeof CAPABILITIES)[number]['key']): Cell => p[key];
+/*
+ * The table is the page. It is a real <table> with every value, note and link
+ * in the HTML, because the readers who matter most here -- an engineer with JS
+ * off, a crawler, a model answering "which MCP gateway does X" -- read markup,
+ * not pixels. A note sits in a <details>: closed for people, present as text
+ * for everything else.
+ *
+ * Colour follows the verdict system and nothing else: a vendor-stated "yes"
+ * is allow, a vendor-stated "no" is deny, and every other value is neutral
+ * with its word in mono. Hold is not used; nothing here is pending.
+ */
+
+const ISSUES = 'https://github.com/mcp-hangar/mcp-hangar-website/issues/new';
+const MAXIM =
+    'https://www.getmaxim.ai/articles/best-open-source-mcp-gateway-for-secure-ai-agent-access-2026/';
+const OTHERS = PRODUCTS.filter((p) => p.id !== 'hangar');
+
+const tone = (c: Cell) =>
+    c.value === 'yes'
+        ? 'bg-allow-tint text-allow'
+        : c.value === 'no'
+          ? 'bg-deny-tint text-deny'
+          : 'bg-subtle text-ink-2';
+
+// The paragraph about the empty row says what the cells say, computed from
+// them, so it cannot outlive a cell that changes.
+const contractRow = OTHERS.map((p) => ({ p, c: cellOf(p.id, 'contract-integrity') }));
+const withContract = contractRow.filter(({ c }) => c.value === 'yes' || c.value === 'partial');
+
 const link = 'text-ink-2 underline underline-offset-2 decoration-rule-strong hover:text-ink';
+const repoUrl = (repo: string, sha: string) => `https://github.com/${repo}/tree/${sha}`;
+
+const jsonLd = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: COMPARE_TITLE,
+    description: COMPARE_DESCRIPTION,
+    url: 'https://mcp-hangar.io/compare',
+    dateModified: VERIFIED_ON,
+    // Structured data describes Hangar only. What the table says about other
+    // projects stays in the table, where it carries its evidence.
+    about: {
+        '@type': 'SoftwareApplication',
+        name: 'MCP Hangar',
+        url: 'https://mcp-hangar.io',
+        applicationCategory: 'DeveloperApplication',
+        license: 'https://opensource.org/licenses/MIT',
+        softwareVersion: VERSION,
+        codeRepository: 'https://github.com/mcp-hangar/mcp-hangar',
+    },
+});
 ---
 
-<Base
-    title="Compare MCP gateways | MCP Hangar"
-    description="Which MCP gateways pin tool contracts, hold calls for approval, express MCP policy as Kubernetes objects and scope policy per tenant, with a link to the code for every claim."
-    path="/compare"
->
-    <main class="max-w-5xl mx-auto px-4 sm:px-6 py-20">
-        <h1 class="text-h1 text-ink mb-3">How Hangar compares</h1>
-        <p class="text-ink-2 max-w-3xl mb-2">
-            Buyers' tables of MCP gateways list transports, authentication and registries. They have no row for
-            the four things below. This page states, for each project, whether its code implements them, and links
-            the code. Every claim was read in source at the commit shown, not taken from a README.
-        </p>
-        <p class="text-sm text-ink-3 mb-12">
-            Last verified {VERIFIED}. Re-verified quarterly. Found a mistake?
-            <a class={link} href="https://github.com/mcp-hangar/mcp-hangar-website/issues/new">Open an issue</a>
-            and it comes off the page.
-        </p>
+<Base title={COMPARE_TITLE} description={COMPARE_DESCRIPTION} path="/compare">
+    <script is:inline type="application/ld+json" set:html={jsonLd} />
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-16 sm:py-20">
+        <header class="max-w-3xl mb-14">
+            <div class="font-mono text-xs font-semibold text-ink-3 uppercase tracking-[0.16em] mb-3">Compare</div>
+            <h1 class="text-h1 text-ink mb-5 text-balance">MCP gateways compared</h1>
+            <p class="text-ink-2 text-lg">
+                Six open-source MCP gateways and MCP Hangar, a policy enforcement plane for MCP that runs on a laptop, a VM or Kubernetes,
+                compared on fifteen rows from caller authentication to tool contract integrity.
+                Every cell links to code or docs at a pinned commit, verified on
+                <time class="font-mono" datetime={VERIFIED_ON}>{VERIFIED_ON}</time>.
+            </p>
+        </header>
 
-        <section class="mb-14">
-            <h2 class="text-lg font-semibold text-ink mb-4">What is compared</h2>
-            <dl class="grid sm:grid-cols-2 gap-x-8 gap-y-4 text-sm">
-                {CAPABILITIES.map((c) => (
-                    <div>
-                        <dt class="font-semibold text-ink">{c.label}</dt>
-                        <dd class="text-ink-2">{c.detail}</dd>
-                    </div>
-                ))}
-            </dl>
-        </section>
-
-        <section class="mb-14">
-            <h2 class="text-lg font-semibold text-ink mb-4">At a glance</h2>
-            <div class="overflow-x-auto" tabindex="0" role="region" aria-label="Capability comparison">
-                <table class="w-full text-left border-collapse text-sm">
-                    <thead>
-                        <tr class="border-b border-rule">
-                            <th class="py-2 pr-4 text-ink">Project</th>
-                            {CAPABILITIES.map((c) => <th class="py-2 pr-4 text-ink">{c.label}</th>)}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {rows.map((p) => (
-                            <tr class="border-b border-rule align-top">
-                                <th scope="row" class="py-2 pr-4 font-normal">
-                                    <a class={link} href={`https://github.com/${p.repo}/tree/${p.sha}`}>{p.name}</a>
-                                    <span class="block font-mono text-xs text-ink-3">{short(p.sha)}</span>
-                                </th>
-                                {CAPABILITIES.map((c) => {
-                                    const v = cell(p, c.key);
-                                    return (
-                                        <td class="py-2 pr-4 text-ink-2">
-                                            {v.href ? <a class={link} href={v.href}>{label[v.verdict]}</a> : label[v.verdict]}
-                                        </td>
-                                    );
-                                })}
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-            <p class="mt-3 text-sm text-ink-3">
-                Each verdict links to the code that supports it. A "No" without a link means the code was searched
-                and nothing was found; what was searched for is in the notes below.
+        <section class="max-w-3xl mb-14" aria-labelledby="method">
+            <h2 id="method" class="text-lg font-semibold text-ink mb-4">How we compared</h2>
+            <ul class="list-disc pl-6 space-y-2 text-ink-2">
+                <li>Each repository was cloned at its default branch and every cell was read at that commit. The commit is listed under the table.</li>
+                <li>Code first: a search, then the whole file, then the path from a request handler or config to the mechanism. Docs are secondary evidence, and required for any feature a vendor sells separately.</li>
+                <li>A mechanism without a path to it from a request is <span class="font-mono text-sm">partial</span>, and the note says what is missing. A row that names two things is <span class="font-mono text-sm">yes</span> only when both are there.</li>
+                <li>
+                    <span class="font-mono text-sm">no</span> means the project says so, and links where.
+                    <span class="font-mono text-sm">no evidence at &lt;sha&gt;</span> means the code at that commit was searched and nothing was found.
+                    The two are not the same claim and are never shown as one.
+                </li>
+                <li>MCP Hangar was verified the same way, from its own code at a release tag, not from its README or this site.</li>
+            </ul>
+            <p class="mt-4 text-ink-2">
+                Rows 1 to 7 are adapted from the criteria in
+                <a class={link} href={MAXIM} rel="noopener noreferrer">a vendor's comparison of open-source MCP gateways</a>;
+                no cell is taken from it. Closed-source and hosted products are not compared.
+            </p>
+            <p class="mt-4 text-ink">
+                We build MCP Hangar. Every cell links to code or docs at a pinned commit, so you can check us instead of trusting us.
             </p>
         </section>
 
-        <section class="mb-14 space-y-10">
-            <h2 class="text-lg font-semibold text-ink">Project by project</h2>
-            {rows.map((p) => (
-                <article>
-                    <h3 class="font-semibold text-ink mb-1">{p.name}</h3>
-                    <p class="font-mono text-xs text-ink-3 mb-3">{p.repo} at {p.sha}</p>
-                    <ul class="list-disc pl-6 space-y-1 text-sm text-ink-2">
-                        {CAPABILITIES.map((c) => {
-                            const v = cell(p, c.key);
-                            return (
-                                <li>
-                                    <span class="text-ink">{c.label}: {label[v.verdict]}.</span> {v.note}
-                                    {v.href && <> <a class={link} href={v.href}>Code</a></>}
-                                </li>
-                            );
-                        })}
-                    </ul>
-                    {p.stronger.length > 0 && (
-                        <>
-                            <p class="mt-3 text-sm text-ink">Where it is stronger than Hangar</p>
-                            <ul class="list-disc pl-6 space-y-1 text-sm text-ink-2">
-                                {p.stronger.map((s) => <li>{s}</li>)}
-                            </ul>
-                        </>
-                    )}
-                </article>
-            ))}
+        <section class="mb-6" aria-labelledby="legend">
+            <h2 id="legend" class="sr-only">Legend</h2>
+            <ul class="flex flex-wrap gap-x-5 gap-y-2 text-sm text-ink-2">
+                <li><span class="font-mono text-xs px-1.5 py-px rounded-sm bg-allow-tint text-allow">yes</span> in the open-source code</li>
+                <li><span class="font-mono text-xs px-1.5 py-px rounded-sm bg-subtle text-ink-2">partial</span> some of it, or no path to it</li>
+                <li><span class="font-mono text-xs px-1.5 py-px rounded-sm bg-subtle text-ink-2">enterprise</span> enterprise edition, per the vendor</li>
+                <li><span class="font-mono text-xs px-1.5 py-px rounded-sm bg-deny-tint text-deny">no</span> stated by the project</li>
+                <li><span class="font-mono text-xs px-1.5 py-px rounded-sm bg-subtle text-ink-2">no evidence at &lt;sha&gt;</span> searched, not found</li>
+                <li><span class="font-mono text-xs px-1.5 py-px rounded-sm bg-subtle text-ink-2">no, by design</span> a stated non-goal</li>
+            </ul>
         </section>
 
-        <section>
-            <h2 class="text-lg font-semibold text-ink mb-3">Where Hangar is weaker</h2>
-            <ul class="list-disc pl-6 space-y-1 text-sm text-ink-2">
-                <li>Drift is one verdict. pipelock tells a description-only change from a structural one and names the cue that triggered it; Hangar withholds the tool and reports digest_drift.</li>
-                <li>Ecosystem and first contact. ToolHive ships a large catalog and standalone quickstarts on two paths; Hangar has one local quickstart and one cluster path.</li>
-                <li>Throughput. Hangar is a Python control point; agentgateway is a Rust data plane built for traffic volume across MCP, A2A and LLM calls.</li>
-                <li>Gateway-native integration. Kuadrant and agentgateway plug into Gateway API and Envoy policy you may already run; Hangar brings its own CRDs and operator.</li>
+        <section class="mb-16" aria-labelledby="table-heading">
+            <h2 id="table-heading" class="sr-only">Comparison table</h2>
+            <div class="compare-scroll overflow-x-auto border border-rule rounded-sm" tabindex="0" role="region" aria-labelledby="table-caption">
+                <table class="compare text-left border-collapse text-sm">
+                    <caption id="table-caption" class="text-left text-sm text-ink-3 px-3 py-2 caption-top">
+                        Fifteen rows, seven projects. Open a value to read its note; the arrows link the evidence.
+                    </caption>
+                    <thead>
+                        <tr class="border-b border-rule-strong">
+                            <th scope="col" class="rowhead sticky left-0 z-20 bg-panel px-3 py-3 text-ink align-bottom">Row</th>
+                            {PRODUCTS.map((p) => (
+                                <th scope="col" class="px-2 py-3 text-ink align-bottom font-semibold">
+                                    {p.name}
+                                    <span class="block font-mono text-xs font-normal text-ink-3">{p.license}</span>
+                                </th>
+                            ))}
+                        </tr>
+                    </thead>
+                    {GROUPS.map((g) => (
+                        <tbody>
+                            <tr class="border-b border-rule bg-subtle">
+                                <th scope="rowgroup" colspan={PRODUCTS.length + 1} class="px-3 py-2 text-left font-normal">
+                                    <span class="sticky left-3 font-mono text-xs uppercase tracking-[0.12em] text-ink-3">
+                                        {g.id}. {g.label}
+                                    </span>
+                                </th>
+                            </tr>
+                            {g.rows.map(([id, label]) => (
+                                <tr class="border-b border-rule align-top">
+                                    <th scope="row" class="rowhead sticky left-0 z-10 bg-ground px-3 py-3 font-medium text-ink">{label}</th>
+                                    {PRODUCTS.map((p) => {
+                                        const c = cellOf(p.id, id);
+                                        return (
+                                            <td class="px-2 py-3" data-product={p.id} data-row={id} data-value={c.value}>
+                                                <div class="flex flex-wrap items-start gap-0.5">
+                                                    <details class="cell">
+                                                        <summary class={`font-mono text-xs px-1.5 py-px rounded-sm cursor-pointer whitespace-nowrap ${tone(c)}`}>
+                                                            {c.value === 'not-found' ? (
+                                                                // Two short lines instead of one long one: the
+                                                                // words stay "no evidence at <sha>" as text.
+                                                                pinsOf(p).map((r, i) => (
+                                                                    <span class="block">
+                                                                        {i === 0 ? 'no evidence ' : ''}
+                                                                        {i === 0 ? <br /> : null}
+                                                                        {i === 0 ? 'at ' : '+ '}{short(r.sha)}
+                                                                    </span>
+                                                                ))
+                                                            ) : (
+                                                                valueLabel(c, p)
+                                                            )}
+                                                        </summary>
+                                                        <p class="mt-2 text-xs text-ink-2">{c.note}</p>
+                                                    </details>
+                                                    {c.evidence.map((e, i) => (
+                                                        <a
+                                                            class="ev shrink-0 text-ink-3 hover:text-ink"
+                                                            href={e.url}
+                                                            rel="noopener noreferrer"
+                                                            aria-label={`Evidence ${i + 1} (${e.kind}) for ${p.name}, ${label}`}
+                                                            title={`${e.kind}: ${e.url}`}
+                                                        >
+                                                            <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5">
+                                                                <path d="M6 3h7v7M13 3 4 12" />
+                                                            </svg>
+                                                        </a>
+                                                    ))}
+                                                </div>
+                                            </td>
+                                        );
+                                    })}
+                                </tr>
+                            ))}
+                        </tbody>
+                    ))}
+                </table>
+            </div>
+        </section>
+
+        <section class="max-w-3xl mb-14" aria-labelledby="wrong-choice">
+            <h2 id="wrong-choice" class="text-lg font-semibold text-ink mb-4">Where Hangar is the wrong choice</h2>
+            <p class="text-ink-2 mb-4">
+                Hangar decides what happens to a tool call. It does not route model traffic, it reads the MCP
+                client configs on one machine but keeps no inventory across a fleet of them, and its server list
+                is a short CLI list, not a catalog to browse. If one of those is the job, or the platform around
+                it is already chosen, these fit better:
+            </p>
+            <ul class="list-disc pl-6 space-y-2 text-ink-2">
+                <li><span class="text-ink">LLM routing, provider failover and model budgets:</span> Bifrost, which is an LLM gateway with MCP built in.</li>
+                <li><span class="text-ink">An inventory of the MCP servers on every developer's machine:</span> Obot, whose Sentry agent reports them to the server.</li>
+                <li><span class="text-ink">Isolating MCP servers on a developer machine:</span> Docker MCP Gateway, which runs each server in its own container.</li>
+                <li><span class="text-ink">Federating REST and gRPC services as MCP tools:</span> ContextForge.</li>
+                <li><span class="text-ink">An Azure and Entra ID estate:</span> Microsoft MCP Gateway.</li>
+                <li><span class="text-ink">A cluster already run on Envoy, Gateway API or Istio:</span> Kuadrant MCP Gateway, which plugs into the policy you have.</li>
             </ul>
+        </section>
+
+        <section class="max-w-3xl mb-14" aria-labelledby="empty-row">
+            <h2 id="empty-row" class="text-lg font-semibold text-ink mb-4">The empty row</h2>
+            <p class="text-ink-2">
+                Tool contract integrity is a digest over a tool's name, description and schemas, recorded when the
+                tool is approved and checked when it is called. A pinned tool whose definition changes after you said
+                yes to it is refused or withheld, not served.
+                {withContract.length === 0
+                    ? ` At the commits above, the code of the other ${OTHERS.length} projects shows no evidence of one.`
+                    : ` At the commits above, ${withContract.map(({ p, c }) => `${p.name} (${c.value})`).join(', ')} ${withContract.length === 1 ? 'has' : 'have'} part or all of it; the other projects show no evidence of it.`}
+                {' '}<a class={link} href="/learn/digest-pinning">How digest pinning works</a> and the
+                {' '}<a class={link} href="/security/cve-ledger">MCP CVE ledger</a> show why it matters.
+            </p>
+        </section>
+
+        <section class="mb-6" aria-labelledby="verified">
+            <h2 id="verified" class="text-lg font-semibold text-ink mb-4">What was verified, and when</h2>
+            <div class="overflow-x-auto">
+                <table class="text-left text-sm border-collapse">
+                    <thead>
+                        <tr class="border-b border-rule-strong">
+                            <th scope="col" class="py-2 pr-6 text-ink">Project</th>
+                            <th scope="col" class="py-2 pr-6 text-ink">Repository</th>
+                            <th scope="col" class="py-2 pr-6 text-ink">Commit</th>
+                            <th scope="col" class="py-2 pr-6 text-ink">Verified</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {PRODUCTS.flatMap((p) =>
+                            pinsOf(p).map((r, i) => (
+                                <tr class="border-b border-rule">
+                                    <th scope="row" class="py-2 pr-6 font-normal text-ink">{i === 0 ? p.name : ''}</th>
+                                    <td class="py-2 pr-6 font-mono text-xs"><a class={link} href={repoUrl(r.repo, r.sha)}>{r.repo}</a></td>
+                                    <td class="py-2 pr-6 font-mono text-xs text-ink-2">
+                                        verified at {short(r.sha)}{r.version && <span class="text-ink-3"> ({r.version})</span>}
+                                    </td>
+                                    <td class="py-2 pr-6 font-mono text-xs text-ink-2"><time datetime={p.verifiedAt}>{p.verifiedAt}</time></td>
+                                </tr>
+                            ))
+                        )}
+                    </tbody>
+                </table>
+            </div>
+            <p class="mt-4 text-sm text-ink-3">
+                Found an error? <a class={link} href={ISSUES}>Open an issue</a> with the cell and a link, and it is
+                re-read at the project's current commit. The same table is in
+                <a class={link} href="/compare.md">markdown</a>.
+            </p>
         </section>
     </main>
 </Base>
+
+<style>
+    .compare { width: 100%; min-width: 64rem; }
+    .compare .rowhead { width: 11rem; min-width: 11rem; }
+    .compare td { min-width: 8rem; }
+    /* The sticky column needs a rule of its own: a border-collapse edge
+       scrolls away with the cell beside it. */
+    .compare .rowhead { box-shadow: inset -1px 0 0 var(--c-rule); }
+    .cell > summary { list-style: none; display: inline-block; }
+    .cell > summary::-webkit-details-marker { display: none; }
+    .cell[open] > summary { outline: 1px solid var(--c-rule-strong); }
+    /* A 24px target around a 12px mark (WCAG 2.5.8): three links in a cell
+       sit side by side, so each needs the room on its own. */
+    .ev { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; margin-top: -4px; }
+    @media (max-width: 640px) {
+        .compare .rowhead { width: 9rem; min-width: 9rem; }
+    }
+</style>

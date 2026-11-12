@@ -221,3 +221,11 @@ export function docsCard(opts: { title: string; subpath?: string }) {
     opts.subpath ? mono(opts.subpath) : undefined
   );
 }
+
+/**
+ * /compare: the lockup, the claim and the method. No other project's logo or
+ * mark, only the words; the page names them in text and so does nothing else.
+ */
+export function compareCard(opts: { title: string; note: string }) {
+  return shell([eyebrow("compare"), title(opts.title)], mono(opts.note));
+}

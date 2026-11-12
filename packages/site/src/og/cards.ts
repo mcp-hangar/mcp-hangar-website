@@ -16,7 +16,8 @@ export type CardProps =
   | { kind: "blog"; title: string; date?: string; advisory?: boolean }
   | { kind: "security"; title: string; note?: string }
   | { kind: "learn"; title: string }
-  | { kind: "docs"; title: string; subpath?: string };
+  | { kind: "docs"; title: string; subpath?: string }
+  | { kind: "compare"; title: string; note: string };
 
 /** `slug` is both the card's path under /og/ and the page it belongs to. */
 export type Card = { slug: string; page: string; props: CardProps };
@@ -84,7 +85,11 @@ export async function ogCards(): Promise<Card[]> {
     {
       slug: "compare",
       page: "/compare",
-      props: { kind: "docs", title: "How Hangar compares" },
+      props: {
+        kind: "compare",
+        title: "MCP gateways compared, evidence pinned to commits",
+        note: "7 projects · 15 rows · every cell linked",
+      },
     },
   ];
 

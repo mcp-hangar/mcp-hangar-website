@@ -9,6 +9,7 @@ import {
   VERDICT_PATH_FACT,
 } from "../lib/product-facts";
 import { DESCRIPTION, VERSION } from "../config";
+import { COMPARE_DESCRIPTION, COMPARE_TITLE } from "../lib/compare-markdown";
 
 const SITE = "https://mcp-hangar.io";
 
@@ -155,6 +156,10 @@ ${integrations}
 ## Other
 
 ${standalone}
+
+## Comparison
+
+- [${COMPARE_TITLE}](${SITE}/compare.md) — ${COMPARE_DESCRIPTION}
 
 ## Learn
 

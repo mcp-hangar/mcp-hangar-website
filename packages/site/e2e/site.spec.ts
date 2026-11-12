@@ -141,3 +141,41 @@ test("the nav marks the section the reader is in", async ({ page }) => {
     "page"
   );
 });
+
+// /compare is read by people on phones and by things that never run JS. The
+// table scrolls inside its own region with the row labels pinned, and every
+// value and note is in the markup before any script runs.
+test("the comparison table scrolls on a phone with its row labels pinned", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/compare");
+  const region = page.getByRole("region", { name: /Fifteen rows/ });
+  const label = page.getByRole("rowheader", {
+    name: "Tool contract integrity",
+  });
+  const before = await label.boundingBox();
+  await region.evaluate((el) => el.scrollBy({ left: 400 }));
+  await expect
+    .poll(() => region.evaluate((el) => el.scrollLeft))
+    .toBeGreaterThan(0);
+  const after = await label.boundingBox();
+  expect(after?.x).toBe(before?.x);
+});
+
+test.describe("the comparison page with JavaScript off", () => {
+  test.use({ javaScriptEnabled: false });
+  test("still carries every value and note", async ({ page }) => {
+    await page.goto("/compare");
+    const cells = page.locator("table.compare td");
+    await expect(cells).toHaveCount(105);
+    await page
+      .locator("table.compare details")
+      .first()
+      .locator("summary")
+      .click();
+    await expect(
+      page.locator("table.compare details[open] p").first()
+    ).toBeVisible();
+  });
+});
