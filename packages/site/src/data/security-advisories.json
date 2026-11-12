@@ -3,6 +3,16 @@
   "state": "published",
   "advisories": [
     {
+      "ghsaId": "GHSA-624f-g334-j7x2",
+      "cveId": null,
+      "severity": "low",
+      "summary": "A standalone gateway with durable storage never deregisters a discovered server, and keeps routing to its old address",
+      "publishedAt": "2026-11-11",
+      "affectedVersions": ">= 2.34.2, <= 2.36.3",
+      "patchedVersions": "2.36.4",
+      "url": "https://github.com/mcp-hangar/mcp-hangar/security/advisories/GHSA-624f-g334-j7x2"
+    },
+    {
       "ghsaId": "GHSA-cfcx-vrqr-qr84",
       "cveId": null,
       "severity": "high",
