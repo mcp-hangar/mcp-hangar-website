@@ -2,7 +2,7 @@
 import Button from "../Button.astro";
 import CopyCommand from "../CopyCommand.astro";
 import Record from "../Record.astro";
-import { HEADLINE, HERO_SUB, INSTALL_COMMAND, LINKS, VERSION_TAG } from "../../config";
+import { HEADLINE, HERO_SUB, INSTALL_COMMAND, VERSION_TAG } from "../../config";
 import { HERO_RECORD } from "../../lib/home-records";
 
 /**
@@ -25,8 +25,7 @@ import { HERO_RECORD } from "../../lib/home-records";
       <p class="text-lead text-ink-2 max-w-[38rem] mb-4">{HERO_SUB}</p>
       <p class="text-sm text-ink-3 mb-8">Deterministic — no ML. Self-hosted — no SaaS. MIT.</p>
       <div class="flex flex-wrap items-center gap-3 mb-4">
-        <Button href={LINKS.ossQuickstart} variant="primary">Start the quickstart</Button>
-        <Button href="#how-a-call-is-decided" variant="secondary">See how it works</Button>
+        <Button href="#how-a-call-is-decided" variant="primary">See how it works</Button>
       </div>
       <CopyCommand command={INSTALL_COMMAND} label="Copy pip install command to clipboard" />
     </div>
