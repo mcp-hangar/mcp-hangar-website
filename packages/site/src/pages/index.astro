@@ -3,20 +3,16 @@ import Base from '../layouts/Base.astro';
 import { BRAND, CATEGORY, DESCRIPTION } from '../config';
 
 import HomeHero from '../components/sections/HomeHero.astro';
+import UseCases from '../components/sections/UseCases.astro';
 import HowDecided from '../components/sections/HowDecided.astro';
 import Proof from '../components/sections/Proof.astro';
 import Start from '../components/sections/Start.astro';
 ---
 
 <Base title={`${BRAND} | ${CATEGORY}`} description={DESCRIPTION} path="/">
-    <!--
-        Four sections: the verdict, how it is reached, what it leaves behind,
-        and where to start. Each of the middle two ends with the record its
-        mechanism produces. Anything that needs more than a screen lives in
-        /learn or /docs and is linked from here.
-    -->
     <main>
         <HomeHero />
+        <UseCases />
         <HowDecided />
         <Proof />
         <Start />

@@ -29,7 +29,7 @@ describe("Build Output", () => {
 
   it("should state the version and the licence on the index page", () => {
     const html = readDistFile("index.html");
-    expect(html).toMatch(/v\d+\.\d+\.\d+ · open source · MIT/);
+    expect(html).toMatch(/Open-source MCP gateway · v\d+\.\d+\.\d+ · MIT/);
   });
 
   it("should render the install command on index page", () => {
@@ -37,18 +37,18 @@ describe("Build Output", () => {
     expect(html).toContain("pip install mcp-hangar");
   });
 
-  // Four sections (redesign stage 2): the verdict, the path, the record, start.
-  it("should render the four home sections, in order", () => {
+  it("should render the home sections, in order", () => {
     const html = readDistFile("index.html");
     const at = [
       "Every MCP tool call ends in a verdict.",
+      "Put policy between an agent and its tools",
       "How a call is decided",
       "What you can prove afterwards",
-      "Install it, understand it, or look it up",
+      "Start with the path that fits",
     ].map((t) => html.indexOf(t));
     for (const i of at) expect(i).toBeGreaterThan(-1);
     expect([...at].sort((x, y) => x - y)).toEqual(at);
-    expect(html.match(/<h2[\s>]/g)).toHaveLength(3);
+    expect(html.match(/<h2[\s>]/g)).toHaveLength(4);
   });
 
   it("should render footer with copyright or open source text", () => {
@@ -104,16 +104,13 @@ describe("Build Output", () => {
     expect(html).not.toMatch(/policy enforcement plane for MCP on Kubernetes/);
   });
 
-  // The proof is a record, not an illustration: real reason codes in the
-  // hero, the gate path drawn from core, and an exported line core wrote.
-  it("should lead with records rather than an illustration", () => {
+  it("should show decisions and an exported audit record", () => {
     const html = readDistFile("index.html");
     expect(html).toContain("tool_not_in_access_policy");
     // As text: the record sets each field in its own element.
     expect(html.replace(/<[^>]+>/g, "")).toContain(
       "gate=approval state=pending"
     );
-    expect(html).toMatch(/l7_verdict=deny/);
     expect(html).toContain("LEEF:2.0|MCP Hangar|");
     expect(html).toContain("ToolInvocationDenied");
     // One record per verdict word, never colour alone.

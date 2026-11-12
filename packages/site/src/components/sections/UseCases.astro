@@ -1,0 +1,43 @@
+---
+const cases = [
+  {
+    title: "Pin the tool contract",
+    text: "Refuse a call if a tool's description or schema changes after you approved it.",
+    href: "/learn/detect-and-block-mcp-tool-rug-pulls",
+    link: "See tool pinning",
+  },
+  {
+    title: "Require human approval",
+    text: "Hold selected calls until a person approves or denies them.",
+    href: "/learn/require-human-approval-for-mcp-tool-calls",
+    link: "See approvals",
+  },
+  {
+    title: "Control server egress",
+    text: "On Kubernetes, set where a server can connect and which tool calls can leave.",
+    href: "/learn/control-mcp-server-egress-on-kubernetes",
+    link: "See egress policy",
+  },
+];
+---
+
+<section class="border-t border-rule" aria-labelledby="use-cases-title">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-16 md:py-24">
+    <header class="max-w-2xl mb-10">
+      <p class="font-mono text-xs text-ink-3 mb-3">What you can do</p>
+      <h2 id="use-cases-title" class="text-h2 text-ink">Put policy between an agent and its tools</h2>
+    </header>
+
+    <ul class="grid gap-8 md:grid-cols-3">
+      {cases.map((item) => (
+        <li class="border-t border-rule-strong pt-5">
+          <h3 class="text-xl font-semibold text-ink mb-3">{item.title}</h3>
+          <p class="text-ink-2 mb-4">{item.text}</p>
+          <a href={item.href} class="font-semibold text-ink underline underline-offset-4 decoration-rule-strong hover:decoration-ink">
+            {item.link} <span aria-hidden="true">&rarr;</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
