@@ -50,11 +50,13 @@ const { leef, jsonl } = core.record;
 
     <figure class="min-w-0 max-w-5xl">
       <p class="font-mono text-xs text-ink-3 mb-3">the refused delete_repository, as your SIEM receives it</p>
-      <div class="export" tabindex="0" role="region" aria-label="One refusal, exported as LEEF 2.0 and as JSON lines">
-        <p class="export-label">LEEF 2.0</p>
-        <pre><code>{leef}</code></pre>
+      <div class="export" role="region" aria-label="One refusal, exported as JSON lines and LEEF 2.0">
         <p class="export-label">JSON lines</p>
         <pre><code>{jsonl}</code></pre>
+        <details>
+          <summary>View the same refusal as LEEF 2.0</summary>
+          <pre><code>{leef}</code></pre>
+        </details>
       </div>
       <figcaption class="mt-3 text-sm text-ink-3">
         Written by core {CORE.tag}'s own audit handler and exporters from one <code class="font-mono"
@@ -77,10 +79,6 @@ const { leef, jsonl } = core.record;
     border-radius: 6px;
     overflow-x: auto;
   }
-  .export:focus-visible {
-    outline: 2px solid var(--c-ink);
-    outline-offset: 2px;
-  }
   .export-label {
     margin: 0;
     padding: 0.4rem 0.9rem;
@@ -92,8 +90,22 @@ const { leef, jsonl } = core.record;
     background: var(--c-subtle);
     border-bottom: 1px solid var(--c-rule);
   }
-  .export-label + pre + .export-label {
+  details {
     border-top: 1px solid var(--c-rule);
+  }
+  summary {
+    padding: 0.7rem 0.9rem;
+    color: var(--c-ink-2);
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+  summary:hover {
+    color: var(--c-ink);
+  }
+  summary:focus-visible {
+    outline: 2px solid var(--c-ink);
+    outline-offset: -2px;
   }
   pre {
     margin: 0;
