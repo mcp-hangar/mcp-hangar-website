@@ -84,7 +84,7 @@ const jsonLd = JSON.stringify({
             <h2 id="method" class="text-lg font-semibold text-ink mb-4">How we compared</h2>
             <ul class="list-disc pl-6 space-y-2 text-ink-2">
                 <li>Each repository was cloned at its default branch and every cell was read at that commit. The commit is listed under the table.</li>
-                <li>Code first: a search, then the whole file, then the path from a request handler or config to the mechanism. Docs are secondary evidence, and the only evidence for a feature a vendor sells separately.</li>
+                <li>Code first: a search, then the whole file, then the path from a request handler or config to the mechanism. Docs are secondary evidence, and required for any feature a vendor sells separately.</li>
                 <li>A mechanism without a path to it from a request is <span class="font-mono text-sm">partial</span>, and the note says what is missing.</li>
                 <li>
                     <span class="font-mono text-sm">no</span> means the project says so, and links where.
@@ -215,10 +215,10 @@ const jsonLd = JSON.stringify({
             <h2 id="empty-row" class="text-lg font-semibold text-ink mb-4">The empty row</h2>
             <p class="text-ink-2">
                 Tool contract integrity is a digest over a tool's name, description and schemas, recorded when the
-                tool is approved and checked on every call, so a server cannot change what a tool says or takes after
-                you said yes to it.
+                tool is approved and checked when it is called. A pinned tool whose definition changes after you said
+                yes to it is refused or withheld, not served.
                 {withContract.length === 0
-                    ? ` At the commits above, none of the other ${OTHERS.length} projects pins one.`
+                    ? ` At the commits above, the code of the other ${OTHERS.length} projects shows no evidence of one.`
                     : ` At the commits above, ${withContract.map(({ p, c }) => `${p.name} (${c.value})`).join(', ')} ${withContract.length === 1 ? 'has' : 'have'} part or all of it; the other projects show no evidence of it.`}
                 {' '}<a class={link} href="/learn/digest-pinning">How digest pinning works</a> and the
                 {' '}<a class={link} href="/security/cve-ledger">MCP CVE ledger</a> show why it matters.
