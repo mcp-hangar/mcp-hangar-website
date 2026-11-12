@@ -80,12 +80,16 @@ export const INSTALL_COMMANDS = {
  * Kubernetes is one deployment path (the operator), not the premise: core is
  * a Python package that runs over stdio on a laptop or over HTTP on a VM.
  *
+ * "Policy enforcement plane", not "gateway": the gateways it is compared
+ * with on /compare route traffic; Hangar decides what a tool call is allowed
+ * to do. "Gateway" stays a search keyword, not the self-description.
+ *
  * Brand: "MCP Hangar" in prose and titles; `mcp-hangar` only for the package
  * and the command. The hero says "Hangar" because the h1 above it already
  * carries "MCP" and the nav carries the full name.
  */
 const ROLE =
-  "the MCP gateway that pins every tool, holds risky calls for approval, and enforces egress policy.";
+  "a policy enforcement plane for MCP: it pins every tool, holds risky calls for approval, and enforces egress policy.";
 const RUNS_ON = "Runs on a laptop, a VM, or Kubernetes.";
 
 export const BRAND = "MCP Hangar";
@@ -100,4 +104,4 @@ export const HERO_SUB = `Hangar is ${ROLE} ${RUNS_ON}`;
 export const DESCRIPTION = `${BRAND} is ${ROLE} ${RUNS_ON}`;
 
 /** The category in a few words: <title>, the OG eyebrow, the footer. */
-export const CATEGORY = "MCP gateway with tool pinning and approvals";
+export const CATEGORY = "Policy enforcement plane for MCP";
