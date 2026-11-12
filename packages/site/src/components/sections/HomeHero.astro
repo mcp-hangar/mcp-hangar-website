@@ -17,14 +17,30 @@ import { HEADLINE, HERO_SUB, INSTALL_COMMAND, VERSION_TAG } from "../../config";
       </div>
     </div>
 
-    <div class="border border-rule bg-panel rounded-sm p-5 sm:p-6">
-      <p class="font-mono text-xs text-ink-3 mb-3">Where Hangar sits</p>
-      <ol aria-label="A tool call's path" class="flex flex-wrap items-center gap-x-2 gap-y-2 text-sm">
-        <li class="border border-rule rounded-sm px-3 py-2 text-ink-2">MCP client</li>
-        <li aria-hidden="true" class="text-ink-3">&rarr;</li>
-        <li class="border border-rule-strong bg-panel rounded-sm px-3 py-2 font-semibold text-ink">MCP Hangar</li>
-        <li aria-hidden="true" class="text-ink-3">&rarr;</li>
-        <li class="border border-rule rounded-sm px-3 py-2 text-ink-2">MCP server</li>
+    <div class="border border-rule bg-panel rounded-sm p-5 sm:p-8">
+      <p class="font-mono text-xs text-ink-3 mb-6">Where Hangar sits</p>
+      <ol aria-label="A tool call's path" class="space-y-0">
+        <li class="grid grid-cols-[2rem_1fr] gap-3">
+          <span class="font-mono text-xs text-ink-3 pt-1" aria-hidden="true">01</span>
+          <div class="border-l border-rule-strong pl-5 pb-6">
+            <p class="font-semibold text-ink">MCP client</p>
+            <p class="text-sm text-ink-3 mt-1">Requests a tool call</p>
+          </div>
+        </li>
+        <li class="grid grid-cols-[2rem_1fr] gap-3">
+          <span class="font-mono text-xs text-ink-3 pt-1" aria-hidden="true">02</span>
+          <div class="border-l-2 border-ink pl-5 pb-6">
+            <p class="font-display font-extrabold text-xl text-ink">MCP Hangar</p>
+            <p class="text-sm text-ink-2 mt-1">Checks the call against your policy and records the decision.</p>
+          </div>
+        </li>
+        <li class="grid grid-cols-[2rem_1fr] gap-3">
+          <span class="font-mono text-xs text-ink-3 pt-1" aria-hidden="true">03</span>
+          <div class="border-l border-rule-strong pl-5">
+            <p class="font-semibold text-ink">MCP server</p>
+            <p class="text-sm text-ink-3 mt-1">Receives calls that are allowed to proceed</p>
+          </div>
+        </li>
       </ol>
     </div>
   </div>
